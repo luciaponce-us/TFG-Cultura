@@ -29,10 +29,14 @@ jobs:
             key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
             restore-keys: |
               ${{ runner.os }}-maven-
-          
+
+        - name: Make mvnw executable
+          run: chmod +x mvnw
+          working-directory: backend
+
         - name: Build y análisis SpotBugs
           working-directory: ./backend
-          run: mvn verify spotbugs:check --no-transfer-progress
+          run: ./mvnw verify spotbugs:check --no-transfer-progress
 
         - name: Upload informe SpotBugs
           uses: actions/upload-artifact@v4
