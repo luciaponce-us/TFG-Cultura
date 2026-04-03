@@ -5,5 +5,6 @@ COPY backend/mvnw backend/pom.xml ./
 RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 COPY backend/src ./src
+RUN ./mvnw -DskipTests package
 EXPOSE 8080
-CMD ["./mvnw", "spring-boot:run"]
+CMD ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar target/*.jar"]
