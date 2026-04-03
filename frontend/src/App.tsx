@@ -4,7 +4,7 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
-import { fetchDummyData } from './service/DummyService'
+import { fetchDummyData, fetchMongoData } from './service/DummyService'
 
 function Home() {
   const [count, setCount] = useState(0)
@@ -16,6 +16,13 @@ function Home() {
         })
         .catch((error) => {
           console.error('Error fetching dummy data:', error);
+        });
+      fetchMongoData()
+        .then((data) => {
+          console.log('MongoDB data fetched from backend:', data);
+        })
+        .catch((error) => {
+          console.error('Error fetching MongoDB data:', error);
         });
   }, [])
 
