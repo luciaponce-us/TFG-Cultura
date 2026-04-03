@@ -1,0 +1,15 @@
+.git
+.github
+README.md
+**/.DS_Store
+**/.idea
+**/.vscode
+**/node_modules
+**/dist
+**/build
+**/coverage
+backend/target
+frontend/dist
+frontend/build
+frontend/coverage
+frontend/node_modules

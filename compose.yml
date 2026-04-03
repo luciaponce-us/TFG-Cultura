@@ -13,7 +13,9 @@ services:
       - mongo_data:/data/db
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: tfg-backend
     ports:
       - "8080:8080"
