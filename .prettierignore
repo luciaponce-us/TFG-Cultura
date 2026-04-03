@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Frontend build outputs
+dist/
+build/
+coverage/
+frontend/dist/
+frontend/build/
+frontend/coverage/
+frontend/.vite/
+
+# Backend build outputs
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Logs and temp
+*.log
+logs/
+tmp/
+temp/
+
+# OS / editor artifacts
+.DS_Store
+.idea/
+.vscode/
