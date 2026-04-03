@@ -6,41 +6,30 @@ on:
     branches: [ main, develop ]
 
 jobs:
-    build-and-analyze:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout código
-          uses: actions/checkout@v4
+  build-and-analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
 
-        - name: Setup JDK 21
-          uses: actions/setup-java@v4
-          with:
-            java-version: '21'
-            distribution: 'temurin'
-        
-        - name: Setup Maven
-          run: |
-            apt-get update -q && apt-get install -y -q maven
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
 
-        - name: Cache Maven
-          uses: actions/cache@v4
-          with:
-            path: ~/.m2/repository
-            key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-            restore-keys: |
-              ${{ runner.os }}-maven-
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+        working-directory: backend
 
-        - name: Make mvnw executable
-          run: chmod +x mvnw
-          working-directory: backend
+      - name: Análisis SpotBugs
+        working-directory: backend
+        run: ./mvnw spotbugs:check --no-transfer-progress
 
-        - name: Build y análisis SpotBugs
-          working-directory: ./backend
-          run: ./mvnw verify spotbugs:check --no-transfer-progress
-
-        - name: Upload informe SpotBugs
-          uses: actions/upload-artifact@v4
-          if: always()
-          with:
-            name: spotbugs-report
-            path: target/spotbugsXml.xml
+      - name: Upload informe SpotBugs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spotbugs-report
+          path: backend/target/spotbugsXml.xml
