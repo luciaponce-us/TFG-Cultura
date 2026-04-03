@@ -9,7 +9,7 @@ export const fetchDummyData = async (): Promise<string> => {
     const data = await response.text();
     return data;
   } catch (error) {
-    console.error('Error fetching dummy data:', error);
+    console.error("Error fetching dummy data:", error);
     throw error;
   }
 };
