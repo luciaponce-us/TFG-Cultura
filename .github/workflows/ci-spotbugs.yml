@@ -1,0 +1,42 @@
+name: SpotBugs CI
+
+on:
+  push:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+    build-and-analyze:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout código
+          uses: actions/checkout@v4
+
+        - name: Setup JDK 21
+          uses: actions/setup-java@v4
+          with:
+            java-version: '21'
+            distribution: 'temurin'
+        
+        - name: Setup Maven
+          run: |
+            apt-get update -q && apt-get install -y -q maven
+
+        - name: Cache Maven
+          uses: actions/cache@v4
+          with:
+            path: ~/.m2/repository
+            key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+            restore-keys: |
+              ${{ runner.os }}-maven-
+          
+        - name: Build y análisis SpotBugs
+          working-directory: ./backend
+          run: mvn verify spotbugs:check --no-transfer-progress
+
+        - name: Upload informe SpotBugs
+          uses: actions/upload-artifact@v4
+          if: always()
+          with:
+            name: spotbugs-report
+            path: target/spotbugsXml.xml
