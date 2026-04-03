@@ -17,10 +17,7 @@ jobs:
           with:
             java-version: '21'
             distribution: 'temurin'
-        
-        - name: Setup Maven
-          run: |
-            apt-get update -q && apt-get install -y -q maven
+            cache: maven
 
         - name: Cache Maven y SonarCloud
           uses: actions/cache@v4
