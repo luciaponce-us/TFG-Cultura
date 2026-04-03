@@ -1,0 +1,37 @@
+name: Checkstyle Backend CI
+
+on:
+  push:
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  checkstyle:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2
+        
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+        working-directory: backend
+
+      - name: Run Checkstyle
+        run: ./mvnw clean verify
