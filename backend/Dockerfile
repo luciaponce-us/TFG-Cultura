@@ -10,9 +10,9 @@ RUN ./mvnw -B dependency:go-offline
 
 COPY backend/src ./src
 
-RUN ./mvnw -B -DskipTests package
+RUN ./mvnw -B -Dmaven.test.skip=true package
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar

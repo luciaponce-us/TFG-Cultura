@@ -16,6 +16,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      target: build
     container_name: tfg-backend
     ports:
       - "8080:8080"
@@ -28,7 +29,7 @@ services:
       SPRING_DEVTOOLS_RESTART_ENABLED: true
     volumes:
       - ./backend:/app
-      - ./backend/target:/app/target
+      - backend_m2_cache:/root/.m2
     command: ./mvnw spring-boot:run
     depends_on:
       - mongo
@@ -50,3 +51,4 @@ services:
 
 volumes:
   mongo_data:
+  backend_m2_cache:
