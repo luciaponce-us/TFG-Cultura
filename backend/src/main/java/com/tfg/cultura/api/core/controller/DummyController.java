@@ -1,4 +1,4 @@
-package com.tfg.cultura.api;
+package com.tfg.cultura.api.core.controller;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -24,11 +24,17 @@ public class SecurityConfig {
         http
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/api", "/api/").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/dummy", "/api/dummy/**").permitAll()
                 .requestMatchers(
-                "/v3/api-docs/**",    // Documentación en formato JSON
-                "/swagger-ui/**",      // Recursos de la interfaz (JS, CSS)
-                "/swagger-ui.html"     // Página principal de Swagger
+                // Swagger and API docs
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/api/docs",
+                    "/docs/**",
+                    "/api/docs/**",
+                    "/api/swagger-ui/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

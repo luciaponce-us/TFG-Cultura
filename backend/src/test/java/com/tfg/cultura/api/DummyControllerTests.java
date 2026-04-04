@@ -5,6 +5,7 @@ import org.bson.Document;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
+import com.tfg.cultura.api.core.controller.DummyController;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
