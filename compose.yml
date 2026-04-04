@@ -27,6 +27,7 @@ services:
       SPRING_MONGODB_URI: ${MONGO_URI:-mongodb://root:root@mongo:27017/mydatabase?authSource=admin}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
       SPRING_DEVTOOLS_RESTART_ENABLED: true
+      LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT:-DEBUG}
     volumes:
       - ./backend:/app
       - backend_m2_cache:/root/.m2

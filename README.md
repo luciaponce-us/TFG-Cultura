@@ -42,3 +42,15 @@ http://localhost:8080
 docker exec -it mongo-local mongosh -u root -p root --authenticationDatabase admin
 `
     - 🧭 Conexión con MongoDB Compass: [mongodb://root:root@localhost:27018/?authSource=admin](mongodb://root:root@localhost:27018/?authSource=admin)
+
+## Licencia
+
+Este proyecto está bajo la licencia **CC BY-NC 4.0**.
+
+Puedes usarlo y modificarlo siempre que:
+- Des crédito a la autora.
+- No lo uses con fines comerciales.
+
+Autora: Lucía Ponce García de Sola
+
+Puedes ver más detalles en el archivo [LICENSE](./LICENSE).
