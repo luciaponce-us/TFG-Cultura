@@ -1,30 +1,30 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
-import { Route, Routes } from 'react-router-dom'
-import { fetchDummyData, fetchMongoData } from './service/DummyService'
+import { useEffect, useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "./assets/vite.svg";
+import heroImg from "./assets/hero.png";
+import "./App.css";
+import { Route, Routes } from "react-router-dom";
+import { fetchDummyData, fetchMongoData } from "./service/DummyService";
 
 function Home() {
-  const [count, setCount] = useState(0)
-  
+  const [count, setCount] = useState(0);
+
   useEffect(() => {
-      fetchDummyData()
-        .then((data) => {
-          console.log('Dummy data fetched from backend:', data);
-        })
-        .catch((error) => {
-          console.error('Error fetching dummy data:', error);
-        });
-      fetchMongoData()
-        .then((data) => {
-          console.log('MongoDB data fetched from backend:', data);
-        })
-        .catch((error) => {
-          console.error('Error fetching MongoDB data:', error);
-        });
-  }, [])
+    fetchDummyData()
+      .then((data) => {
+        console.log("Dummy data fetched from backend:", data);
+      })
+      .catch((error) => {
+        console.error("Error fetching dummy data:", error);
+      });
+    fetchMongoData()
+      .then((data) => {
+        console.log("MongoDB data fetched from backend:", data);
+      })
+      .catch((error) => {
+        console.error("Error fetching MongoDB data:", error);
+      });
+  }, []);
 
   return (
     <>
@@ -134,7 +134,7 @@ function Home() {
       <div className="ticks"></div>
       <section id="spacer"></section>
     </>
-  )
+  );
 }
 
 export default function App() {
@@ -142,5 +142,5 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Home />} />
     </Routes>
-  )
+  );
 }
