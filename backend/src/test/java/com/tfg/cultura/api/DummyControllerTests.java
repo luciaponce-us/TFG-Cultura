@@ -48,7 +48,7 @@ class DummyControllerTests {
 	}
 
 	@Test
-	void getMongoDbDataReturnsErrorWhenPingFails() throws Exception {
+	void getMongoDbDataReturnsErrorWhenPingFails() {
 		MongoDatabase mongoDatabase = mock(MongoDatabase.class);
 
 		when(mongoTemplate.getDb()).thenReturn(mongoDatabase);
