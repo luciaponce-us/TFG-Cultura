@@ -20,7 +20,7 @@ public class SecurityConfig {
     private String frontendUrl;
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
