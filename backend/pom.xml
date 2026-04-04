@@ -12,7 +12,6 @@
 	<artifactId>api</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>TFG Cultura API</name>
-	<finalName>app</finalName>
 	<description>API para la integración de las actividades de la Delegación de Cultura de la ETSII</description>
 	<url>https://github.com/luciaponce-us/TFG-Cultura</url>
 	<licenses>
@@ -112,6 +111,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>app</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
