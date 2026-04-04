@@ -15,7 +15,7 @@ RUN ./mvnw -B -Dmaven.test.skip=true package
 FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/target/app.jar app.jar
 
 EXPOSE 8080
 
