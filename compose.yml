@@ -22,9 +22,10 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      MONGODB_URI: ${MONGO_URI:-mongodb://root:root@mongo:27017/mydatabase?authSource=admin}
-      SPRING_DATA_MONGODB_URI: ${MONGO_URI:-mongodb://root:root@mongo:27017/mydatabase?authSource=admin}
-      SPRING_MONGODB_URI: ${MONGO_URI:-mongodb://root:root@mongo:27017/mydatabase?authSource=admin}
+      MONGODB_URI: ${MONGODB_URI:-mongodb://${MONGO_USER:-root}:${MONGO_PASS:-root}@mongo:27017/${MONGO_DB:-mydatabase}?authSource=admin}
+      SPRING_DATA_MONGODB_URI: ${MONGODB_URI:-mongodb://${MONGO_USER:-root}:${MONGO_PASS:-root}@mongo:27017/${MONGO_DB:-mydatabase}?authSource=admin}
+      SPRING_MONGODB_URI: ${MONGODB_URI:-mongodb://${MONGO_USER:-root}:${MONGO_PASS:-root}@mongo:27017/${MONGO_DB:-mydatabase}?authSource=admin}
+      SPRING_MONGODB_DATABASE: ${MONGO_DB:-mydatabase}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
       SPRING_DEVTOOLS_RESTART_ENABLED: true
       LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT:-DEBUG}
