@@ -2,8 +2,6 @@ package com.tfg.cultura.api.core.model.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cloudinary.Transformation;
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,5 +23,4 @@ public class FileUploadRequest {
     @Default
     private boolean overwrite = true;
     private String resourceType; // image, raw, auto
-    private Transformation transformation;
 }

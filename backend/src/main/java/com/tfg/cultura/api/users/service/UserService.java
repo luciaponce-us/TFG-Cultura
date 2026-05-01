@@ -60,29 +60,31 @@ public class UserService {
         }
 
         User user = User.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .name(request.getName())
-                .surname(request.getSurname())
-                .dni(request.getDni())
-                .phone(request.getPhone())
-                .email(request.getEmail())
-                .avatar(UserFileService.AVATAR_PLACEHOLDER)
-                .build();
+            .username(request.getUsername())
+            .password(passwordEncoder.encode(request.getPassword()))
+            .name(request.getName())
+            .surname(request.getSurname())
+            .dni(request.getDni())
+            .phone(request.getPhone())
+            .email(request.getEmail())
+            .avatar(UserFileService.AVATAR_PLACEHOLDER)
+            .build();
+
+        User savedUser = userRepository.save(user);
+        String userId = savedUser.getId();
+        logger.info("Usuario registrado correctamente: {}", savedUser.getUsername());
 
         if (avatar != null && !avatar.isEmpty()) {
             logger.info("Se va a intentar subir el avatar: {}", avatar.getOriginalFilename());
-            String avatarUrl = userFileService.uploadAvatar(request.getUsername(), avatar);
+            String avatarUrl = userFileService.uploadAvatar(userId, avatar);
             user.setAvatar(avatarUrl);
         }
 
         logger.info("Se va a intentar subir el PDF de la carta de pago: {}",
                 paymentReceipt.getOriginalFilename());
-        String paymentReceiptUrl = userFileService.uploadPaymentReceiptPdf(request.getUsername(), paymentReceipt);
+        String paymentReceiptUrl = userFileService.uploadPaymentReceiptPdf(userId, paymentReceipt);
         user.setPaymentReceipt(paymentReceiptUrl);
 
-        User savedUser = userRepository.save(user);
-        logger.info("Usuario registrado correctamente: {}", savedUser.getUsername());
         return new UserResponse(savedUser);
     }
 

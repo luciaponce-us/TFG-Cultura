@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cloudinary.Transformation;
 import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.service.FileService;
@@ -24,14 +23,11 @@ public class UserFileService {
 
     String uploadAvatar(String userId, MultipartFile file) {
         try {
+            MultipartFile resizedFile = fileService.resizeImage(file, 300, 300);
             FileUploadRequest request = FileUploadRequest.builder()
-                    .file(file)
+                    .file(resizedFile)
                     .folder("cultura/avatars")
                     .publicId("user_" + userId)
-                    .transformation(new Transformation()
-                            .width(300)
-                            .height(300)
-                            .crop("fill"))
                     .build();
 
             return fileService.uploadFile(request);
@@ -40,7 +36,6 @@ public class UserFileService {
                     userId, ex.getMessage());
             return AVATAR_PLACEHOLDER;
         }
-
     }
 
     String uploadPaymentReceiptPdf(String userId, MultipartFile file) throws FileUploadException {
