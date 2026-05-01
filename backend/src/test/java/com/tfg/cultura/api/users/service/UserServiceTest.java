@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -21,7 +22,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
-import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
@@ -53,7 +53,7 @@ class UserServiceTest {
     private CustomUserDetailsService userDetailsService;
 
     @Mock
-    private FileService fileService;
+    private UserFileService userFileService;
 
     @InjectMocks
     private UserService userService;
@@ -95,13 +95,13 @@ class UserServiceTest {
 
         assertNotNull(response, "No se ha registrado el usuario");
         assertEquals(register.getUsername(), response.getUsername());
-        assertEquals(UserService.AVATAR_PLACEHOLDER, response.getAvatar(), "No se ha asignado el avatar placeholder");
+        assertEquals(UserFileService.AVATAR_PLACEHOLDER, response.getAvatar(), "No se ha asignado el avatar placeholder");
     }
 
     @Test
     void should_upload_avatar_when_registering_user_with_avatar() {
         mockUserRegistration();
-        when(fileService.uploadFile(any())).thenReturn("url/avatar.png");
+        when(userFileService.uploadAvatar(anyString(), any())).thenReturn("url/avatar.png");
 
         UserResponse response = userService.register(register, AVATAR_FILE, PDF_FILE);
 
@@ -128,29 +128,6 @@ class UserServiceTest {
         UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
                 () -> userService.register(register, null, PDF_FILE));
         assertTrue(ex.getMessage().contains("DNI"));
-    }
-
-    // UPLOAD AVATAR
-
-    @Test
-    void should_upload_avatar_successfully() {
-        String userId = "123";
-        when(fileService.uploadFile(any())).thenReturn("url/avatar.png");
-
-        String result = userService.uploadAvatar(userId, AVATAR_FILE);
-
-        assertEquals("url/avatar.png", result);
-    }
-
-    @Test
-    void should_return_placeholder_when_upload_avatar_fails() {
-        String userId = "123";
-        when(fileService.uploadFile(any()))
-                .thenThrow(new RuntimeException("error"));
-
-        String result = userService.uploadAvatar(userId, AVATAR_FILE);
-
-        assertEquals(UserService.AVATAR_PLACEHOLDER, result);
     }
 
     // LOGIN
