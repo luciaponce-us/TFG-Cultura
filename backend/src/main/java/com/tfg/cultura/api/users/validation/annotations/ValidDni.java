@@ -15,4 +15,5 @@ public @interface ValidDni {
     String message() default "El DNI no es válido";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
+    boolean required() default true;
 }

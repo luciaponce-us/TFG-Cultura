@@ -13,6 +13,7 @@ import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 
 public class UserFactory {
 
@@ -79,5 +80,12 @@ public class UserFactory {
     public static MockMultipartFile valid_payment_receipt_file() {
         return new MockMultipartFile("paymentReceipt", "receipt.pdf", "application/pdf",
                 "fake-pdf-content".getBytes());
+    }
+
+    public static UserUpdateRequest validUserUpdateRequest() {
+        return UserUpdateRequest.builder()
+                .name("Jane")
+                .surname("Smith")
+                .build();
     }
 }

@@ -47,7 +47,7 @@ class UserControllerTest extends BaseControllerTest {
 
     @Test
     void get_user_success() throws Exception {
-        when(userService.getUserById(anyString())).thenReturn(userResponse);
+        when(userService.getUser(anyString())).thenReturn(userResponse);
 
         mockMvc.perform(get(USER_URL, "123"))
                 .andExpect(status().isOk())
@@ -56,9 +56,9 @@ class UserControllerTest extends BaseControllerTest {
 
     @Test
     void get_user_fail_unexisting_user() throws Exception {
-        String message = "El usuario con id 123 no existe";
+        String message = "El usuario no existe";
         UserNotFoundException ex = new UserNotFoundException(message);
-        when(userService.getUserById(anyString())).thenThrow(ex);
+        when(userService.getUser(anyString())).thenThrow(ex);
 
         mockMvc.perform(get(USER_URL, "123"))
                 .andExpect(status().isNotFound())

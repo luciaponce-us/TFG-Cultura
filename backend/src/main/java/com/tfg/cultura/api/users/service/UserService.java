@@ -4,26 +4,39 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final PasswordEncoder passwordEncoder;
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
-    public UserResponse getUserById(String id) throws UserNotFoundException {
-        User user = findUserById(id);
+    public UserResponse getUser(String username) throws UserNotFoundException {
+        User user = findUserByUsername(username);
         return new UserResponse(user);
+    }
+
+    User findUserByUsername(String username) throws UserNotFoundException {
+        Optional<User> user = userRepository.findByUsername(username);
+
+        if (user.isEmpty()) {
+            logger.warn("Error al obtener el usuario: El usuario con username {} no existe", username);
+            throw new UserNotFoundException(String.format("El usuario con username %s no existe", username));
+        }
+
+        return user.get();
     }
 
     User findUserById(String id) throws UserNotFoundException {
@@ -31,10 +44,65 @@ public class UserService {
 
         if (user.isEmpty()) {
             logger.warn("Error al obtener el usuario: El usuario con id {} no existe", id);
-            throw new UserNotFoundException("El usuario con id " + id + " no existe");
+            throw new UserNotFoundException(String.format("El usuario con id %s no existe", id));
         }
 
         return user.get();
     }
-    
+
+    public UserResponse updateUser(String username, UserUpdateRequest request) throws UserNotFoundException {
+        logger.info("Se va a actualizar el usuario con username {}", username);
+        User user = findUserByUsername(username);
+        logger.info("ANTES: {}", user.getUsername());
+        logger.info("REQUEST: {}", request.getUsername());
+        if (isChanged(request.getUsername(), user.getUsername())) {
+            if (userRepository.existsByUsername(request.getUsername()))
+                throw new IllegalArgumentException("El username ya está en uso");
+
+            user.setUsername(request.getUsername());
+            logger.info("Se ha cambiado el username de {} a {}", username, request.getUsername());
+        }
+
+        if (isChanged(request.getDni(), user.getDni())) {
+            if (userRepository.existsByDni(request.getDni()))
+                throw new IllegalArgumentException("El DNI ya está en uso");
+
+            user.setDni(request.getDni());
+        }
+
+        if (isChanged(request.getName(), user.getName())) {
+            user.setName(request.getName());
+        }
+
+        if (isChanged(request.getSurname(), user.getSurname())) {
+            user.setSurname(request.getSurname());
+        }
+
+        if (isChanged(request.getPhone(), user.getPhone())) {
+            user.setPhone(request.getPhone());
+        }
+
+        if (isChanged(request.getEmail(), user.getEmail())) {
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        if (request.getRole() != null) {
+            user.setRole(request.getRole());
+        }
+
+        user.setActive(request.isActive());
+
+        User savedUser = userRepository.save(user);
+        logger.info("DESPUÉS: {}", savedUser.getUsername());
+        return new UserResponse(savedUser);
+    }
+
+    private boolean isChanged(String newValue, String currentValue) {
+        return newValue != null && !newValue.trim().equals(currentValue);
+    }
+
 }

@@ -5,16 +5,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
@@ -34,13 +38,22 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Forbidden - El usuario no tiene permisos para aprobar registros"),
             @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario a aprobar/rechazar")
     })
-    @GetMapping("/{id}")
+    @GetMapping("/{username}")
     @PreAuthorize("hasAnyRole('COLABORADOR', 'ENCARGADO', 'SECRETARIO', 'COORDINADOR')")
-    public ResponseEntity<UserResponse> getById(@PathVariable String id) {
-        UserResponse response = userService.getUserById(id);
+    public ResponseEntity<UserResponse> getUser(@PathVariable String username) {
+        UserResponse response = userService.getUser(username);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
-    
+
+    @PutMapping("/{username}")
+    @PreAuthorize("hasAnyRole('COLABORADOR', 'ENCARGADO', 'SECRETARIO', 'COORDINADOR')")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable String username, @RequestBody @Valid UserUpdateRequest request) {
+        UserResponse response = userService.updateUser(username, request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
 }
