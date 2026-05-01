@@ -1,8 +1,5 @@
 package com.tfg.cultura.api.users.model.dto;
 
-import org.springframework.web.multipart.MultipartFile;
-
-import com.tfg.cultura.api.core.validation.annotations.ValidImage;
 import com.tfg.cultura.api.users.validation.annotations.ValidDni;
 import com.tfg.cultura.api.users.validation.annotations.ValidPhone;
 
@@ -53,6 +50,4 @@ public class UserRegisterRequest {
     @Email(message = "El email no es válido")
     private String email;
 
-    @ValidImage
-    private MultipartFile avatar;
 }

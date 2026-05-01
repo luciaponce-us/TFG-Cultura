@@ -16,6 +16,7 @@ public class UserResponse  {
     private String phone;
     private String email;
     private String avatar;
+    private String paymentReceipt;
     private boolean active;
     private Role role;
     private LocalDateTime createdAt;
@@ -28,6 +29,7 @@ public class UserResponse  {
         this.phone = user.getPhone();
         this.email = user.getEmail();
         this.avatar = user.getAvatar();
+        this.paymentReceipt = user.getPaymentReceipt();
         this.active = user.isActive();
         this.role = user.getRole();
         this.createdAt = user.getCreatedAt();

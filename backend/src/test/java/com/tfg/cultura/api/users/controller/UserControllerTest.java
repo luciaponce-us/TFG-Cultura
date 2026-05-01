@@ -62,10 +62,11 @@ class UserControllerTest extends BaseControllerTest {
 
     @Test
     void register_success() throws Exception {
-        when(userService.register(any())).thenReturn(userResponse);
+        when(userService.register(any(),any(),any())).thenReturn(userResponse);
 
         mockMvc.perform(multipart(REGISTER_URL)
-                .file(userPart(registerRequest)))
+                .file(userPart(registerRequest))
+                .file(pdfPart()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").value(registerRequest.getUsername()));
     }
@@ -74,10 +75,11 @@ class UserControllerTest extends BaseControllerTest {
     void register_fail_user_already_exists() throws Exception {
         UserAlreadyExistsException ex = new UserAlreadyExistsException("El nombre de usuario ya existe");
 
-        when(userService.register(any())).thenThrow(ex);
+        when(userService.register(any(),any(),any())).thenThrow(ex);
 
         mockMvc.perform(multipart(REGISTER_URL)
-                .file(userPart(registerRequest)))
+                .file(userPart(registerRequest))
+                .file(pdfPart()))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").exists());
     }
@@ -87,7 +89,8 @@ class UserControllerTest extends BaseControllerTest {
         registerRequest.setEmail("invalid-email");
 
         mockMvc.perform(multipart(REGISTER_URL)
-                .file(userPart(registerRequest)))
+                .file(userPart(registerRequest))
+                .file(pdfPart()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").exists());
     }
@@ -157,6 +160,14 @@ class UserControllerTest extends BaseControllerTest {
                 toJson(obj).getBytes());
     }
 
+    private MockMultipartFile pdfPart() {
+        return new MockMultipartFile(
+                "paymentReceipt",
+                "test.pdf",
+                "application/pdf",
+                "dummy pdf content".getBytes());
+    }
+
     // ================ ACTIVATE USER ================
 
     @Test
@@ -182,7 +193,8 @@ class UserControllerTest extends BaseControllerTest {
     @Test
     void activate_user_fail_self_activation() throws Exception {
         String userId = "123";
-        String message = String.format("El usuario %s con id %s ha intentado activar su propio usuario", userResponse.getUsername(), userId);
+        String message = String.format("El usuario %s con id %s ha intentado activar su propio usuario",
+                userResponse.getUsername(), userId);
         SelfActivationNotAllowedException ex = new SelfActivationNotAllowedException(message);
         when(userService.activateUser(userId)).thenThrow(ex);
 
@@ -202,16 +214,15 @@ class UserControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.message").value(message));
     }
 
-
     // ================ GET USER ================
 
     @Test
     void get_user_success() throws Exception {
         when(userService.getUserById(anyString())).thenReturn(userResponse);
 
-        mockMvc.perform(get(USER_URL,"123"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
+        mockMvc.perform(get(USER_URL, "123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
     }
 
     @Test
@@ -220,10 +231,9 @@ class UserControllerTest extends BaseControllerTest {
         UserNotFoundException ex = new UserNotFoundException(message);
         when(userService.getUserById(anyString())).thenThrow(ex);
 
-        mockMvc.perform(get(USER_URL,"123"))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.message").value(message));
+        mockMvc.perform(get(USER_URL, "123"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(message));
     }
-
 
 }

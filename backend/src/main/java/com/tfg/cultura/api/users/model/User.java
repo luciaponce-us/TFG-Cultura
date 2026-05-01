@@ -73,6 +73,13 @@ public class User {
     @Builder.Default
     private String avatar = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png";
 
+    @Pattern(
+        regexp = "^https://res\\.cloudinary\\.com/[^/]+/(image|raw|video)/upload/.+",
+        message = "URL de Cloudinary no válida"
+    )
+    @NotBlank(message = "La carta de pago es obligatoria")
+    private String paymentReceipt;
+
     @Builder.Default
     @NotBlank(message = "El campo de activación es obligatorio")
     private boolean active = false;

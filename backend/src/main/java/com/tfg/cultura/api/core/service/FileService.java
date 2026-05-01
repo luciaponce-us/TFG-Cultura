@@ -1,13 +1,19 @@
 package com.tfg.cultura.api.core.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.model.CustomMultipartFile;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
+
+import net.coobird.thumbnailator.Thumbnails;
 
 @Service
 public class FileService {
@@ -33,10 +39,6 @@ public class FileService {
                 options.put("overwrite", true);
             }
 
-            if (request.getTransformation()!=null) {
-                options.put("transformation",request.getTransformation());
-            }
-
             @SuppressWarnings("unchecked")
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
                     request.getFile().getBytes(),
@@ -48,6 +50,23 @@ public class FileService {
         } catch (Exception e) {
             throw new FileUploadException(e.getMessage());
         }
+    }
+
+    public MultipartFile resizeImage(MultipartFile file, int width, int height) throws IOException{
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        Thumbnails.of(file.getInputStream())
+                .size(width, height)
+                .crop(net.coobird.thumbnailator.geometry.Positions.CENTER)
+                .outputFormat("png")
+                .toOutputStream(outputStream);
+
+        return new CustomMultipartFile(
+            outputStream.toByteArray(),
+                file.getName(),
+                file.getOriginalFilename(),
+                "image/png"
+        );
     }
     
 }
