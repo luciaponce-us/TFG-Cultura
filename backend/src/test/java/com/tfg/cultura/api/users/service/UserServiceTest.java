@@ -101,7 +101,7 @@ class UserServiceTest {
     @Test
     void should_upload_avatar_when_registering_user_with_avatar() {
         mockUserRegistration();
-        when(userFileService.uploadAvatar(anyString(), any())).thenReturn("url/avatar.png");
+        when(userFileService.uploadAvatar(any(), any())).thenReturn("url/avatar.png");
 
         UserResponse response = userService.register(register, AVATAR_FILE, PDF_FILE);
 
