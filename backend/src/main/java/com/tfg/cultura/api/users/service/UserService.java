@@ -23,6 +23,7 @@ import com.tfg.cultura.api.users.jwt.JwtService;
 
 import java.util.Optional;
 
+import com.tfg.cultura.api.core.exception.FileUploadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +49,10 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
-    public UserResponse register(UserRegisterRequest request) throws UserAlreadyExistsException {
-
+    public UserResponse register(UserRegisterRequest request, MultipartFile avatar, MultipartFile paymentReceipt) throws UserAlreadyExistsException, FileUploadException {
+        validateAvatar(avatar);
+        validatePaymentReceipt(paymentReceipt);
+        
         if (userRepository.existsByUsername(request.getUsername())) {
             logger.warn("Error al registrar el usuario {}: El nombre de usuario ya existe", request.getUsername());
             throw new UserAlreadyExistsException("El nombre de usuario ya existe");
@@ -72,19 +75,24 @@ public class UserService {
                 .avatar(AVATAR_PLACEHOLDER)
                 .build();
 
-        
-        if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
-            logger.info("Se va a intentar subir el avatar: {}", request.getAvatar().getOriginalFilename());
-            String avatarUrl = uploadAvatar(request.getUsername(), request.getAvatar());
+        if (avatar != null && !avatar.isEmpty()) {
+            logger.info("Se va a intentar subir el avatar: {}", avatar.getOriginalFilename());
+            String avatarUrl = uploadAvatar(request.getUsername(), avatar);
             user.setAvatar(avatarUrl);
         }
+
+        logger.info("Se va a intentar subir el PDF de la carta de pago: {}",
+                paymentReceipt.getOriginalFilename());
+        String paymentReceiptUrl = uploadPaymentReceiptPdf(request.getUsername(), paymentReceipt);
+        user.setPaymentReceipt(paymentReceiptUrl);
 
         User savedUser = userRepository.save(user);
         logger.info("Usuario registrado correctamente: {}", savedUser.getUsername());
         return new UserResponse(savedUser);
     }
 
-    public String login(UserLoginRequest request) throws UserNotFoundException, DisabledException, BadCredentialsException {
+    public String login(UserLoginRequest request)
+            throws UserNotFoundException, DisabledException, BadCredentialsException {
         Optional<User> user = userRepository.findByUsername(request.getUsername());
         if (user.isEmpty()) {
             logger.warn("Error al iniciar sesión: El usuario {} no existe", request.getUsername());
@@ -133,6 +141,29 @@ public class UserService {
 
     }
 
+    public String uploadPaymentReceiptPdf(String userId, MultipartFile file) throws FileUploadException {
+        try {
+            FileUploadRequest request = FileUploadRequest.builder()
+                    .file(file)
+                    .folder("cultura/payment_receipts")
+                    .publicId("payment_" + userId)
+                    .build();
+
+            return fileService.uploadFile(request);
+        } catch (Exception ex) {
+            logger.error(
+                    "No se ha podido subir el PDF {} para el usuario con id {}: {}",
+                    file.getOriginalFilename(),
+                    userId,
+                    ex.getMessage());
+
+            throw new FileUploadException(
+                    String.format("Error subiendo PDF '%s' para el usuario '%s'",
+                            file.getOriginalFilename(),
+                            userId));
+        }
+    }
+
     public UserResponse getUserById(String id) throws UserNotFoundException {
         User user = findUserById(id);
         return new UserResponse(user);
@@ -144,10 +175,12 @@ public class UserService {
         CustomUserDetails currentUser = getCurrentUserDetails();
 
         if (user.getId().equals(currentUser.getId())) {
-            throw new SelfActivationNotAllowedException(String.format("El usuario %s con id %s ha intentado activar su propio usuario", user.getUsername(), user.getId()));
+            throw new SelfActivationNotAllowedException(
+                    String.format("El usuario %s con id %s ha intentado activar su propio usuario", user.getUsername(),
+                            user.getId()));
         }
 
-        if (!user.isActive()){
+        if (!user.isActive()) {
             user.setActive(true);
             user = userRepository.save(user);
         }
@@ -179,6 +212,37 @@ public class UserService {
         }
 
         return currentUser;
+    }
+
+    private void validateAvatar(MultipartFile avatar) {
+        if (avatar != null && !avatar.isEmpty()) {
+            String contentType = avatar.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("El archivo de avatar debe ser una imagen");
+            }
+
+            long maxMB = 2;
+            long maxSize = maxMB * 11048576;
+
+            if (avatar.getSize() > maxSize) {
+                throw new IllegalArgumentException("El archivo de avatar no puede superar los 2MB");
+            }
+
+        }
+    }
+
+    private void validatePaymentReceipt(MultipartFile pdf) {
+        if (pdf == null || pdf.isEmpty())
+            throw new IllegalArgumentException("El archivo de carta de pago es obligatorio");
+        String contentType = pdf.getContentType();
+        if (contentType == null || !contentType.equals("application/pdf")) {
+            throw new IllegalArgumentException("El archivo de carta de pago debe ser un PDF");
+        }
+        long maxMB = 2;
+        long maxSize = maxMB * 11048576;
+        if (pdf.getSize() > maxSize) {
+            throw new IllegalArgumentException("El archivo de carta de pago no puede superar los 2MB");
+        }
     }
 
 }

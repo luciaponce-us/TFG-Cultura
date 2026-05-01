@@ -3,6 +3,7 @@ package com.tfg.cultura.api.users.factory;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,9 @@ public class UserFactory {
                 .dni("12345678Z")
                 .phone("600123123")
                 .email("test@test.com")
+                .paymentReceipt("test.pdf")
+                .avatar("test.png")
+                .active(true)
                 .build();
     }
 
@@ -35,6 +39,7 @@ public class UserFactory {
 
     public static UserRegisterRequest validUserRegisterRequest() {
         User user = validUser();
+
         return UserRegisterRequest.builder()
                 .username(user.getUsername())
                 .password("12345678")
@@ -64,5 +69,15 @@ public class UserFactory {
         when(context.getAuthentication()).thenReturn(auth);
 
         SecurityContextHolder.setContext(context);
+    }
+
+    public static MockMultipartFile valid_avatar_file() {
+        return new MockMultipartFile("avatar", "avatar.png", "image/png",
+            "fake-image-content".getBytes());
+    }
+
+    public static MockMultipartFile valid_payment_receipt_file() {
+        return new MockMultipartFile("paymentReceipt", "receipt.pdf", "application/pdf",
+                "fake-pdf-content".getBytes());
     }
 }

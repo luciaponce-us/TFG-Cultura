@@ -68,6 +68,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         logger.info("👥 Creando colección: users");
 
         String password = "cultura123"; //NOSONAR
+        String file = "paymentReceipt.pdf";
 
         User coordinador = User.builder()
             .username("coordinador")
@@ -77,6 +78,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .dni("12345678A")
             .phone("+34600123456")
             .email("coordinador@cultura.es")
+            .paymentReceipt(file)
             .active(true)
             .role(Role.COORDINADOR)
             .createdAt(LocalDateTime.now())
@@ -90,6 +92,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .dni("87654321B")
             .phone("+34600123457")
             .email("secretario@cultura.es")
+            .paymentReceipt(file)
             .active(true)
             .role(Role.SECRETARIO)
             .createdAt(LocalDateTime.now())
@@ -103,6 +106,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .dni("11223344C")
             .phone("+34600123458")
             .email("encargado@cultura.es")
+            .paymentReceipt(file)
             .active(true)
             .role(Role.ENCARGADO)
             .createdAt(LocalDateTime.now())
@@ -116,6 +120,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .dni("44332211D")
             .phone("+34600123459")
             .email("colaborador@cultura.es")
+            .paymentReceipt(file)
             .active(true)
             .role(Role.COLABORADOR)
             .createdAt(LocalDateTime.now())
@@ -129,6 +134,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .dni("55667788E")
             .phone("+34600123460")
             .email("socio@cultura.es")
+            .paymentReceipt(file)
             .active(true)
             .role(Role.SOCIO)
             .createdAt(LocalDateTime.now())
