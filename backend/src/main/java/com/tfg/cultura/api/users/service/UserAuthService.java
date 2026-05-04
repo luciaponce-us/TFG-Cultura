@@ -2,17 +2,16 @@ package com.tfg.cultura.api.users.service;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tfg.cultura.api.users.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.*;
-import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.users.exception.*;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
@@ -21,10 +20,13 @@ import com.tfg.cultura.api.users.jwt.JwtService;
 import java.util.Optional;
 
 import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.exception.UnathenticatedException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
+@RequiredArgsConstructor
 public class UserAuthService {
 
     private final UserRepository userRepository;
@@ -33,16 +35,6 @@ public class UserAuthService {
     private final CustomUserDetailsService userDetailsService;
     private final UserFileService userFileService;
     private final UserService userService;
-
-    public UserAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
-            CustomUserDetailsService userDetailsService, UserFileService userFileService, UserService userService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-        this.userFileService = userFileService;
-        this.userService = userService;
-    }
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
@@ -122,8 +114,11 @@ public class UserAuthService {
     public UserResponse activateUser(String id) throws UserNotFoundException {
 
         User user = userService.findUserById(id);
-        CustomUserDetails currentUser = getCurrentUserDetails();
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 
+        if (currentUser==null){
+            throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
+        }
         if (user.getId().equals(currentUser.getId())) {
             throw new SelfActivationNotAllowedException(
                     String.format("El usuario %s con id %s ha intentado activar su propio usuario", user.getUsername(),
@@ -137,20 +132,6 @@ public class UserAuthService {
 
         logger.info("Se ha aprobado el registro del usuario {} con id {}", user.getUsername(), user.getId());
         return new UserResponse(user);
-    }
-
-    private CustomUserDetails getCurrentUserDetails() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new UnathenticatedException("No se ha podido obtener la autenticación del usuario");
-        }
-
-        CustomUserDetails currentUser = (CustomUserDetails) auth.getPrincipal();
-        if (currentUser == null) {
-            throw new UnathenticatedException("No se ha podido obtener la información del usuario");
-        }
-
-        return currentUser;
     }
 
 }

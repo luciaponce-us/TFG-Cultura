@@ -1,10 +1,8 @@
 package com.tfg.cultura.api.users.factory;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -61,16 +59,13 @@ public class UserFactory {
                 .build();
     }
 
-    public static void mockAuthContext() {
+    public static CustomUserDetails mockAuthContext() {
         User user = validUser();
-        Authentication auth = mock(Authentication.class);
-        when(auth.isAuthenticated()).thenReturn(true);
-        when(auth.getPrincipal()).thenReturn(new CustomUserDetails(user));
 
         SecurityContext context = mock(SecurityContext.class);
-        when(context.getAuthentication()).thenReturn(auth);
 
         SecurityContextHolder.setContext(context);
+        return new CustomUserDetails(user);
     }
 
     public static MockMultipartFile valid_avatar_file() {

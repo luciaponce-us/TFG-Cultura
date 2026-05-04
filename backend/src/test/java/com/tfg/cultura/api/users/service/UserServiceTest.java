@@ -40,6 +40,9 @@ class UserServiceTest {
     @Mock
     private SuggestionRepository suggestionRepository;
 
+    @Mock
+    private UserFileService userFileService;
+
     @InjectMocks
     private UserService service;
 
