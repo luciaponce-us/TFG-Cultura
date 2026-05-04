@@ -62,6 +62,26 @@ class UserServiceTest {
         assertTrue(ex.getMessage().contains("no existe"));
     }
 
+    // FIND USER BY ID
+
+    @Test
+    void should_return_user_when_find_user_by_id_with_existing_user() {
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+
+        User foundUser = service.findUserById(user.getId());
+
+        assertNotNull(foundUser);
+        assertEquals(user.getId(), foundUser.getId());
+    }
+
+    @Test
+    void should_throw_UserNotFoundException_when_find_user_by_id_with_unexisting_user() {
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.findUserById("123"));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+    }
+
     // UPDATE USER
 
     @Test
