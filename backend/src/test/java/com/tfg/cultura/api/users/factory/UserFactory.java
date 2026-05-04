@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
+import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
@@ -88,5 +89,16 @@ public class UserFactory {
                 .phone("987654321")
                 .role(Role.COLABORADOR)
                 .build();
+    }
+
+    public static UserProfileUpdateRequest validUserProfileUpdateRequest() {
+        return UserProfileUpdateRequest.builder()
+            .username("janesmith")
+            .password("password123")
+            .name("Jane")
+            .surname("Smith")
+            .email("test2@test.com")
+            .phone("987654321")
+            .build();
     }
 }
