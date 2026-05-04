@@ -1,41 +1,38 @@
 package com.tfg.cultura.api.users.service;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
-import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
+import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
-import com.tfg.cultura.api.users.jwt.JwtService;
 import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
-import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
+import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.repository.UserRepository;
-
-import static org.mockito.ArgumentMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -47,223 +44,37 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private JwtService jwtService;
-
-    @Mock
-    private CustomUserDetailsService userDetailsService;
+    private SuggestionRepository suggestionRepository;
 
     @Mock
     private UserFileService userFileService;
 
-    @InjectMocks
-    private UserService userService;
+    @Mock
+    private CustomUserDetailsService userDetailsService;
 
-    private UserRegisterRequest register = new UserRegisterRequest();
-    private User user = new User();
-    private UserLoginRequest loginRequest = new UserLoginRequest();
-    private static final MockMultipartFile PDF_FILE = UserFactory.valid_payment_receipt_file();
-    private static final MockMultipartFile AVATAR_FILE = UserFactory.valid_avatar_file();
+    @InjectMocks
+    private UserService service;
+
+    private User user;
+    private UserUpdateRequest updateRequest;
+    private CustomUserDetails userDetails;
+    private UserProfileUpdateRequest userProfileUpdateRequest;
 
     @BeforeEach
     void setUp() {
-        register = UserFactory.validUserRegisterRequest();
         user = UserFactory.validUser();
-        loginRequest = UserFactory.loginRequest();
-        
-    }
-
-    private void mockUserRegistration() {
-        when(userRepository.save(any(User.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-        when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
-    }
-
-    @Test
-    void should_return_user_response_when_registering_user() {
-        mockUserRegistration();
-
-        UserResponse response = userService.register(register, null, PDF_FILE);
-
-        assertNotNull(response, "No se ha registrado el usuario");
-        assertEquals(register.getUsername(), response.getUsername());
-    }
-
-    @Test
-    void should_set_avatar_placeholder_when_registering_user_without_avatar() {
-        mockUserRegistration();
-        UserResponse response = userService.register(register, null, PDF_FILE);
-
-        assertNotNull(response, "No se ha registrado el usuario");
-        assertEquals(register.getUsername(), response.getUsername());
-        assertEquals(UserFileService.AVATAR_PLACEHOLDER, response.getAvatar(), "No se ha asignado el avatar placeholder");
-    }
-
-    @Test
-    void should_upload_avatar_when_registering_user_with_avatar() {
-        mockUserRegistration();
-        when(userFileService.uploadAvatar(any(), any())).thenReturn("url/avatar.png");
-
-        UserResponse response = userService.register(register, AVATAR_FILE, PDF_FILE);
-
-        assertNotNull(response, "No se ha registrado el usuario");
-        assertEquals(register.getUsername(), response.getUsername());
-        assertEquals("url/avatar.png", response.getAvatar());
-    }
-
-    @Test
-    void should_throw_exception_when_registering_user_with_existing_username() {
-        when(userRepository.existsByUsername(register.getUsername()))
-                .thenReturn(true);
-
-        UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
-                () -> userService.register(register,null, PDF_FILE));
-        assertTrue(ex.getMessage().contains("nombre de usuario"));
-    }
-
-    @Test
-    void should_throw_exception_when_registering_user_with_existing_dni() {
-        when(userRepository.existsByDni(register.getDni()))
-                .thenReturn(true);
-
-        UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
-                () -> userService.register(register, null, PDF_FILE));
-        assertTrue(ex.getMessage().contains("DNI"));
-    }
-
-    // LOGIN
-
-    @Test
-    void should_return_token_when_login_successfully() {
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(any(), any())).thenReturn(true);
-        when(userDetailsService.loadUserByUsername(user.getUsername())).thenReturn(new CustomUserDetails(user));
-        when(jwtService.generateToken(any(), any(), any())).thenReturn("test-token");
-
-        String response = userService.login(loginRequest);
-
-        assertNotNull(response);
-        assertEquals("test-token", response);
-    }
-
-    @Test
-    void should_throw_exception_when_login_with_unexisting_username() {
-        when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
-
-        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> userService.login(loginRequest));
-
-        assertTrue(ex.getMessage().contains("no existe"));
-    }
-
-    @Test
-    void should_throw_exception_when_login_with_disabled_user() {
-        user.setActive(false);
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
-
-        DisabledException ex = assertThrows(DisabledException.class, () -> userService.login(loginRequest));
-
-        assertTrue(ex.getMessage().contains("desactivado"));
-    }
-
-    @Test
-    void should_throw_exception_when_login_with_wrong_password() {
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(any(), any())).thenReturn(false);
-
-        BadCredentialsException ex = assertThrows(BadCredentialsException.class,
-                () -> userService.login(loginRequest));
-
-        assertTrue(ex.getMessage().contains("Credenciales inválidas"));
-    }
-
-    // ACTIVATE USER
-
-    @Test
-    void should_return_user_response_when_activate_successfully() {
-        UserFactory.mockAuthContext();
-        user.setActive(false);
-        user.setId("123"); // Usuario distinto a sí mismo
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        UserResponse response = userService.activateUser("123");
-
-        assertNotNull(response);
-        assertTrue(response.isActive());
-    }
-
-    @Test
-    void should_return_user_response_when_activate_already_active_user() {
-        UserFactory.mockAuthContext();
-        user.setActive(true);
-        user.setId("123"); // Usuario distinto a sí mismo
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-
-        UserResponse response = userService.activateUser("123");
-        assertNotNull(response);
-        assertTrue(response.isActive());
-    }
-
-    @Test
-    void should_throw_exception_when_activate_unexisting_user() {
-        when(userRepository.findById(any())).thenReturn(Optional.empty());
-
-        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> userService.activateUser("123"));
-
-        assertTrue(ex.getMessage().contains("no existe"));
-    }
-
-    @Test
-    void should_throw_exception_when_user_activates_himself() {
-        UserFactory.mockAuthContext();
-        user.setActive(false);
-
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-
-        assertThrows(SelfActivationNotAllowedException.class, () -> {
-            userService.activateUser("123");
-        });
-
-        SecurityContextHolder.clearContext();
-    }
-
-    @Test
-    void should_throw_exception_when_activating_user_unathenticated() {
-        SecurityContextHolder.clearContext();
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
-            userService.activateUser("123");
-        });
-        assertTrue(ex.getMessage().contains("autenticación"));
-    }
-
-    @Test
-    void should_throw_exception_when_activating_user_and_no_user_details() {
-        Authentication auth = mock(Authentication.class);
-        when(auth.isAuthenticated()).thenReturn(true);
-
-        SecurityContext context = mock(SecurityContext.class);
-        when(context.getAuthentication()).thenReturn(auth);
-
-        SecurityContextHolder.setContext(context);
-
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-
-        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
-            userService.activateUser("123");
-        });
-        assertTrue(ex.getMessage().contains("información"));
-        SecurityContextHolder.clearContext();
+        updateRequest = UserFactory.validUserUpdateRequest();
+        userDetails = new CustomUserDetails(user);
+        userProfileUpdateRequest = new UserProfileUpdateRequest();
     }
 
     // GET USER
 
     @Test
     void should_return_user_response_when_get_existing_user() {
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
 
-        UserResponse response = userService.getUserById("123");
+        UserResponse response = service.getUser(user.getUsername());
 
         assertNotNull(response);
         assertEquals(user.getUsername(), response.getUsername());
@@ -271,12 +82,286 @@ class UserServiceTest {
 
     @Test
     void should_throw_exception_when_get_unexisting_user() {
-        when(userRepository.findById(any())).thenReturn(Optional.empty());
-
         UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> userService.getUserById("123"));
+                () -> service.getUser("123"));
 
         assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    // FIND USER BY ID
+
+    @Test
+    void should_return_user_when_find_user_by_id_with_existing_user() {
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+
+        User foundUser = service.findUserById(user.getId());
+
+        assertNotNull(foundUser);
+        assertEquals(user.getId(), foundUser.getId());
+    }
+
+    @Test
+    void should_throw_UserNotFoundException_when_find_user_by_id_with_unexisting_user() {
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.findUserById("123"));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    // UPDATE USER
+
+    @Test
+    void should_update_user_successfully() {
+        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        UserResponse response = service.updateUser(user.getUsername(), updateRequest);
+
+        assertNotNull(response);
+        assertEquals(user.getUsername(), response.getUsername());
+        assertEquals(updateRequest.getName(), response.getName());
+        assertEquals(updateRequest.getSurname(), response.getSurname());
+    }
+
+    @Test
+    void should_update_user_username_successfully() {
+        String newUsername = "newUsername";
+        updateRequest.setUsername(newUsername);
+
+        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(userRepository.existsByUsername(newUsername)).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        UserResponse response = service.updateUser(user.getUsername(), updateRequest);
+
+        assertNotNull(response);
+        assertEquals(newUsername, response.getUsername());
+    }
+
+    @Test
+    void should_update_user_password_succesfully() {
+        String username = user.getUsername();
+        String oldEmail = user.getEmail();
+
+        UserUpdateRequest request = new UserUpdateRequest();
+        request.setPassword("newPassword");
+
+        when(userRepository.findByUsername(username))
+                .thenReturn(Optional.of(user));
+
+        when(passwordEncoder.encode(any()))
+                .thenReturn("encodedNewPassword");
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // WHEN
+        UserResponse response = service.updateUser(username, request);
+
+        // THEN
+        assertEquals("encodedNewPassword", user.getPassword());
+        assertEquals(oldEmail, response.getEmail()); // no cambia
+
+        verify(passwordEncoder).encode("newPassword");
+        verify(userRepository).save(user);
+
+    }
+
+    @Test
+    void should_throw_UserNotFoundException_when_update_unexisting_user() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.updateUser("123", updateRequest));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    @Test
+    void should_throw_UserAlreadyExistsException_when_update_user_with_existing_username() {
+        String username = user.getUsername();
+        String existingUsername = "existingUsername";
+        updateRequest.setUsername(existingUsername);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.existsByUsername(existingUsername)).thenReturn(true);
+
+        UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+                () -> service.updateUser(username, updateRequest));
+
+        assertTrue(ex.getMessage().contains("ya está en uso"));
+    }
+
+    @Test
+    void should_throw_UserAlreadyExistsException_when_update_user_with_existing_dni() {
+        String username = user.getUsername();
+        String existingDni = "06323988T";
+        updateRequest.setDni(existingDni);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.existsByDni(existingDni)).thenReturn(true);
+        UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+                () -> service.updateUser(username, updateRequest));
+
+        assertTrue(ex.getMessage().contains("ya está en uso"));
+    }
+
+    // DELETE USER
+
+    @Test
+    void should_delete_user_successfully() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        service.deleteUser(user.getUsername());
+
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    void should_throw_UserNotFoundException_when_delete_unexisting_user() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.deleteUser("123"));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    // =================== PROFILE ===================
+
+    // GET USER PROFILE
+
+    @Test
+    void should_return_user_profile_when_authenticated() throws Exception {
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        UserResponse response = service.getProfile();
+
+        assertNotNull(response);
+        assertEquals(user.getUsername(), response.getUsername());
+    }
+
+    @Test
+    void should_throw_exception_when_user_not_found() {
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenThrow(new UserNotFoundException("User not found"));
+
+        assertThrows(UserNotFoundException.class, () -> {
+            service.getProfile();
+        });
+    }
+
+    @Test
+    void should_throw_exception_when_no_authenticated_user() {
+
+        when(userDetailsService.getCurrentUserDetails())
+                .thenThrow(new UnathenticatedException("No auth"));
+
+        assertThrows(UnathenticatedException.class, () -> {
+            service.getProfile();
+        });
+
+        verify(userDetailsService).getCurrentUserDetails();
+    }
+
+    // UPDATE USER PROFILE
+
+    @Test
+    void should_update_profile_successfully() throws Exception {
+
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
+
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = service.updateProfile(request);
+
+        assertNotNull(response);
+        assertEquals(user.getUsername(), response.getUsername());
+
+        verify(userDetailsService).getCurrentUserDetails();
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void should_throw_when_user_not_found_on_update() {
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> {
+            service.updateProfile(userProfileUpdateRequest);
+        });
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void should_throw_when_user_already_exists() {
+        userProfileUpdateRequest.setUsername("newUsername");
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        // simula conflicto
+        when(userRepository.existsByUsername(anyString()))
+                .thenReturn(true);
+
+        assertThrows(UserAlreadyExistsException.class, () -> {
+            service.updateProfile(userProfileUpdateRequest);
+        });
+    }
+
+    // DELETE USER PROFILE
+
+    @Test
+    void should_delete_user_profile_successfully() throws Exception {
+        user.setAvatar("avatar_url");
+        user.setPaymentReceipt("receipt_url");
+
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        service.deleteProfile();
+
+        verify(userFileService).deleteUserFiles("avatar_url", "receipt_url");
+        verify(suggestionRepository).deleteByAuthorId(user.getId());
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    void should_throw_when_user_not_found_on_delete() {
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> {
+            service.deleteProfile();
+        });
+
+        verifyNoInteractions(userFileService);
+        verify(userRepository, never()).delete(any());
     }
 
 }

@@ -10,6 +10,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.tfg.cultura.api.users.exception.UserNotFoundException;
+
 import org.slf4j.LoggerFactory;
 
 import jakarta.servlet.FilterChain;
@@ -50,7 +53,7 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain)
-            throws ServletException, IOException {
+            throws ServletException, IOException, UserNotFoundException {
 
         String authHeader = request.getHeader("Authorization");
         log.info("JwtFilter processing - AuthHeader: {}", authHeader != null ? "Present" : "Missing");

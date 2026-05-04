@@ -9,20 +9,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.tfg.cultura.api.core.exception.FileDeleteException;
 import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.model.CustomMultipartFile;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 
+import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 
 @Service
+@RequiredArgsConstructor
 public class FileService {
 
     private Cloudinary cloudinary;
-
-    public FileService (Cloudinary cloudinary){
-        this.cloudinary=cloudinary;
-    }
 
     public String uploadFile(FileUploadRequest request) {
         try {
@@ -69,4 +69,34 @@ public class FileService {
         );
     }
     
+    public void deleteFile(String url) {
+        try {
+            String publicId = extractPublicId(url);
+
+            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+
+        } catch (Exception e) {
+            throw new FileDeleteException(e.getMessage());
+        }
+    }
+
+    private String extractPublicId(String url) {
+        try {
+            String[] parts = url.split("/upload/");
+            String afterUpload = parts[1];
+
+            // quitar versión si existe (v1234567890/)
+            afterUpload = afterUpload.replaceAll("v\\d+/", "");
+
+            // quitar extensión
+            int dotIndex = afterUpload.lastIndexOf(".");
+            if (dotIndex > 0) {
+                afterUpload = afterUpload.substring(0, dotIndex);
+            }
+
+            return afterUpload;
+        } catch (Exception e) {
+            throw new FileDeleteException(e.getMessage());
+        }
+    }
 }

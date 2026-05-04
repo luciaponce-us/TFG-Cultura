@@ -1,10 +1,13 @@
 package com.tfg.cultura.api.users.jwt;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import com.tfg.cultura.api.users.repository.UserRepository;
+import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 
@@ -26,10 +29,24 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UserNotFoundException{
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> {
-                logger.warn("Error al iniciar sesión: El usuario {} no existe", username);
+                logger.warn("Error al conceder permisos: El usuario {} no existe", username);
                 return new UserNotFoundException("El usuario con username " + username + " no existe");
             });
 
         return new CustomUserDetails(user);
+    }
+
+    public CustomUserDetails getCurrentUserDetails() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new UnathenticatedException("No se ha podido obtener la autenticación del usuario");
+        }
+
+        CustomUserDetails currentUser = (CustomUserDetails) auth.getPrincipal();
+        if (currentUser == null) {
+            throw new UnathenticatedException("No se ha podido obtener la información del usuario");
+        }
+
+        return currentUser;
     }
 }

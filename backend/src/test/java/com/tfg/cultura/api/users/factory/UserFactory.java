@@ -1,18 +1,19 @@
 package com.tfg.cultura.api.users.factory;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
+import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 
 public class UserFactory {
 
@@ -59,16 +60,13 @@ public class UserFactory {
                 .build();
     }
 
-    public static void mockAuthContext() {
+    public static CustomUserDetails mockAuthContext() {
         User user = validUser();
-        Authentication auth = mock(Authentication.class);
-        when(auth.isAuthenticated()).thenReturn(true);
-        when(auth.getPrincipal()).thenReturn(new CustomUserDetails(user));
 
         SecurityContext context = mock(SecurityContext.class);
-        when(context.getAuthentication()).thenReturn(auth);
 
         SecurityContextHolder.setContext(context);
+        return new CustomUserDetails(user);
     }
 
     public static MockMultipartFile valid_avatar_file() {
@@ -79,5 +77,28 @@ public class UserFactory {
     public static MockMultipartFile valid_payment_receipt_file() {
         return new MockMultipartFile("paymentReceipt", "receipt.pdf", "application/pdf",
                 "fake-pdf-content".getBytes());
+    }
+
+    public static UserUpdateRequest validUserUpdateRequest() {
+        return UserUpdateRequest.builder()
+                .name("Jane")
+                .surname("Smith")
+                .active(false)
+                .dni("51835019B")
+                .email("test2@test.com")
+                .phone("987654321")
+                .role(Role.COLABORADOR)
+                .build();
+    }
+
+    public static UserProfileUpdateRequest validUserProfileUpdateRequest() {
+        return UserProfileUpdateRequest.builder()
+            .username("janesmith")
+            .password("password123")
+            .name("Jane")
+            .surname("Smith")
+            .email("test2@test.com")
+            .phone("987654321")
+            .build();
     }
 }

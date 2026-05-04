@@ -30,7 +30,7 @@ import com.tfg.cultura.api.users.model.enumerators.Role;
 @AllArgsConstructor
 @Builder
 public class User {
-    
+
     @Id
     private String id;
 
@@ -66,17 +66,11 @@ public class User {
     @NotBlank(message = "El email es obligatorio")
     private String email;
 
-    @Pattern(
-        regexp = "^https://res\\.cloudinary\\.com/[^/]+/(image|raw|video)/upload/.+",
-        message = "URL de Cloudinary no válida"
-    )
+    @Pattern(regexp = "^https://res\\.cloudinary\\.com/[^/]+/(image|raw|video)/upload/.+", message = "URL de Cloudinary no válida")
     @Builder.Default
     private String avatar = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png";
 
-    @Pattern(
-        regexp = "^https://res\\.cloudinary\\.com/[^/]+/(image|raw|video)/upload/.+",
-        message = "URL de Cloudinary no válida"
-    )
+    @Pattern(regexp = "^https://res\\.cloudinary\\.com/[^/]+/(image|raw|video)/upload/.+", message = "URL de Cloudinary no válida")
     @NotBlank(message = "La carta de pago es obligatoria")
     private String paymentReceipt;
 
@@ -89,5 +83,5 @@ public class User {
     private Role role = Role.SOCIO;
 
     @CreatedDate
-    private LocalDateTime createdAt; 
+    private LocalDateTime createdAt;
 }

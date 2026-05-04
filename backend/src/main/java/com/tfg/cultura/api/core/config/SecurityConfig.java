@@ -31,6 +31,10 @@ public class SecurityConfig {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
+    private static final String[] ADMIN_ROLES = {
+        "SECRETARIO", "COORDINADOR"
+    };
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
@@ -55,8 +59,8 @@ public class SecurityConfig {
                 // Users
                 .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/users/login").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("COLABORADOR", "ENCARGADO", "SECRETARIO", "COORDINADOR")
-                .requestMatchers(HttpMethod.PUT, "/api/users/{id}/activate").hasAnyRole("COLABORADOR", "ENCARGADO", "SECRETARIO", "COORDINADOR")
+                .requestMatchers("/api/users/{username}").hasAnyRole(ADMIN_ROLES)
+                .requestMatchers(HttpMethod.PUT, "/api/users/{id}/activate").hasAnyRole(ADMIN_ROLES)
                 // Suggestions
                 .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
                 .anyRequest().authenticated()

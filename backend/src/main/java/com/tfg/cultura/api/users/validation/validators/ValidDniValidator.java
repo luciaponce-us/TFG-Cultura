@@ -4,11 +4,17 @@ import jakarta.validation.ConstraintValidatorContext;
 import com.tfg.cultura.api.users.validation.annotations.ValidDni;
 
 public class ValidDniValidator implements ConstraintValidator<ValidDni, String> {
+    private boolean required;
+
+    @Override
+    public void initialize(ValidDni constraintAnnotation) {
+        this.required = constraintAnnotation.required();
+    }
 
     @Override
     public boolean isValid(String dni, ConstraintValidatorContext context) {
         if (dni == null || dni.trim().isEmpty()) {
-            return false;
+            return !required;
         }
 
         String regex = "^\\d{8}[A-Za-z]$";
