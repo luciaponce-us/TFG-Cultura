@@ -1,20 +1,25 @@
 package com.tfg.cultura.api.users.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.service.UserService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
@@ -26,9 +31,10 @@ class UserControllerTest extends BaseControllerTest {
     private UserService userService;
 
     private static final String BASE_URL = "/api/users";
-    private static final String USER_URL = BASE_URL + "/{id}";
+    private static final String USER_URL = BASE_URL + "/{username}";
 
     private UserResponse userResponse;
+    private UserUpdateRequest updateRequest;
 
     @BeforeEach
     void setup() {
@@ -41,6 +47,7 @@ class UserControllerTest extends BaseControllerTest {
 
     private void initTestData() {
         userResponse = UserFactory.validUserResponse();
+        updateRequest = UserFactory.validUserUpdateRequest();
     }
 
     // ================ GET USER ================
@@ -49,7 +56,7 @@ class UserControllerTest extends BaseControllerTest {
     void get_user_success() throws Exception {
         when(userService.getUser(anyString())).thenReturn(userResponse);
 
-        mockMvc.perform(get(USER_URL, "123"))
+        mockMvc.perform(get(USER_URL, "username"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
     }
@@ -60,9 +67,61 @@ class UserControllerTest extends BaseControllerTest {
         UserNotFoundException ex = new UserNotFoundException(message);
         when(userService.getUser(anyString())).thenThrow(ex);
 
-        mockMvc.perform(get(USER_URL, "123"))
+        mockMvc.perform(get(USER_URL, "username"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(message));
+    }
+
+    // ================ UPDATE USER ================
+
+    @Test
+    void shouldUpdateUserSuccessfully() throws Exception {
+        String username = userResponse.getUsername();
+
+        when(userService.updateUser(anyString(), any()))
+                .thenReturn(userResponse);
+
+        mockMvc.perform(put(USER_URL, username)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(updateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(username));
+
+        verify(userService).updateUser(anyString(), any(UserUpdateRequest.class));
+    }
+
+    // ❌ 404 Not Found
+    @Test
+    void shouldReturn404WhenUserNotFound() throws Exception {
+        String username = "notfound";
+
+        UserUpdateRequest request = new UserUpdateRequest();
+        request.setPassword("newPassword");
+
+        when(userService.updateUser(anyString(), any(UserUpdateRequest.class)))
+                .thenThrow(new UserNotFoundException("Usuario no encontrado"));
+
+        mockMvc.perform(put(USER_URL, username)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    // ❌ 409 Conflict
+    @Test
+    void shouldReturn409WhenUserAlreadyExists() throws Exception {
+        String username = "testuser";
+
+        UserUpdateRequest request = new UserUpdateRequest();
+        request.setUsername("existingUser");
+
+        when(userService.updateUser(anyString(), any(UserUpdateRequest.class)))
+                .thenThrow(new UserAlreadyExistsException("Username en uso"));
+
+        mockMvc.perform(put(USER_URL, username)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isConflict());
     }
     
 }

@@ -32,7 +32,7 @@ public class SecurityConfig {
     private String frontendUrl;
 
     private static final String[] ADMIN_ROLES = {
-        "COLABORADOR", "ENCARGADO", "SECRETARIO", "COORDINADOR"
+        "SECRETARIO", "COORDINADOR"
     };
 
     @Bean

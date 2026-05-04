@@ -14,6 +14,7 @@ import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 
 public class UserFactory {
 
@@ -86,6 +87,11 @@ public class UserFactory {
         return UserUpdateRequest.builder()
                 .name("Jane")
                 .surname("Smith")
+                .active(false)
+                .dni("51835019B")
+                .email("test2@test.com")
+                .phone("987654321")
+                .role(Role.COLABORADOR)
                 .build();
     }
 }

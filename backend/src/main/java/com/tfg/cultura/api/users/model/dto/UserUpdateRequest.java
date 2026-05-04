@@ -5,7 +5,6 @@ import com.tfg.cultura.api.users.validation.annotations.ValidDni;
 import com.tfg.cultura.api.users.validation.annotations.ValidPhone;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +18,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class UserUpdateRequest {
-    @NotBlank(message = "Username obligatorio")
     @Size(min = 3, max = 20, message = "El nombre de usuario debe tener entre 3 y 20 caracteres")
     private String username;
 

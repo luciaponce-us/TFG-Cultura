@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
@@ -50,14 +51,13 @@ public class UserService {
         return user.get();
     }
 
-    public UserResponse updateUser(String username, UserUpdateRequest request) throws UserNotFoundException {
+    public UserResponse updateUser(String username, UserUpdateRequest request) throws UserNotFoundException, UserAlreadyExistsException {
         logger.info("Se va a actualizar el usuario con username {}", username);
         User user = findUserByUsername(username);
-        logger.info("ANTES: {}", user.getUsername());
-        logger.info("REQUEST: {}", request.getUsername());
+
         if (isChanged(request.getUsername(), user.getUsername())) {
             if (userRepository.existsByUsername(request.getUsername()))
-                throw new IllegalArgumentException("El username ya está en uso");
+                throw new UserAlreadyExistsException("El username ya está en uso");
 
             user.setUsername(request.getUsername());
             logger.info("Se ha cambiado el username de {} a {}", username, request.getUsername());
@@ -65,7 +65,7 @@ public class UserService {
 
         if (isChanged(request.getDni(), user.getDni())) {
             if (userRepository.existsByDni(request.getDni()))
-                throw new IllegalArgumentException("El DNI ya está en uso");
+                throw new UserAlreadyExistsException("El DNI ya está en uso");
 
             user.setDni(request.getDni());
         }
@@ -97,7 +97,7 @@ public class UserService {
         user.setActive(request.isActive());
 
         User savedUser = userRepository.save(user);
-        logger.info("DESPUÉS: {}", savedUser.getUsername());
+        logger.info("Usuario con username {} actualizado correctamente", username);
         return new UserResponse(savedUser);
     }
 

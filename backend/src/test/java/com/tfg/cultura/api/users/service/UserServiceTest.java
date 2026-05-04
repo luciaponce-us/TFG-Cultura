@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -16,7 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
@@ -29,6 +32,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService service;
@@ -110,5 +116,75 @@ class UserServiceTest {
         assertNotNull(response);
         assertEquals(newUsername, response.getUsername());
     }
+
+    @Test
+    void should_update_user_password_succesfully() {
+        String username = user.getUsername();
+        String oldEmail = user.getEmail();
+
+        UserUpdateRequest request = new UserUpdateRequest();
+        request.setPassword("newPassword");
+
+        when(userRepository.findByUsername(username))
+                .thenReturn(Optional.of(user));
+
+        when(passwordEncoder.encode(any()))
+                .thenReturn("encodedNewPassword");
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // WHEN
+        UserResponse response = service.updateUser(username, request);
+
+        // THEN
+        assertEquals("encodedNewPassword", user.getPassword());
+        assertEquals(oldEmail, response.getEmail()); // no cambia
+
+        verify(passwordEncoder).encode("newPassword");
+        verify(userRepository).save(user);
+
+    }
+
+    @Test
+    void should_throw_UserNotFoundException_when_update_unexisting_user() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.updateUser("123", updateRequest));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    @Test
+    void should_throw_UserAlreadyExistsException_when_update_user_with_existing_username() {
+        String username = user.getUsername();
+        String existingUsername = "existingUsername";
+        updateRequest.setUsername(existingUsername);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.existsByUsername(existingUsername)).thenReturn(true);
+
+        UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+                () -> service.updateUser(username, updateRequest));
+
+        assertTrue(ex.getMessage().contains("ya está en uso"));
+    }
+
+    @Test
+    void should_throw_UserAlreadyExistsException_when_update_user_with_existing_dni() {
+        String username = user.getUsername();
+        String existingDni = "06323988T";
+        updateRequest.setDni(existingDni);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.existsByDni(existingDni)).thenReturn(true);
+        UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+                () -> service.updateUser(username, updateRequest));
+
+        assertTrue(ex.getMessage().contains("ya está en uso"));
+    }
+
+
 
 }

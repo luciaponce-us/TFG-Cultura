@@ -34,12 +34,11 @@ public class UserController {
     @Operation(summary = "Obtener información de un usuario concreto", description = "Como colaborador/encargado/secretario/coordinador, quiero poder consultar la información de un usuario concreto, para poder revisar su información personal y realizar las operaciones CRUD")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario obtenido correctamente"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - El usuario no está autenticado"),
-            @ApiResponse(responseCode = "403", description = "Forbidden - El usuario no tiene permisos para aprobar registros"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - El usuario no tiene permisos para leer usuarios"),
             @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario a aprobar/rechazar")
     })
     @GetMapping("/{username}")
-    @PreAuthorize("hasAnyRole('COLABORADOR', 'ENCARGADO', 'SECRETARIO', 'COORDINADOR')")
+    @PreAuthorize("hasAnyRole('SECRETARIO', 'COORDINADOR')")
     public ResponseEntity<UserResponse> getUser(@PathVariable String username) {
         UserResponse response = userService.getUser(username);
         return ResponseEntity
@@ -47,8 +46,15 @@ public class UserController {
                 .body(response);
     }
 
+    @Operation(summary = "Editar un usuario concreto (RF-04)", description = "Como secretario/coordinador, quiero poder realizar las operaciones CRUD (crear, leer, actualizar y eliminar) la información sobre los usuarios, para tener control total sobre la gestión de usuarios")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - El usuario no tiene permisos para actualizar usuarios"),
+            @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario"),
+            @ApiResponse(responseCode = "409", description = "User Already Exists - El username y/o el DNI están en uso")
+    })
     @PutMapping("/{username}")
-    @PreAuthorize("hasAnyRole('COLABORADOR', 'ENCARGADO', 'SECRETARIO', 'COORDINADOR')")
+    @PreAuthorize("hasAnyRole('SECRETARIO', 'COORDINADOR')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable String username, @RequestBody @Valid UserUpdateRequest request) {
         UserResponse response = userService.updateUser(username, request);
         return ResponseEntity
