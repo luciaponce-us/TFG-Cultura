@@ -3,6 +3,7 @@ package com.tfg.cultura.api.users.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -55,11 +56,27 @@ public class UserController {
     })
     @PutMapping("/{username}")
     @PreAuthorize("hasAnyRole('SECRETARIO', 'COORDINADOR')")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable String username, @RequestBody @Valid UserUpdateRequest request) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable String username,
+            @RequestBody @Valid UserUpdateRequest request) {
         UserResponse response = userService.updateUser(username, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
+    }
+
+    @Operation(summary = "Eliminar un usuario concreto (RF-04)", description = "Como secretario/coordinador, quiero poder realizar las operaciones CRUD (crear, leer, actualizar y eliminar) la información sobre los usuarios, para tener control total sobre la gestión de usuarios")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Usuario eliminado correctamente"),
+        @ApiResponse(responseCode = "403", description = "Forbidden - El usuario no tiene permisos para eliminar usuarios"),
+        @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario")
+    })
+    @DeleteMapping("/{username}")
+    @PreAuthorize("hasAnyRole('SECRETARIO', 'COORDINADOR')")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
+        userService.deleteUser(username);
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 
 }

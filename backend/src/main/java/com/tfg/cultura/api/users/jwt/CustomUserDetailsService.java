@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UserNotFoundException{
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> {
-                logger.warn("Error al iniciar sesión: El usuario {} no existe", username);
+                logger.warn("Error al conceder permisos: El usuario {} no existe", username);
                 return new UserNotFoundException("El usuario con username " + username + " no existe");
             });
 

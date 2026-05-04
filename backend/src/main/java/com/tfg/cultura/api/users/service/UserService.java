@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
@@ -21,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final SuggestionRepository suggestionRepository;
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
@@ -103,6 +107,14 @@ public class UserService {
 
     private boolean isChanged(String newValue, String currentValue) {
         return newValue != null && !newValue.trim().equals(currentValue);
+    }
+
+    @Transactional
+    public void deleteUser(String username) throws UserNotFoundException {
+        User user = findUserByUsername(username);
+        suggestionRepository.deleteByAuthorId(user.getId());
+        userRepository.delete(user);
+        logger.info("Usuario con username {} eliminado correctamente", username);
     }
 
 }
