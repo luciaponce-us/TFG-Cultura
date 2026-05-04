@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -19,11 +21,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
+import com.tfg.cultura.api.users.jwt.CustomUserDetails;
+import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
+import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.repository.UserRepository;
@@ -43,16 +49,23 @@ class UserServiceTest {
     @Mock
     private UserFileService userFileService;
 
+    @Mock
+    private CustomUserDetailsService userDetailsService;
+
     @InjectMocks
     private UserService service;
 
     private User user;
     private UserUpdateRequest updateRequest;
+    private CustomUserDetails userDetails;
+    private UserProfileUpdateRequest userProfileUpdateRequest;
 
     @BeforeEach
     void setUp() {
         user = UserFactory.validUser();
         updateRequest = UserFactory.validUserUpdateRequest();
+        userDetails = new CustomUserDetails(user);
+        userProfileUpdateRequest = new UserProfileUpdateRequest();
     }
 
     // GET USER
@@ -213,6 +226,142 @@ class UserServiceTest {
         assertTrue(ex.getMessage().contains("no existe"));
     }
 
+    // =================== PROFILE ===================
 
+    // GET USER PROFILE
+
+    @Test
+    void should_return_user_profile_when_authenticated() throws Exception {
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        UserResponse response = service.getProfile();
+
+        assertNotNull(response);
+        assertEquals(user.getUsername(), response.getUsername());
+    }
+
+    @Test
+    void should_throw_exception_when_user_not_found() {
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenThrow(new UserNotFoundException("User not found"));
+
+        assertThrows(UserNotFoundException.class, () -> {
+            service.getProfile();
+        });
+    }
+
+    @Test
+    void should_throw_exception_when_no_authenticated_user() {
+
+        when(userDetailsService.getCurrentUserDetails())
+                .thenThrow(new UnathenticatedException("No auth"));
+
+        assertThrows(UnathenticatedException.class, () -> {
+            service.getProfile();
+        });
+
+        verify(userDetailsService).getCurrentUserDetails();
+    }
+
+    // UPDATE USER PROFILE
+
+    @Test
+    void should_update_profile_successfully() throws Exception {
+
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
+
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = service.updateProfile(request);
+
+        assertNotNull(response);
+        assertEquals(user.getUsername(), response.getUsername());
+
+        verify(userDetailsService).getCurrentUserDetails();
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void should_throw_when_user_not_found_on_update() {
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> {
+            service.updateProfile(userProfileUpdateRequest);
+        });
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void should_throw_when_user_already_exists() {
+        userProfileUpdateRequest.setUsername("newUsername");
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        // simula conflicto
+        when(userRepository.existsByUsername(anyString()))
+                .thenReturn(true);
+
+        assertThrows(UserAlreadyExistsException.class, () -> {
+            service.updateProfile(userProfileUpdateRequest);
+        });
+    }
+
+    // DELETE USER PROFILE
+
+    @Test
+    void should_delete_user_profile_successfully() throws Exception {
+        user.setAvatar("avatar_url");
+        user.setPaymentReceipt("receipt_url");
+
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        service.deleteProfile();
+
+        verify(userFileService).deleteUserFiles("avatar_url", "receipt_url");
+        verify(suggestionRepository).deleteByAuthorId(user.getId());
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    void should_throw_when_user_not_found_on_delete() {
+        when(userDetailsService.getCurrentUserDetails())
+                .thenReturn(userDetails);
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> {
+            service.deleteProfile();
+        });
+
+        verifyNoInteractions(userFileService);
+        verify(userRepository, never()).delete(any());
+    }
 
 }
