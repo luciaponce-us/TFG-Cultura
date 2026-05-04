@@ -2,6 +2,7 @@ package com.tfg.cultura.api.users.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -75,7 +76,7 @@ class UserControllerTest extends BaseControllerTest {
     // ================ UPDATE USER ================
 
     @Test
-    void shouldUpdateUserSuccessfully() throws Exception {
+    void should_update_user_successfully() throws Exception {
         String username = userResponse.getUsername();
 
         when(userService.updateUser(anyString(), any()))
@@ -92,7 +93,7 @@ class UserControllerTest extends BaseControllerTest {
 
     // ❌ 404 Not Found
     @Test
-    void shouldReturn404WhenUserNotFound() throws Exception {
+    void should_return_404_when_user_not_found() throws Exception {
         String username = "notfound";
 
         UserUpdateRequest request = new UserUpdateRequest();
@@ -109,7 +110,7 @@ class UserControllerTest extends BaseControllerTest {
 
     // ❌ 409 Conflict
     @Test
-    void shouldReturn409WhenUserAlreadyExists() throws Exception {
+    void should_return_409_when_user_already_exists() throws Exception {
         String username = "testuser";
 
         UserUpdateRequest request = new UserUpdateRequest();
@@ -122,6 +123,28 @@ class UserControllerTest extends BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(request)))
                 .andExpect(status().isConflict());
+    }
+
+    // ================ DELETE USER ================
+
+    @Test
+    void should_delete_user_successfully() throws Exception {
+        mockMvc.perform(delete(USER_URL, "username"))
+                .andExpect(status().isNoContent());
+
+        verify(userService).deleteUser(anyString());
+    }
+
+    // ❌ 404 Not Found
+    @Test
+    void should_return_404_when_delete_unexisting_user() throws Exception {
+        doThrow(new UserNotFoundException("Usuario no encontrado"))
+            .when(userService).deleteUser(anyString());
+
+        mockMvc.perform(delete(USER_URL, "username"))
+                .andExpect(status().isNotFound());
+        
+        verify(userService).deleteUser(anyString());
     }
     
 }

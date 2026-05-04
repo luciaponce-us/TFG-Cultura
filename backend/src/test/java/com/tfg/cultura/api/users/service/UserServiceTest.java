@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
@@ -35,6 +36,9 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private SuggestionRepository suggestionRepository;
 
     @InjectMocks
     private UserService service;
@@ -183,6 +187,27 @@ class UserServiceTest {
                 () -> service.updateUser(username, updateRequest));
 
         assertTrue(ex.getMessage().contains("ya está en uso"));
+    }
+
+    // DELETE USER
+
+    @Test
+    void should_delete_user_successfully() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        service.deleteUser(user.getUsername());
+
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    void should_throw_UserNotFoundException_when_delete_unexisting_user() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.deleteUser("123"));
+
+        assertTrue(ex.getMessage().contains("no existe"));
     }
 
 
