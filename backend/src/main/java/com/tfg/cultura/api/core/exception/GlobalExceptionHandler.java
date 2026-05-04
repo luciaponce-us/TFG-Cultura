@@ -42,4 +42,9 @@ public class GlobalExceptionHandler {
         return apiErrorBuilder.build(ex, HttpStatus.UNAUTHORIZED, "No autenticado", logger);
     }
 
+    @ExceptionHandler(FileDeleteException.class)
+    public ResponseEntity<ApiError> handleFileDeleteException(FileDeleteException ex) {
+        return apiErrorBuilder.build(ex, HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar el archivo", logger);
+    }
+
 }

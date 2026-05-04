@@ -9,24 +9,26 @@ import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.service.FileService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserFileService {
 
     private final FileService fileService;
 
-    public UserFileService(FileService fileService){
-        this.fileService = fileService;
-    }
-
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
     public static final String AVATAR_PLACEHOLDER = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png";
+    private static final String AVATAR_FOLDER = "cultura/avatars";
+    private static final String PAYMENT_FOLDER = "cultura/payment_receipts";
+
 
     String uploadAvatar(String userId, MultipartFile file) {
         try {
             MultipartFile resizedFile = fileService.resizeImage(file, 300, 300);
             FileUploadRequest request = FileUploadRequest.builder()
                     .file(resizedFile)
-                    .folder("cultura/avatars")
+                    .folder(AVATAR_FOLDER)
                     .publicId("user_" + userId)
                     .build();
 
@@ -42,7 +44,7 @@ public class UserFileService {
         try {
             FileUploadRequest request = FileUploadRequest.builder()
                     .file(file)
-                    .folder("cultura/payment_receipts")
+                    .folder(PAYMENT_FOLDER)
                     .publicId("payment_" + userId)
                     .build();
 
@@ -90,5 +92,12 @@ public class UserFileService {
         if (pdf.getSize() > maxSize) {
             throw new IllegalArgumentException("El archivo de carta de pago no puede superar los 2MB");
         }
+    }
+
+    void deleteUserFiles(String avatarUrl, String paymentReceiptUrl) {
+        if (!avatarUrl.equals(AVATAR_PLACEHOLDER)){
+            fileService.deleteFile(avatarUrl);
+        }
+        fileService.deleteFile(paymentReceiptUrl);
     }
 }
