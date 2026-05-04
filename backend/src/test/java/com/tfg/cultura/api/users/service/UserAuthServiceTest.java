@@ -55,6 +55,9 @@ class UserAuthServiceTest {
     @Mock
     private UserFileService userFileService;
 
+    @Mock
+    private UserService userCrudService;
+
     @InjectMocks
     private UserAuthService userService;
 
@@ -184,7 +187,7 @@ class UserAuthServiceTest {
         UserFactory.mockAuthContext();
         user.setActive(false);
         user.setId("123"); // Usuario distinto a sí mismo
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(userCrudService.findUserById(any())).thenReturn(user);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UserResponse response = userService.activateUser("123");
@@ -198,7 +201,7 @@ class UserAuthServiceTest {
         UserFactory.mockAuthContext();
         user.setActive(true);
         user.setId("123"); // Usuario distinto a sí mismo
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(userCrudService.findUserById(any())).thenReturn(user);
 
         UserResponse response = userService.activateUser("123");
         assertNotNull(response);
@@ -207,7 +210,9 @@ class UserAuthServiceTest {
 
     @Test
     void should_throw_exception_when_activate_unexisting_user() {
-        when(userRepository.findById(any())).thenReturn(Optional.empty());
+        String id = "123";
+        UserNotFoundException crudException = new UserNotFoundException(String.format("El usuario con id %s no existe", id));
+        when(userCrudService.findUserById(any())).thenThrow(crudException);
 
         UserNotFoundException ex = assertThrows(UserNotFoundException.class,
                 () -> userService.activateUser("123"));
@@ -220,7 +225,7 @@ class UserAuthServiceTest {
         UserFactory.mockAuthContext();
         user.setActive(false);
 
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(userCrudService.findUserById(any())).thenReturn(user);
 
         assertThrows(SelfActivationNotAllowedException.class, () -> {
             userService.activateUser("123");
@@ -232,7 +237,7 @@ class UserAuthServiceTest {
     @Test
     void should_throw_exception_when_activating_user_unathenticated() {
         SecurityContextHolder.clearContext();
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(userCrudService.findUserById(any())).thenReturn(user);
         UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
             userService.activateUser("123");
         });
@@ -249,7 +254,7 @@ class UserAuthServiceTest {
 
         SecurityContextHolder.setContext(context);
 
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(userCrudService.findUserById(any())).thenReturn(user);
 
         UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
             userService.activateUser("123");
