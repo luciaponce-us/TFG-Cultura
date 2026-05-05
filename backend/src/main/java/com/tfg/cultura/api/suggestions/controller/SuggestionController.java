@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,6 +56,38 @@ public class SuggestionController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @Operation(summary = "RF-09: Apoyar sugerencias", description = "Como usuario registrado, quiero poder expresar que estoy de acuerdo con una sugerencia para que la sugerencia que apoyo sea tenida en cuenta con mayor prioridad.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sugerencia modificada correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado"),
+            @ApiResponse(responseCode = "400", description = "No puedes apoyar esta sugerencia porque eres su autor (RN-06) o ya la apoyas")
+    })
+    @PutMapping("/{id}/support")
+    public ResponseEntity<SuggestionResponse> supportSuggestion(@PathVariable String id) {
+        SuggestionResponse response = service.supportSuggestion(id);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(response);
+    }
+
+    @Operation(summary = "Dejar de apoyar sugerencias", description = "Como usuario registrado, quiero poder expresar que ya no estoy de acuerdo con una sugerencia para cambiar de opinión.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sugerencia modificada correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado"),
+            @ApiResponse(responseCode = "400", description = "Ya no apoyabas esta sugerencia")
+    })
+    @PutMapping("/{id}/support/stop")
+    public ResponseEntity<SuggestionResponse> stopSupportingSuggestion(@PathVariable String id) {
+        SuggestionResponse response = service.stopSupportingSuggestion(id);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(response);
     }
 
 }

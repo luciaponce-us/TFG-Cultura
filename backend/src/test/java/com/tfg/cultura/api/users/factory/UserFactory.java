@@ -33,6 +33,28 @@ public class UserFactory {
                 .build();
     }
 
+    public static UserResponse validUserResponseWithId(String id) {
+        User user = validUser();
+        user.setId(id);
+        return new UserResponse(user);
+    }
+
+    public static User validUser2() {
+        return User.builder()
+                .id("user_id2")
+                .username("test2")
+                .password("12345678-encrypted")
+                .name("Jane")
+                .surname("Doe")
+                .dni("94471960N")
+                .phone("600123123")
+                .email("test@test.com")
+                .paymentReceipt("test.pdf")
+                .avatar("test.png")
+                .active(true)
+                .build();
+    }
+
     public static UserResponse validUserResponse() {
         User user = validUser();
         return new UserResponse(user);

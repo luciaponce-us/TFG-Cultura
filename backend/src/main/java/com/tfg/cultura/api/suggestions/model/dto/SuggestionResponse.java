@@ -11,19 +11,23 @@ import lombok.Getter;
 
 @Getter
 public class SuggestionResponse {
+    private String id;
     private String title;
     private String description;
     private SuggestionType type;
     private UserResponse author;
     private List<String> someSupportersAvatars;
+    private List<UserResponse> supporters;
     private int totalSupporters;
     private LocalDateTime createdAt;
 
-    public SuggestionResponse(Suggestion suggestion, UserResponse author, List<String> someSupportersAvatars) {
+    public SuggestionResponse(Suggestion suggestion, UserResponse author, List<UserResponse> supporters, List<String> someSupportersAvatars) {
+        this.id = suggestion.getId();
         this.title = suggestion.getTitle();
         this.description = suggestion.getDescription();
         this.type = suggestion.getType();
         this.author = author;
+        this.supporters = supporters;
         this.someSupportersAvatars = someSupportersAvatars;
         this.totalSupporters = suggestion.countSupporters();
         this.createdAt = suggestion.getCreatedAt();
