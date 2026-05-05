@@ -12,26 +12,30 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.suggestions.exception.SelfSupportSuggestionException;
+import com.tfg.cultura.api.suggestions.exception.SuggestionAlreadySupportedException;
+import com.tfg.cultura.api.suggestions.exception.SuggestionNotFoundException;
+import com.tfg.cultura.api.suggestions.exception.SuggestionNotSupportedException;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.dto.SuggestionCreateRequest;
 import com.tfg.cultura.api.suggestions.model.dto.SuggestionResponse;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
+import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class SuggestionService {
 
     private final SuggestionRepository repository;
     private final UserRepository userRepository;
-
-    public SuggestionService(SuggestionRepository repository, UserRepository userRepository) {
-        this.repository = repository;
-        this.userRepository = userRepository;
-    }
+    private final CustomUserDetailsService userDetailsService;
 
     private static final Logger logger = LoggerFactory.getLogger("suggestionsLogger");
 
@@ -97,6 +101,55 @@ public class SuggestionService {
                 .toList();
 
         return new SuggestionResponse(suggestion, authorResponse, avatars);
+    }
+
+    Suggestion findSuggestionById(String id) throws SuggestionNotFoundException {
+        Optional<Suggestion> optionalSuggestion = repository.findById(id);
+
+        if (optionalSuggestion.isEmpty()) {
+            logger.warn("Error al buscar la sugerencia: No existe ninguna sugerencia con ID {}", id);
+            throw new SuggestionNotFoundException(id);
+        }
+
+        return optionalSuggestion.get();
+    }
+
+    public SuggestionResponse supportSuggestion(String id) {
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+        Suggestion suggestion = findSuggestionById(id);
+
+        if (suggestion.getSupportersId().contains(currentUser.getId())) {
+            logger.error("Error al apoyar la sugerencia: El usuario con ID {} ya apoya esta sugerencia", currentUser.getId());
+            throw new SuggestionAlreadySupportedException();
+        }
+
+        if (suggestion.getAuthorId().equals(currentUser.getId())) {
+            logger.error("Error al apoyar la sugerencia: El usuario con ID {} ha intentado apoyar su propia sugerencia", currentUser.getId());
+            throw new SelfSupportSuggestionException();
+        }
+        List<String> supporters = suggestion.getSupportersId();
+        supporters.add(currentUser.getId());
+
+        suggestion.setSupportersId(supporters);
+
+        return toResponse(repository.save(suggestion));
+    }
+
+    public SuggestionResponse stopSupportingSuggestion(String id) {
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+        Suggestion suggestion = findSuggestionById(id);
+
+        if (!suggestion.getSupportersId().contains(currentUser.getId())) {
+            logger.error("Error al dejar de apoyar la sugerencia: El usuario con ID {} no está apoyando esta sugerencia", currentUser.getId());
+            throw new SuggestionNotSupportedException();
+        }
+
+        List<String> supporters = suggestion.getSupportersId();
+        supporters.remove(currentUser.getId());
+
+        suggestion.setSupportersId(supporters);
+
+        return toResponse(repository.save(suggestion));
     }
 
 }

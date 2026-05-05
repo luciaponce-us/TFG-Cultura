@@ -11,6 +11,7 @@ import lombok.Getter;
 
 @Getter
 public class SuggestionResponse {
+    private String id;
     private String title;
     private String description;
     private SuggestionType type;
@@ -20,6 +21,7 @@ public class SuggestionResponse {
     private LocalDateTime createdAt;
 
     public SuggestionResponse(Suggestion suggestion, UserResponse author, List<String> someSupportersAvatars) {
+        this.id = suggestion.getId();
         this.title = suggestion.getTitle();
         this.description = suggestion.getDescription();
         this.type = suggestion.getType();
