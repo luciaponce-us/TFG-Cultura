@@ -47,6 +47,9 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UnathenticatedException("No se ha podido obtener la información del usuario");
         }
 
+        if (!userRepository.existsById(currentUser.getId()))
+            throw new UserNotFoundException("El usuario logado no existe");
+
         return currentUser;
     }
 }

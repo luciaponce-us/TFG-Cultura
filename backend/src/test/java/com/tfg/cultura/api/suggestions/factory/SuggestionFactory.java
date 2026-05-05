@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.suggestions.factory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.tfg.cultura.api.suggestions.model.Suggestion;
@@ -19,7 +20,7 @@ public class SuggestionFactory {
             .description("testDescription")
             .type(SuggestionType.CATALOG)
             .authorId(author.getId())
-            .supportersId(List.of("2","3"))
+            .supportersId(new ArrayList<>(List.of("2","3")))
             .build();
     }
 
@@ -36,6 +37,9 @@ public class SuggestionFactory {
         Suggestion suggestion = validSuggestion();
         UserResponse author = UserFactory.validUserResponse();
         List<String> avatarsList = List.of("avatar1.png","avatar2.png");
-        return new SuggestionResponse(suggestion, author, avatarsList);
+        List<UserResponse> supporters = suggestion.getSupportersId().stream()
+                .map(UserFactory::validUserResponseWithId)
+                .toList();
+        return new SuggestionResponse(suggestion, author, supporters, avatarsList);
     }
 }
