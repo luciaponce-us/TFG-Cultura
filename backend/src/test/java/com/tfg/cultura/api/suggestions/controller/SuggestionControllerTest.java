@@ -21,6 +21,7 @@ import com.tfg.cultura.api.suggestions.exception.SelfSupportSuggestionException;
 import com.tfg.cultura.api.suggestions.exception.SuggestionAlreadySupportedException;
 import com.tfg.cultura.api.suggestions.exception.SuggestionExceptionHandler;
 import com.tfg.cultura.api.suggestions.exception.SuggestionNotFoundException;
+import com.tfg.cultura.api.suggestions.exception.SuggestionNotSupportedException;
 import com.tfg.cultura.api.suggestions.factory.SuggestionFactory;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.dto.SuggestionCreateRequest;
@@ -42,6 +43,7 @@ class SuggestionControllerTest extends BaseControllerTest {
     private static final String BASE_URL = "/api/suggestions";
     private static final String CREATE_URL = BASE_URL + "/create";
     private static final String SUPPORT_URL = BASE_URL + "/%s/support";
+    private static final String STOP_SUPPORT_URL = SUPPORT_URL + "/stop";
 
     private Suggestion suggestion;
     private SuggestionCreateRequest request;
@@ -168,5 +170,35 @@ class SuggestionControllerTest extends BaseControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").exists());
     }
+
+    // STOP SUPPORTING SUGGESTION
+
+    @Test
+    void stopSupportSuggestion_success() throws Exception {
+        when(service.stopSupportingSuggestion(suggestion.getId())).thenReturn(response);
+        
+        mockMvc.perform(put(String.format(STOP_SUPPORT_URL, suggestion.getId())))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void stopSupportSuggestion_suggestionNotFound() throws Exception {
+        String id = suggestion.getId();
+        SuggestionNotFoundException ex = new SuggestionNotFoundException(id);
+        when(service.stopSupportingSuggestion(any())).thenThrow(ex);
+        
+        mockMvc.perform(put(String.format(STOP_SUPPORT_URL, id)))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void stopSupportSuggestion_suggestionNotSupported() throws Exception {
+        String id = suggestion.getId();
+        SuggestionNotSupportedException ex = new SuggestionNotSupportedException();
+        when(service.stopSupportingSuggestion(any())).thenThrow(ex);
+        
+        mockMvc.perform(put(String.format(STOP_SUPPORT_URL, id)))
+            .andExpect(status().isBadRequest());
+    }    
 
 }
