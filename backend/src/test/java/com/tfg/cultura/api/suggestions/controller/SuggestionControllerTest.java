@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
@@ -16,6 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.suggestions.exception.SelfSupportSuggestionException;
+import com.tfg.cultura.api.suggestions.exception.SuggestionAlreadySupportedException;
+import com.tfg.cultura.api.suggestions.exception.SuggestionExceptionHandler;
+import com.tfg.cultura.api.suggestions.exception.SuggestionNotFoundException;
 import com.tfg.cultura.api.suggestions.factory.SuggestionFactory;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.dto.SuggestionCreateRequest;
@@ -36,6 +41,7 @@ class SuggestionControllerTest extends BaseControllerTest {
 
     private static final String BASE_URL = "/api/suggestions";
     private static final String CREATE_URL = BASE_URL + "/create";
+    private static final String SUPPORT_URL = BASE_URL + "/%s/support";
 
     private Suggestion suggestion;
     private SuggestionCreateRequest request;
@@ -46,7 +52,7 @@ class SuggestionControllerTest extends BaseControllerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         SuggestionController controller = new SuggestionController(service);
-        mockMvc = buildMockMvc(controller, UsersExceptionHandler.class);
+        mockMvc = buildMockMvc(controller, UsersExceptionHandler.class, SuggestionExceptionHandler.class);
 
         initTestData();
     }
@@ -120,6 +126,47 @@ class SuggestionControllerTest extends BaseControllerTest {
         mockMvc.perform(get(BASE_URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value(suggestion.getTitle()));
+    }
+
+    // SUPPORT SUGGESTION
+
+    @Test
+    void supportSuggestion_success() throws Exception {
+        when(service.supportSuggestion(suggestion.getId())).thenReturn(response);
+        
+        mockMvc.perform(put(String.format(SUPPORT_URL, suggestion.getId())))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void supportSuggestion_suggestionNotFound() throws Exception {
+        String id = suggestion.getId();
+        SuggestionNotFoundException ex = new SuggestionNotFoundException(id);
+        when(service.supportSuggestion(any())).thenThrow(ex);
+
+        mockMvc.perform(put(String.format(SUPPORT_URL, id)))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void supportSuggestion_suggestionAlreadySupported() throws Exception {
+        SuggestionAlreadySupportedException ex = new SuggestionAlreadySupportedException();
+        when(service.supportSuggestion(any())).thenThrow(ex);
+
+        mockMvc.perform(put(String.format(SUPPORT_URL, suggestion.getId())))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void supportSuggestion_selfSupport() throws Exception {
+        SelfSupportSuggestionException ex = new SelfSupportSuggestionException();
+        when(service.supportSuggestion(any())).thenThrow(ex);
+
+        mockMvc.perform(put(String.format(SUPPORT_URL, suggestion.getId())))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").exists());
     }
 
 }
