@@ -11,14 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
-import com.tfg.cultura.api.suggestions.exception.SelfSupportSuggestionException;
-import com.tfg.cultura.api.suggestions.exception.SuggestionAlreadySupportedException;
-import com.tfg.cultura.api.suggestions.exception.SuggestionNotFoundException;
-import com.tfg.cultura.api.suggestions.exception.SuggestionNotSupportedException;
+import com.tfg.cultura.api.suggestions.exception.*;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
-import com.tfg.cultura.api.suggestions.model.dto.SuggestionCreateRequest;
-import com.tfg.cultura.api.suggestions.model.dto.SuggestionResponse;
+import com.tfg.cultura.api.suggestions.model.dto.*;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
+
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
@@ -40,9 +37,9 @@ public class SuggestionService {
 
     public SuggestionResponse create(SuggestionCreateRequest request)
             throws UnathenticatedException, UserNotFoundException {
-     
+
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        
+
         String authorId = currentUser.getId();
 
         Suggestion suggestion = Suggestion.builder()
@@ -68,17 +65,21 @@ public class SuggestionService {
                 .toList();
     }
 
-    public SuggestionResponse supportSuggestion(String id) throws SuggestionNotFoundException, SuggestionAlreadySupportedException, SelfSupportSuggestionException {
+    public SuggestionResponse supportSuggestion(String id)
+            throws SuggestionNotFoundException, SuggestionAlreadySupportedException, SelfSupportSuggestionException,
+            UserNotFoundException, UnathenticatedException {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         Suggestion suggestion = findSuggestionById(id);
 
         if (suggestion.getSupportersId().contains(currentUser.getId())) {
-            logger.error("Error al apoyar la sugerencia: El usuario con ID {} ya apoya esta sugerencia", currentUser.getId());
+            logger.error("Error al apoyar la sugerencia: El usuario con ID {} ya apoya esta sugerencia",
+                    currentUser.getId());
             throw new SuggestionAlreadySupportedException();
         }
 
         if (suggestion.getAuthorId().equals(currentUser.getId())) {
-            logger.error("Error al apoyar la sugerencia: El usuario con ID {} ha intentado apoyar su propia sugerencia", currentUser.getId());
+            logger.error("Error al apoyar la sugerencia: El usuario con ID {} ha intentado apoyar su propia sugerencia",
+                    currentUser.getId());
             throw new SelfSupportSuggestionException();
         }
         List<String> supporters = new ArrayList<>(suggestion.getSupportersId());
@@ -89,13 +90,16 @@ public class SuggestionService {
         return toResponse(repository.save(suggestion));
     }
 
-    public SuggestionResponse stopSupportingSuggestion(String id) throws SuggestionNotFoundException, SuggestionNotSupportedException {
+    public SuggestionResponse stopSupportingSuggestion(String id)
+            throws SuggestionNotFoundException, SuggestionNotSupportedException {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         Suggestion suggestion = findSuggestionById(id);
         List<String> supporters = suggestion.getSupportersId();
 
         if (!supporters.contains(currentUser.getId())) {
-            logger.error("Error al dejar de apoyar la sugerencia: El usuario con ID {} no está apoyando esta sugerencia", currentUser.getId());
+            logger.error(
+                    "Error al dejar de apoyar la sugerencia: El usuario con ID {} no está apoyando esta sugerencia",
+                    currentUser.getId());
             throw new SuggestionNotSupportedException();
         }
 
@@ -134,7 +138,6 @@ public class SuggestionService {
         return new SuggestionResponse(suggestion, authorResponse, supporters, avatars);
     }
 
-
     private List<UserResponse> getAllSupporters(Suggestion suggestion) {
         return userRepository.findAllById(suggestion.getSupportersId()).stream()
                 .map(UserResponse::new)
@@ -151,5 +154,5 @@ public class SuggestionService {
 
         return optionalSuggestion.get();
     }
-    
+
 }
