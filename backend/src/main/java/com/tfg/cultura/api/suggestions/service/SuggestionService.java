@@ -148,7 +148,7 @@ public class SuggestionService {
         Optional<Suggestion> optionalSuggestion = repository.findById(id);
 
         if (optionalSuggestion.isEmpty()) {
-            logger.warn("Error al buscar la sugerencia: No existe ninguna sugerencia con ID {}", id);
+            logger.warn("Error al buscar la sugerencia: No existe ninguna sugerencia con el id solicitado");
             throw new SuggestionNotFoundException(id);
         }
 
