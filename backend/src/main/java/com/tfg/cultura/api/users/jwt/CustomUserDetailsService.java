@@ -42,8 +42,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UnathenticatedException("No se ha podido obtener la autenticación del usuario");
         }
 
-        CustomUserDetails currentUser = (CustomUserDetails) auth.getPrincipal();
-        if (currentUser == null) {
+        if (!(auth.getPrincipal() instanceof CustomUserDetails currentUser)) {
             throw new UnathenticatedException("No se ha podido obtener la información del usuario");
         }
 

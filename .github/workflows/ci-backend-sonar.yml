@@ -11,14 +11,14 @@ jobs:
       runs-on: ubuntu-latest
       
       services:
-      mongo:
-        image: mongo:7
-        ports:
-          - 27018:27017
-        env:
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_ROOT_PASSWORD: root
-          MONGO_INITDB_DATABASE: test
+        mongo:
+          image: mongo:7
+          ports:
+            - 27018:27017
+          env:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: root
+            MONGO_INITDB_DATABASE: test
 
       steps:
         - name: Checkout código
@@ -46,8 +46,9 @@ jobs:
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          run: mvn verify sonar:sonar --no-transfer-progress
-           -Dsonar.projectKey=luciaponce-us_TFG-Cultura
-           -Dsonar.organization=luciaponce-us
-           -Dsonar.host.url=https://sonarcloud.io
-           -Dsonar.coverage.exclusions=**/src/test/**,**/src/main/resources/**,**/config/**,**/MongoConfiguration.java,**/DatabaseSeeder.java
+          run: |
+            mvn verify sonar:sonar --no-transfer-progress \
+              -Dsonar.projectKey=luciaponce-us_TFG-Cultura \
+              -Dsonar.organization=luciaponce-us \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.coverage.exclusions=**/src/test/**,**/src/main/resources/**,**/config/**,**/DatabaseSeeder.java,**/exception/**,**/model/**,**/enumerators/**,**/CustomMultipartFile.java

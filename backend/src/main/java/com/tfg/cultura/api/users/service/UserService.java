@@ -41,7 +41,7 @@ public class UserService {
         Optional<User> user = userRepository.findByUsername(username);
 
         if (user.isEmpty()) {
-            logger.warn("Error al obtener el usuario: El usuario con username {} no existe", username);
+            logger.warn("Error al obtener el usuario: El usuario no existe");
             throw new UserNotFoundException(String.format("El usuario con username %s no existe", username));
         }
 
@@ -52,7 +52,7 @@ public class UserService {
         Optional<User> user = userRepository.findById(id);
 
         if (user.isEmpty()) {
-            logger.warn("Error al obtener el usuario: El usuario con id {} no existe", id);
+            logger.warn("Error al obtener el usuario: El usuario no existe");
             throw new UserNotFoundException(String.format("El usuario con id %s no existe", id));
         }
 
@@ -100,7 +100,7 @@ public class UserService {
         userFileService.deleteUserFiles(user.getAvatar(), user.getPaymentReceipt());
         suggestionRepository.deleteByAuthorId(user.getId());
         userRepository.delete(user);
-        logger.info("Usuario con username {} eliminado correctamente", username);
+        logger.info("Usuario con username {} eliminado correctamente", user.getUsername());
     }
 
     // PROFILE
@@ -119,7 +119,7 @@ public class UserService {
     }
 
     public User updateProfile(String username, UserProfileUpdateRequest request) throws UserNotFoundException, UserAlreadyExistsException {
-        logger.info("Se va a actualizar el usuario con username {}", username);
+        logger.info("Se va a actualizar un usuario con username");
         User user = findUserByUsername(username);
 
         if (isChanged(request.getUsername(), user.getUsername())) {
@@ -127,7 +127,7 @@ public class UserService {
                 throw new UserAlreadyExistsException("El username ya está en uso");
 
             user.setUsername(request.getUsername());
-            logger.info("Se ha cambiado el username de {} a {}", username, request.getUsername());
+            logger.info("Se ha cambiado el username del usuario a {}", user.getUsername());
         }
 
         if (isChanged(request.getName(), user.getName())) {
@@ -164,9 +164,10 @@ public class UserService {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         String username = currentUser.getUsername();
         User user = findUserByUsername(username);
+        String userToDelete = user.getUsername();
         userFileService.deleteUserFiles(user.getAvatar(), user.getPaymentReceipt());
         suggestionRepository.deleteByAuthorId(user.getId());
         userRepository.delete(user);
-        logger.info("Usuario con username {} eliminado correctamente", username);
+        logger.info("Usuario con username {} eliminado correctamente", userToDelete);
     }
 }

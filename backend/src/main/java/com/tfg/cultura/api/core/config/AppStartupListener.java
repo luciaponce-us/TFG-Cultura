@@ -25,6 +25,5 @@ public class AppStartupListener {
         log.info("🚀 Backend listo para recibir peticiones");
         log.info("🌐 Frontend URL: {}", frontendUrl);
         log.info("🔧 Configuración actual: seedEnabled={}", seedEnabled);
-        //log.info("📦 Conectando a MongoDB en: {}", mongoUri);
     }
 }

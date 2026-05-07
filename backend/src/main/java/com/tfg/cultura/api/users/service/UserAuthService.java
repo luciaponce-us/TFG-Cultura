@@ -43,13 +43,12 @@ public class UserAuthService {
         userFileService.validatePaymentReceipt(paymentReceipt);
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            logger.warn("Error al registrar el usuario {}: El nombre de usuario ya existe", request.getUsername());
+            logger.warn("Error al registrar el usuario: El nombre de usuario ya existe");
             throw new UserAlreadyExistsException("El nombre de usuario ya existe");
         }
 
         if (userRepository.existsByDni(request.getDni())) {
-            logger.warn("Error al registrar el usuario {}: El DNI {} ya existe", request.getUsername(),
-                    request.getDni());
+            logger.warn("Error al registrar el usuario: El DNI ya existe");
             throw new UserAlreadyExistsException("Ya existe un usuario con el mismo DNI");
         }
 
@@ -69,13 +68,13 @@ public class UserAuthService {
         logger.info("Usuario registrado correctamente: {}", savedUser.getUsername());
 
         if (avatar != null && !avatar.isEmpty()) {
-            logger.info("Se va a intentar subir el avatar: {}", avatar.getOriginalFilename());
+            logger.info("Se va a intentar subir el avatar del usuario {}", user.getUsername());
             String avatarUrl = userFileService.uploadAvatar(userId, avatar);
             user.setAvatar(avatarUrl);
         }
 
-        logger.info("Se va a intentar subir el PDF de la carta de pago: {}",
-                paymentReceipt.getOriginalFilename());
+        logger.info("Se va a intentar subir el PDF de la carta de pago del usuario {}",
+                user.getUsername());
         String paymentReceiptUrl = userFileService.uploadPaymentReceiptPdf(userId, paymentReceipt);
         user.setPaymentReceipt(paymentReceiptUrl);
 
@@ -86,19 +85,18 @@ public class UserAuthService {
             throws UserNotFoundException, DisabledException, BadCredentialsException {
         Optional<User> user = userRepository.findByUsername(request.getUsername());
         if (user.isEmpty()) {
-            logger.warn("Error al iniciar sesión: El usuario {} no existe", request.getUsername());
+            logger.warn("Error al iniciar sesión: El usuario no existe");
             throw new UserNotFoundException(
                     "El usuario con username " + request.getUsername() + " no existe");
         }
         User foundUser = user.get();
         if (!foundUser.isActive()) {
-            logger.warn("Error al iniciar sesión: El usuario {} está desactivado", request.getUsername());
+            logger.warn("Error al iniciar sesión: El usuario está desactivado");
             throw new DisabledException("El usuario está desactivado");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), foundUser.getPassword())) {
-            logger.warn("Error al iniciar sesión: El usuario {} introdujo una contraseña incorrecta",
-                    request.getUsername());
+            logger.warn("Error al iniciar sesión: El usuario introdujo una contraseña incorrecta para la cuenta {}", foundUser.getUsername());
             throw new BadCredentialsException("Credenciales inválidas");
         }
 
