@@ -52,7 +52,7 @@ public class UserService {
         Optional<User> user = userRepository.findById(id);
 
         if (user.isEmpty()) {
-            logger.warn("Error al obtener el usuario: El usuario con id {} no existe", id);
+            logger.warn("Error al obtener el usuario: El usuario no existe");
             throw new UserNotFoundException(String.format("El usuario con id %s no existe", id));
         }
 
@@ -100,7 +100,7 @@ public class UserService {
         userFileService.deleteUserFiles(user.getAvatar(), user.getPaymentReceipt());
         suggestionRepository.deleteByAuthorId(user.getId());
         userRepository.delete(user);
-        logger.info("Usuario con username {} eliminado correctamente", username);
+        logger.info("Usuario con username {} eliminado correctamente", user.getUsername());
     }
 
     // PROFILE
