@@ -11,14 +11,14 @@ jobs:
       runs-on: ubuntu-latest
       
       services:
-      mongo:
-        image: mongo:7
-        ports:
-          - 27018:27017
-        env:
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_ROOT_PASSWORD: root
-          MONGO_INITDB_DATABASE: test
+        mongo:
+          image: mongo:7
+          ports:
+            - 27018:27017
+          env:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: root
+            MONGO_INITDB_DATABASE: test
 
       steps:
         - name: Checkout código
