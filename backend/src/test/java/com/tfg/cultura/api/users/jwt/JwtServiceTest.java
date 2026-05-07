@@ -75,12 +75,10 @@ class JwtServiceTest {
     @Test
     void shouldDetectExpiredToken() throws Exception {
         // Token con expiración muy corta
-        setField(jwtService, "expiration", 1L);
+        setField(jwtService, "expiration", -1000L);
         jwtService.init();
 
         String token = jwtService.generateToken(username, role, id);
-
-        Thread.sleep(5); // NOSONAR: esperar a que expire
 
         assertTrue(jwtService.isTokenExpired(token));
     }
