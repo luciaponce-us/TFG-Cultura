@@ -4,3 +4,6 @@ export * from "./NavButton";
 export * from "./SideBar";
 export * from "./SocialLink";
 export * from "./CustomAlert";
+export * from "./CustomButton";
+export * from "./CustomInput";
+export * from "./text";
