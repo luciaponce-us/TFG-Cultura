@@ -8,6 +8,7 @@ import {
   CustomButton,
   TextSecondary,
   CustomInput,
+  UploadBox
 } from "@/modules/core/components";
 import { IconArrowNarrowRight } from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
@@ -23,6 +24,9 @@ export default function RegistrationPage() {
     email: "",
   });
 
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
+  
   const [errors, setErrors] = useState<Record<string, string>>({
     username: "",
     password: "",
@@ -55,7 +59,11 @@ export default function RegistrationPage() {
         email: "",
         general: "",
       });
-      await registerUser(form);
+      if (!paymentReceipt) {
+        setErrors((prev) => ({ ...prev, general: "La carta de pago es obligatoria" }));
+        return;
+      }
+      await registerUser(form, paymentReceipt);
       alert("Usuario registrado y logueado");
     } catch (err) {
       if (isApiError(err))
@@ -68,6 +76,7 @@ export default function RegistrationPage() {
       name: validation.validateName(form.name),
       surname: validation.validateSurname(form.surname),
       dni: validation.validateDni(form.dni),
+      general: paymentReceipt ? "":"La carta de pago es obligatoria"
     };
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
@@ -92,7 +101,7 @@ export default function RegistrationPage() {
           Solo serán públicos tu nombre de usuario y foto de perfil
         </TextSecondary>
         {errors.general && (
-          <CustomAlert state="error" message={errors.general} />
+          <CustomAlert state="error" message={errors.general} closeable={false} />
         )}
         {step === 1 && (
           <>
@@ -119,6 +128,17 @@ export default function RegistrationPage() {
               required={true}
               error={errors.dni}
               onChange={handleChange}
+            />
+
+            <UploadBox
+              text={
+                <>
+                  Arrastra tu <b>carta de pago</b> en PDF
+                </>
+              }
+              secondaryText="PDF, tamaño no superior a 2MB"
+              fileType="application/pdf"
+              onFileChange={setPaymentReceipt}
             />
 
             <CustomButton
