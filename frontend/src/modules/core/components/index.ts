@@ -6,4 +6,5 @@ export * from "./SocialLink";
 export * from "./CustomAlert";
 export * from "./CustomButton";
 export * from "./CustomInput";
+export * from "./UploadBox";
 export * from "./text";
