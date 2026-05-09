@@ -16,30 +16,39 @@ export function UploadBox({
   secondaryText,
   fileType,
   required = false,
-  onFileChange
+  onFileChange,
 }: UploadBoxProps) {
   const [errors, setErrors] = useState<string[]>([]);
 
   function getErrorMessage(details: FileUpload.FileRejectDetails) {
-    setErrors([])
+    setErrors([]);
     const errorTypes = details.files[0].errors;
-    const newErrors : string[] = [];
+    const newErrors: string[] = [];
 
     if (errorTypes.includes("FILE_TOO_LARGE")) {
-      newErrors.push("El archivo es demasiado grande. El tamaño máximo permitido es de 2MB.")
+      newErrors.push(
+        "El archivo es demasiado grande. El tamaño máximo permitido es de 2MB.",
+      );
     }
 
     if (errorTypes.includes("FILE_INVALID_TYPE")) {
       let allowedFileType = "desconocido";
       if (fileType == "application/pdf") allowedFileType = "archivos PDF";
       if (fileType == "image/*") allowedFileType = "imágenes";
-      newErrors.push(`El tipo de archivo no es válido. Solo se permiten ${allowedFileType}.`);
+      newErrors.push(
+        `El tipo de archivo no es válido. Solo se permiten ${allowedFileType}.`,
+      );
     }
-    const isUnknownError = !errorTypes.includes("FILE_TOO_LARGE") && !errorTypes.includes("FILE_INVALID_TYPE") && errorTypes.length > 0;
+    const isUnknownError =
+      !errorTypes.includes("FILE_TOO_LARGE") &&
+      !errorTypes.includes("FILE_INVALID_TYPE") &&
+      errorTypes.length > 0;
     if (isUnknownError) {
-      setErrors([`Archivo rechazado por razones desconocidas: ${errorTypes[0]}`]);
+      setErrors([
+        `Archivo rechazado por razones desconocidas: ${errorTypes[0]}`,
+      ]);
     }
-    setErrors(newErrors)
+    setErrors(newErrors);
   }
 
   function handleAccept(details: FileUpload.FileAcceptDetails) {

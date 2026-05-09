@@ -8,7 +8,7 @@ import {
   CustomButton,
   TextSecondary,
   CustomInput,
-  UploadBox
+  UploadBox,
 } from "@/modules/core/components";
 import { IconArrowNarrowRight } from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
@@ -26,7 +26,7 @@ export default function RegistrationPage() {
 
   const [avatar, setAvatar] = useState<File | null>(null);
   const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({
     username: "",
     password: "",
@@ -60,7 +60,10 @@ export default function RegistrationPage() {
         general: "",
       });
       if (!paymentReceipt) {
-        setErrors((prev) => ({ ...prev, general: "La carta de pago es obligatoria" }));
+        setErrors((prev) => ({
+          ...prev,
+          general: "La carta de pago es obligatoria",
+        }));
         return;
       }
       await registerUser(form, paymentReceipt);
@@ -76,7 +79,7 @@ export default function RegistrationPage() {
       name: validation.validateName(form.name),
       surname: validation.validateSurname(form.surname),
       dni: validation.validateDni(form.dni),
-      general: paymentReceipt ? "":"La carta de pago es obligatoria"
+      general: paymentReceipt ? "" : "La carta de pago es obligatoria",
     };
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
@@ -101,7 +104,11 @@ export default function RegistrationPage() {
           Solo serán públicos tu nombre de usuario y foto de perfil
         </TextSecondary>
         {errors.general && (
-          <CustomAlert state="error" message={errors.general} closeable={false} />
+          <CustomAlert
+            state="error"
+            message={errors.general}
+            closeable={false}
+          />
         )}
         {step === 1 && (
           <>

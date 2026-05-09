@@ -33,7 +33,7 @@ export const CustomAlert = ({ state, message, closeable = true }: Props) => {
       <Alert.Root
         status="error"
         alignItems="center"
-        justifyContent={closeable? "space-between":""}
+        justifyContent={closeable ? "space-between" : ""}
         title="Error"
       >
         <Alert.Indicator />

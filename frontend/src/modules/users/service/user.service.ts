@@ -1,16 +1,17 @@
-import {
-  fetchWithTimeout,
-  handleResponse
-} from "../../core/utils/utils";
+import { fetchWithTimeout, handleResponse } from "../../core/utils/utils";
 import { USER_ROUTES } from "../routes";
 import type { User, UserRegisterRequest } from "../types";
 
-export async function registerUser(user: UserRegisterRequest, paymentReceipt: File, avatar?: File): Promise<User> {
+export async function registerUser(
+  user: UserRegisterRequest,
+  paymentReceipt: File,
+  avatar?: File,
+): Promise<User> {
   const formData = new FormData();
 
   formData.append(
     "user",
-    new Blob([JSON.stringify(user)], { type: "application/json" })
+    new Blob([JSON.stringify(user)], { type: "application/json" }),
   );
 
   if (avatar) {
@@ -23,7 +24,6 @@ export async function registerUser(user: UserRegisterRequest, paymentReceipt: Fi
     method: "POST",
     body: formData,
   });
-
 
   return handleResponse<User>(res);
 }
