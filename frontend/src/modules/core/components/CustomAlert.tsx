@@ -5,9 +5,10 @@ type BackendStatus = "loading" | "success" | "error";
 type Props = {
   state: BackendStatus;
   message?: string;
+  closeable?: boolean;
 };
 
-export const CustomAlert = ({ state, message }: Props) => {
+export const CustomAlert = ({ state, message, closeable = true }: Props) => {
   const [visible, setVisible] = useState(true);
   if (!visible) return null;
 
@@ -32,19 +33,20 @@ export const CustomAlert = ({ state, message }: Props) => {
       <Alert.Root
         status="error"
         alignItems="center"
-        justifyContent="space-between"
+        justifyContent={closeable? "space-between":""}
         title="Error"
       >
         <Alert.Indicator />
 
         <Alert.Title>{message ?? "Ha ocurrido un error"}</Alert.Title>
-
-        <CloseButton
-          pos="relative"
-          top="-2"
-          insetEnd="-2"
-          onClick={() => setVisible(false)}
-        />
+        {closeable && (
+          <CloseButton
+            pos="relative"
+            top="-2"
+            insetEnd="-2"
+            onClick={() => setVisible(false)}
+          />
+        )}
       </Alert.Root>
     );
   }
