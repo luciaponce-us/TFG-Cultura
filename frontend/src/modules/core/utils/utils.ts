@@ -1,5 +1,5 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-import type { ApiError }  from "../types";
+import type { ApiError } from "../types";
 
 export const jsonHeaders = { "Content-Type": "application/json" };
 const REQUEST_TIMEOUT_MS = 12000;
@@ -45,7 +45,7 @@ export async function handleResponse<T>(res: Response): Promise<T> {
 
   const text = await res.text();
   if (!text) return {} as T;
-    
+
   return JSON.parse(text) as T;
 }
 

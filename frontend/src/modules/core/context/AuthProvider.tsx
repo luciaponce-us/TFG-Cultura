@@ -8,7 +8,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token")
+    localStorage.getItem("token"),
   );
 
   const login = (jwt: string) => {
@@ -27,12 +27,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       login,
       logout,
     }),
-    [token]
+    [token],
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
