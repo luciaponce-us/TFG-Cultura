@@ -9,6 +9,7 @@ type UploadBoxProps = {
   readonly fileType: FileUpload.FileMimeType;
   readonly required?: boolean;
   readonly onFileChange?: (file: File | null) => void;
+  readonly disabled?: boolean;
 };
 
 export function UploadBox({
@@ -17,6 +18,7 @@ export function UploadBox({
   fileType,
   required = false,
   onFileChange,
+  disabled = false
 }: UploadBoxProps) {
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -67,6 +69,7 @@ export function UploadBox({
       required={required}
       onFileAccept={handleAccept}
       onFileReject={getErrorMessage}
+      disabled={disabled}
     >
       <FileUpload.HiddenInput />
       <FileUpload.Dropzone
@@ -79,6 +82,7 @@ export function UploadBox({
         bg="gray.50"
         flexWrap="wrap"
         color="principal.800"
+        disableClick={disabled}
       >
         <FileUpload.DropzoneContent>
           <Flex align="center" justify="space-between" gap={4}>
@@ -100,6 +104,7 @@ export function UploadBox({
                 color="white"
                 borderRadius="full"
                 _hover={{ bg: "principal.600" }}
+                disabled={disabled}
               >
                 Seleccionar archivo
               </Button>
