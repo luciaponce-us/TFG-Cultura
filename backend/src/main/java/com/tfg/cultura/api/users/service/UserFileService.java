@@ -22,7 +22,6 @@ public class UserFileService {
     private static final String AVATAR_FOLDER = "cultura/avatars";
     private static final String PAYMENT_FOLDER = "cultura/payment_receipts";
 
-
     String uploadAvatar(String userId, MultipartFile file) {
         try {
             MultipartFile resizedFile = fileService.resizeImage(file, 300, 300);
@@ -47,8 +46,10 @@ public class UserFileService {
                     .folder(PAYMENT_FOLDER)
                     .publicId("payment_" + userId)
                     .build();
+            String pdfUrl = fileService.uploadFile(request);
+            logger.info("Se ha subido el PDF {} para el usuario con id {}", pdfUrl, userId);
 
-            return fileService.uploadFile(request);
+            return pdfUrl;
         } catch (Exception ex) {
             logger.error(
                     "No se ha podido subir el PDF {} para el usuario con id {}: {}",
@@ -57,9 +58,7 @@ public class UserFileService {
                     ex.getMessage());
 
             throw new FileUploadException(
-                    String.format("Error subiendo PDF '%s' para el usuario '%s'",
-                            file.getOriginalFilename(),
-                            userId));
+                    String.format("Error subiendo PDF '%s'", file.getOriginalFilename()));
         }
     }
 
@@ -95,7 +94,7 @@ public class UserFileService {
     }
 
     void deleteUserFiles(String avatarUrl, String paymentReceiptUrl) {
-        if (!avatarUrl.equals(AVATAR_PLACEHOLDER)){
+        if (!avatarUrl.equals(AVATAR_PLACEHOLDER)) {
             fileService.deleteFile(avatarUrl);
         }
         fileService.deleteFile(paymentReceiptUrl);

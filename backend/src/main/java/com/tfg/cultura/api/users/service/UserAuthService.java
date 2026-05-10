@@ -63,21 +63,25 @@ public class UserAuthService {
             .avatar(UserFileService.AVATAR_PLACEHOLDER)
             .build();
 
+        
+        
         User savedUser = userRepository.save(user);
-        String userId = savedUser.getId();
-        logger.info("Usuario registrado correctamente: {}", savedUser.getUsername());
 
         if (avatar != null && !avatar.isEmpty()) {
             logger.info("Se va a intentar subir el avatar del usuario {}", user.getUsername());
-            String avatarUrl = userFileService.uploadAvatar(userId, avatar);
+            String avatarUrl = userFileService.uploadAvatar(savedUser.getId(), avatar);
             user.setAvatar(avatarUrl);
         }
 
         logger.info("Se va a intentar subir el PDF de la carta de pago del usuario {}",
                 user.getUsername());
-        String paymentReceiptUrl = userFileService.uploadPaymentReceiptPdf(userId, paymentReceipt);
+        String paymentReceiptUrl = userFileService.uploadPaymentReceiptPdf(savedUser.getId(), paymentReceipt);
+        logger.info("PDF subido a Cloudinary: {}",paymentReceiptUrl);
         user.setPaymentReceipt(paymentReceiptUrl);
-
+        // Se vuelve a guardar el usuario para actualizar la URL del avatar y la carta de pago
+        savedUser = userRepository.save(user);
+        
+        logger.info("Usuario registrado correctamente: {}", savedUser.getUsername());
         return new UserResponse(savedUser);
     }
 

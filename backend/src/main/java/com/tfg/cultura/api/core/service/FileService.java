@@ -15,14 +15,16 @@ import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.model.CustomMultipartFile;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 
-import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 
 @Service
-@RequiredArgsConstructor
 public class FileService {
 
     private Cloudinary cloudinary;
+
+    public FileService(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
 
     public String uploadFile(FileUploadRequest request) {
         try {
