@@ -37,6 +37,12 @@ export const system = createSystem(defaultConfig, {
           light: { value: "#E5E7EB" },
           default: { value: "#D1D5DB" },
         },
+        text: {
+          header: { value: "223151" },
+          body: { value: "#1E1E1E" },
+          secondary: { value: "#757575" },
+          button: { value: "#F5F5F5" },
+        },
       },
 
       fonts: {
@@ -68,6 +74,11 @@ export const system = createSystem(defaultConfig, {
     h1: {
       color: "#223151",
       marginBottom: "16px",
+    },
+    secondary: {
+      fontFamily: "body",
+      fontSize: "xs",
+      color: "#757575",
     },
   },
 });

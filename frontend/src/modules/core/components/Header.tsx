@@ -1,4 +1,13 @@
-import { Box, Flex, Heading, Image, Input, InputGroup } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Image,
+  Input,
+  InputGroup,
+  Menu,
+  Portal,
+} from "@chakra-ui/react";
 import { NavButton } from "./NavButton";
 import { IconSearch } from "@tabler/icons-react";
 
@@ -9,11 +18,11 @@ export const Header = () => {
       justify="space-between"
       align="center"
       px={6}
-      py={4}
+      py={0}
       bg="principal.500"
       color="white"
       shadow="card"
-      maxH="80px"
+      h="80px"
       overflow="hidden"
     >
       <Logo />
@@ -22,8 +31,7 @@ export const Header = () => {
 
       <Flex align="center" gap={4}>
         <SearchBar />
-
-        <NavButton to="/">Iniciar sesión</NavButton>
+        <ClickableAvatar />
       </Flex>
     </Flex>
   );
@@ -89,5 +97,50 @@ function SearchBar() {
         }}
       />
     </InputGroup>
+  );
+}
+
+function ClickableAvatar() {
+  const links = [
+    { title: "Iniciar sesión", href: "/iniciar-sesion" },
+    { title: "Registrarse", href: "/registro" },
+  ];
+  return (
+    <Menu.Root>
+      <Menu.Trigger asChild>
+        <Image
+          src="https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png"
+          alt="Avatar"
+          w="48px"
+          h="48px"
+          objectFit="cover"
+          filter="grayscale(100%)"
+        />
+      </Menu.Trigger>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content
+            bg="principal.500"
+            borderRadius="md"
+            boxShadow="lg"
+            p={2}
+          >
+            {links.map((link) => (
+              <Menu.Item
+                key={link.href}
+                asChild
+                value={link.title}
+                color="white"
+                _highlighted={{ bg: "principal.600" }}
+                minH="44px"
+                px={3}
+              >
+                <a href={link.href}>{link.title}</a>
+              </Menu.Item>
+            ))}
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
   );
 }

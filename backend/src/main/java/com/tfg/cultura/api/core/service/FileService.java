@@ -15,14 +15,16 @@ import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.model.CustomMultipartFile;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 
-import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 
 @Service
-@RequiredArgsConstructor
 public class FileService {
 
     private Cloudinary cloudinary;
+
+    public FileService(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
 
     public String uploadFile(FileUploadRequest request) {
         try {
@@ -42,8 +44,7 @@ public class FileService {
             @SuppressWarnings("unchecked")
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
                     request.getFile().getBytes(),
-                    options
-            );
+                    options);
 
             return uploadResult.get("secure_url").toString();
 
@@ -52,7 +53,7 @@ public class FileService {
         }
     }
 
-    public MultipartFile resizeImage(MultipartFile file, int width, int height) throws IOException{
+    public MultipartFile resizeImage(MultipartFile file, int width, int height) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         Thumbnails.of(file.getInputStream())
@@ -61,14 +62,19 @@ public class FileService {
                 .outputFormat("png")
                 .toOutputStream(outputStream);
 
+        String originalName = file.getOriginalFilename();
+
+        String newName = (originalName != null)
+                ? originalName.replaceAll("\\.[^.]+$", ".png")
+                : "image.png";
+
         return new CustomMultipartFile(
-            outputStream.toByteArray(),
+                outputStream.toByteArray(),
                 file.getName(),
-                file.getOriginalFilename(),
-                "image/png"
-        );
+                newName,
+                "image/png");
     }
-    
+
     public void deleteFile(String url) {
         try {
             String publicId = extractPublicId(url);
