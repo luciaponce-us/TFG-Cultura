@@ -18,7 +18,7 @@ export function UploadBox({
   fileType,
   required = false,
   onFileChange,
-  disabled = false
+  disabled = false,
 }: UploadBoxProps) {
   const [errors, setErrors] = useState<string[]>([]);
 

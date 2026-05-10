@@ -61,12 +61,13 @@ export async function fetchWithTimeout(
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       const apiError: ApiError = {
-      timestamp: new Date().toISOString(),
-      status: 500,
-      error: "Request failed",
-      message: "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.",
-    };
-    throw apiError
+        timestamp: new Date().toISOString(),
+        status: 500,
+        error: "Request failed",
+        message:
+          "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.",
+      };
+      throw apiError;
     }
     throw error;
   } finally {

@@ -21,7 +21,7 @@ export const CustomInput = ({
   error,
   onChange,
   password = false,
-  defaultValue
+  defaultValue,
 }: InputFieldProps) => {
   const [show, setShow] = useState(false);
 
