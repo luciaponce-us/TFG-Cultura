@@ -15,6 +15,7 @@ export default function Layout() {
         gap={6}
         flex="1"
         align="center"
+        minH="92vh"
       >
         <Outlet />
       </Flex>
