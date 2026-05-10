@@ -10,6 +10,7 @@ interface InputFieldProps {
   error?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   password?: boolean;
+  defaultValue?: string;
 }
 
 export const CustomInput = ({
@@ -20,6 +21,7 @@ export const CustomInput = ({
   error,
   onChange,
   password = false,
+  defaultValue
 }: InputFieldProps) => {
   const [show, setShow] = useState(false);
 
@@ -42,6 +44,7 @@ export const CustomInput = ({
             type={show ? "text" : "password"}
             onChange={onChange}
             focusRingColor="principal.600"
+            defaultValue={defaultValue}
           />
         </InputGroup>
       )}
@@ -51,6 +54,7 @@ export const CustomInput = ({
           placeholder={placeholder}
           onChange={onChange}
           focusRingColor="principal.600"
+          defaultValue={defaultValue}
         />
       )}
 
