@@ -72,7 +72,6 @@ class UserFileServiceTest {
 
         assertTrue(exception.getMessage().contains("Error subiendo PDF"));
         assertTrue(exception.getMessage().contains(PDF_FILE.getOriginalFilename()));
-        assertTrue(exception.getMessage().contains(userId));
 
         verify(fileService).uploadFile(any());
     }

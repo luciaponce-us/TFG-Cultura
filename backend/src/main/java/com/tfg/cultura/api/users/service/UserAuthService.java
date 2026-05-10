@@ -38,7 +38,8 @@ public class UserAuthService {
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
-    public UserResponse register(UserRegisterRequest request, MultipartFile avatar, MultipartFile paymentReceipt) throws UserAlreadyExistsException, FileUploadException {
+    public UserResponse register(UserRegisterRequest request, MultipartFile avatar, MultipartFile paymentReceipt)
+            throws UserAlreadyExistsException, FileUploadException {
         userFileService.validateAvatar(avatar);
         userFileService.validatePaymentReceipt(paymentReceipt);
 
@@ -52,35 +53,31 @@ public class UserAuthService {
             throw new UserAlreadyExistsException("Ya existe un usuario con el mismo DNI");
         }
 
-        User user = User.builder()
-            .username(request.getUsername())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .name(request.getName())
-            .surname(request.getSurname())
-            .dni(request.getDni())
-            .phone(request.getPhone())
-            .email(request.getEmail())
-            .avatar(UserFileService.AVATAR_PLACEHOLDER)
-            .build();
-
-        
-        
-        User savedUser = userRepository.save(user);
-
+        String avatarUrl = UserFileService.AVATAR_PLACEHOLDER;
         if (avatar != null && !avatar.isEmpty()) {
-            logger.info("Se va a intentar subir el avatar del usuario {}", user.getUsername());
-            String avatarUrl = userFileService.uploadAvatar(savedUser.getId(), avatar);
-            user.setAvatar(avatarUrl);
+            logger.info("Se va a intentar subir el avatar del usuario {}", request.getUsername());
+            avatarUrl = userFileService.uploadAvatar(request.getUsername(), avatar);
         }
 
         logger.info("Se va a intentar subir el PDF de la carta de pago del usuario {}",
-                user.getUsername());
-        String paymentReceiptUrl = userFileService.uploadPaymentReceiptPdf(savedUser.getId(), paymentReceipt);
-        logger.info("PDF subido a Cloudinary: {}",paymentReceiptUrl);
-        user.setPaymentReceipt(paymentReceiptUrl);
-        // Se vuelve a guardar el usuario para actualizar la URL del avatar y la carta de pago
-        savedUser = userRepository.save(user);
-        
+                request.getUsername());
+        String paymentReceiptUrl = userFileService.uploadPaymentReceiptPdf(request.getUsername(), paymentReceipt);
+        logger.info("PDF subido a Cloudinary: {}", paymentReceiptUrl);
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .name(request.getName())
+                .surname(request.getSurname())
+                .dni(request.getDni())
+                .phone(request.getPhone())
+                .email(request.getEmail())
+                .avatar(avatarUrl)
+                .paymentReceipt(paymentReceiptUrl)
+                .build();
+
+        User savedUser = userRepository.save(user);
+
         logger.info("Usuario registrado correctamente: {}", savedUser.getUsername());
         return new UserResponse(savedUser);
     }
@@ -100,7 +97,8 @@ public class UserAuthService {
         }
 
         if (!passwordEncoder.matches(request.getPassword(), foundUser.getPassword())) {
-            logger.warn("Error al iniciar sesión: El usuario introdujo una contraseña incorrecta para la cuenta {}", foundUser.getUsername());
+            logger.warn("Error al iniciar sesión: El usuario introdujo una contraseña incorrecta para la cuenta {}",
+                    foundUser.getUsername());
             throw new BadCredentialsException("Credenciales inválidas");
         }
 
@@ -118,7 +116,7 @@ public class UserAuthService {
         User user = userService.findUserById(id);
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 
-        if (currentUser==null){
+        if (currentUser == null) {
             throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
         }
         if (user.getId().equals(currentUser.getId())) {
