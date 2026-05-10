@@ -60,7 +60,13 @@ export async function fetchWithTimeout(
     return await fetch(input, { ...init, signal: controller.signal });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error("Tiempo de espera agotado al conectar con el servidor.");
+      const apiError: ApiError = {
+      timestamp: new Date().toISOString(),
+      status: 500,
+      error: "Request failed",
+      message: "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.",
+    };
+    throw apiError
     }
     throw error;
   } finally {
