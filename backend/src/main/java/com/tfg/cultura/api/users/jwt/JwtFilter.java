@@ -31,9 +31,13 @@ public class JwtFilter extends OncePerRequestFilter {
     // URLs públicas que no requieren autenticación
     private static final List<String> PUBLIC_URLS = Arrays.asList(
             "/api/users/register",
+            "/api/users/login",
             "/v3/api-docs",
             "/swagger-ui",
-            "/swagger-ui.html");
+            "/swagger-ui.html",
+            "/api/docs",
+            "/docs",
+            "/api/dummy");
 
     public JwtFilter(JwtService jwtService, CustomUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
@@ -56,10 +60,12 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException, UserNotFoundException {
 
         String authHeader = request.getHeader("Authorization");
-        log.info("JwtFilter processing - AuthHeader: {}", authHeader != null ? "Present" : "Missing");
+        String path = request.getRequestURI();
+        log.debug("JwtFilter processing path: {}, AuthHeader: {}", path, authHeader != null ? "Present" : "Missing");
 
         // 1. Si no hay token, continuar
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.debug("No token found for path: {}", path);
             filterChain.doFilter(request, response);
             return;
         }
@@ -67,27 +73,42 @@ public class JwtFilter extends OncePerRequestFilter {
         // 2. Extraer token
         String token = authHeader.substring(7);
 
-        // 3. Extraer username
-        String username = jwtService.extractUsername(token);
+        try {
+            // 3. Extraer username
+            String username = jwtService.extractUsername(token);
+            log.debug("Extracted username from token: {}", username);
 
-        // 4. Si hay username y no hay autenticación previa
-        if (username != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+            // 4. Si hay username y no hay autenticación previa
+            if (username != null &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                log.debug("Loaded user details for username: {}", username);
 
-            // 5. Validar token (opcional pero recomendado)
-            if (jwtService.isTokenValid(token, userDetails)) {
+                // 5. Validar token
+                if (jwtService.isTokenValid(token, userDetails)) {
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    log.info("Token válido para usuario: {} - Path: {}", username, path);
+                } else {
+                    log.warn("Token inválido o expirado para usuario: {} - Path: {}", username, path);
+                }
+            } else if (username != null) {
+                log.debug("Usuario {} ya tiene autenticación previa", username);
             }
+        } catch (io.jsonwebtoken.JwtException e) {
+            log.error("Error procesando JWT para path {}: {}", path, e.getMessage(), e);
+        } catch (UserNotFoundException e) {
+            log.error("Usuario no encontrado en JWT para path {}: {}", path, e.getMessage());
+        } catch (Exception e) {
+            log.error("Error inesperado en JwtFilter para path {}: {}", path, e.getMessage(), e);
         }
 
         filterChain.doFilter(request, response);

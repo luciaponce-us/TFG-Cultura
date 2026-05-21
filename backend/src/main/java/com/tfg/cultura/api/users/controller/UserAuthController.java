@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -82,7 +81,6 @@ public class UserAuthController {
             @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario a aprobar/rechazar")
     })
     @PutMapping("/{id}/activate")
-    @PreAuthorize("hasAnyRole('COLABORADOR', 'ENCARGADO', 'SECRETARIO', 'COORDINADOR')")
     public ResponseEntity<UserResponse> activateUser(@PathVariable String id) {
         UserResponse response = userService.activateUser(id);
         return ResponseEntity

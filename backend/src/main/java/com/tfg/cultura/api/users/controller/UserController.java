@@ -2,7 +2,6 @@ package com.tfg.cultura.api.users.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,7 +38,6 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario a aprobar/rechazar")
     })
     @GetMapping("/{username}")
-    @PreAuthorize("hasAnyRole('SECRETARIO', 'COORDINADOR')")
     public ResponseEntity<UserResponse> getUser(@PathVariable String username) {
         UserResponse response = userService.getUser(username);
         return ResponseEntity
@@ -55,7 +53,6 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "User Already Exists - El username y/o el DNI están en uso")
     })
     @PutMapping("/{username}")
-    @PreAuthorize("hasAnyRole('SECRETARIO', 'COORDINADOR')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable String username,
             @RequestBody @Valid UserUpdateRequest request) {
         UserResponse response = userService.updateUser(username, request);
@@ -71,7 +68,6 @@ public class UserController {
         @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario")
     })
     @DeleteMapping("/{username}")
-    @PreAuthorize("hasAnyRole('SECRETARIO', 'COORDINADOR')")
     public ResponseEntity<Void> deleteUser(@PathVariable String username) {
         userService.deleteUser(username);
         return ResponseEntity
