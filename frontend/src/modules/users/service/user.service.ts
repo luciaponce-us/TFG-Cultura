@@ -1,6 +1,10 @@
-import { fetchWithTimeout, handleResponse } from "../../core/utils/utils";
+import {
+  fetchWithTimeout,
+  handleResponse,
+  jsonHeaders,
+} from "../../core/utils/utils";
 import { USER_ROUTES } from "../routes";
-import type { User, UserRegisterRequest } from "../types";
+import type { User, UserRegisterRequest, UserLoginRequest } from "../types";
 
 export async function registerUser(
   user: UserRegisterRequest,
@@ -23,6 +27,25 @@ export async function registerUser(
   const res = await fetchWithTimeout(USER_ROUTES.REGISTER, {
     method: "POST",
     body: formData,
+  });
+
+  return handleResponse<User>(res);
+}
+
+export async function loginUser(request: UserLoginRequest): Promise<string> {
+  const res = await fetchWithTimeout(USER_ROUTES.LOGIN, {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify(request),
+  });
+
+  return handleResponse<string>(res);
+}
+
+export async function getMyProfile(token: string): Promise<User> {
+  const res = await fetchWithTimeout(USER_ROUTES.PROFILE, {
+    method: "GET",
+    headers: { ...jsonHeaders, Authorization: `Bearer ${token}` },
   });
 
   return handleResponse<User>(res);
