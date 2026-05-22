@@ -62,5 +62,5 @@ jobs:
       - name: Auto-commit formatting changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "style(frontend): 🎨 apply prettier formatting [skip ci]"
+          commit_message: "style(frontend): 🎨 apply prettier formatting"
           file_pattern: frontend/src/** frontend/*.js frontend/*.ts frontend/*.json
