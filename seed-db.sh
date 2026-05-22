@@ -8,9 +8,8 @@ cd "$(dirname "$0")/backend"
 
 source ../.env
 
-# Ejecutar con el profile 'seed' con timeout
 timeout 180 ./mvnw spring-boot:run \
-  -Dspring-boot.run.arguments="--spring.profiles.active=dev,seed" \
+  -Dspring-boot.run.arguments="--spring.profiles.active=dev" \
   -DskipTests 2>&1 | while IFS= read -r line; do
   echo "$line"
   if echo "$line" | grep -q "seeding completado"; then

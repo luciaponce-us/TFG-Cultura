@@ -19,9 +19,14 @@ cd /workspace/frontend && npm install
 if [ -f /workspace/.env ]; then
   echo "Cargando variables de entorno..."
   cd /workspace && set -a && source .env && set +a || { echo "❌ Error al cargar variables de entorno"; }
-  echo "Rellenando base de datos con datos de prueba..."
-  chmod +x /workspace/seed-db.sh
-  cd /workspace && timeout 300 ./seed-db.sh || true
+    # Si SEED_ENABLED no es "true", saltar
+    if [ "${SEED_ENABLED}" != "true" ]; then
+      echo "⚠️ SEED_ENABLED no está activado. Saltando seeder..."
+      else
+        echo "Rellenando base de datos con datos de prueba..."
+        chmod +x /workspace/seed-db.sh
+        cd /workspace && timeout 300 ./seed-db.sh || true
+    fi
 else
   echo "⚠️ Archivo .env no encontrado. No se cargarán variables de entorno ni se rellenará la base de datos con datos de prueba."
   echo "Para poder iniciar el proyecto, crea un archivo .env en la raíz del proyecto con las variables de entorno necesarias. Luego, ejecuta set -a && source .env && set +a para cargar las variables en el entorno actual."
