@@ -76,8 +76,7 @@ export default function LoginPage() {
       toaster.create({
         title: "¡Bienvenido de nuevo!",
         description: "Has iniciado sesión exitosamente.",
-        type: "success"
-
+        type: "success",
       });
       navigate("/");
     } catch (err) {

@@ -159,10 +159,10 @@ function ClickableAvatar() {
                 onSelect={() => {
                   logout();
                   toaster.create({
-                        title: "Sesión cerrada exitosamente",
-                        description: "¡Hasta pronto! 👋​",
-                        type: "info"
-                      });
+                    title: "Sesión cerrada exitosamente",
+                    description: "¡Hasta pronto! 👋​",
+                    type: "info",
+                  });
                 }}
               >
                 <IconLogout />

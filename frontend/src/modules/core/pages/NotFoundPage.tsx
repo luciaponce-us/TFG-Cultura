@@ -14,24 +14,21 @@ export default function NotFoundPage() {
       width="fit-content"
       h="fit-content"
     >
-        <Flex direction="column" gap={0}>
-            <VStack gap={1}>
-            <Heading as="h1">¡Oops! Página no encontrada</Heading>
-            <Text>Lo sentimos, la página que buscas no existe.</Text>
-          </VStack>
-          <img
+      <Flex direction="column" gap={0}>
+        <VStack gap={1}>
+          <Heading as="h1">¡Oops! Página no encontrada</Heading>
+          <Text>Lo sentimos, la página que buscas no existe.</Text>
+        </VStack>
+        <img
           src="/images/character_404.png"
           alt="Not Found"
           style={{ minWidth: 200, width: "100%", maxWidth: 400 }}
         />
 
-          <CustomButton onClick={() => (window.location.href = "/")} mt={5}>
-            Volver al inicio
-          </CustomButton>
-            </Flex>
-      
-
-        
+        <CustomButton onClick={() => (window.location.href = "/")} mt={5}>
+          Volver al inicio
+        </CustomButton>
+      </Flex>
     </Flex>
   );
 }
