@@ -10,6 +10,12 @@ services:
       - mongo
     networks:
       - devcontainer-network
+    deploy:
+      resources:
+        limits:
+          memory: 6gb
+    environment:
+      JAVA_OPTS: -Xmx1536m -XX:+UseG1GC
 
   mongo:
     image: mongo:7

@@ -9,7 +9,6 @@ cd "$(dirname "$0")/backend"
 source ../.env
 
 # Ejecutar con el profile 'seed' con timeout
-SPRING_DATA_MONGODB_URI="mongodb://root:root@localhost:27018/cultura_db?authSource=admin" \
 timeout 180 ./mvnw spring-boot:run \
   -Dspring-boot.run.arguments="--spring.profiles.active=dev,seed" \
   -DskipTests 2>&1 | while IFS= read -r line; do
