@@ -35,6 +35,10 @@ public class SecurityConfig {
         "SECRETARIO", "COORDINADOR"
     };
 
+    private static final String[] MANAGEMENT_ROLES = {
+        "SECRETARIO", "COORDINADOR", "ENCARGADO", "COLABORADOR"
+    };
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
@@ -56,11 +60,16 @@ public class SecurityConfig {
                     "/api/docs/**",
                     "/api/swagger-ui/**"
                 ).permitAll()
-                // Users
+
+                // Users - Auth
                 .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/users/login").permitAll()
-                .requestMatchers("/api/users/{username}").hasAnyRole(ADMIN_ROLES)
-                .requestMatchers(HttpMethod.PUT, "/api/users/{id}/activate").hasAnyRole(ADMIN_ROLES)
+                // Users - Profile (requiere autenticación)
+                .requestMatchers("/api/users/profile", "/api/users/profile/**").authenticated()
+                // Users - Admin (requiere roles específicos)
+                .requestMatchers("/api/users/*/activate").hasAnyRole(MANAGEMENT_ROLES)
+                .requestMatchers("/api/users", "/api/users/**").hasAnyRole(ADMIN_ROLES)
+
                 // Suggestions
                 .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
                 .anyRequest().authenticated()

@@ -9,7 +9,9 @@ import {
   Portal,
 } from "@chakra-ui/react";
 import { NavButton } from "./NavButton";
-import { IconSearch } from "@tabler/icons-react";
+import { IconSearch, IconLogout } from "@tabler/icons-react";
+import { useAuth } from "../context/useAuth";
+import { toaster } from "./toaster/toaster";
 
 export const Header = () => {
   return (
@@ -101,20 +103,29 @@ function SearchBar() {
 }
 
 function ClickableAvatar() {
-  const links = [
-    { title: "Iniciar sesión", href: "/iniciar-sesion" },
-    { title: "Registrarse", href: "/registro" },
-  ];
+  const { user } = useAuth();
+  const { logout } = useAuth();
+
+  const links = user
+    ? []
+    : [
+        { title: "Iniciar sesión", href: "/iniciar-sesion" },
+        { title: "Registrarse", href: "/registro" },
+      ];
+
   return (
     <Menu.Root>
       <Menu.Trigger asChild>
         <Image
-          src="https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png"
+          src={
+            user?.avatar ||
+            "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png"
+          }
           alt="Avatar"
           w="48px"
           h="48px"
           objectFit="cover"
-          filter="grayscale(100%)"
+          filter={user ? undefined : "grayscale(100%)"}
         />
       </Menu.Trigger>
       <Portal>
@@ -138,6 +149,26 @@ function ClickableAvatar() {
                 <a href={link.href}>{link.title}</a>
               </Menu.Item>
             ))}
+            {user && (
+              <Menu.Item
+                value="Cerrar sesión"
+                color="white"
+                _highlighted={{ bg: "principal.600" }}
+                minH="44px"
+                px={3}
+                onSelect={() => {
+                  logout();
+                  toaster.create({
+                    title: "Sesión cerrada exitosamente",
+                    description: "¡Hasta pronto! 👋​",
+                    type: "info",
+                  });
+                }}
+              >
+                <IconLogout />
+                Cerrar sesión
+              </Menu.Item>
+            )}
           </Menu.Content>
         </Menu.Positioner>
       </Portal>

@@ -87,3 +87,19 @@ export const validatePhone = (value: string): string => {
   }
   return "";
 };
+
+// LOGIN VALIDATIONS
+
+export const validateUsernameAtLogin = (value: string): string => {
+  if (!value) return "El nombre de usuario es obligatorio.";
+  if (value.length > 20)
+    return "El nombre de usuario puede tener 20 caracteres como máximo.";
+  return "";
+};
+
+export const validatePasswordAtLogin = (value: string): string => {
+  if (!value) return "La contraseña es obligatoria.";
+  if (value.length > 64)
+    return "La contraseña puede tener 64 caracteres como máximo.";
+  return "";
+};
