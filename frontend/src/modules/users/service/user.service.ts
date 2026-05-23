@@ -5,6 +5,7 @@ import {
 } from "../../core/utils/utils";
 import { USER_ROUTES } from "../routes";
 import type { User, UserRegisterRequest, UserLoginRequest } from "../types";
+import type { Paginated } from "../../core/types";
 
 export async function registerUser(
   user: UserRegisterRequest,
@@ -49,4 +50,20 @@ export async function getMyProfile(token: string): Promise<User> {
   });
 
   return handleResponse<User>(res);
+}
+
+export async function getAllUsers(
+  token: string,
+  page: number = 0,
+  limit: number = 10,
+): Promise<Paginated<User>> {
+  const res = await fetchWithTimeout(
+    `${USER_ROUTES.GET_ALL}?page=${page}&size=${limit}`,
+    {
+      method: "GET",
+      headers: { ...jsonHeaders, Authorization: `Bearer ${token}` },
+    },
+  );
+
+  return handleResponse<Paginated<User>>(res);
 }

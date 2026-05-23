@@ -9,6 +9,7 @@ import {
   IconChartPie4,
 } from "@tabler/icons-react";
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface AdminCardProps {
   icon: ReactNode;
@@ -28,6 +29,7 @@ function AdminCard({ icon, label, onClick }: AdminCardProps) {
 }
 
 export default function AdminPanelPage() {
+  const navigation = useNavigate();
   const adminCardIconStyle = {
     minWidth: "60px",
     minHeight: "60px",
@@ -40,12 +42,12 @@ export default function AdminPanelPage() {
     {
       icon: <IconUsers style={adminCardIconStyle} stroke={1.5} />,
       label: "Usuarios",
-      onClick: () => console.log("Usuarios"),
+      onClick: () => navigation("/admin/usuarios"),
     },
     {
       icon: <IconBox style={adminCardIconStyle} stroke={1.5} />,
       label: "Préstamos",
-      onClick: () => console.log("Préstamos"),
+      onClick: () => navigation("/admin/prestamos"),
     },
     {
       icon: <IconAlertTriangle style={adminCardIconStyle} stroke={1.5} />,
