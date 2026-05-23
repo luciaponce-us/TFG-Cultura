@@ -10,9 +10,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.List;
 
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
@@ -144,4 +149,33 @@ class UserControllerTest extends BaseControllerTest {
         verify(userService).deleteUser(anyString());
     }
     
+    // ================ GET ALL USERS ================
+    @Test
+    void should_return_paginated_users() throws Exception {
+
+        UserResponse user1 = new UserResponse(UserFactory.validUser());
+        UserResponse user2 = new UserResponse(UserFactory.validUser());
+
+        Page<UserResponse> page = new PageImpl<>(
+                List.of(user1, user2),
+                PageRequest.of(0, 10),
+                2
+        );
+
+        when(userService.getAllUsers(0, 10)).thenReturn(page);
+
+        mockMvc.perform(get(BASE_URL)
+                        .param("page", "0")
+                        .param("size", "10")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.number").value(0));
+
+        verify(userService).getAllUsers(0, 10);
+    }
+
 }
