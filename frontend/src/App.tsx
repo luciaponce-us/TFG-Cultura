@@ -9,8 +9,13 @@ import { Toaster } from "./modules/core/components";
 import type { Role } from "./modules/users/types/index.ts";
 
 export default function App() {
-  const MANAGEMENT_ROLES : Role[] = ["COORDINADOR", "SECRETARIO", "ENCARGADO", "COLABORADOR"];
-  const ADMIN_ROLES : Role[] = ["COORDINADOR", "SECRETARIO"];
+  const MANAGEMENT_ROLES: Role[] = [
+    "COORDINADOR",
+    "SECRETARIO",
+    "ENCARGADO",
+    "COLABORADOR",
+  ];
+  const ADMIN_ROLES: Role[] = ["COORDINADOR", "SECRETARIO"];
 
   return (
     <>
@@ -34,7 +39,10 @@ export default function App() {
   );
 }
 
-function withRoleProtection(Component: React.ComponentType, allowedRoles: Role[]) {
+function withRoleProtection(
+  Component: React.ComponentType,
+  allowedRoles: Role[],
+) {
   return (
     <ProtectedRoute allowedRoles={allowedRoles}>
       <Component />

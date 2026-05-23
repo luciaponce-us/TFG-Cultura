@@ -21,7 +21,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(false);
       return;
     }
-    
+
     const loadUser = async () => {
       try {
         const res = await getMyProfile(token);
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setIsLoading(false);
       }
     };
-    
+
     loadUser();
   }, [token]);
 
