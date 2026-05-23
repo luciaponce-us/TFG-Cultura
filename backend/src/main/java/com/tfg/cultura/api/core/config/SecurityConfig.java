@@ -68,8 +68,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/profile", "/api/users/profile/**").authenticated()
                 // Users - Admin (requiere roles específicos)
                 .requestMatchers("/api/users/*/activate").hasAnyRole(MANAGEMENT_ROLES)
-                .requestMatchers("/api/users", "/api/users/**").hasAnyRole(ADMIN_ROLES)
-
+                .requestMatchers("/api/users", "/api/users/**").hasAnyRole(MANAGEMENT_ROLES)
                 // Suggestions
                 .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
                 .anyRequest().authenticated()
