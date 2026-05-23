@@ -9,7 +9,7 @@ import {
   Portal,
 } from "@chakra-ui/react";
 import { NavButton } from "./NavButton";
-import { IconSearch, IconLogout } from "@tabler/icons-react";
+import { IconSearch, IconLogout, IconSettings } from "@tabler/icons-react";
 import { useAuth } from "../context/useAuth";
 import { toaster } from "./toaster/toaster";
 
@@ -107,10 +107,16 @@ function ClickableAvatar() {
   const { logout } = useAuth();
 
   const links = user
-    ? []
+    ? [
+        {
+          icon: <IconSettings />,
+          title: "Panel de administración",
+          href: "/admin",
+        },
+      ]
     : [
-        { title: "Iniciar sesión", href: "/iniciar-sesion" },
-        { title: "Registrarse", href: "/registro" },
+        { icon: null, title: "Iniciar sesión", href: "/iniciar-sesion" },
+        { icon: null, title: "Registrarse", href: "/registro" },
       ];
 
   return (
@@ -146,7 +152,13 @@ function ClickableAvatar() {
                 minH="44px"
                 px={3}
               >
-                <a href={link.href}>{link.title}</a>
+                {link.icon ? (
+                  <span>
+                    {link.icon} <a href={link.href}>{link.title}</a>
+                  </span>
+                ) : (
+                  <a href={link.href}>{link.title}</a>
+                )}
               </Menu.Item>
             ))}
             {user && (
