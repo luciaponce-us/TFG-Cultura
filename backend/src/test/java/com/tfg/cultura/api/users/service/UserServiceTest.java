@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
@@ -362,6 +367,65 @@ class UserServiceTest {
 
         verifyNoInteractions(userFileService);
         verify(userRepository, never()).delete(any());
+    }
+
+    // GET ALL USERS
+
+    @Test
+    void should_return_paginated_user_response_list() {
+        User user2 = UserFactory.validUser();
+        user2.setId("2");
+        user2.setUsername("otherUser");
+
+        when(userRepository.findAll(any(PageRequest.class)))
+                .thenReturn(new PageImpl<>(List.of(user, user2)));
+
+        Page<UserResponse> result = service.getAllUsers(0, 10);
+
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+
+        assertEquals(user.getUsername(), result.getContent().get(0).getUsername());
+        assertEquals(user2.getUsername(), result.getContent().get(1).getUsername());
+
+        verify(userRepository).findAll(any(PageRequest.class));
+    }
+
+    @Test
+    void should_call_repository_with_correct_sorting() {
+        User user2 = UserFactory.validUser();
+        user2.setId("2");
+        user2.setUsername("otherUser");
+
+        PageRequest pageable = PageRequest.of(
+            1,
+            5,
+            Sort.by("createdAt").descending()
+        );
+        
+        when(userRepository.findAll(any(PageRequest.class)))
+                .thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
+
+        Page<UserResponse> result = service.getAllUsers(1, 5);
+
+        assertEquals(1, result.getPageable().getPageNumber());
+        assertEquals(5, result.getPageable().getPageSize());
+        assertTrue(result.getPageable().getSort().isSorted());
+        assertTrue(result.getPageable().getSort().getOrderFor("createdAt").getDirection().isDescending());
+
+        verify(userRepository).findAll(any(PageRequest.class));
+    }
+
+    @Test
+    void should_return_empty_page_when_no_users_exist() {
+
+        when(userRepository.findAll(any(PageRequest.class)))
+                .thenReturn(Page.empty());
+
+        Page<UserResponse> result = service.getAllUsers(0, 10);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
 }
