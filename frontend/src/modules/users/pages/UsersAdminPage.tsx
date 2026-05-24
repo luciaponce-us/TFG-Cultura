@@ -11,7 +11,7 @@ import { CustomButton, SideBar, CustomPagination } from "../../core/components";
 import { useState, useEffect } from "react";
 import type { User } from "../types";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { getAllUsers } from "../service/user.service";
+import { getAllUsers, deleteUser } from "../service/user.service";
 import type { Paginated } from "@/modules/core/types";
 import {
   IconPencil,
@@ -19,14 +19,18 @@ import {
   IconLock,
   IconLockOpen,
 } from "@tabler/icons-react";
+import { toaster } from "@/modules/core/components/toaster/toaster";
 
 export default function UsersAdminPage() {
   const { token } = useAuth();
+  const { user } = useAuth();
+  const { logout } = useAuth();
   const [paginatedUsers, setPaginatedUsers] = useState<Paginated<User> | null>(
     null,
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
+  const [loadingDeleteUsername, setLoadingDeleteUsername] = useState<string | null>(null);
 
   async function fetchUsers(page: number = 0) {
     if (!token) return;
@@ -89,7 +93,8 @@ export default function UsersAdminPage() {
           </CustomButton>
           <CustomButton
             color="rojo"
-            onClick={() => console.log("Eliminar", user.username)}
+            onClick={() => handleDeleteUser(user.username)}
+            loading={loadingDeleteUsername === user.username}
           >
             <IconTrash size={16} />
           </CustomButton>
@@ -148,6 +153,36 @@ export default function UsersAdminPage() {
       </Table.Row>
     ));
   }
+
+  async function handleDeleteUser(username: string) {
+    if (!token) return;
+    try {
+      setLoadingDeleteUsername(username);
+      const isCurrentUser = user?.username === username;
+      await deleteUser(token, username);
+      if (isCurrentUser) {
+        logout();
+      } else {
+        await fetchUsers(page);
+      }
+      toaster.create({
+        title: "Usuario eliminado",
+        description: `El usuario ${username} ha sido eliminado exitosamente.`,
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toaster.create({
+        title: "Error al eliminar usuario",
+        description: `No se pudo eliminar el usuario ${username}. Por favor, inténtalo de nuevo.`,
+        type: "error",
+      });
+    } finally {
+      setLoadingDeleteUsername(null);
+    }
+  }
+
+
 
   function renderHeaders() {
     const headers = [

@@ -67,3 +67,12 @@ export async function getAllUsers(
 
   return handleResponse<Paginated<User>>(res);
 }
+
+export async function deleteUser(token: string, username: string): Promise<void> {
+  const res = await fetchWithTimeout(USER_ROUTES.DELETE(username), {
+    method: "DELETE",
+    headers: { ...jsonHeaders, Authorization: `Bearer ${token}` },
+  });
+  
+  return handleResponse<void>(res);
+}
