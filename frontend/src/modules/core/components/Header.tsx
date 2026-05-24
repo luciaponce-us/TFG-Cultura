@@ -12,6 +12,7 @@ import { NavButton } from "./NavButton";
 import { IconSearch, IconLogout, IconSettings } from "@tabler/icons-react";
 import { useAuth } from "../context/useAuth";
 import { toaster } from "./toaster/toaster";
+import type { Role } from "@/modules/users/types";
 
 export const Header = () => {
   return (
@@ -105,18 +106,41 @@ function SearchBar() {
 function ClickableAvatar() {
   const { user } = useAuth();
   const { logout } = useAuth();
+  const MANAGEMENT_ROLES: Role[] = [
+      "COORDINADOR",
+      "SECRETARIO",
+      "ENCARGADO",
+      "COLABORADOR",
+    ];
+  type Link = {
+    icon: React.ReactNode | null;
+    title: string;
+    href: string;
+  };
+
+  const logedUserLinks : Link[] = []
+  const adminLinks : Link[] = [{
+            icon: <IconSettings />,
+            title: "Panel de administración",
+            href: "/admin",
+          }]
+  const notLogedUserLinks : Link[] = [
+    { icon: null, title: "Iniciar sesión", href: "/iniciar-sesion" },
+    { icon: null, title: "Registrarse", href: "/registro" },
+  ]
+
 
   const links = user
-    ? [
-        {
-          icon: <IconSettings />,
-          title: "Panel de administración",
-          href: "/admin",
-        },
-      ]
+    ? (MANAGEMENT_ROLES.includes(user.role)
+      ? [
+          ...logedUserLinks,
+          ...adminLinks
+        ]
+      : [
+          ...logedUserLinks,
+      ])
     : [
-        { icon: null, title: "Iniciar sesión", href: "/iniciar-sesion" },
-        { icon: null, title: "Registrarse", href: "/registro" },
+        ...notLogedUserLinks,
       ];
 
   return (
