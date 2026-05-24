@@ -30,7 +30,9 @@ export default function UsersAdminPage() {
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
-  const [loadingDeleteUsername, setLoadingDeleteUsername] = useState<string | null>(null);
+  const [loadingDeleteUsername, setLoadingDeleteUsername] = useState<
+    string | null
+  >(null);
 
   async function fetchUsers(page: number = 0) {
     if (!token) return;
@@ -181,8 +183,6 @@ export default function UsersAdminPage() {
       setLoadingDeleteUsername(null);
     }
   }
-
-
 
   function renderHeaders() {
     const headers = [

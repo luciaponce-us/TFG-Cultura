@@ -107,41 +107,35 @@ function ClickableAvatar() {
   const { user } = useAuth();
   const { logout } = useAuth();
   const MANAGEMENT_ROLES: Role[] = [
-      "COORDINADOR",
-      "SECRETARIO",
-      "ENCARGADO",
-      "COLABORADOR",
-    ];
+    "COORDINADOR",
+    "SECRETARIO",
+    "ENCARGADO",
+    "COLABORADOR",
+  ];
   type Link = {
     icon: React.ReactNode | null;
     title: string;
     href: string;
   };
 
-  const logedUserLinks : Link[] = []
-  const adminLinks : Link[] = [{
-            icon: <IconSettings />,
-            title: "Panel de administración",
-            href: "/admin",
-          }]
-  const notLogedUserLinks : Link[] = [
+  const logedUserLinks: Link[] = [];
+  const adminLinks: Link[] = [
+    {
+      icon: <IconSettings />,
+      title: "Panel de administración",
+      href: "/admin",
+    },
+  ];
+  const notLogedUserLinks: Link[] = [
     { icon: null, title: "Iniciar sesión", href: "/iniciar-sesion" },
     { icon: null, title: "Registrarse", href: "/registro" },
-  ]
-
+  ];
 
   const links = user
-    ? (MANAGEMENT_ROLES.includes(user.role)
-      ? [
-          ...logedUserLinks,
-          ...adminLinks
-        ]
-      : [
-          ...logedUserLinks,
-      ])
-    : [
-        ...notLogedUserLinks,
-      ];
+    ? MANAGEMENT_ROLES.includes(user.role)
+      ? [...logedUserLinks, ...adminLinks]
+      : [...logedUserLinks]
+    : [...notLogedUserLinks];
 
   return (
     <Menu.Root>
