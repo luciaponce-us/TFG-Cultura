@@ -19,6 +19,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
@@ -35,6 +37,7 @@ class UserControllerTest extends BaseControllerTest {
 
     private static final String BASE_URL = "/api/users";
     private static final String USER_URL = BASE_URL + "/{username}";
+    private static final String ACTIVATE_URL = USER_URL + "/activate";
 
     private UserResponse userResponse;
     private UserUpdateRequest updateRequest;
@@ -176,6 +179,52 @@ class UserControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.number").value(0));
 
         verify(userService).getAllUsers(0, 10);
+    }
+
+    // ================ ACTIVATE USER ================
+
+    @Test
+    void activate_user_sucess() throws Exception {
+        when(userService.activateUser(any())).thenReturn(userResponse);
+
+        mockMvc.perform(put(ACTIVATE_URL, "123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
+    }
+
+    @Test
+    void activate_user_fail_unexisting_user() throws Exception {
+        String message = "El usuario con id 123 no existe";
+        UserNotFoundException ex = new UserNotFoundException(message);
+        when(userService.activateUser(any())).thenThrow(ex);
+
+        mockMvc.perform(put(ACTIVATE_URL, "123"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(message));
+    }
+
+    @Test
+    void activate_user_fail_self_activation() throws Exception {
+        String userId = "123";
+        String message = String.format("El usuario %s con id %s ha intentado activar su propio usuario",
+                userResponse.getUsername(), userId);
+        SelfActivationNotAllowedException ex = new SelfActivationNotAllowedException(message);
+        when(userService.activateUser(userId)).thenThrow(ex);
+
+        mockMvc.perform(put(ACTIVATE_URL, userId))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(message));
+    }
+
+    @Test
+    void activate_user_fail_unathenticated() throws Exception {
+        String message = "No se ha podido obtener la autenticación del usuario";
+        UnathenticatedException ex = new UnathenticatedException(message);
+        when(userService.activateUser(any())).thenThrow(ex);
+
+        mockMvc.perform(put(ACTIVATE_URL, "123"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value(message));
     }
 
 }

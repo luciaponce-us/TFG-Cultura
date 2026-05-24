@@ -11,7 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
+import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
@@ -179,5 +181,28 @@ public class UserService {
         suggestionRepository.deleteByAuthorId(user.getId());
         userRepository.delete(user);
         logger.info("Usuario con username {} eliminado correctamente", userToDelete);
+    }
+
+    public UserResponse activateUser(String id) throws UserNotFoundException {
+
+        User user = findUserById(id);
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+
+        if (currentUser == null) {
+            throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
+        }
+        if (user.getId().equals(currentUser.getId())) {
+            throw new SelfActivationNotAllowedException(
+                    String.format("El usuario %s con id %s ha intentado activar su propio usuario", user.getUsername(),
+                            user.getId()));
+        }
+
+        if (!user.isActive()) {
+            user.setActive(true);
+            user = userRepository.save(user);
+        }
+
+        logger.info("Se ha aprobado el registro del usuario {} con id {}", user.getUsername(), user.getId());
+        return new UserResponse(user);
     }
 }

@@ -27,7 +27,7 @@ import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.service.UserAuthService;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/users/auth")
 @Tag(name = "Users - Auth", description = "Autenticación de usuarios")
 public class UserAuthController {
 
@@ -71,21 +71,6 @@ public class UserAuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(token);
-    }
-
-    @Operation(summary = "RF-05: Aprobar el registro de un usuario", description = "Como colaborador/encargado/secretario/coordinador, quiero poder aprobar o rechazar el registro de un usuario, para revisar que la carta de pago sea auténtica y pertenezca al usuario que solicita registrarse")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Registro aprobado/rechazado correctamente"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - El usuario no está autenticado"),
-            @ApiResponse(responseCode = "403", description = "Forbidden - El usuario no tiene permisos para aprobar registros o activar ese usuario"),
-            @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario a aprobar/rechazar")
-    })
-    @PutMapping("/{id}/activate")
-    public ResponseEntity<UserResponse> activateUser(@PathVariable String id) {
-        UserResponse response = userService.activateUser(id);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
     }
 
 }

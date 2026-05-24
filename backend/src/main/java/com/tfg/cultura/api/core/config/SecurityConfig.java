@@ -62,8 +62,7 @@ public class SecurityConfig {
                 ).permitAll()
 
                 // Users - Auth
-                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
-                .requestMatchers(HttpMethod.POST,"/api/users/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/users/auth/**").permitAll()
                 // Users - Profile (requiere autenticación)
                 .requestMatchers("/api/users/profile", "/api/users/profile/**").authenticated()
                 // Users - Admin (requiere roles específicos)
