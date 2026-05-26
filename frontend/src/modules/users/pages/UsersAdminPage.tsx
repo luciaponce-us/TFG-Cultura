@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { CustomButton, SideBar, CustomPagination } from "../../core/components";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import type { User } from "../types";
 import { useAuth } from "@/modules/core/context/useAuth";
 import { getAllUsers, deleteUser } from "../service/user.service";
@@ -25,6 +26,7 @@ export default function UsersAdminPage() {
   const { token } = useAuth();
   const { user } = useAuth();
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const [paginatedUsers, setPaginatedUsers] = useState<Paginated<User> | null>(
     null,
   );
@@ -90,7 +92,7 @@ export default function UsersAdminPage() {
     function renderActions(user: User) {
       return (
         <HStack>
-          <CustomButton onClick={() => console.log("Editar", user.username)}>
+          <CustomButton onClick={() => navigate(`/admin/usuarios/${user.username}`)}>
             <IconPencil size={16} />
           </CustomButton>
           <CustomButton

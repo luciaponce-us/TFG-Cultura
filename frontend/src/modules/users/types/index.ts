@@ -13,6 +13,18 @@ export interface UserLoginRequest {
   password: string;
 }
 
+export interface UserUpdateRequest {
+  username: string;
+  password?: string;
+  name: string;
+  surname: string;
+  dni: string;
+  phone: string;
+  email: string;
+  active: boolean;
+  role: Role;
+}
+
 export interface User {
   username: string;
   name: string;

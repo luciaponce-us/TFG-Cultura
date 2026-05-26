@@ -8,6 +8,7 @@ import {
   RegistrationPage,
   LoginPage,
   UsersAdminPage,
+  EditUserPage,
 } from "./modules/users/pages";
 import { Toaster } from "./modules/core/components";
 import type { Role } from "./modules/users/types/index.ts";
@@ -37,6 +38,13 @@ export default function App() {
             <Route
               path="/admin/usuarios"
               element={withRoleProtection(UsersAdminPage, MANAGEMENT_ROLES)}
+            />
+            <Route
+              path="/admin/usuarios/:username"
+              element={withRoleProtection(
+                EditUserPage,
+                MANAGEMENT_ROLES,
+              )}
             />
             <Route path="/no-encontrado" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
