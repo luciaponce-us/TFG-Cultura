@@ -46,10 +46,14 @@ export const validateUsername = (value: string): string => {
 
 export const validatePassword = (
   value: string,
+  optional: boolean = false,
   withConfirmation: boolean,
   confirmationValue?: string,
 ): string => {
-  if (!value) return "La contraseña es obligatoria.";
+  if (!value) {
+    if (optional) return "";
+    return "La contraseña es obligatoria.";
+  }
   if (value.length < 8)
     return "La contraseña debe tener al menos 8 caracteres.";
   if (value.length > 64)

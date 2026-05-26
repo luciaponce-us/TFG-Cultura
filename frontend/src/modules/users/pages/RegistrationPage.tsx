@@ -108,6 +108,7 @@ export default function RegistrationPage() {
       username: validation.validateUsername(form.username),
       password: validation.validatePassword(
         form.password,
+        false,
         true,
         form.confirmPassword,
       ),
