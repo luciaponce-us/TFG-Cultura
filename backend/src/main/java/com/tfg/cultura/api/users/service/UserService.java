@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
@@ -89,6 +90,16 @@ public class UserService {
         user.setActive(request.isActive());
 
         return saveUpdatedUser(user);
+    }
+
+    public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws UserNotFoundException {
+        User user = findUserByUsername(username);
+        String newAvatar = userFileService.uploadAvatar(user.getId(), avatar);
+        logger.info("Nuevo avatar subido para el usuario con username {}: {}", user.getUsername(), newAvatar);
+        user.setAvatar(newAvatar);
+        UserResponse response = saveUpdatedUser(user);
+        logger.info("Avatar del usuario con username {} actualizado correctamente", user.getUsername());
+        return response;
     }
 
     private boolean isChanged(String newValue, String currentValue) {

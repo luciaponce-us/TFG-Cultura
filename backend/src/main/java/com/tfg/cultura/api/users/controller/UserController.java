@@ -2,6 +2,7 @@ package com.tfg.cultura.api.users.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.tfg.cultura.api.users.model.dto.UserResponse;
@@ -73,6 +76,21 @@ public class UserController {
 	public ResponseEntity<UserResponse> updateUser(@PathVariable String username,
 			@RequestBody @Valid UserUpdateRequest request) {
 		UserResponse response = userService.updateUser(username, request);
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.body(response);
+	}
+
+	@Operation(summary = "Editar un usuario concreto (RF-04)", description = "Como secretario/coordinador, quiero poder realizar las operaciones CRUD (crear, leer, actualizar y eliminar) la información sobre los usuarios, para tener control total sobre la gestión de usuarios")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente"),
+			@ApiResponse(responseCode = "403", description = "Forbidden - El usuario no tiene permisos para actualizar usuarios"),
+			@ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario")
+	})
+	@PutMapping(value="/{username}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<UserResponse> updateUserAvatar(@PathVariable String username,
+			@RequestPart(value = "avatar") MultipartFile avatar) {
+		UserResponse response = userService.updateUserAvatar(username, avatar);
 		return ResponseEntity
 				.status(HttpStatus.OK)
 				.body(response);
