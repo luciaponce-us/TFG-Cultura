@@ -45,6 +45,7 @@ public class UserFileService {
                     .file(file)
                     .folder(PAYMENT_FOLDER)
                     .publicId("payment_" + userId)
+                    .resourceType("raw")
                     .build();
             String pdfUrl = fileService.uploadFile(request);
             logger.info("Se ha subido el PDF {} para el usuario con id {}", pdfUrl, userId);
@@ -98,5 +99,11 @@ public class UserFileService {
             fileService.deleteFile(avatarUrl);
         }
         fileService.deleteFile(paymentReceiptUrl);
+    }
+
+    void deleteUserFile(String fileUrl) {
+        if (fileUrl != null && !fileUrl.isEmpty() && !fileUrl.equals(AVATAR_PLACEHOLDER)) {
+            fileService.deleteFile(fileUrl);
+        }
     }
 }

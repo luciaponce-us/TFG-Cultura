@@ -32,13 +32,11 @@ public class FileService {
 
             options.put("folder", request.getFolder());
             options.put("resource_type", request.getResourceType());
+            options.put("type", "upload");
+            options.put("overwrite", request.isOverwrite());
 
             if (request.getPublicId() != null) {
                 options.put("public_id", request.getPublicId());
-            }
-
-            if (request.isOverwrite()) {
-                options.put("overwrite", true);
             }
 
             @SuppressWarnings("unchecked")
