@@ -92,7 +92,9 @@ export default function UsersAdminPage() {
     function renderActions(user: User) {
       return (
         <HStack>
-          <CustomButton onClick={() => navigate(`/admin/usuarios/${user.username}`)}>
+          <CustomButton
+            onClick={() => navigate(`/admin/usuarios/${user.username}`)}
+          >
             <IconPencil size={16} />
           </CustomButton>
           <CustomButton

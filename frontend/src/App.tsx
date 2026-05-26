@@ -41,10 +41,7 @@ export default function App() {
             />
             <Route
               path="/admin/usuarios/:username"
-              element={withRoleProtection(
-                EditUserPage,
-                MANAGEMENT_ROLES,
-              )}
+              element={withRoleProtection(EditUserPage, MANAGEMENT_ROLES)}
             />
             <Route path="/no-encontrado" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />

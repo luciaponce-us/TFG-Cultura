@@ -1,15 +1,12 @@
-import {
-  Flex,
-  Heading,
-  HStack,
-  Spinner,
-  VStack,
-  Text
-} from "@chakra-ui/react";
+import { Flex, Heading, HStack, Spinner, VStack, Text } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { getUserByUsername, updateUser, updateUserAvatar } from "../service/user.service";
+import {
+  getUserByUsername,
+  updateUser,
+  updateUserAvatar,
+} from "../service/user.service";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import type { User, UserUpdateRequest } from "../types";
 import {
@@ -17,9 +14,9 @@ import {
   CustomInput,
   UploadBox,
   CustomAvatar,
-  CustomSelect
+  CustomSelect,
 } from "@/modules/core/components";
-import {  } from "@/modules/core/components/CustomSelect";
+import {} from "@/modules/core/components/CustomSelect";
 import { IconEye, IconFileDollar } from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
 import { isApiError } from "@/modules/core/utils/utils";
@@ -70,8 +67,6 @@ export default function EditUserPage() {
     } as UserUpdateRequest);
   };
 
-  
-
   function parseUrl(url: string | null): string {
     return url?.trim().split("/").slice(-1)[0] || "";
   }
@@ -80,35 +75,34 @@ export default function EditUserPage() {
     if (!token || !username) return;
 
     async function fetchUser() {
-        setLoadingForm(true);
-        try {
+      setLoadingForm(true);
+      try {
         const userData = await getUserByUsername(token!, username!);
         setUser(userData);
         setForm({
-            username: userData.username,
-            password: "",
-            name: userData.name,
-            surname: userData.surname,
-            dni: userData.dni,
-            phone: userData.phone,
-            email: userData.email,
-            active: userData.active,
-            role: userData.role,
+          username: userData.username,
+          password: "",
+          name: userData.name,
+          surname: userData.surname,
+          dni: userData.dni,
+          phone: userData.phone,
+          email: userData.email,
+          active: userData.active,
+          role: userData.role,
         });
-        } catch (error) {
+      } catch (error) {
         console.error("Error fetching user:", error);
         toaster.create({
-            title: "Error",
-            description: "No se pudo cargar el usuario.",
-            type: "error",
+          title: "Error",
+          description: "No se pudo cargar el usuario.",
+          type: "error",
         });
-        } finally {
+      } finally {
         setLoadingForm(false);
-        }
+      }
     }
 
     fetchUser();
-
   }, [token, username]);
 
   function validateForm(): boolean {
@@ -149,14 +143,10 @@ export default function EditUserPage() {
     }
 
     try {
-      const res = await updateUser(
-        token!,
-        username!,
-        form!
-      );
+      const res = await updateUser(token!, username!, form!);
       if (form.username !== username) {
         navigate(`/admin/usuarios/${form.username}`);
-      } else {      
+      } else {
         navigate(`/admin/usuarios`);
       }
       toaster.create({
@@ -179,35 +169,35 @@ export default function EditUserPage() {
     }
   }
 
-  
   useEffect(() => {
     async function handleAvatarUpload() {
-        
-    if (!avatar || !token || !username) return;
-    try {
+      if (!avatar || !token || !username) return;
+      try {
         setLoadingAvatar(true);
         const updatedUser = await updateUserAvatar(token, username, avatar);
         setUser(updatedUser);
-    } catch (error) {
+      } catch (error) {
         console.error("Error al actualizar el avatar:", error);
         toaster.create({
-            title: "Error",
-            description: "No se pudo actualizar el avatar.",
-            type: "error",
+          title: "Error",
+          description: "No se pudo actualizar el avatar.",
+          type: "error",
         });
-    } finally {
+      } finally {
         setLoadingAvatar(false);
+      }
     }
-  }
-    
+
     handleAvatarUpload();
-    
   }, [avatar, token, username]);
 
   function parsePaymentReceiptUrl(url: string | null): string {
     if (!url) return "";
     if (url.includes("cloudinary")) {
-        return "https://docs.google.com/gview?embedded=true&url="+encodeURIComponent(url)
+      return (
+        "https://docs.google.com/gview?embedded=true&url=" +
+        encodeURIComponent(url)
+      );
     }
     return url;
   }
@@ -229,25 +219,25 @@ export default function EditUserPage() {
       ) : (
         <VStack gap={4}>
           <HStack gap={4}>
-              <CustomAvatar
-                src={user?.avatar || "https://via.placeholder.com/150"}
-                name={form?.name || "User"}
-                loading={loadingAvatar}
-                w="100px"
-                h="100px"
-              />
-              
-              <UploadBox
-                text={
-                  <>
-                    Arrastra la <b>foto de perfil</b>
-                  </>
-                }
-                secondaryText="JPG o PNG, tamaño no superior a 2MB"
-                fileType="image/*"
-                onFileChange={setAvatar}
-                disabled={loadingChanges}
-              />
+            <CustomAvatar
+              src={user?.avatar || "https://via.placeholder.com/150"}
+              name={form?.name || "User"}
+              loading={loadingAvatar}
+              w="100px"
+              h="100px"
+            />
+
+            <UploadBox
+              text={
+                <>
+                  Arrastra la <b>foto de perfil</b>
+                </>
+              }
+              secondaryText="JPG o PNG, tamaño no superior a 2MB"
+              fileType="image/*"
+              onFileChange={setAvatar}
+              disabled={loadingChanges}
+            />
           </HStack>
           <CustomInput
             label="Nombre de usuario"
@@ -319,7 +309,15 @@ export default function EditUserPage() {
           <HStack gap={4}>
             <VStack gap={2} justify="center" color="principal.800">
               <IconFileDollar stroke={1.5} width={60} height={60} />
-              <CustomButton onClick={() => window.open(parsePaymentReceiptUrl(user?.paymentReceipt as string), "_blank", "noopener,noreferrer")}>
+              <CustomButton
+                onClick={() =>
+                  window.open(
+                    parsePaymentReceiptUrl(user?.paymentReceipt as string),
+                    "_blank",
+                    "noopener,noreferrer",
+                  )
+                }
+              >
                 <IconEye stroke={2} /> Ver
               </CustomButton>
             </VStack>
