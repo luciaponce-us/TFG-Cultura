@@ -12,3 +12,4 @@ export * from "./toaster/toaster.ts";
 export * from "./toaster/Toaster";
 export * from "./CustomPagination";
 export * from "./CustomAvatar";
+export * from "./CustomSelect";
