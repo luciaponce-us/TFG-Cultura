@@ -34,7 +34,20 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         // Apply name filter (case-insensitive partial match)
         if (name != null && !name.trim().isEmpty()) {
-            query.addCriteria(Criteria.where("name").regex(name, "i"));
+            String trimmedName = name.trim();
+            String[] tokens = trimmedName.split("\\s+");
+            Criteria[] tokenCriteria = new Criteria[tokens.length];
+
+            for (int i = 0; i < tokens.length; i++) {
+                String token = tokens[i];
+                tokenCriteria[i] = new Criteria().orOperator(
+                        Criteria.where("name").regex(token, "i"),
+                        Criteria.where("surname").regex(token, "i"),
+                        Criteria.where("username").regex(token, "i")
+                );
+            }
+
+            query.addCriteria(new Criteria().andOperator(tokenCriteria));
         }
 
         // Get total count before applying pagination
