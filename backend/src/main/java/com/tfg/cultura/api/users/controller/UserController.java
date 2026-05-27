@@ -122,12 +122,20 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Forbidden - El usuario no tiene permisos para aprobar registros o activar ese usuario"),
             @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario a aprobar/rechazar")
     })
-    @PutMapping("/{id}/activate")
-    public ResponseEntity<UserResponse> activateUser(@PathVariable String id) {
-        UserResponse response = userService.activateUser(id);
+    @PutMapping("/{username}/activate")
+    public ResponseEntity<UserResponse> activateUser(@PathVariable String username) {
+        UserResponse response = userService.activateUser(username);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
+
+	@PutMapping("/{username}/deactivate")
+	public ResponseEntity<UserResponse> deactivateUser(@PathVariable String username) {
+		UserResponse response = userService.deactivateUser(username);
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.body(response);
+	}
 
 }

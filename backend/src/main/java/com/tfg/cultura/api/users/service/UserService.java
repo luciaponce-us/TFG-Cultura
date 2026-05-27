@@ -200,9 +200,9 @@ public class UserService {
         logger.info("Usuario con username {} eliminado correctamente", userToDelete);
     }
 
-    public UserResponse activateUser(String id) throws UserNotFoundException {
+    public UserResponse activateUser(String username) throws UserNotFoundException {
 
-        User user = findUserById(id);
+        User user = findUserByUsername(username);
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 
         if (currentUser == null) {
@@ -220,6 +220,29 @@ public class UserService {
         }
 
         logger.info("Se ha aprobado el registro del usuario {} con id {}", user.getUsername(), user.getId());
+        return new UserResponse(user);
+    }
+
+    public UserResponse deactivateUser(String username) throws UserNotFoundException {
+
+        User user = findUserByUsername(username);
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+
+        if (currentUser == null) {
+            throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
+        }
+        if (user.getId().equals(currentUser.getId())) {
+            throw new SelfActivationNotAllowedException(
+                    String.format("El usuario %s con id %s ha intentado desactivar su propio usuario", user.getUsername(),
+                            user.getId()));
+        }
+
+        if (user.isActive()) {
+            user.setActive(false);
+            user = userRepository.save(user);
+        }
+
+        logger.info("Se ha desactivado el usuario {} con id {}", user.getUsername(), user.getId());
         return new UserResponse(user);
     }
 }
