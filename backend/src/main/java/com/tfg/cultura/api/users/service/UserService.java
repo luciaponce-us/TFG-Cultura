@@ -41,7 +41,13 @@ public class UserService {
 
     public Page<UserResponse> getAllUsers(int page, int size, Role role, Boolean active, String name) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<User> userPage = userRepository.findAllWithFilters(role, active, name, pageable);
+        Page<User> userPage;
+        if(name != null || role != null || active != null) {
+            userPage = userRepository.findAllWithFilters(role, active, name, pageable);
+        } else {
+            userPage = userRepository.findAll(pageable);
+        }
+        
         return userPage.map(UserResponse::new);
     }
 

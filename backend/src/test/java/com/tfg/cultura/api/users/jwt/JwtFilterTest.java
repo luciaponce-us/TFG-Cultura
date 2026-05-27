@@ -53,7 +53,7 @@ class JwtFilterTest {
 
     @Test
     void shouldNotFilterPublicUrls() throws Exception {
-        when(request.getRequestURI()).thenReturn("/api/users/register");
+        when(request.getRequestURI()).thenReturn("/api/users/auth/register");
 
         boolean result = filter.shouldNotFilter(request);
 
