@@ -12,7 +12,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { User } from "../types";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { getAllUsers, deleteUser } from "../service/user.service";
+import {
+  getAllUsers,
+  deleteUser,
+  toggleUserActive,
+} from "../service/user.service";
 import type { Paginated } from "@/modules/core/types";
 import {
   IconPencil,
@@ -107,14 +111,14 @@ export default function UsersAdminPage() {
           {user.active ? (
             <CustomButton
               color="rojo"
-              onClick={() => console.log("Desactivar", user.username)}
+              onClick={() => handleToggleActive(user.username, user.active)}
             >
               <IconLock size={16} />
             </CustomButton>
           ) : (
             <CustomButton
               color="verde"
-              onClick={() => console.log("Activar", user.username)}
+              onClick={() => handleToggleActive(user.username, user.active)}
             >
               <IconLockOpen size={16} />
             </CustomButton>
@@ -185,6 +189,33 @@ export default function UsersAdminPage() {
       });
     } finally {
       setLoadingDeleteUsername(null);
+    }
+  }
+
+  async function handleToggleActive(username: string, isActive: boolean) {
+    if (!token) return;
+    try {
+      await toggleUserActive(token, username, isActive);
+      await fetchUsers(page);
+      toaster.create({
+        title: `Usuario ${isActive ? "desactivado" : "activado"}`,
+        description: `El usuario ${username} ha sido ${
+          isActive ? "desactivado" : "activado"
+        } exitosamente.`,
+        type: "success",
+      });
+    } catch (error) {
+      console.error(
+        `Error ${isActive ? "desactivando" : "activando"} usuario:`,
+        error,
+      );
+      toaster.create({
+        title: `Error al ${isActive ? "desactivar" : "activar"} usuario`,
+        description: `No se pudo ${
+          isActive ? "desactivar" : "activar"
+        } el usuario ${username}. Por favor, inténtalo de nuevo.`,
+        type: "error",
+      });
     }
   }
 
