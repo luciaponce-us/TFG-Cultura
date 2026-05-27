@@ -14,7 +14,7 @@ import {
   CustomPagination,
   CustomAvatar,
   CustomSelect,
-  CustomSearchBar
+  CustomSearchBar,
 } from "../../core/components";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +35,6 @@ import {
 } from "@tabler/icons-react";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { parsePaymentReceiptUrl, parseRole } from "../utils";
-
 
 export default function UsersAdminPage() {
   const { token } = useAuth();
@@ -62,7 +61,14 @@ export default function UsersAdminPage() {
     if (!token) return;
     setLoading(true);
     try {
-      const paginatedUsers = await getAllUsers(token, page, 10, filters.name, filters.role, filters.active);
+      const paginatedUsers = await getAllUsers(
+        token,
+        page,
+        10,
+        filters.name,
+        filters.role,
+        filters.active,
+      );
       setPaginatedUsers(paginatedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -76,7 +82,6 @@ export default function UsersAdminPage() {
   }, [page, token, filters]);
 
   function renderUsers(users: User[]) {
-
     function renderActions(user: User) {
       return (
         <HStack>
@@ -112,7 +117,12 @@ export default function UsersAdminPage() {
     }
 
     const rowsContent = (user: User) => [
-      <CustomAvatar src={user.avatar || undefined} name={user.name} w="40px" h="40px" />,
+      <CustomAvatar
+        src={user.avatar || undefined}
+        name={user.name}
+        w="40px"
+        h="40px"
+      />,
       user.username,
       `${user.name} ${user.surname}`,
       parseRole(user.role),
@@ -253,14 +263,18 @@ export default function UsersAdminPage() {
       <SideBar>
         <VStack align="start" gap={4} w="100%">
           <Heading as="h1">Filtros</Heading>
-          <Link variant="underline" color="principal.500" onClick={() => {
-            setPage(0);
-            setFilters({
-              name: "",
-              role: "",
-              active: "",
-            });
-          }}>
+          <Link
+            variant="underline"
+            color="principal.500"
+            onClick={() => {
+              setPage(0);
+              setFilters({
+                name: "",
+                role: "",
+                active: "",
+              });
+            }}
+          >
             Eliminar filtros
           </Link>
           <CustomSearchBar
@@ -268,7 +282,7 @@ export default function UsersAdminPage() {
             value={filters.name}
             onChange={(e) => {
               setPage(0);
-              setFilters({...filters, name: e.currentTarget.value});
+              setFilters({ ...filters, name: e.currentTarget.value });
             }}
           />
           <CustomSelect
@@ -280,24 +294,24 @@ export default function UsersAdminPage() {
             value={filters.active ? [filters.active] : []}
             onValueChange={({ value }) => {
               setPage(0);
-              setFilters({...filters, active: value[0] || ""});
+              setFilters({ ...filters, active: value[0] || "" });
             }}
             label="Actividad"
           />
-          
+
           <CustomSelect
             placeholder="Filtrar por rol"
             options={[
-                          { label: "Socio", value: "SOCIO" as Role },
-                          { label: "Colaborador", value: "COLABORADOR" as Role },
-                          { label: "Encargado", value: "ENCARGADO" as Role },
-                          { label: "Secretario", value: "SECRETARIO" as Role },
-                          { label: "Coordinador", value: "COORDINADOR" as Role },
-                        ]}
+              { label: "Socio", value: "SOCIO" as Role },
+              { label: "Colaborador", value: "COLABORADOR" as Role },
+              { label: "Encargado", value: "ENCARGADO" as Role },
+              { label: "Secretario", value: "SECRETARIO" as Role },
+              { label: "Coordinador", value: "COORDINADOR" as Role },
+            ]}
             value={filters.role ? [filters.role] : []}
             onValueChange={({ value }) => {
               setPage(0);
-              setFilters({...filters, role: value[0] || ""});
+              setFilters({ ...filters, role: value[0] || "" });
             }}
             label="Rol"
           />
@@ -346,7 +360,11 @@ export default function UsersAdminPage() {
         )}
         {paginatedUsers && paginatedUsers.totalPages > 1 && (
           <Flex mt="auto" w="100%" justify="center">
-            <CustomPagination {...paginatedUsers} setPage={setPage} page={page} />
+            <CustomPagination
+              {...paginatedUsers}
+              setPage={setPage}
+              page={page}
+            />
           </Flex>
         )}
       </Flex>
