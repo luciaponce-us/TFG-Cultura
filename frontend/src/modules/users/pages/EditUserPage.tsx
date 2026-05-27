@@ -8,7 +8,7 @@ import {
   updateUserAvatar,
 } from "../service/user.service";
 import { toaster } from "@/modules/core/components/toaster/toaster";
-import type { User, UserUpdateRequest } from "../types";
+import type { Role, User, UserUpdateRequest } from "../types";
 import {
   CustomButton,
   CustomInput,
@@ -23,6 +23,7 @@ import {
 } from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
 import { isApiError } from "@/modules/core/utils/utils";
+import { parsePaymentReceiptUrl, parseUrl } from "../utils";
 
 export default function EditUserPage() {
   const { username } = useParams();
@@ -69,9 +70,13 @@ export default function EditUserPage() {
     } as UserUpdateRequest);
   };
 
-  function parseUrl(url: string | null): string {
-    return url?.trim().split("/").slice(-1)[0] || "";
-  }
+  const handleRoleChange = ({ value }: { value: string[] }) => {
+    if (!value[0]) return;
+    resetErrors();
+    setForm((prev) =>
+      prev ? { ...prev, role: value[0] as Role } : prev,
+    );
+  };
 
   useEffect(() => {
     if (!token || !username) return;
@@ -193,17 +198,6 @@ export default function EditUserPage() {
     handleAvatarUpload();
   }, [avatar, token, username]);
 
-  function parsePaymentReceiptUrl(url: string | null): string {
-    if (!url) return "";
-    if (url.includes("cloudinary")) {
-      return (
-        "https://docs.google.com/gview?embedded=true&url=" +
-        encodeURIComponent(url)
-      );
-    }
-    return url;
-  }
-
   return (
     <Flex
       bg="background"
@@ -290,15 +284,16 @@ export default function EditUserPage() {
             label="Rol"
             placeholder="Selecciona un rol"
             options={[
-              { label: "Socio", value: "SOCIO" },
-              { label: "Colaborador", value: "COLABORADOR" },
-              { label: "Encargado", value: "ENCARGADO" },
-              { label: "Secretario", value: "SECRETARIO" },
-              { label: "Coordinador", value: "COORDINADOR" },
+              { label: "Socio", value: "SOCIO" as Role },
+              { label: "Colaborador", value: "COLABORADOR" as Role },
+              { label: "Encargado", value: "ENCARGADO" as Role },
+              { label: "Secretario", value: "SECRETARIO" as Role },
+              { label: "Coordinador", value: "COORDINADOR" as Role },
             ]}
             defaultValue={[form?.role as string]}
             disabled={loadingChanges}
             error={errors.role}
+            onValueChange={handleRoleChange}
           />
           <CustomInput
             label="Correo electrónico"

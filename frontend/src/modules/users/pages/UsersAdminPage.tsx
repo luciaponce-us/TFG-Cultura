@@ -23,8 +23,10 @@ import {
   IconTrash,
   IconLock,
   IconLockOpen,
+  IconEye,
 } from "@tabler/icons-react";
 import { toaster } from "@/modules/core/components/toaster/toaster";
+import { parsePaymentReceiptUrl } from "../utils";
 
 export default function UsersAdminPage() {
   const { token } = useAuth();
@@ -135,7 +137,17 @@ export default function UsersAdminPage() {
       user.dni,
       user.phone,
       user.email,
-      user.paymentReceipt ? "Sí" : "No",
+      user.paymentReceipt ? <CustomButton
+              onClick={() =>
+                window.open(
+                  parsePaymentReceiptUrl(user?.paymentReceipt as string),
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+            >
+              <IconEye stroke={2} /> Ver
+            </CustomButton> : "No tiene",
       user.active ? "Sí" : "No",
       new Date(user.createdAt)
         .toLocaleString("es-ES", {
