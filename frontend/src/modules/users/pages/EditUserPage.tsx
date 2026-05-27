@@ -36,7 +36,6 @@ export default function EditUserPage() {
   const [user, setUser] = useState<User | null>(null);
   const [form, setForm] = useState<UserUpdateRequest | null>(null);
   const [avatar, setAvatar] = useState<File | null>(null);
-  const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({
     username: "",
@@ -319,9 +318,11 @@ export default function EditUserPage() {
             defaultValue={form?.phone}
           />
 
-          <HStack gap={4}>
-            <VStack gap={2} justify="center" color="principal.800">
-              <IconFileDollar stroke={1.5} width={60} height={60} />
+          <HStack gap={4} color="principal.800" justify="space-between" align="center" w="100%">
+            <HStack gap={2} align="center">
+            <IconFileDollar stroke={1.5} size={40} />
+              <Text>Carta de pago: {parseUrl(user?.paymentReceipt || "")}</Text>
+              </HStack>
               <CustomButton
                 onClick={() =>
                   window.open(
@@ -333,29 +334,7 @@ export default function EditUserPage() {
               >
                 <IconEye stroke={2} /> Ver
               </CustomButton>
-            </VStack>
-            <VStack gap={2} justify="center">
-              <UploadBox
-                text={
-                  <>
-                    Arrastra la <b>carta de pago</b> en PDF
-                  </>
-                }
-                secondaryText="PDF, tamaño no superior a 2MB"
-                fileType="application/pdf"
-                onFileChange={setPaymentReceipt}
-              />
-              {user?.paymentReceipt &&
-                (paymentReceipt?.name ? (
-                  <Text fontSize="sm">
-                    Archivo seleccionado: {paymentReceipt.name}
-                  </Text>
-                ) : (
-                  <Text fontSize="sm">
-                    Archivo subido: {parseUrl(user.paymentReceipt)}
-                  </Text>
-                ))}
-            </VStack>
+            
           </HStack>
           <CustomButton
             onClick={handleSubmit}
