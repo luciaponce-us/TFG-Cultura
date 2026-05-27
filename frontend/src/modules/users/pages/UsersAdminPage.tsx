@@ -137,17 +137,21 @@ export default function UsersAdminPage() {
       user.dni,
       user.phone,
       user.email,
-      user.paymentReceipt ? <CustomButton
-              onClick={() =>
-                window.open(
-                  parsePaymentReceiptUrl(user?.paymentReceipt as string),
-                  "_blank",
-                  "noopener,noreferrer",
-                )
-              }
-            >
-              <IconEye stroke={2} /> Ver
-            </CustomButton> : "No tiene",
+      user.paymentReceipt ? (
+        <CustomButton
+          onClick={() =>
+            window.open(
+              parsePaymentReceiptUrl(user?.paymentReceipt as string),
+              "_blank",
+              "noopener,noreferrer",
+            )
+          }
+        >
+          <IconEye stroke={2} /> Ver
+        </CustomButton>
+      ) : (
+        "No tiene"
+      ),
       user.active ? "Sí" : "No",
       new Date(user.createdAt)
         .toLocaleString("es-ES", {

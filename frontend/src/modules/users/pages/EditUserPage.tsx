@@ -73,9 +73,7 @@ export default function EditUserPage() {
   const handleRoleChange = ({ value }: { value: string[] }) => {
     if (!value[0]) return;
     resetErrors();
-    setForm((prev) =>
-      prev ? { ...prev, role: value[0] as Role } : prev,
-    );
+    setForm((prev) => (prev ? { ...prev, role: value[0] as Role } : prev));
   };
 
   useEffect(() => {
