@@ -16,7 +16,11 @@ import {
   CustomAvatar,
   CustomSelect,
 } from "@/modules/core/components";
-import { IconEye, IconFileDollar, IconArrowNarrowLeft } from "@tabler/icons-react";
+import {
+  IconEye,
+  IconFileDollar,
+  IconArrowNarrowLeft,
+} from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
 import { isApiError } from "@/modules/core/utils/utils";
 
@@ -212,24 +216,17 @@ export default function EditUserPage() {
       justify="flex-start"
       width="fit-content"
     >
-    <HStack 
-      w="100%" 
-      justify="space-between"
-      align="center" 
-      mb={4}
-    >
-      <CustomButton
+      <HStack w="100%" justify="space-between" align="center" mb={4}>
+        <CustomButton
           color="transparent"
           onClick={() => navigate("/admin/usuarios")}
-          
         >
           <IconArrowNarrowLeft stroke={2} style={{ width: 32, height: 32 }} />
         </CustomButton>
-        
-      
-      <Heading as="h1"> Perfil - {username} </Heading>
-      <HStack w="48px" />
-    </HStack>
+
+        <Heading as="h1"> Perfil - {username} </Heading>
+        <HStack w="48px" />
+      </HStack>
       {loadingForm ? (
         <Spinner size="xl" borderWidth="4px" color="principal.800" />
       ) : (
