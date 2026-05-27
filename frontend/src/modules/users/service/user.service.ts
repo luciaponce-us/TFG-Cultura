@@ -61,9 +61,12 @@ export async function getAllUsers(
   token: string,
   page: number = 0,
   limit: number = 10,
+  nameFilter: string = "",
+  roleFilter: string = "",
+  activeFilter: string = ""
 ): Promise<Paginated<User>> {
   const res = await fetchWithTimeout(
-    `${USER_ROUTES.GET_ALL}?page=${page}&size=${limit}`,
+    `${USER_ROUTES.GET_ALL}?page=${page}&size=${limit}&name=${nameFilter}&role=${roleFilter}&active=${activeFilter}`,
     {
       method: "GET",
       headers: { ...jsonHeaders, Authorization: `Bearer ${token}` },

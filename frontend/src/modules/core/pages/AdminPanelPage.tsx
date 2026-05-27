@@ -1,5 +1,5 @@
 import { Flex, Grid, GridItem, Heading, VStack } from "@chakra-ui/react";
-import { CustomButton, SideBar } from "../components";
+import { CustomButton, SideBar, toaster } from "../components";
 import {
   IconUsers,
   IconBox,
@@ -17,12 +17,14 @@ interface AdminCardProps {
   onClick: () => void;
 }
 
-function AdminCard({ icon, label, onClick }: AdminCardProps) {
+function AdminCard({ icon, label, onClick}: AdminCardProps) {
   return (
     <GridItem>
-      <VStack align="center" justify="center" h="100%">
+      <VStack align="center" justify="center" h="100%" >
         {icon}
-        <CustomButton onClick={onClick}>{label}</CustomButton>
+        <CustomButton onClick={onClick}>
+          {label}
+        </CustomButton>
       </VStack>
     </GridItem>
   );
@@ -47,27 +49,27 @@ export default function AdminPanelPage() {
     {
       icon: <IconBox style={adminCardIconStyle} stroke={1.5} />,
       label: "Préstamos",
-      onClick: () => navigation("/admin/prestamos"),
+      onClick: () => toaster.create({ title: "Préstamos", description: "Funcionalidad en desarrollo" }),
     },
     {
       icon: <IconAlertTriangle style={adminCardIconStyle} stroke={1.5} />,
       label: "Incidencias",
-      onClick: () => console.log("Incidencias"),
+      onClick: () => toaster.create({ title: "Incidencias", description: "Funcionalidad en desarrollo" }),
     },
     {
       icon: <IconChartBar style={adminCardIconStyle} stroke={1.5} />,
       label: "Estadísticas",
-      onClick: () => console.log("Estadísticas"),
+      onClick: () => toaster.create({ title: "Estadísticas", description: "Funcionalidad en desarrollo" }),
     },
     {
       icon: <IconStar style={adminCardIconStyle} stroke={1.5} />,
       label: "Reseñas",
-      onClick: () => console.log("Reseñas"),
+      onClick: () => toaster.create({ title: "Reseñas", description: "Funcionalidad en desarrollo" }),
     },
     {
       icon: <IconChartPie4 style={adminCardIconStyle} stroke={1.5} />,
       label: "Secciones",
-      onClick: () => console.log("Secciones"),
+      onClick: () => toaster.create({ title: "Secciones", description: "Funcionalidad en desarrollo" }),
     },
   ];
 

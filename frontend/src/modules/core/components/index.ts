@@ -13,3 +13,4 @@ export * from "./toaster/Toaster";
 export * from "./CustomPagination";
 export * from "./CustomAvatar";
 export * from "./CustomSelect";
+export * from "./CustomSearchBar";

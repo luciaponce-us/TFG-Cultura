@@ -3,14 +3,22 @@ import {
   Grid,
   Heading,
   HStack,
+  Link,
   Spinner,
   Table,
   VStack,
 } from "@chakra-ui/react";
-import { CustomButton, SideBar, CustomPagination } from "../../core/components";
+import {
+  CustomButton,
+  SideBar,
+  CustomPagination,
+  CustomAvatar,
+  CustomSelect,
+  CustomSearchBar
+} from "../../core/components";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { User } from "../types";
+import type { Role, User } from "../types";
 import { useAuth } from "@/modules/core/context/useAuth";
 import {
   getAllUsers,
@@ -26,7 +34,8 @@ import {
   IconEye,
 } from "@tabler/icons-react";
 import { toaster } from "@/modules/core/components/toaster/toaster";
-import { parsePaymentReceiptUrl } from "../utils";
+import { parsePaymentReceiptUrl, parseRole } from "../utils";
+
 
 export default function UsersAdminPage() {
   const { token } = useAuth();
@@ -37,16 +46,23 @@ export default function UsersAdminPage() {
     null,
   );
   const [loading, setLoading] = useState<boolean>(false);
+  const isInitialLoading = loading && !paginatedUsers;
   const [page, setPage] = useState<number>(0);
   const [loadingDeleteUsername, setLoadingDeleteUsername] = useState<
     string | null
   >(null);
 
+  const [filters, setFilters] = useState({
+    name: "",
+    role: "",
+    active: "",
+  });
+
   async function fetchUsers(page: number = 0) {
     if (!token) return;
     setLoading(true);
     try {
-      const paginatedUsers = await getAllUsers(token, page);
+      const paginatedUsers = await getAllUsers(token, page, 10, filters.name, filters.role, filters.active);
       setPaginatedUsers(paginatedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -56,44 +72,10 @@ export default function UsersAdminPage() {
   }
 
   useEffect(() => {
-    fetchUsers();
-  }, [token]);
-
-  useEffect(() => {
     fetchUsers(page);
-  }, [page, token]);
+  }, [page, token, filters]);
 
   function renderUsers(users: User[]) {
-    function renderAvatar(user: User) {
-      if (user.avatar) {
-        return (
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <img
-              src={user.avatar}
-              alt={`${user.name}'s avatar`}
-              style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-            />
-          </div>
-        );
-      }
-    }
-
-    function parseRole(role: string) {
-      switch (role) {
-        case "COORDINADOR":
-          return "Coordinador";
-        case "SECRETARIO":
-          return "Secretario";
-        case "ENCARGADO":
-          return "Encargado";
-        case "COLABORADOR":
-          return "Colaborador";
-        case "SOCIO":
-          return "Socio";
-        default:
-          return role;
-      }
-    }
 
     function renderActions(user: User) {
       return (
@@ -130,7 +112,7 @@ export default function UsersAdminPage() {
     }
 
     const rowsContent = (user: User) => [
-      renderAvatar(user),
+      <CustomAvatar src={user.avatar || undefined} name={user.name} w="40px" h="40px" />,
       user.username,
       `${user.name} ${user.surname}`,
       parseRole(user.role),
@@ -269,8 +251,56 @@ export default function UsersAdminPage() {
       maxW="100vw"
     >
       <SideBar>
-        <VStack align="start" gap={0}>
+        <VStack align="start" gap={4} w="100%">
           <Heading as="h1">Filtros</Heading>
+          <Link variant="underline" color="principal.500" onClick={() => {
+            setPage(0);
+            setFilters({
+              name: "",
+              role: "",
+              active: "",
+            });
+          }}>
+            Eliminar filtros
+          </Link>
+          <CustomSearchBar
+            placeholder="Buscar por nombre..."
+            value={filters.name}
+            onChange={(e) => {
+              setPage(0);
+              setFilters({...filters, name: e.currentTarget.value});
+            }}
+          />
+          <CustomSelect
+            placeholder="Filtrar por actividad"
+            options={[
+              { label: "Activo", value: "true" },
+              { label: "Inactivo", value: "false" },
+            ]}
+            value={filters.active ? [filters.active] : []}
+            onValueChange={({ value }) => {
+              setPage(0);
+              setFilters({...filters, active: value[0] || ""});
+            }}
+            label="Actividad"
+          />
+          
+          <CustomSelect
+            placeholder="Filtrar por rol"
+            options={[
+                          { label: "Socio", value: "SOCIO" as Role },
+                          { label: "Colaborador", value: "COLABORADOR" as Role },
+                          { label: "Encargado", value: "ENCARGADO" as Role },
+                          { label: "Secretario", value: "SECRETARIO" as Role },
+                          { label: "Coordinador", value: "COORDINADOR" as Role },
+                        ]}
+            value={filters.role ? [filters.role] : []}
+            onValueChange={({ value }) => {
+              setPage(0);
+              setFilters({...filters, role: value[0] || ""});
+            }}
+            label="Rol"
+          />
         </VStack>
       </SideBar>
       <Flex
@@ -281,12 +311,13 @@ export default function UsersAdminPage() {
         direction="column"
         align="center"
         justify="flex-start"
-        maxW="100vw"
+        w="100%"
         h="fit-content"
+        minH="80vh"
         gap={6}
       >
         <Heading as="h1">Administración de Usuarios</Heading>
-        {loading ? (
+        {isInitialLoading ? (
           <Spinner size="xl" borderWidth="4px" color="principal.800" />
         ) : (
           <>
@@ -313,7 +344,11 @@ export default function UsersAdminPage() {
             )}
           </>
         )}
-        <CustomPagination {...paginatedUsers} setPage={setPage} page={page} />
+        {paginatedUsers && paginatedUsers.totalPages > 1 && (
+          <Flex mt="auto" w="100%" justify="center">
+            <CustomPagination {...paginatedUsers} setPage={setPage} page={page} />
+          </Flex>
+        )}
       </Flex>
     </Grid>
   );
