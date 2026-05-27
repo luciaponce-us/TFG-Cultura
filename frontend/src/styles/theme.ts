@@ -82,7 +82,6 @@ export const system = createSystem(defaultConfig, {
     },
     h1: {
       color: "#223151",
-      marginBottom: "16px",
     },
     secondary: {
       fontFamily: "body",

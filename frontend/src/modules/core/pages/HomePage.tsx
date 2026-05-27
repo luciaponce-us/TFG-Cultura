@@ -18,7 +18,7 @@ export default function Home() {
     >
       {/* IZQUIERDA */}
       <SideBar>
-        <VStack align="start" gap={0}>
+        <VStack align="start" gap={4}>
           <Heading as="h1">Redes sociales</Heading>
           <VStack align="start" gap={2}>
             <SocialLink
@@ -33,7 +33,7 @@ export default function Home() {
             />
           </VStack>
         </VStack>
-        <VStack align="start" gap={0}>
+        <VStack align="start" gap={4}>
           <Heading as="h1">Comunidades</Heading>
           <VStack align="start" gap={2}>
             <SocialLink
@@ -59,6 +59,7 @@ export default function Home() {
         direction="column"
         align="center"
         justify="flex-start"
+        gap={6}
       >
         <Heading as="h1">Bienvenidos a Cultura ETSII</Heading>
         <Alerts />
@@ -66,7 +67,7 @@ export default function Home() {
 
       {/* DERECHA */}
       <SideBar>
-        <VStack align="start" gap={0}>
+        <VStack align="start" gap={4}>
           <Heading as="h1">Destacados</Heading>
           <Text>Próximamente...</Text>
         </VStack>

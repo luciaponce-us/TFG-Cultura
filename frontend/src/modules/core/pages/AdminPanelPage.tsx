@@ -97,6 +97,7 @@ export default function AdminPanelPage() {
         flex={1}
         h="fit-content"
         order={{ base: 1, md: 2 }}
+        gap={6}
       >
         <Heading as="h1">Panel de administración</Heading>
         <Grid

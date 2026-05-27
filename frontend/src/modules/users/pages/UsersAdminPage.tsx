@@ -236,7 +236,7 @@ export default function UsersAdminPage() {
         justify="flex-start"
         maxW="100vw"
         h="fit-content"
-        gap={4}
+        gap={6}
       >
         <Heading as="h1">Administración de Usuarios</Heading>
         {loading ? (
