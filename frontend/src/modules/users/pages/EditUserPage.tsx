@@ -318,23 +318,28 @@ export default function EditUserPage() {
             defaultValue={form?.phone}
           />
 
-          <HStack gap={4} color="principal.800" justify="space-between" align="center" w="100%">
+          <HStack
+            gap={4}
+            color="principal.800"
+            justify="space-between"
+            align="center"
+            w="100%"
+          >
             <HStack gap={2} align="center">
-            <IconFileDollar stroke={1.5} size={40} />
+              <IconFileDollar stroke={1.5} size={40} />
               <Text>Carta de pago: {parseUrl(user?.paymentReceipt || "")}</Text>
-              </HStack>
-              <CustomButton
-                onClick={() =>
-                  window.open(
-                    parsePaymentReceiptUrl(user?.paymentReceipt as string),
-                    "_blank",
-                    "noopener,noreferrer",
-                  )
-                }
-              >
-                <IconEye stroke={2} /> Ver
-              </CustomButton>
-            
+            </HStack>
+            <CustomButton
+              onClick={() =>
+                window.open(
+                  parsePaymentReceiptUrl(user?.paymentReceipt as string),
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+            >
+              <IconEye stroke={2} /> Ver
+            </CustomButton>
           </HStack>
           <CustomButton
             onClick={handleSubmit}
