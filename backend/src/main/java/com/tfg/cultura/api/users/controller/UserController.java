@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 
 @RestController
 @RequestMapping("/api/users")
@@ -44,8 +45,12 @@ public class UserController {
 	@GetMapping
 	public ResponseEntity<Page<UserResponse>> getAllUsers(
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) {
-		Page<UserResponse> response = userService.getAllUsers(page, size);
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(required = false) Role role,
+        	@RequestParam(required = false) Boolean active,
+        	@RequestParam(required = false) String name
+		) {
+		Page<UserResponse> response = userService.getAllUsers(page, size, role, active, name);
 		return ResponseEntity
 				.status(HttpStatus.OK)
 				.body(response);

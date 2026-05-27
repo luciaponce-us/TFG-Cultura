@@ -23,6 +23,7 @@ import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -38,10 +39,9 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
-    public Page<UserResponse> getAllUsers(int page, int size) {
+    public Page<UserResponse> getAllUsers(int page, int size, Role role, Boolean active, String name) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<User> userPage = userRepository.findAll(pageable);
-
+        Page<User> userPage = userRepository.findAllWithFilters(role, active, name, pageable);
         return userPage.map(UserResponse::new);
     }
 

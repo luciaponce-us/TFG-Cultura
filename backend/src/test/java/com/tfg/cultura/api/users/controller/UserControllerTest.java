@@ -165,7 +165,7 @@ class UserControllerTest extends BaseControllerTest {
                 2
         );
 
-        when(userService.getAllUsers(0, 10)).thenReturn(page);
+        when(userService.getAllUsers(0, 10, null, null, null)).thenReturn(page);
 
         mockMvc.perform(get(BASE_URL)
                         .param("page", "0")
@@ -178,7 +178,7 @@ class UserControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.size").value(10))
                 .andExpect(jsonPath("$.number").value(0));
 
-        verify(userService).getAllUsers(0, 10);
+        verify(userService).getAllUsers(0, 10, null, null, null);
     }
 
     // ================ ACTIVATE USER ================

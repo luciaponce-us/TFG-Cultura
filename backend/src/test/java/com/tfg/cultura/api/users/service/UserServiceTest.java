@@ -389,7 +389,7 @@ class UserServiceTest {
         when(userRepository.findAll(any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(user, user2)));
 
-        Page<UserResponse> result = service.getAllUsers(0, 10);
+        Page<UserResponse> result = service.getAllUsers(0, 10, null, null, null);
 
         assertNotNull(result);
         assertEquals(2, result.getContent().size());
@@ -415,7 +415,7 @@ class UserServiceTest {
         when(userRepository.findAll(any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
 
-        Page<UserResponse> result = service.getAllUsers(1, 5);
+        Page<UserResponse> result = service.getAllUsers(1, 5, null, null, null);
 
         assertEquals(1, result.getPageable().getPageNumber());
         assertEquals(5, result.getPageable().getPageSize());
@@ -431,7 +431,7 @@ class UserServiceTest {
         when(userRepository.findAll(any(PageRequest.class)))
                 .thenReturn(Page.empty());
 
-        Page<UserResponse> result = service.getAllUsers(0, 10);
+        Page<UserResponse> result = service.getAllUsers(0, 10, null, null, null);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
