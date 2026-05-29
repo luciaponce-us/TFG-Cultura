@@ -1,11 +1,11 @@
 import { Input, InputGroup, CloseButton } from "@chakra-ui/react";
 import { IconSearch } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 interface CustomSearchBarProps {
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  value?: string;
+  readonly onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  readonly placeholder?: string;
+  readonly value?: string;
 }
 
 export function CustomSearchBar({
@@ -13,12 +13,9 @@ export function CustomSearchBar({
   placeholder,
   value,
 }: CustomSearchBarProps) {
-  const [inputValue, setInputValue] = useState<string>(value ?? "");
+  const [internalValue, setInternalValue] = useState<string>("");
   const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    setInputValue(value ?? "");
-  }, [value]);
+  const inputValue = value ?? internalValue;
 
   const endElement = inputValue ? (
     <CloseButton
@@ -27,7 +24,9 @@ export function CustomSearchBar({
         const clearedEvent = {
           currentTarget: { value: "" },
         } as React.ChangeEvent<HTMLInputElement>;
-        setInputValue("");
+        if (value === undefined) {
+          setInternalValue("");
+        }
         onChange(clearedEvent);
         inputRef.current?.focus();
       }}
@@ -45,7 +44,9 @@ export function CustomSearchBar({
         _hover={hoverStyle}
         _focus={focusStyle}
         onChange={(e) => {
-          setInputValue(e.currentTarget.value);
+          if (value === undefined) {
+            setInternalValue(e.currentTarget.value);
+          }
           onChange(e);
         }}
         value={inputValue}

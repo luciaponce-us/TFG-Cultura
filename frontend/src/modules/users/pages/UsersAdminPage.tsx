@@ -16,7 +16,7 @@ import {
   CustomSelect,
   CustomSearchBar,
 } from "../../core/components";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Role, User } from "../types";
 import { useAuth } from "@/modules/core/context/useAuth";
@@ -57,29 +57,32 @@ export default function UsersAdminPage() {
     active: "",
   });
 
-  async function fetchUsers(page: number = 0) {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const paginatedUsers = await getAllUsers(
-        token,
-        page,
-        10,
-        filters.name,
-        filters.role,
-        filters.active,
-      );
-      setPaginatedUsers(paginatedUsers);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const fetchUsers = useCallback(
+    async (pageToFetch: number = 0) => {
+      if (!token) return;
+      setLoading(true);
+      try {
+        const paginatedUsers = await getAllUsers(
+          token,
+          pageToFetch,
+          10,
+          filters.name,
+          filters.role,
+          filters.active,
+        );
+        setPaginatedUsers(paginatedUsers);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, filters],
+  );
 
   useEffect(() => {
     fetchUsers(page);
-  }, [page, token, filters]);
+  }, [fetchUsers, page]);
 
   function renderUsers(users: User[]) {
     function renderActions(user: User) {
@@ -117,44 +120,55 @@ export default function UsersAdminPage() {
     }
 
     const rowsContent = (user: User) => [
-      <CustomAvatar
-        src={user.avatar || undefined}
-        name={user.name}
-        w="40px"
-        h="40px"
-      />,
-      user.username,
-      `${user.name} ${user.surname}`,
-      parseRole(user.role),
-      user.dni,
-      user.phone,
-      user.email,
-      user.paymentReceipt ? (
-        <CustomButton
-          onClick={() =>
-            window.open(
-              parsePaymentReceiptUrl(user?.paymentReceipt as string),
-              "_blank",
-              "noopener,noreferrer",
-            )
-          }
-        >
-          <IconEye stroke={2} /> Ver
-        </CustomButton>
-      ) : (
-        "No tiene"
-      ),
-      user.active ? "Sí" : "No",
-      new Date(user.createdAt)
-        .toLocaleString("es-ES", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-        .replace(",", ""),
-      renderActions(user),
+      {
+        key: "avatar",
+        content: (
+          <CustomAvatar
+            src={user.avatar || undefined}
+            name={user.name}
+            w="40px"
+            h="40px"
+          />
+        ),
+      },
+      { key: "username", content: user.username },
+      { key: "fullname", content: `${user.name} ${user.surname}` },
+      { key: "role", content: parseRole(user.role) },
+      { key: "dni", content: user.dni },
+      { key: "phone", content: user.phone },
+      { key: "email", content: user.email },
+      {
+        key: "payment",
+        content: user.paymentReceipt ? (
+          <CustomButton
+            onClick={() =>
+              window.open(
+                parsePaymentReceiptUrl(user?.paymentReceipt),
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            <IconEye stroke={2} /> Ver
+          </CustomButton>
+        ) : (
+          "No tiene"
+        ),
+      },
+      { key: "active", content: user.active ? "Sí" : "No" },
+      {
+        key: "created",
+        content: new Date(user.createdAt)
+          .toLocaleString("es-ES", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+          .replace(",", ""),
+      },
+      { key: "actions", content: renderActions(user) },
     ];
 
     return users.map((user) => (
@@ -163,9 +177,9 @@ export default function UsersAdminPage() {
         _hover={{ bg: "principal.50" }}
         cursor="pointer"
       >
-        {rowsContent(user).map((content, index) => (
-          <Table.Cell key={index} textAlign="center" alignItems="center">
-            {content}
+        {rowsContent(user).map((item) => (
+          <Table.Cell key={`${user.username}-${item.key}`} textAlign="center" alignItems="center">
+            {item.content}
           </Table.Cell>
         ))}
       </Table.Row>
