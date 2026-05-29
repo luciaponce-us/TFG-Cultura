@@ -1,8 +1,10 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
-import Layout from "./modules/core/Layout";
 import { AuthProvider } from "./modules/core/context/AuthProvider";
 import ProtectedRoute from "./modules/core/context/ProtectedRoute.tsx";
+import type { Role } from "./modules/users/types/index.ts";
+import Layout from "./modules/core/Layout";
+import { Toaster } from "./modules/core/components";
 import { AdminPanel, Home, NotFound } from "./modules/core/pages";
 import {
   RegistrationPage,
@@ -10,8 +12,6 @@ import {
   UsersAdminPage,
   EditUserPage,
 } from "./modules/users/pages";
-import { Toaster } from "./modules/core/components";
-import type { Role } from "./modules/users/types/index.ts";
 
 export default function App() {
   const MANAGEMENT_ROLES: Role[] = [
@@ -20,7 +20,6 @@ export default function App() {
     "ENCARGADO",
     "COLABORADOR",
   ];
-  const ADMIN_ROLES: Role[] = ["COORDINADOR", "SECRETARIO"];
 
   return (
     <>
