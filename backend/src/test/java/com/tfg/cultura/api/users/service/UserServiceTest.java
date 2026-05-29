@@ -481,6 +481,85 @@ class UserServiceTest {
         verify(userRepository, never()).save(any());
     }
 
+    // DEACTIVATE USER
+
+    @Test
+    void should_return_user_response_when_deactivate_successfully() {
+        mockAuthContext();
+        user.setActive(true);
+        user.setId("otherId"); // Usuario distinto a sí mismo
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = service.deactivateUser("testUser");
+
+        assertNotNull(response);
+        assertTrue(!response.isActive());
+    }
+
+    @Test
+    void should_return_user_response_when_deactivate_already_inactive_user() {
+        mockAuthContext();
+        user.setActive(false);
+        user.setId("otherId"); // Usuario distinto a sí mismo
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        UserResponse response = service.deactivateUser("testUser");
+
+        assertNotNull(response);
+        assertTrue(!response.isActive());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void should_throw_exception_when_deactivate_unexisting_user() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.deactivateUser("123"));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    @Test
+    void should_throw_exception_when_user_deactivates_himself() {
+        mockAuthContext();
+        user.setActive(true);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        assertThrows(SelfActivationNotAllowedException.class, () -> {
+            service.deactivateUser("123");
+        });
+    }
+
+    @Test
+    void should_throw_exception_when_deactivating_user_unathenticated() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
+            service.deactivateUser("123");
+        });
+
+        assertTrue(ex.getMessage().contains("permiso"));
+    }
+
+    @Test
+    void should_throw_exception_when_deactivating_user_and_no_user_details() {
+        SecurityContext context = mock(SecurityContext.class);
+        SecurityContextHolder.setContext(context);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
+            service.deactivateUser("123");
+        });
+
+        assertTrue(ex.getMessage().contains("permiso"));
+    }
+
        // ACTIVATE USER
 
     @Test
