@@ -10,8 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
+import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
@@ -20,6 +23,7 @@ import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -35,10 +39,15 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
-    public Page<UserResponse> getAllUsers(int page, int size) {
+    public Page<UserResponse> getAllUsers(int page, int size, Role role, Boolean active, String name) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<User> userPage = userRepository.findAll(pageable);
-
+        Page<User> userPage;
+        if(name != null || role != null || active != null) {
+            userPage = userRepository.findAllWithFilters(role, active, name, pageable);
+        } else {
+            userPage = userRepository.findAll(pageable);
+        }
+        
         return userPage.map(UserResponse::new);
     }
 
@@ -87,6 +96,16 @@ public class UserService {
         user.setActive(request.isActive());
 
         return saveUpdatedUser(user);
+    }
+
+    public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws UserNotFoundException {
+        User user = findUserByUsername(username);
+        String newAvatar = userFileService.uploadAvatar(user.getId(), avatar);
+        logger.info("Nuevo avatar subido para el usuario con username {}: {}", user.getUsername(), newAvatar);
+        user.setAvatar(newAvatar);
+        UserResponse response = saveUpdatedUser(user);
+        logger.info("Avatar del usuario con username {} actualizado correctamente", user.getUsername());
+        return response;
     }
 
     private boolean isChanged(String newValue, String currentValue) {
@@ -179,5 +198,51 @@ public class UserService {
         suggestionRepository.deleteByAuthorId(user.getId());
         userRepository.delete(user);
         logger.info("Usuario con username {} eliminado correctamente", userToDelete);
+    }
+
+    public UserResponse activateUser(String username) throws UserNotFoundException {
+
+        User user = findUserByUsername(username);
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+
+        if (currentUser == null) {
+            throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
+        }
+        if (user.getId().equals(currentUser.getId())) {
+            throw new SelfActivationNotAllowedException(
+                    String.format("El usuario %s con id %s ha intentado activar su propio usuario", user.getUsername(),
+                            user.getId()));
+        }
+
+        if (!user.isActive()) {
+            user.setActive(true);
+            user = userRepository.save(user);
+        }
+
+        logger.info("Se ha aprobado el registro del usuario {} con id {}", user.getUsername(), user.getId());
+        return new UserResponse(user);
+    }
+
+    public UserResponse deactivateUser(String username) throws UserNotFoundException {
+
+        User user = findUserByUsername(username);
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+
+        if (currentUser == null) {
+            throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
+        }
+        if (user.getId().equals(currentUser.getId())) {
+            throw new SelfActivationNotAllowedException(
+                    String.format("El usuario %s con id %s ha intentado desactivar su propio usuario", user.getUsername(),
+                            user.getId()));
+        }
+
+        if (user.isActive()) {
+            user.setActive(false);
+            user = userRepository.save(user);
+        }
+
+        logger.info("Se ha desactivado el usuario {} con id {}", user.getUsername(), user.getId());
+        return new UserResponse(user);
     }
 }

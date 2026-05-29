@@ -30,8 +30,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     // URLs públicas que no requieren autenticación
     private static final List<String> PUBLIC_URLS = Arrays.asList(
-            "/api/users/register",
-            "/api/users/login",
+            "/api/users/auth/register",
+            "/api/users/auth/login",
             "/v3/api-docs",
             "/swagger-ui",
             "/swagger-ui.html",

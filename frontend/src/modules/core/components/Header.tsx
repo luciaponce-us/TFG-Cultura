@@ -9,9 +9,10 @@ import {
   Portal,
 } from "@chakra-ui/react";
 import { NavButton } from "./NavButton";
-import { IconSearch, IconLogout } from "@tabler/icons-react";
+import { IconSearch, IconLogout, IconSettings } from "@tabler/icons-react";
 import { useAuth } from "../context/useAuth";
 import { toaster } from "./toaster/toaster";
+import type { Role } from "@/modules/users/types";
 
 export const Header = () => {
   return (
@@ -105,13 +106,36 @@ function SearchBar() {
 function ClickableAvatar() {
   const { user } = useAuth();
   const { logout } = useAuth();
+  const MANAGEMENT_ROLES: Role[] = [
+    "COORDINADOR",
+    "SECRETARIO",
+    "ENCARGADO",
+    "COLABORADOR",
+  ];
+  type Link = {
+    icon: React.ReactNode | null;
+    title: string;
+    href: string;
+  };
+
+  const logedUserLinks: Link[] = [];
+  const adminLinks: Link[] = [
+    {
+      icon: <IconSettings />,
+      title: "Panel de administración",
+      href: "/admin",
+    },
+  ];
+  const notLogedUserLinks: Link[] = [
+    { icon: null, title: "Iniciar sesión", href: "/iniciar-sesion" },
+    { icon: null, title: "Registrarse", href: "/registro" },
+  ];
 
   const links = user
-    ? []
-    : [
-        { title: "Iniciar sesión", href: "/iniciar-sesion" },
-        { title: "Registrarse", href: "/registro" },
-      ];
+    ? MANAGEMENT_ROLES.includes(user.role)
+      ? [...logedUserLinks, ...adminLinks]
+      : [...logedUserLinks]
+    : [...notLogedUserLinks];
 
   return (
     <Menu.Root>
@@ -146,7 +170,13 @@ function ClickableAvatar() {
                 minH="44px"
                 px={3}
               >
-                <a href={link.href}>{link.title}</a>
+                {link.icon ? (
+                  <span>
+                    {link.icon} <a href={link.href}>{link.title}</a>
+                  </span>
+                ) : (
+                  <a href={link.href}>{link.title}</a>
+                )}
               </Menu.Item>
             ))}
             {user && (

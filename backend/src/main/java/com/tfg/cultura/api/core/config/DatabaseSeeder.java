@@ -68,14 +68,14 @@ public class DatabaseSeeder implements CommandLineRunner {
         logger.info("👥 Creando colección: users");
 
         String password = "cultura123"; //NOSONAR
-        String file = "paymentReceipt.pdf";
+        String file = "https://www.soundczech.cz/temp/lorem-ipsum.pdf";
 
         User coordinador = User.builder()
             .username("coordinador")
             .password(passwordEncoder.encode(password)) //NOSONAR
             .name("Álvaro")
             .surname("Coordinador")
-            .dni("12345678A")
+            .dni("33256506R")
             .phone("+34600123456")
             .email("coordinador@cultura.es")
             .paymentReceipt(file)
@@ -89,7 +89,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .password(passwordEncoder.encode(password)) //NOSONAR
             .name("Aurora")
             .surname("Secretaria")
-            .dni("87654321B")
+            .dni("65403949E")
             .phone("+34600123457")
             .email("secretario@cultura.es")
             .paymentReceipt(file)
@@ -103,7 +103,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .password(passwordEncoder.encode(password)) //NOSONAR
             .name("Luis")
             .surname("Encargado")
-            .dni("11223344C")
+            .dni("76824876T")
             .phone("+34600123458")
             .email("encargado@cultura.es")
             .paymentReceipt(file)
@@ -117,7 +117,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .password(passwordEncoder.encode(password)) //NOSONAR
             .name("Atenea")
             .surname("Colaboradora")
-            .dni("44332211D")
+            .dni("51417783H")
             .phone("+34600123459")
             .email("colaborador@cultura.es")
             .paymentReceipt(file)
@@ -131,7 +131,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .password(passwordEncoder.encode(password)) //NOSONAR
             .name("Lucía")
             .surname("Socia")
-            .dni("55667788E")
+            .dni("28712238G")
             .phone("+34600123460")
             .email("socio@cultura.es")
             .paymentReceipt(file)

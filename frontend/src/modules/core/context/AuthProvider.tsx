@@ -13,18 +13,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
     localStorage.getItem("token"),
   );
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!token) return;
-    const loadUser = async () => {
-      const res = await getMyProfile(token);
-      setUser(res);
-    };
-    try {
-      loadUser();
-    } catch (error) {
-      console.error("Error loading user profile:", error);
+    console.log("Token actual:", token);
+    if (!token) {
+      setIsLoading(false);
+      return;
     }
+
+    const loadUser = async () => {
+      try {
+        const res = await getMyProfile(token);
+        console.log("Perfil del usuario cargado:", res);
+        setUser(res);
+      } catch (error) {
+        console.error("Error loading user profile:", error);
+        // Si hay error al cargar el perfil, limpiar el token inválido
+        localStorage.removeItem("token");
+        setToken(null);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUser();
   }, [token]);
 
   const login = (jwt: string) => {
@@ -42,10 +56,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     () => ({
       token,
       user,
+      isLoading,
       login,
       logout,
     }),
-    [token, user],
+    [token, user, isLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

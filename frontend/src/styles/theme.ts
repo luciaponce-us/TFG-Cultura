@@ -17,16 +17,25 @@ export const system = createSystem(defaultConfig, {
           900: { value: "#141C2D" },
         },
 
+        transparente: {
+          10: { value: "rgba(75, 117, 157, 0.1)" },
+          20: { value: "rgba(75, 117, 157, 0.2)" },
+          50: { value: "rgba(75, 117, 157, 0.5)" },
+          80: { value: "rgba(75, 117, 157, 0.8)" },
+        },
+
         secundario: {
           500: { value: "#DEAC0F" },
         },
 
         rojo: {
           500: { value: "#9D4B4B" },
+          600: { value: "#7E3E3E" },
         },
 
         verde: {
           500: { value: "#4B9D79" },
+          600: { value: "#3E7E62" },
         },
 
         background: {
@@ -73,7 +82,6 @@ export const system = createSystem(defaultConfig, {
     },
     h1: {
       color: "#223151",
-      marginBottom: "16px",
     },
     secondary: {
       fontFamily: "body",

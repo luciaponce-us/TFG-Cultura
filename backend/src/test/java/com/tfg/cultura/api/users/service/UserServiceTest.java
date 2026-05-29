@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -24,10 +25,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
+import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
@@ -37,6 +42,7 @@ import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,6 +77,11 @@ class UserServiceTest {
         updateRequest = UserFactory.validUserUpdateRequest();
         userDetails = new CustomUserDetails(user);
         userProfileUpdateRequest = new UserProfileUpdateRequest();
+    }
+
+    private void mockAuthContext() {
+        CustomUserDetails currentUser = UserFactory.mockAuthContext();
+        when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUser);
     }
 
     // GET USER
@@ -380,7 +391,7 @@ class UserServiceTest {
         when(userRepository.findAll(any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(user, user2)));
 
-        Page<UserResponse> result = service.getAllUsers(0, 10);
+        Page<UserResponse> result = service.getAllUsers(0, 10, null, null, null);
 
         assertNotNull(result);
         assertEquals(2, result.getContent().size());
@@ -406,7 +417,7 @@ class UserServiceTest {
         when(userRepository.findAll(any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
 
-        Page<UserResponse> result = service.getAllUsers(1, 5);
+        Page<UserResponse> result = service.getAllUsers(1, 5, null, null, null);
 
         assertEquals(1, result.getPageable().getPageNumber());
         assertEquals(5, result.getPageable().getPageSize());
@@ -422,10 +433,224 @@ class UserServiceTest {
         when(userRepository.findAll(any(PageRequest.class)))
                 .thenReturn(Page.empty());
 
-        Page<UserResponse> result = service.getAllUsers(0, 10);
+        Page<UserResponse> result = service.getAllUsers(0, 10, null, null, null);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void should_use_filters_when_any_filter_is_provided() {
+        PageRequest pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+        User user2 = UserFactory.validUser();
+        user2.setId("2");
+        user2.setUsername("otherUser");
+
+        when(userRepository.findAllWithFilters(Role.COLABORADOR, true, "Ana", pageable))
+                .thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
+
+        Page<UserResponse> result = service.getAllUsers(0, 10, Role.COLABORADOR, true, "Ana");
+
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        verify(userRepository).findAllWithFilters(Role.COLABORADOR, true, "Ana", pageable);
+        verify(userRepository, never()).findAll(any(PageRequest.class));
+    }
+
+    // UPDATE USER AVATAR
+
+    @Test
+    void should_update_user_avatar_successfully() {
+        MockMultipartFile avatar = new MockMultipartFile(
+                "avatar",
+                "avatar.png",
+                "image/png",
+                "image-content".getBytes()
+        );
+        String newAvatarUrl = "https://cdn.example.com/avatar.png";
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userFileService.uploadAvatar(user.getId(), avatar)).thenReturn(newAvatarUrl);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        UserResponse response = service.updateUserAvatar(user.getUsername(), avatar);
+
+        assertNotNull(response);
+        assertEquals(newAvatarUrl, response.getAvatar());
+        verify(userFileService).uploadAvatar(user.getId(), avatar);
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void should_throw_UserNotFoundException_when_update_user_avatar_unexisting_user() {
+        MockMultipartFile avatar = new MockMultipartFile(
+                "avatar",
+                "avatar.png",
+                "image/png",
+                "image-content".getBytes()
+        );
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.updateUserAvatar("unknown", avatar));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+        verifyNoInteractions(userFileService);
+        verify(userRepository, never()).save(any());
+    }
+
+    // DEACTIVATE USER
+
+    @Test
+    void should_return_user_response_when_deactivate_successfully() {
+        mockAuthContext();
+        user.setActive(true);
+        user.setId("otherId"); // Usuario distinto a sí mismo
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = service.deactivateUser("testUser");
+
+        assertNotNull(response);
+        assertTrue(!response.isActive());
+    }
+
+    @Test
+    void should_return_user_response_when_deactivate_already_inactive_user() {
+        mockAuthContext();
+        user.setActive(false);
+        user.setId("otherId"); // Usuario distinto a sí mismo
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        UserResponse response = service.deactivateUser("testUser");
+
+        assertNotNull(response);
+        assertTrue(!response.isActive());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void should_throw_exception_when_deactivate_unexisting_user() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.deactivateUser("123"));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    @Test
+    void should_throw_exception_when_user_deactivates_himself() {
+        mockAuthContext();
+        user.setActive(true);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        assertThrows(SelfActivationNotAllowedException.class, () -> {
+            service.deactivateUser("123");
+        });
+    }
+
+    @Test
+    void should_throw_exception_when_deactivating_user_unathenticated() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
+            service.deactivateUser("123");
+        });
+
+        assertTrue(ex.getMessage().contains("permiso"));
+    }
+
+    @Test
+    void should_throw_exception_when_deactivating_user_and_no_user_details() {
+        SecurityContext context = mock(SecurityContext.class);
+        SecurityContextHolder.setContext(context);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
+            service.deactivateUser("123");
+        });
+
+        assertTrue(ex.getMessage().contains("permiso"));
+    }
+
+       // ACTIVATE USER
+
+    @Test
+    void should_return_user_response_when_activate_successfully() {
+        mockAuthContext();
+        user.setActive(false);
+        user.setId("otherId"); // Usuario distinto a sí mismo
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = service.activateUser("testUser");
+
+        assertNotNull(response);
+        assertTrue(response.isActive());
+    }
+
+    @Test
+    void should_return_user_response_when_activate_already_active_user() {
+        mockAuthContext();
+        user.setActive(true);
+        user.setId("otherId"); // Usuario distinto a sí mismo
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        UserResponse response = service.activateUser("testUser");
+        assertNotNull(response);
+        assertTrue(response.isActive());
+    }
+
+    @Test
+    void should_throw_exception_when_activate_unexisting_user() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.activateUser("123"));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    @Test
+    void should_throw_exception_when_user_activates_himself() {
+        mockAuthContext();
+        user.setActive(false);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        assertThrows(SelfActivationNotAllowedException.class, () -> {
+            service.activateUser("123");
+        });
+    }
+
+    @Test
+    void should_throw_exception_when_activating_user_unathenticated() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
+            service.activateUser("123");
+        });
+        
+        assertTrue(ex.getMessage().contains("permiso"));
+    }
+
+    @Test
+    void should_throw_exception_when_activating_user_and_no_user_details() {
+        SecurityContext context = mock(SecurityContext.class);
+        SecurityContextHolder.setContext(context);
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
+            service.activateUser("123");
+        });
+
+        assertTrue(ex.getMessage().contains("permiso"));
     }
 
 }

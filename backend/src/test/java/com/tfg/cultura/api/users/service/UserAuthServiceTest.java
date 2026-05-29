@@ -8,12 +8,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -21,8 +19,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import com.tfg.cultura.api.core.exception.UnathenticatedException;
-import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
@@ -84,11 +80,6 @@ class UserAuthServiceTest {
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
-    }
-
-    private void mockAuthContext() {
-        CustomUserDetails currentUser = UserFactory.mockAuthContext();
-        when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUser);
     }
 
     @Test
@@ -188,82 +179,6 @@ class UserAuthServiceTest {
                 () -> userService.login(loginRequest));
 
         assertTrue(ex.getMessage().contains("Credenciales inválidas"));
-    }
-
-    // ACTIVATE USER
-
-    @Test
-    void should_return_user_response_when_activate_successfully() {
-        mockAuthContext();
-        user.setActive(false);
-        user.setId("123"); // Usuario distinto a sí mismo
-        when(userCrudService.findUserById(any())).thenReturn(user);
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        UserResponse response = userService.activateUser("123");
-
-        assertNotNull(response);
-        assertTrue(response.isActive());
-    }
-
-    @Test
-    void should_return_user_response_when_activate_already_active_user() {
-        mockAuthContext();
-        user.setActive(true);
-        user.setId("123"); // Usuario distinto a sí mismo
-        when(userCrudService.findUserById(any())).thenReturn(user);
-
-        UserResponse response = userService.activateUser("123");
-        assertNotNull(response);
-        assertTrue(response.isActive());
-    }
-
-    @Test
-    void should_throw_exception_when_activate_unexisting_user() {
-        String id = "123";
-        UserNotFoundException crudException = new UserNotFoundException(String.format("El usuario con id %s no existe", id));
-        when(userCrudService.findUserById(any())).thenThrow(crudException);
-
-        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> userService.activateUser("123"));
-
-        assertTrue(ex.getMessage().contains("no existe"));
-    }
-
-    @Test
-    void should_throw_exception_when_user_activates_himself() {
-        mockAuthContext();
-        user.setActive(false);
-
-        when(userCrudService.findUserById(any())).thenReturn(user);
-
-        assertThrows(SelfActivationNotAllowedException.class, () -> {
-            userService.activateUser("123");
-        });
-    }
-
-    @Test
-    void should_throw_exception_when_activating_user_unathenticated() {
-        when(userCrudService.findUserById(any())).thenReturn(user);
-        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
-            userService.activateUser("123");
-        });
-        
-        assertTrue(ex.getMessage().contains("permiso"));
-    }
-
-    @Test
-    void should_throw_exception_when_activating_user_and_no_user_details() {
-        SecurityContext context = mock(SecurityContext.class);
-        SecurityContextHolder.setContext(context);
-
-        when(userCrudService.findUserById(any())).thenReturn(user);
-
-        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
-            userService.activateUser("123");
-        });
-
-        assertTrue(ex.getMessage().contains("permiso"));
     }
 
 }

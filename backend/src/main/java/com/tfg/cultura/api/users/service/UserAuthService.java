@@ -111,27 +111,4 @@ public class UserAuthService {
                 userDetails.getId());
     }
 
-    public UserResponse activateUser(String id) throws UserNotFoundException {
-
-        User user = userService.findUserById(id);
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-
-        if (currentUser == null) {
-            throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
-        }
-        if (user.getId().equals(currentUser.getId())) {
-            throw new SelfActivationNotAllowedException(
-                    String.format("El usuario %s con id %s ha intentado activar su propio usuario", user.getUsername(),
-                            user.getId()));
-        }
-
-        if (!user.isActive()) {
-            user.setActive(true);
-            user = userRepository.save(user);
-        }
-
-        logger.info("Se ha aprobado el registro del usuario {} con id {}", user.getUsername(), user.getId());
-        return new UserResponse(user);
-    }
-
 }

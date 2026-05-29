@@ -19,6 +19,7 @@ public class UserFileService {
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
     public static final String AVATAR_PLACEHOLDER = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png";
+    public static final String PAYMENT_RECEIPT_PLACEHOLDER = "https://www.soundczech.cz/temp/lorem-ipsum.pdf";
     private static final String AVATAR_FOLDER = "cultura/avatars";
     private static final String PAYMENT_FOLDER = "cultura/payment_receipts";
 
@@ -45,6 +46,7 @@ public class UserFileService {
                     .file(file)
                     .folder(PAYMENT_FOLDER)
                     .publicId("payment_" + userId)
+                    .resourceType("raw")
                     .build();
             String pdfUrl = fileService.uploadFile(request);
             logger.info("Se ha subido el PDF {} para el usuario con id {}", pdfUrl, userId);
@@ -97,6 +99,14 @@ public class UserFileService {
         if (!avatarUrl.equals(AVATAR_PLACEHOLDER)) {
             fileService.deleteFile(avatarUrl);
         }
-        fileService.deleteFile(paymentReceiptUrl);
+        if(!paymentReceiptUrl.equals(PAYMENT_RECEIPT_PLACEHOLDER)) {
+            fileService.deleteFile(paymentReceiptUrl);
+        }
+    }
+
+    void deleteUserFile(String fileUrl) {
+        if (fileUrl != null && !fileUrl.isEmpty() && !fileUrl.equals(AVATAR_PLACEHOLDER)) {
+            fileService.deleteFile(fileUrl);
+        }
     }
 }

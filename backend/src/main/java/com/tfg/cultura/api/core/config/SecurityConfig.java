@@ -62,12 +62,12 @@ public class SecurityConfig {
                 ).permitAll()
 
                 // Users - Auth
-                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
-                .requestMatchers(HttpMethod.POST,"/api/users/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/users/auth/**").permitAll()
                 // Users - Profile (requiere autenticación)
                 .requestMatchers("/api/users/profile", "/api/users/profile/**").authenticated()
                 // Users - Admin (requiere roles específicos)
                 .requestMatchers("/api/users/*/activate").hasAnyRole(MANAGEMENT_ROLES)
+                .requestMatchers("/api/users/*/deactivate").hasAnyRole(MANAGEMENT_ROLES)
                 .requestMatchers("/api/users", "/api/users/**").hasAnyRole(MANAGEMENT_ROLES)
                 // Suggestions
                 .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
