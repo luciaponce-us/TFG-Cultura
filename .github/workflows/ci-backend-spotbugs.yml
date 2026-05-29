@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -26,10 +26,10 @@ jobs:
 
       - name: Análisis SpotBugs
         working-directory: backend
-        run: ./mvnw spotbugs:check --no-transfer-progress
+        run: ./mvnw spotbugs:spotbugs spotbugs:check --no-transfer-progress
 
       - name: Upload informe SpotBugs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: spotbugs-report
