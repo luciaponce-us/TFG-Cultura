@@ -42,6 +42,7 @@ import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -436,6 +437,24 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void should_use_filters_when_any_filter_is_provided() {
+        PageRequest pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+        User user2 = UserFactory.validUser();
+        user2.setId("2");
+        user2.setUsername("otherUser");
+
+        when(userRepository.findAllWithFilters(Role.COLABORADOR, true, "Ana", pageable))
+                .thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
+
+        Page<UserResponse> result = service.getAllUsers(0, 10, Role.COLABORADOR, true, "Ana");
+
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        verify(userRepository).findAllWithFilters(Role.COLABORADOR, true, "Ana", pageable);
+        verify(userRepository, never()).findAll(any(PageRequest.class));
     }
 
     // UPDATE USER AVATAR
