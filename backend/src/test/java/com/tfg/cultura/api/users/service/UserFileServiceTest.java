@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -183,6 +184,47 @@ class UserFileServiceTest {
         assertDoesNotThrow(() -> service.deleteUserFiles(avatarUrl, paymentReceiptUrl));
 
         verify(fileService).deleteFile(paymentReceiptUrl);
+    }
+
+    @Test
+    void should_delete_avatar_when_not_placeholder() {
+        String avatarUrl = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/user_avatar.png";
+        String paymentReceiptUrl = UserFileService.PAYMENT_RECEIPT_PLACEHOLDER;
+
+        assertDoesNotThrow(() -> service.deleteUserFiles(avatarUrl, paymentReceiptUrl));
+
+        verify(fileService).deleteFile(avatarUrl);
+        verify(fileService, never()).deleteFile(paymentReceiptUrl);
+    }
+
+    @Test
+    void should_not_delete_payment_receipt_when_placeholder() {
+        String avatarUrl = UserFileService.AVATAR_PLACEHOLDER;
+        String paymentReceiptUrl = UserFileService.PAYMENT_RECEIPT_PLACEHOLDER;
+
+        assertDoesNotThrow(() -> service.deleteUserFiles(avatarUrl, paymentReceiptUrl));
+
+        verify(fileService, never()).deleteFile(paymentReceiptUrl);
+    }
+
+    // DELETE SINGLE USER FILE
+
+    @Test
+    void should_delete_user_file_when_valid_and_not_placeholder() {
+        String fileUrl = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/user_avatar.png";
+
+        assertDoesNotThrow(() -> service.deleteUserFile(fileUrl));
+
+        verify(fileService).deleteFile(fileUrl);
+    }
+
+    @Test
+    void should_not_delete_user_file_when_null_or_empty_or_placeholder() {
+        assertDoesNotThrow(() -> service.deleteUserFile(null));
+        assertDoesNotThrow(() -> service.deleteUserFile(""));
+        assertDoesNotThrow(() -> service.deleteUserFile(UserFileService.AVATAR_PLACEHOLDER));
+
+        verify(fileService, never()).deleteFile(any());
     }
 
 }
