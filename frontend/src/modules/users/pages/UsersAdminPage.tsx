@@ -178,7 +178,11 @@ export default function UsersAdminPage() {
         cursor="pointer"
       >
         {rowsContent(user).map((item) => (
-          <Table.Cell key={`${user.username}-${item.key}`} textAlign="center" alignItems="center">
+          <Table.Cell
+            key={`${user.username}-${item.key}`}
+            textAlign="center"
+            alignItems="center"
+          >
             {item.content}
           </Table.Cell>
         ))}
