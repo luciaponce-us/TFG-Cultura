@@ -25,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -435,6 +436,49 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    // UPDATE USER AVATAR
+
+    @Test
+    void should_update_user_avatar_successfully() {
+        MockMultipartFile avatar = new MockMultipartFile(
+                "avatar",
+                "avatar.png",
+                "image/png",
+                "image-content".getBytes()
+        );
+        String newAvatarUrl = "https://cdn.example.com/avatar.png";
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userFileService.uploadAvatar(user.getId(), avatar)).thenReturn(newAvatarUrl);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        UserResponse response = service.updateUserAvatar(user.getUsername(), avatar);
+
+        assertNotNull(response);
+        assertEquals(newAvatarUrl, response.getAvatar());
+        verify(userFileService).uploadAvatar(user.getId(), avatar);
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void should_throw_UserNotFoundException_when_update_user_avatar_unexisting_user() {
+        MockMultipartFile avatar = new MockMultipartFile(
+                "avatar",
+                "avatar.png",
+                "image/png",
+                "image-content".getBytes()
+        );
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> service.updateUserAvatar("unknown", avatar));
+
+        assertTrue(ex.getMessage().contains("no existe"));
+        verifyNoInteractions(userFileService);
+        verify(userRepository, never()).save(any());
     }
 
        // ACTIVATE USER
