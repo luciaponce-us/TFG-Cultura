@@ -47,10 +47,11 @@ public class Suggestion {
     @NotNull
     private List<String> supportersId = new ArrayList<>();
 
+    @Builder.Default
+    @NotNull
+    private int totalSupporters = 0;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
-    public int countSupporters() {
-        return this.supportersId.size();
-    }
 }

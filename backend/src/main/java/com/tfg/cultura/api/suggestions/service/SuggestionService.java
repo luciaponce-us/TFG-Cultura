@@ -1,19 +1,21 @@
 package com.tfg.cultura.api.suggestions.service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.exception.*;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.dto.*;
+import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
@@ -47,6 +49,7 @@ public class SuggestionService {
                 .description(request.getDescription())
                 .type(request.getType())
                 .authorId(authorId)
+                .totalSupporters(0)
                 .build();
 
         Suggestion savedSuggestion = repository.save(suggestion);
@@ -55,14 +58,24 @@ public class SuggestionService {
         return toResponse(savedSuggestion);
     }
 
-    public List<SuggestionResponse> getAll() {
-        return repository.findAll()
-                .stream()
-                .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(Suggestion::countSupporters).reversed())
-                .map(this::toResponse)
-                .filter(Objects::nonNull)
-                .toList();
+    public Page<SuggestionResponse> getAllWithFilters(SuggestionType type, String text, Boolean orderByCreationDate,
+            Boolean supportedByAdmins, int page, int size) {
+
+        Sort sort = Sort.by("totalSupporters").descending();
+        if (orderByCreationDate) {
+            sort = Sort.by("createdAt").descending();
+        }
+
+        PageRequest pageable = PageRequest.of(page, size, sort);
+        Page<Suggestion> suggestionPage;
+
+        if (type != null || text != null || supportedByAdmins != null) {
+            suggestionPage = repository.findAllWithFilters(type, text, supportedByAdmins, pageable);
+        } else {
+            suggestionPage = repository.findAll(pageable);
+        }
+
+        return suggestionPage.map(this::toResponse);
     }
 
     public SuggestionResponse supportSuggestion(String id)
@@ -86,6 +99,7 @@ public class SuggestionService {
         supporters.add(currentUser.getId());
 
         suggestion.setSupportersId(supporters);
+        suggestion.setTotalSupporters(supporters.size());
 
         return toResponse(repository.save(suggestion));
     }
@@ -106,6 +120,7 @@ public class SuggestionService {
         supporters.remove(currentUser.getId());
 
         suggestion.setSupportersId(supporters);
+        suggestion.setTotalSupporters(supporters.size());
 
         return toResponse(repository.save(suggestion));
     }

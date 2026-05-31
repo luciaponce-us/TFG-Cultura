@@ -21,7 +21,8 @@ public class SuggestionResponse {
     private int totalSupporters;
     private LocalDateTime createdAt;
 
-    public SuggestionResponse(Suggestion suggestion, UserResponse author, List<UserResponse> supporters, List<String> someSupportersAvatars) {
+    public SuggestionResponse(Suggestion suggestion, UserResponse author, List<UserResponse> supporters,
+            List<String> someSupportersAvatars) {
         this.id = suggestion.getId();
         this.title = suggestion.getTitle();
         this.description = suggestion.getDescription();
@@ -29,7 +30,7 @@ public class SuggestionResponse {
         this.author = author;
         this.supporters = supporters;
         this.someSupportersAvatars = someSupportersAvatars;
-        this.totalSupporters = suggestion.countSupporters();
+        this.totalSupporters = suggestion.getTotalSupporters();
         this.createdAt = suggestion.getCreatedAt();
     }
 }
