@@ -5,40 +5,56 @@ import { fetchAllSuggestions } from "../service/suggestion.service";
 import { SuggestionCard } from "../components/SuggestionCard";
 import type { Suggestion } from "../types";
 import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
+import type { Paginated } from "@/modules/core/types";
+import { CustomPagination } from "@/modules/core/components";
 
 export function SuggestionsPage() {
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<Paginated<Suggestion> | null>(null);
+  const [page, setPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [filters, setFilters] = useState({
+    type: undefined,
+    text: "",
+    orderByCreationDate: false,
+    supportedByAdmins: false,
+  });
 
   useEffect(() => {
-    async function fetchSuggestions() {
+    async function fetchSuggestions(page: number = 0) {
       setLoading(true);
       try {
-        const data = await fetchAllSuggestions();
+        const data = await fetchAllSuggestions(
+          page,
+          10,
+          filters.type,
+          filters.text,
+          filters.orderByCreationDate,
+          filters.supportedByAdmins
+        );
         setSuggestions(data);
       } catch (error) {
         console.error("Error fetching suggestions:", error);
-        setSuggestions([]);
+        setSuggestions(null);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchSuggestions();
-  }, []);
+    fetchSuggestions(page);
+  }, [page, filters]);
 
   function renderSuggestions() {
     if (loading) {
       return <TextSecondary>Cargando sugerencias...</TextSecondary>;
     }
 
-    if (suggestions.length === 0) {
+    if (!suggestions || suggestions.content.length === 0) {
       return <TextSecondary>No hay sugerencias disponibles.</TextSecondary>;
     }
 
     return (
       <VStack align="stretch" gap={4} w="100%">
-        {suggestions.map((suggestion) => (
+        {suggestions.content.map((suggestion) => (
           <SuggestionCard key={suggestion.id} suggestion={suggestion} />
         ))}
       </VStack>
@@ -72,6 +88,14 @@ export function SuggestionsPage() {
       >
         <Heading as="h1">Sugerencias</Heading>
         {renderSuggestions()}
+        {suggestions && suggestions?.totalPages > 1 && (
+          <CustomPagination
+            setPage={setPage}
+            page={page}
+            totalElements={suggestions.totalElements ?? 0}
+            size={suggestions.size ?? 10}
+          />
+        )}
       </VStack>
     </Grid>
   );
