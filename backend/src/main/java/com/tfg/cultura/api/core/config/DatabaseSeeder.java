@@ -174,7 +174,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             .description("Incluir colecciones populares actuales y completar series incompletas.")
             .type(SuggestionType.CATALOG)
             .authorId(idSocio)
-            .supportersId(List.of(idColaborador, idSecretario, idCoordinador))
+            .supportersId(List.of(idColaborador, idSecretario, idCoordinador, idEncargado))
             .build();
         
         Suggestion s3 = Suggestion.builder()
@@ -192,7 +192,15 @@ public class DatabaseSeeder implements CommandLineRunner {
             .authorId(idSocio)
             .build();
 
-        List<Suggestion> sugerencias = List.of(s1,s2,s3,s4);
+        Suggestion s5 = Suggestion.builder()
+            .title("Lorem ipsum dolor sit amet, consectetur porttitor.")
+            .description("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sit amet ex quis velit blandit volutpat et sed mauris. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis finibus volutpat risus at dictum. Curabitur nunc tortor orci aliquam. ")
+            .type(SuggestionType.OTHER)
+            .authorId(idColaborador)
+            .supportersId(List.of(idSocio, idEncargado))
+            .build();
+
+        List<Suggestion> sugerencias = List.of(s1,s2,s3,s4,s5);
         mongoTemplate.insertAll(sugerencias);
         logger.info("✅💡 Insertadas {} sugerencias", sugerencias.size());
     }

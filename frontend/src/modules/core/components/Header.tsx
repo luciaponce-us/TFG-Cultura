@@ -31,6 +31,7 @@ export const Header = () => {
       <Logo />
 
       <NavButton to="/">Inicio</NavButton>
+      <NavButton to="/sugerencias">Sugerencias</NavButton>
 
       <Flex align="center" gap={4}>
         <SearchBar />
