@@ -7,7 +7,7 @@ import {
   CustomButton,
 } from "@/modules/core/components";
 import { IconThumbUp } from "@tabler/icons-react";
-import {parseRole} from "@/modules/users/utils";
+import { parseRole } from "@/modules/users/utils";
 
 export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
   function parseType(type: SuggestionType): string {
@@ -58,7 +58,15 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
   }
 
   return (
-    <VStack borderWidth="1px" borderRadius="lg" p={4} bg="white" shadow="md" align="start" gap={4}>
+    <VStack
+      borderWidth="1px"
+      borderRadius="lg"
+      p={4}
+      bg="white"
+      shadow="md"
+      align="start"
+      gap={4}
+    >
       <HStack gap={4} mb={2} align="start">
         <CustomAvatar
           src={suggestion.author.avatar}
@@ -85,15 +93,18 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
             max={3}
           />
           <Text fontSize="sm" color="gray.600">
-          {formatSupporterList(importantSupporters)}{" "}
-          {importantSupporters.length === 1 ? "apoya" : "apoyan"} esta
-          sugerencia.
-        </Text>
-      </HStack>)}
+            {formatSupporterList(importantSupporters)}{" "}
+            {importantSupporters.length === 1 ? "apoya" : "apoyan"} esta
+            sugerencia.
+          </Text>
+        </HStack>
+      )}
       <HStack gap={2} align="flex-end" justify="space-between" w="100%">
         <VStack align="start" gap={2}>
           <Text fontSize="sm" color="gray.600">
-            {suggestion.totalSupporters>0? "Apoyada por..." : "¡Sé el primero en apoyar esta sugerencia!"}
+            {suggestion.totalSupporters > 0
+              ? "Apoyada por..."
+              : "¡Sé el primero en apoyar esta sugerencia!"}
           </Text>
           <CustomAvatarGroup
             items={suggestion.supporters.map(parseUserAvatar)}
