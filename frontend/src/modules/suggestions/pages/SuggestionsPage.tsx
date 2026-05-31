@@ -1,23 +1,38 @@
-import { Grid, Heading, VStack } from "@chakra-ui/react";
-import { SideBar } from "@/modules/core/components/SideBar";
+import { Grid, Heading, Link, VStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { fetchAllSuggestions } from "../service/suggestion.service";
 import { SuggestionCard } from "../components/SuggestionCard";
-import type { Suggestion } from "../types";
-import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
+import type { Suggestion, SuggestionType } from "../types";
 import type { Paginated } from "@/modules/core/types";
-import { CustomPagination } from "@/modules/core/components";
+import {
+  SideBar,
+  CustomPagination,
+  CustomSearchBar,
+  CustomSelect,
+  TextSecondary,
+} from "@/modules/core/components";
+
+interface Filters {
+  type?: SuggestionType;
+  text: string;
+  orderByCreationDate: boolean;
+  supportedByAdmins: boolean;
+}
+
+const initialFilters: Filters = {
+  type: undefined,
+  text: "",
+  orderByCreationDate: false,
+  supportedByAdmins: false,
+};
 
 export function SuggestionsPage() {
-  const [suggestions, setSuggestions] = useState<Paginated<Suggestion> | null>(null);
+  const [suggestions, setSuggestions] = useState<Paginated<Suggestion> | null>(
+    null,
+  );
   const [page, setPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
-  const [filters, setFilters] = useState({
-    type: undefined,
-    text: "",
-    orderByCreationDate: false,
-    supportedByAdmins: false,
-  });
+  const [filters, setFilters] = useState<Filters>(initialFilters);
 
   useEffect(() => {
     async function fetchSuggestions(page: number = 0) {
@@ -29,7 +44,7 @@ export function SuggestionsPage() {
           filters.type,
           filters.text,
           filters.orderByCreationDate,
-          filters.supportedByAdmins
+          filters.supportedByAdmins,
         );
         setSuggestions(data);
       } catch (error) {
@@ -69,8 +84,61 @@ export function SuggestionsPage() {
       maxW="100vw"
     >
       <SideBar>
-        <VStack align="start" gap={4} w="100%">
+        <VStack align="start" gap={4} w="100%" minW="210px">
           <Heading as="h1">Filtros</Heading>
+          <Link
+            variant="underline"
+            color="principal.500"
+            onClick={() => {
+              setPage(0);
+              setFilters(initialFilters);
+            }}
+          >
+            Eliminar filtros
+          </Link>
+          <CustomSearchBar
+            placeholder="Buscar..."
+            value={filters.text}
+            onChange={(e) => {
+              setPage(0);
+              setFilters({ ...filters, text: e.currentTarget.value });
+            }}
+          />
+          <CustomSelect
+            placeholder="Ordenar por"
+            options={[
+              { label: "Recientes", value: "true" },
+              { label: "Más apoyadas", value: "false" },
+            ]}
+            value={filters.orderByCreationDate ? ["true"] : ["false"]}
+            onValueChange={({ value }) => {
+              setPage(0);
+              setFilters({
+                ...filters,
+                orderByCreationDate: value[0] === "true",
+              });
+            }}
+            label="Actividad"
+          />
+
+          <CustomSelect
+            placeholder="Filtrar por tipo"
+            options={[
+              { label: "Todos (sin filtrar)", value: "" as SuggestionType },
+              { label: "Catálogo", value: "CATALOG" as SuggestionType },
+              { label: "Eventos", value: "EVENT" as SuggestionType },
+              { label: "Otros", value: "OTHER" as SuggestionType },
+            ]}
+            value={filters.type ? [filters.type] : []}
+            onValueChange={({ value }) => {
+              setPage(0);
+              setFilters({
+                ...filters,
+                type: (value[0] as SuggestionType) || undefined,
+              });
+            }}
+            label="Tipo"
+          />
         </VStack>
       </SideBar>
       <VStack
@@ -81,10 +149,12 @@ export function SuggestionsPage() {
         align="center"
         justify="flex-start"
         w="100%"
+        minW={{ base: "100%", md: "800px" }}
         maxW="800px"
         h="fit-content"
         minH="80vh"
         gap={6}
+        flex={1}
       >
         <Heading as="h1">Sugerencias</Heading>
         {renderSuggestions()}

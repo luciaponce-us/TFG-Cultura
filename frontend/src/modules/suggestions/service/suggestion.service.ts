@@ -1,5 +1,4 @@
 import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
-
 import type { Suggestion, SuggestionType } from "../types";
 import { SUGGESTION_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
@@ -7,7 +6,7 @@ import type { Paginated } from "@/modules/core/types";
 export async function fetchAllSuggestions(
   page: number = 0,
   limit: number = 10,
-  type?: SuggestionType,
+  type?: SuggestionType | null | undefined,
   text?: string,
   orderByCreationDate?: boolean,
   supportedByAdmins?: boolean,
