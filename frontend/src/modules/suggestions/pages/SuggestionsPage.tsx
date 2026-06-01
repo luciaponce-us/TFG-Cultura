@@ -184,9 +184,11 @@ export function SuggestionsPage({
         gap={6}
         flex={1}
       >
-        {mySuggestions? 
+        {mySuggestions ? (
           <Heading as="h1">Mis sugerencias</Heading>
-        : <Heading as="h1">Sugerencias</Heading>}
+        ) : (
+          <Heading as="h1">Sugerencias</Heading>
+        )}
         <CustomButton
           onClick={() => {
             if (!token) {
