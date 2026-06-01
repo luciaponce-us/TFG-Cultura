@@ -1,4 +1,5 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import type { ApiError } from "../types";
 
 export const jsonHeaders = { "Content-Type": "application/json" };
@@ -84,3 +85,36 @@ export function isApiError(err: unknown): err is ApiError {
     "timestamp" in err
   );
 }
+
+export const handleChange = <
+  T extends object,
+  E extends Partial<Record<keyof T, string>>,
+>(
+  e: ChangeEvent<HTMLInputElement>,
+  form: T,
+  setErrors: Dispatch<SetStateAction<E>>,
+  setForm: Dispatch<SetStateAction<T>>,
+) => {
+  setErrors({} as E);
+  setForm({
+    ...form,
+    [e.target.name]: e.target.value,
+  } as T);
+};
+
+export const handleSelectChange = <
+  T extends object,
+  E extends Partial<Record<keyof T, string>>,
+>(
+  value: string[],
+  name: keyof T,
+  form: T,
+  setErrors: Dispatch<SetStateAction<E>>,
+  setForm: Dispatch<SetStateAction<T>>,
+) => {
+  setErrors({} as E);
+  setForm({
+    ...form,
+    [name]: value[0],
+  } as T);
+};
