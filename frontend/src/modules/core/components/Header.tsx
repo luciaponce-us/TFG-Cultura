@@ -9,10 +9,11 @@ import {
   Portal,
 } from "@chakra-ui/react";
 import { NavButton } from "./NavButton";
-import { IconSearch, IconLogout, IconSettings } from "@tabler/icons-react";
+import { IconSearch, IconLogout, IconSettings, IconBubble } from "@tabler/icons-react";
 import { useAuth } from "../context/useAuth";
 import { toaster } from "./toaster/toaster";
 import type { Role } from "@/modules/users/types";
+import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
   return (
@@ -107,6 +108,7 @@ function SearchBar() {
 function ClickableAvatar() {
   const { user } = useAuth();
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const MANAGEMENT_ROLES: Role[] = [
     "COORDINADOR",
     "SECRETARIO",
@@ -119,7 +121,9 @@ function ClickableAvatar() {
     href: string;
   };
 
-  const logedUserLinks: Link[] = [];
+  const logedUserLinks: Link[] = [
+    { icon: <IconBubble />, title: "Mis sugerencias", href: "/mis-sugerencias" },
+  ];
   const adminLinks: Link[] = [
     {
       icon: <IconSettings />,
@@ -194,6 +198,7 @@ function ClickableAvatar() {
                     description: "¡Hasta pronto! 👋​",
                     type: "info",
                   });
+                  navigate("/");
                 }}
               >
                 <IconLogout />

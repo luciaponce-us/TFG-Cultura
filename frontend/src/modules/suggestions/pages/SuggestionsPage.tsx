@@ -31,7 +31,11 @@ const initialFilters: Filters = {
   supportedByAdmins: false,
 };
 
-export function SuggestionsPage() {
+export function SuggestionsPage({
+  mySuggestions = false,
+}: {
+  mySuggestions?: boolean;
+}) {
   const [suggestions, setSuggestions] = useState<Paginated<Suggestion> | null>(
     null,
   );
@@ -53,6 +57,8 @@ export function SuggestionsPage() {
           filters.text,
           filters.orderByCreationDate,
           filters.supportedByAdmins,
+          mySuggestions,
+          token,
         );
         setSuggestions(data);
       } catch (error) {
@@ -67,6 +73,8 @@ export function SuggestionsPage() {
       filters.supportedByAdmins,
       filters.text,
       filters.type,
+      mySuggestions,
+      token,
     ],
   );
 
@@ -176,7 +184,9 @@ export function SuggestionsPage() {
         gap={6}
         flex={1}
       >
-        <Heading as="h1">Sugerencias</Heading>
+        {mySuggestions? 
+          <Heading as="h1">Mis sugerencias</Heading>
+        : <Heading as="h1">Sugerencias</Heading>}
         <CustomButton
           onClick={() => {
             if (!token) {

@@ -33,6 +33,10 @@ export default function App() {
             <Route path="/iniciar-sesion" element={<LoginPage />} />
             <Route path="/sugerencias" element={<SuggestionsPage />} />
             <Route
+              path="/mis-sugerencias"
+              element={<SuggestionsPage mySuggestions />}
+            />
+            <Route
               path="/admin"
               element={withRoleProtection(AdminPanel, MANAGEMENT_ROLES)}
             />
