@@ -1,7 +1,8 @@
 import { Grid, Heading, Link, VStack } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/modules/core/context/useAuth";
+import { useNavigate } from "react-router-dom";
 import { fetchAllSuggestions } from "../service/suggestion.service";
-import { SuggestionCard } from "../components/SuggestionCard";
 import type { Suggestion, SuggestionType } from "../types";
 import type { Paginated } from "@/modules/core/types";
 import {
@@ -10,7 +11,11 @@ import {
   CustomSearchBar,
   CustomSelect,
   TextSecondary,
+  CustomButton,
+  toaster,
 } from "@/modules/core/components";
+import { CreateSuggestionDialog, SuggestionCard } from "../components";
+import { IconPlus } from '@tabler/icons-react';
 
 interface Filters {
   type?: SuggestionType;
@@ -33,13 +38,16 @@ export function SuggestionsPage() {
   const [page, setPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [filters, setFilters] = useState<Filters>(initialFilters);
+  const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false);
+  const { token } = useAuth();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchSuggestions(page: number = 0) {
+  const fetchSuggestions = useCallback(
+    async (pageToLoad: number = 0) => {
       setLoading(true);
       try {
         const data = await fetchAllSuggestions(
-          page,
+          pageToLoad,
           10,
           filters.type,
           filters.text,
@@ -53,10 +61,18 @@ export function SuggestionsPage() {
       } finally {
         setLoading(false);
       }
-    }
+    },
+    [
+      filters.orderByCreationDate,
+      filters.supportedByAdmins,
+      filters.text,
+      filters.type,
+    ],
+  );
 
+  useEffect(() => {
     fetchSuggestions(page);
-  }, [page, filters]);
+  }, [page, filters, fetchSuggestions]);
 
   function renderSuggestions() {
     if (loading) {
@@ -157,6 +173,24 @@ export function SuggestionsPage() {
         flex={1}
       >
         <Heading as="h1">Sugerencias</Heading>
+        <CustomButton
+          onClick={() => {
+            if (!token) {
+              toaster.create({
+                title: "Inicia sesión para crear sugerencias",
+                description: "Serás redirigido a la página de inicio de sesión",
+                closable: true,
+              })
+              navigate("/iniciar-sesion");
+            } else {
+              setShowCreateDialog(true);
+            }
+          }}
+        >
+          <IconPlus />
+          Crear sugerencia
+        </CustomButton>
+
         {renderSuggestions()}
         {suggestions && suggestions?.totalPages > 1 && (
           <CustomPagination
@@ -167,6 +201,17 @@ export function SuggestionsPage() {
           />
         )}
       </VStack>
+      {token && (
+        <CreateSuggestionDialog
+          isOpen={showCreateDialog}
+          onClose={() => {
+            setShowCreateDialog(false);
+            setPage(0);
+            fetchSuggestions(0);
+          }}
+          token={token}
+        />
+      )}
     </Grid>
   );
 }

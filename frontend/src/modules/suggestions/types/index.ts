@@ -13,3 +13,9 @@ export interface Suggestion {
 }
 
 export type SuggestionType = "CATALOG" | "EVENT" | "OTHER";
+
+export interface SuggestionCreateRequest {
+  title: string;
+  description?: string;
+  type?: SuggestionType;
+}
