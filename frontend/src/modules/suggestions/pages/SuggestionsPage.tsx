@@ -15,7 +15,7 @@ import {
   toaster,
 } from "@/modules/core/components";
 import { CreateSuggestionDialog, SuggestionCard } from "../components";
-import { IconPlus } from '@tabler/icons-react';
+import { IconPlus } from "@tabler/icons-react";
 
 interface Filters {
   type?: SuggestionType;
@@ -86,7 +86,11 @@ export function SuggestionsPage() {
     return (
       <VStack align="stretch" gap={4} w="100%">
         {suggestions.content.map((suggestion) => (
-          <SuggestionCard key={suggestion.id} suggestion={suggestion} />
+          <SuggestionCard
+            key={suggestion.id}
+            suggestion={suggestion}
+            onSupportSuccess={() => fetchSuggestions(page)}
+          />
         ))}
       </VStack>
     );
@@ -180,7 +184,7 @@ export function SuggestionsPage() {
                 title: "Inicia sesión para crear sugerencias",
                 description: "Serás redirigido a la página de inicio de sesión",
                 closable: true,
-              })
+              });
               navigate("/iniciar-sesion");
             } else {
               setShowCreateDialog(true);

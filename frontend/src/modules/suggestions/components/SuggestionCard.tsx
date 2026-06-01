@@ -5,11 +5,31 @@ import {
   CustomAvatar,
   CustomAvatarGroup,
   CustomButton,
+  toaster,
 } from "@/modules/core/components";
-import { IconThumbUp } from "@tabler/icons-react";
+import { IconThumbDown, IconThumbUp } from "@tabler/icons-react";
 import { parseRole } from "@/modules/users/utils";
+import { useAuth } from "@/modules/core/context/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { isApiError } from "@/modules/core/utils/utils";
+import {
+  supportSuggestion,
+  unsupportSuggestion,
+} from "../service/suggestion.service";
 
-export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
+export function SuggestionCard({
+  suggestion,
+  onSupportSuccess,
+}: {
+  suggestion: Suggestion;
+  onSupportSuccess?: () => void;
+}) {
+  const { token } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loadingSupport, setLoadingSupport] = useState(false);
+
   function parseType(type: SuggestionType): string {
     switch (type) {
       case "CATALOG":
@@ -55,6 +75,74 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
       return `${items[0]} y ${items[1]}`;
     }
     return `${items.slice(0, -1).join(", ")} y ${items[items.length - 1]}`;
+  }
+
+  const isSupportedByUser = suggestion.supporters.some(
+    (supporter) => supporter.username === user?.username,
+  );
+  const isAuthor = suggestion.author.username === user?.username;
+
+  async function handleSupport() {
+    setLoadingSupport(true);
+    if (!token) {
+      toaster.create({
+        title: "Inicia sesión para apoyar sugerencias",
+        description: "Serás redirigido a la página de inicio de sesión",
+        closable: true,
+      });
+      navigate("/iniciar-sesion");
+      setLoadingSupport(false);
+    } else {
+      try {
+        await supportSuggestion(token, suggestion.id);
+        onSupportSuccess?.();
+      } catch (error) {
+        if (isApiError(error)) {
+          console.error("Error supporting suggestion:", error.message);
+          toaster.create({
+            title: "Error al apoyar sugerencia",
+            description:
+              "Ocurrió un error al apoyar la sugerencia. Inténtalo de nuevo.",
+            type: "error",
+          });
+        } else {
+          console.error("Unexpected error:", error);
+          toaster.create({
+            title: "Error inesperado",
+            description: "Ocurrió un error inesperado. Inténtalo de nuevo.",
+            type: "error",
+          });
+        }
+      }
+      setLoadingSupport(false);
+    }
+  }
+
+  async function handleUnsupport() {
+    setLoadingSupport(true);
+    if (!token) return;
+    try {
+      await unsupportSuggestion(token, suggestion.id);
+      onSupportSuccess?.();
+    } catch (error) {
+      if (isApiError(error)) {
+        console.error("Error unsupporting suggestion:", error.message);
+        toaster.create({
+          title: "Error al dejar de apoyar sugerencia",
+          description:
+            "Ocurrió un error al dejar de apoyar la sugerencia. Inténtalo de nuevo.",
+          type: "error",
+        });
+      } else {
+        console.error("Unexpected error:", error);
+        toaster.create({
+          title: "Error inesperado",
+          description: "Ocurrió un error inesperado. Inténtalo de nuevo.",
+          type: "error",
+        });
+      }
+    }
+    setLoadingSupport(false);
   }
 
   return (
@@ -111,11 +199,16 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
             max={3}
           />
         </VStack>
-        <CustomButton
-          onClick={() => alert("Funcionalidad de apoyo no implementada")}
-        >
-          <IconThumbUp /> Apoyar sugerencia
-        </CustomButton>
+        {!isAuthor &&
+          (isSupportedByUser ? (
+            <CustomButton onClick={handleUnsupport} color="rojo">
+              <IconThumbDown /> Dejar de apoyar
+            </CustomButton>
+          ) : (
+            <CustomButton onClick={handleSupport} loading={loadingSupport}>
+              <IconThumbUp /> Apoyar sugerencia
+            </CustomButton>
+          ))}
       </HStack>
     </VStack>
   );

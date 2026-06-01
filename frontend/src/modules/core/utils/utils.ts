@@ -3,6 +3,9 @@ import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import type { ApiError } from "../types";
 
 export const jsonHeaders = { "Content-Type": "application/json" };
+export const authHeaders = (token: string) => ({
+  Authorization: `Bearer ${token}`,
+});
 const REQUEST_TIMEOUT_MS = 12000;
 
 export async function handleResponse<T>(res: Response): Promise<T> {

@@ -2,8 +2,13 @@ import {
   fetchWithTimeout,
   handleResponse,
   jsonHeaders,
+  authHeaders,
 } from "@/modules/core/utils/utils";
-import type { Suggestion, SuggestionCreateRequest, SuggestionType } from "../types";
+import type {
+  Suggestion,
+  SuggestionCreateRequest,
+  SuggestionType,
+} from "../types";
 import { SUGGESTION_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
 
@@ -45,6 +50,37 @@ export async function createSuggestion(
     },
     body: JSON.stringify(form),
   });
+
+  return handleResponse<Suggestion>(res);
+}
+
+export async function supportSuggestion(
+  token: string,
+  suggestionId: string,
+): Promise<Suggestion> {
+  const res = await fetchWithTimeout(SUGGESTION_ROUTES.SUPPORT(suggestionId), {
+    method: "PUT",
+    headers: {
+      ...authHeaders(token),
+    },
+  });
+
+  return handleResponse<Suggestion>(res);
+}
+
+export async function unsupportSuggestion(
+  token: string,
+  suggestionId: string,
+): Promise<Suggestion> {
+  const res = await fetchWithTimeout(
+    SUGGESTION_ROUTES.UNSUPPORT(suggestionId),
+    {
+      method: "PUT",
+      headers: {
+        ...authHeaders(token),
+      },
+    },
+  );
 
   return handleResponse<Suggestion>(res);
 }
