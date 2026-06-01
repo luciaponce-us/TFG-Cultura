@@ -12,9 +12,13 @@ export const validateSuggestionForm = (form: {
     errors.title = "El título no puede exceder los 50 caracteres";
   }
 
-  if (form.description && form.description.trim() && form.description.trim().length > 280) {
+  if (
+    form.description &&
+    form.description.trim() &&
+    form.description.trim().length > 280
+  ) {
     errors.description = "La descripción no puede exceder los 280 caracteres";
   }
 
   return errors;
-}
+};

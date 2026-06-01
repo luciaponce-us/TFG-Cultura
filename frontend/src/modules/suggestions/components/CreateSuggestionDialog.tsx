@@ -21,10 +21,11 @@ const initialForm: SuggestionCreateRequest = {
   type: "OTHER" as SuggestionType,
 };
 
-type SuggestionFormErrors =
-  Partial<Record<keyof SuggestionCreateRequest, string>> & {
-    general?: string;
-  };
+type SuggestionFormErrors = Partial<
+  Record<keyof SuggestionCreateRequest, string>
+> & {
+  general?: string;
+};
 
 const initialErrors: SuggestionFormErrors = {
   title: "",
@@ -36,7 +37,7 @@ const initialErrors: SuggestionFormErrors = {
 export function CreateSuggestionDialog({
   isOpen,
   onClose,
-  token
+  token,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -49,12 +50,8 @@ export function CreateSuggestionDialog({
   const handleTypeChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "type", form, setErrors, setForm);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => handleChange(
-    e,
-    form,
-    setErrors,
-    setForm
-  );
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) =>
+    handleChange(e, form, setErrors, setForm);
 
   async function handleSubmit() {
     setLoading(true);
@@ -72,7 +69,7 @@ export function CreateSuggestionDialog({
     }
 
     try {
-      const res = await createSuggestion(token, form)
+      const res = await createSuggestion(token, form);
       toaster.create({
         title: "Sugerencia creada",
         description: "Tu sugerencia ha sido creada exitosamente",
@@ -81,13 +78,17 @@ export function CreateSuggestionDialog({
       onClose();
       console.log("Sugerencia creada:", res);
     } catch (error) {
-      
       if (isApiError(error)) {
         console.error("Error creating suggestion:", error.message);
-        setErrors({ general: "Ocurrió un error al crear la sugerencia. Inténtalo de nuevo." });
+        setErrors({
+          general:
+            "Ocurrió un error al crear la sugerencia. Inténtalo de nuevo.",
+        });
       } else {
         console.error("Unexpected error creating suggestion:", error);
-        setErrors({ general: "Ocurrió un error inesperado. Inténtalo de nuevo." });
+        setErrors({
+          general: "Ocurrió un error inesperado. Inténtalo de nuevo.",
+        });
       }
     } finally {
       setLoading(false);
@@ -98,42 +99,49 @@ export function CreateSuggestionDialog({
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content maxH="80vh" overflow="hidden" borderRadius="xl" bg="background">
+        <Dialog.Content
+          maxH="80vh"
+          overflow="hidden"
+          borderRadius="xl"
+          bg="background"
+        >
           <Dialog.CloseTrigger />
           <Dialog.Header>
-            <Dialog.Title><Heading as="h1">Crear sugerencia</Heading></Dialog.Title>
+            <Dialog.Title>
+              <Heading as="h1">Crear sugerencia</Heading>
+            </Dialog.Title>
           </Dialog.Header>
           <Dialog.Body>
             <VStack>
-            <CustomInput
-              label="Título"
-              name="title"
-              placeholder="Describe brevemente la sugerencia"
-              required
-              error={errors.title ?? ""}
-              onChange={handleInputChange}
-            />
-            <CustomInput
-              label="Descripción"
-              name="description"
-              placeholder="Proporciona una descripción detallada de la sugerencia"
-              error={errors.description ?? ""}
-              onChange={handleInputChange}
+              <CustomInput
+                label="Título"
+                name="title"
+                placeholder="Describe brevemente la sugerencia"
+                required
+                error={errors.title ?? ""}
+                onChange={handleInputChange}
+              />
+              <CustomInput
+                label="Descripción"
+                name="description"
+                placeholder="Proporciona una descripción detallada de la sugerencia"
+                error={errors.description ?? ""}
+                onChange={handleInputChange}
                 textarea
                 maxInputHeight="125px"
-            />
-            <CustomSelect
-              label="Tipo de sugerencia"
-              name="type"
-              options={[
-                { value: "CATALOG", label: "Catálogo" },
-                { value: "EVENT", label: "Evento" },
-                { value: "OTHER", label: "Otro" },
-              ]}
-              onValueChange={handleTypeChange}
-              placeholder="Selecciona el tipo de sugerencia"
-              defaultValue={[form?.type as string]}
-            />
+              />
+              <CustomSelect
+                label="Tipo de sugerencia"
+                name="type"
+                options={[
+                  { value: "CATALOG", label: "Catálogo" },
+                  { value: "EVENT", label: "Evento" },
+                  { value: "OTHER", label: "Otro" },
+                ]}
+                onValueChange={handleTypeChange}
+                placeholder="Selecciona el tipo de sugerencia"
+                defaultValue={[form?.type as string]}
+              />
             </VStack>
           </Dialog.Body>
           <Dialog.Footer>
