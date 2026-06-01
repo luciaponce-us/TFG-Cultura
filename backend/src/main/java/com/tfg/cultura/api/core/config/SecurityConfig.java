@@ -31,10 +31,6 @@ public class SecurityConfig {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-    private static final String[] ADMIN_ROLES = {
-        "SECRETARIO", "COORDINADOR"
-    };
-
     private static final String[] MANAGEMENT_ROLES = {
         "SECRETARIO", "COORDINADOR", "ENCARGADO", "COLABORADOR"
     };

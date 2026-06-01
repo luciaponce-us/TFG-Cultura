@@ -43,9 +43,12 @@ public class SuggestionController {
                         @RequestParam(required = false) SuggestionType type,
                         @RequestParam(required = false) String text,
                         @RequestParam(required = false, defaultValue = "false") Boolean orderByCreationDate,
-                        @RequestParam(required = false) Boolean supportedByAdmins) {
+                        @RequestParam(required = false) Boolean supportedByAdmins,
+                        @RequestParam(required = false, defaultValue = "false") Boolean mySuggestions
+
+                ) {
                 Page<SuggestionResponse> response = service.getAllWithFilters(type, text, orderByCreationDate,
-                                supportedByAdmins, page,
+                                supportedByAdmins, mySuggestions, page,
                                 size);
                 return ResponseEntity
                                 .status(HttpStatus.OK)

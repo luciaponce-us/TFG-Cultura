@@ -59,7 +59,7 @@ public class SuggestionService {
     }
 
     public Page<SuggestionResponse> getAllWithFilters(SuggestionType type, String text, Boolean orderByCreationDate,
-            Boolean supportedByAdmins, int page, int size) {
+            Boolean supportedByAdmins,Boolean mySuggestions, int page, int size) {
 
         Sort sort = Sort.by("totalSupporters").descending();
         if (orderByCreationDate) {
@@ -69,8 +69,8 @@ public class SuggestionService {
         PageRequest pageable = PageRequest.of(page, size, sort);
         Page<Suggestion> suggestionPage;
 
-        if (type != null || text != null || supportedByAdmins != null) {
-            suggestionPage = repository.findAllWithFilters(type, text, supportedByAdmins, pageable);
+        if (type != null || text != null || supportedByAdmins != null || mySuggestions != null) {
+            suggestionPage = repository.findAllWithFilters(type, text, supportedByAdmins, mySuggestions, pageable);
         } else {
             suggestionPage = repository.findAll(pageable);
         }

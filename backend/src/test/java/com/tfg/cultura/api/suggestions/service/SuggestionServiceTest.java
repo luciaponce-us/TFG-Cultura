@@ -93,7 +93,7 @@ class SuggestionServiceTest {
         when(repository.findAll(any(Pageable.class))).thenReturn(suggestions);
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
-        Page<SuggestionResponse> responses = service.getAllWithFilters(null, null, false, null, 0, 10);
+        Page<SuggestionResponse> responses = service.getAllWithFilters(null, null, false, null, null, 0, 10);
 
         assertNotNull(responses);
         assertEquals(1, responses.getTotalElements());
@@ -108,7 +108,7 @@ class SuggestionServiceTest {
         Page<Suggestion> suggestions = new PageImpl<>(List.of(), pageable, 0);
         when(repository.findAll(any(Pageable.class))).thenReturn(suggestions);
 
-        Page<SuggestionResponse> responses = service.getAllWithFilters(null, null, false, null, 0, 10);
+        Page<SuggestionResponse> responses = service.getAllWithFilters(null, null, false, null, null, 0, 10);
 
         assertNotNull(responses);
         assertEquals(0, responses.getTotalElements());
@@ -119,16 +119,17 @@ class SuggestionServiceTest {
     void getAllWithFilters_should_use_repository_filters() throws UserNotFoundException {
         PageRequest pageable = PageRequest.of(0, 5);
         Page<Suggestion> suggestions = new PageImpl<>(List.of(suggestion), pageable, 1);
-        when(repository.findAllWithFilters(any(), any(), any(), any(Pageable.class))).thenReturn(suggestions);
+        when(repository.findAllWithFilters(any(), any(), any(), any(), any(Pageable.class))).thenReturn(suggestions);
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         Page<SuggestionResponse> responses = service.getAllWithFilters(
-                SuggestionType.EVENT,
-                "query",
-                Boolean.TRUE,
-                Boolean.TRUE,
-                0,
-                5);
+            SuggestionType.EVENT,
+            "query",
+            Boolean.FALSE,
+            Boolean.TRUE,
+            Boolean.TRUE,
+            0,
+            5);
 
         assertNotNull(responses);
         assertEquals(1, responses.getTotalElements());
@@ -144,7 +145,7 @@ class SuggestionServiceTest {
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
         try {
-            service.getAllWithFilters(null, null, false, null, 0, 10);
+            service.getAllWithFilters(null, null, false, null, null, 0, 10);
         } catch (Exception e) {
             assertEquals(e.getClass(), UserNotFoundException.class);
         }

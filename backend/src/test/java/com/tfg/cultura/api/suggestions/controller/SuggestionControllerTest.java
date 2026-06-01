@@ -130,7 +130,7 @@ class SuggestionControllerTest extends BaseControllerTest {
                 List.of(response),
                 PageRequest.of(0, 10),
                 1);
-        when(service.getAllWithFilters(any(), any(), any(), any(), any(Integer.class), any(Integer.class)))
+        when(service.getAllWithFilters(any(), any(), any(), any(), any(), any(Integer.class), any(Integer.class)))
                 .thenReturn(page);
 
         mockMvc.perform(get(BASE_URL))

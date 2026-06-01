@@ -13,20 +13,24 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
+import com.tfg.cultura.api.users.jwt.CustomUserDetails;
+import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.core.utils.CriteriaBuilder;
 
 public class SuggestionRepositoryImpl implements SuggestionRespositoryCustom {
     private MongoTemplate mongoTemplate;
+    private CustomUserDetailsService userDetailsService;
     private static final List<Role> MANAGEMENT_ROLES = List.of(
             Role.SECRETARIO,
             Role.COORDINADOR,
             Role.ENCARGADO,
             Role.COLABORADOR);
 
-    public SuggestionRepositoryImpl(MongoTemplate mongoTemplate) {
+    public SuggestionRepositoryImpl(MongoTemplate mongoTemplate, CustomUserDetailsService userDetailsService) {
         this.mongoTemplate = mongoTemplate;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -34,6 +38,7 @@ public class SuggestionRepositoryImpl implements SuggestionRespositoryCustom {
             SuggestionType type,
             String text,
             Boolean supportedByAdmins,
+            Boolean mySuggestions,
             Pageable pageable) {
 
         List<Criteria> filters = new ArrayList<>();
@@ -64,6 +69,12 @@ public class SuggestionRepositoryImpl implements SuggestionRespositoryCustom {
             }
 
             filters.add(Criteria.where("supportersId").in(adminIds));
+        }
+
+        // 🔹 Filtro por mis sugerencias
+        if (Boolean.TRUE.equals(mySuggestions)) {
+            CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+            filters.add(Criteria.where("authorId").is(currentUser.getId()));
         }
 
         // 🔹 Construcción del criteria

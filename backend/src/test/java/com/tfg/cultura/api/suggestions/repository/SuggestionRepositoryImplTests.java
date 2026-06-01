@@ -26,7 +26,6 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import com.tfg.cultura.api.suggestions.factory.SuggestionFactory;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
-import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
@@ -53,7 +52,7 @@ class SuggestionRepositoryImplTests {
 		when(mongoTemplate.count(any(Query.class), eq(Suggestion.class))).thenReturn(1L);
 		when(mongoTemplate.find(any(Query.class), eq(Suggestion.class))).thenReturn(List.of(suggestion));
 
-		Page<Suggestion> result = repository.findAllWithFilters(null, null, null, pageable);
+		Page<Suggestion> result = repository.findAllWithFilters(null, null, null, null, pageable);
 
 		assertNotNull(result);
 		assertEquals(1, result.getContent().size());
@@ -80,7 +79,7 @@ class SuggestionRepositoryImplTests {
 		when(mongoTemplate.find(any(Query.class), eq(Suggestion.class))).thenReturn(List.of(suggestion));
 		when(mongoTemplate.find(any(Query.class), eq(User.class))).thenReturn(List.of(secretary, coordinator));
 
-		repository.findAllWithFilters(null, "first second", true, pageable);
+		repository.findAllWithFilters(null, "first second", true, null, pageable);
 
 		ArgumentCaptor<Query> queryCaptor = ArgumentCaptor.forClass(Query.class);
 		verify(mongoTemplate).find(queryCaptor.capture(), eq(Suggestion.class));

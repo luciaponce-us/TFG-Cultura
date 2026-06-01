@@ -19,6 +19,8 @@ export async function fetchAllSuggestions(
   text?: string,
   orderByCreationDate?: boolean,
   supportedByAdmins?: boolean,
+  mySuggestions: boolean = false,
+  token?: string | null,
 ): Promise<Paginated<Suggestion>> {
   let queryParams = `?page=${page}&limit=${limit}`;
 
@@ -28,10 +30,13 @@ export async function fetchAllSuggestions(
     queryParams += `&orderByCreationDate=${orderByCreationDate}`;
   if (supportedByAdmins !== undefined)
     queryParams += `&supportedByAdmins=${supportedByAdmins}`;
+  if (mySuggestions !== undefined)
+    queryParams += `&mySuggestions=${mySuggestions}`;
   const res = await fetchWithTimeout(
     `${SUGGESTION_ROUTES.GET_ALL}${queryParams}`,
     {
       method: "GET",
+      headers: token ? authHeaders(token) : {},
     },
   );
 

@@ -20,7 +20,6 @@ import com.tfg.cultura.api.users.jwt.JwtService;
 import java.util.Optional;
 
 import com.tfg.cultura.api.core.exception.FileUploadException;
-import com.tfg.cultura.api.core.exception.UnathenticatedException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +33,6 @@ public class UserAuthService {
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
     private final UserFileService userFileService;
-    private final UserService userService;
-
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
     public UserResponse register(UserRegisterRequest request, MultipartFile avatar, MultipartFile paymentReceipt)
