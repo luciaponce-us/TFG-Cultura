@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
@@ -123,11 +126,17 @@ class SuggestionControllerTest extends BaseControllerTest {
 
     @Test
     void getAll_success() throws Exception {
-        when(service.getAll()).thenReturn(List.of(response));
+        Page<SuggestionResponse> page = new PageImpl<>(
+                List.of(response),
+                PageRequest.of(0, 10),
+                1);
+        when(service.getAllWithFilters(any(), any(), any(), any(), any(), any(Integer.class), any(Integer.class)))
+                .thenReturn(page);
 
         mockMvc.perform(get(BASE_URL))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value(suggestion.getTitle()));
+                .andExpect(jsonPath("$.content[0].title").value(suggestion.getTitle()))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     // SUPPORT SUGGESTION
@@ -135,9 +144,9 @@ class SuggestionControllerTest extends BaseControllerTest {
     @Test
     void supportSuggestion_success() throws Exception {
         when(service.supportSuggestion(suggestion.getId())).thenReturn(response);
-        
+
         mockMvc.perform(put(String.format(SUPPORT_URL, suggestion.getId())))
-            .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -147,8 +156,8 @@ class SuggestionControllerTest extends BaseControllerTest {
         when(service.supportSuggestion(any())).thenThrow(ex);
 
         mockMvc.perform(put(String.format(SUPPORT_URL, id)))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.message").exists());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
@@ -157,8 +166,8 @@ class SuggestionControllerTest extends BaseControllerTest {
         when(service.supportSuggestion(any())).thenThrow(ex);
 
         mockMvc.perform(put(String.format(SUPPORT_URL, suggestion.getId())))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").exists());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
@@ -167,8 +176,8 @@ class SuggestionControllerTest extends BaseControllerTest {
         when(service.supportSuggestion(any())).thenThrow(ex);
 
         mockMvc.perform(put(String.format(SUPPORT_URL, suggestion.getId())))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").exists());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
     }
 
     // STOP SUPPORTING SUGGESTION
@@ -176,9 +185,9 @@ class SuggestionControllerTest extends BaseControllerTest {
     @Test
     void stopSupportSuggestion_success() throws Exception {
         when(service.stopSupportingSuggestion(suggestion.getId())).thenReturn(response);
-        
+
         mockMvc.perform(put(String.format(STOP_SUPPORT_URL, suggestion.getId())))
-            .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -186,9 +195,9 @@ class SuggestionControllerTest extends BaseControllerTest {
         String id = suggestion.getId();
         SuggestionNotFoundException ex = new SuggestionNotFoundException(id);
         when(service.stopSupportingSuggestion(any())).thenThrow(ex);
-        
+
         mockMvc.perform(put(String.format(STOP_SUPPORT_URL, id)))
-            .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -196,9 +205,9 @@ class SuggestionControllerTest extends BaseControllerTest {
         String id = suggestion.getId();
         SuggestionNotSupportedException ex = new SuggestionNotSupportedException();
         when(service.stopSupportingSuggestion(any())).thenThrow(ex);
-        
+
         mockMvc.perform(put(String.format(STOP_SUPPORT_URL, id)))
-            .andExpect(status().isBadRequest());
-    }    
+                .andExpect(status().isBadRequest());
+    }
 
 }

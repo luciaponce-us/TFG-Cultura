@@ -14,3 +14,4 @@ export * from "./CustomPagination";
 export * from "./CustomAvatar";
 export * from "./CustomSelect";
 export * from "./CustomSearchBar";
+export * from "./CustomAvatarGroup";

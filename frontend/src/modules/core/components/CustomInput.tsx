@@ -1,4 +1,4 @@
-import { Button, Field, Input, InputGroup } from "@chakra-ui/react";
+import { Button, Field, Input, InputGroup, Textarea } from "@chakra-ui/react";
 import { useState } from "react";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
@@ -11,6 +11,8 @@ interface InputFieldProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   password?: boolean;
   defaultValue?: string;
+  textarea?: boolean;
+  maxInputHeight?: string;
 }
 
 export const CustomInput = ({
@@ -22,6 +24,8 @@ export const CustomInput = ({
   onChange,
   password = false,
   defaultValue,
+  textarea = false,
+  maxInputHeight,
 }: InputFieldProps) => {
   const [show, setShow] = useState(false);
 
@@ -48,7 +52,7 @@ export const CustomInput = ({
           />
         </InputGroup>
       )}
-      {!password && (
+      {!password && !textarea && (
         <Input
           name={name}
           placeholder={placeholder}
@@ -56,6 +60,9 @@ export const CustomInput = ({
           focusRingColor="principal.600"
           defaultValue={defaultValue}
         />
+      )}
+      {textarea && (
+        <Textarea placeholder={placeholder} maxH={maxInputHeight} minH="40px" />
       )}
 
       {error && <Field.ErrorText>{error}</Field.ErrorText>}

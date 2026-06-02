@@ -45,3 +45,10 @@ export type Role =
   | "ENCARGADO"
   | "COLABORADOR"
   | "SOCIO";
+
+export const MANAGEMENT_ROLES: Role[] = [
+  "COORDINADOR",
+  "SECRETARIO",
+  "ENCARGADO",
+  "COLABORADOR",
+];

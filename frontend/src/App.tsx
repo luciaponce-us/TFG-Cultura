@@ -12,6 +12,7 @@ import {
   UsersAdminPage,
   EditUserPage,
 } from "./modules/users/pages";
+import { SuggestionsPage } from "@/modules/suggestions/pages";
 
 export default function App() {
   const MANAGEMENT_ROLES: Role[] = [
@@ -30,6 +31,11 @@ export default function App() {
             <Route index element={<Home />} />
             <Route path="/registro" element={<RegistrationPage />} />
             <Route path="/iniciar-sesion" element={<LoginPage />} />
+            <Route path="/sugerencias" element={<SuggestionsPage />} />
+            <Route
+              path="/mis-sugerencias"
+              element={<SuggestionsPage mySuggestions />}
+            />
             <Route
               path="/admin"
               element={withRoleProtection(AdminPanel, MANAGEMENT_ROLES)}
