@@ -11,7 +11,8 @@ import {
   LoginPage,
   UsersAdminPage,
   EditUserPage,
-  ProfilePage
+  ProfilePage,
+  EditProfilePage
 } from "./modules/users/pages";
 import { SuggestionsPage } from "@/modules/suggestions/pages";
 
@@ -40,6 +41,10 @@ export default function App() {
             <Route
               path="/perfil"
               element={<ProfilePage />}
+            />
+            <Route
+              path="/perfil/editar"
+              element={<EditProfilePage />}
             />
             <Route
               path="/admin"

@@ -2,6 +2,7 @@ import {
   fetchWithTimeout,
   handleResponse,
   jsonHeaders,
+  authHeaders
 } from "../../core/utils/utils";
 import { USER_ROUTES } from "../routes";
 import type {
@@ -9,6 +10,7 @@ import type {
   UserRegisterRequest,
   UserLoginRequest,
   UserUpdateRequest,
+  UserProfileUpdateRequest,
 } from "../types";
 import type { Paginated } from "../../core/types";
 
@@ -142,6 +144,19 @@ export async function toggleUserActive(
   const res = await fetchWithTimeout(route, {
     method: "PUT",
     headers: { ...jsonHeaders, Authorization: `Bearer ${token}` },
+  });
+
+  return handleResponse<User>(res);
+}
+
+export async function updateUserProfile(
+  token: string,
+  form: UserProfileUpdateRequest,
+): Promise<User> {
+  const res = await fetchWithTimeout(USER_ROUTES.PROFILE, {
+    method: "PUT",
+    headers: { ...jsonHeaders, ...authHeaders(token) },
+    body: JSON.stringify(form),
   });
 
   return handleResponse<User>(res);

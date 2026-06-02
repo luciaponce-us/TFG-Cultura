@@ -25,6 +25,15 @@ export interface UserUpdateRequest {
   role: Role;
 }
 
+export interface UserProfileUpdateRequest {
+  username?: string;
+  password?: string;
+  name?: string;
+  surname?: string;
+  phone?: string;
+  email?: string;
+}
+
 export interface User {
   username: string;
   name: string;

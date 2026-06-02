@@ -1,4 +1,5 @@
 import { useAuth } from "@/modules/core/context/useAuth";
+import { useNavigate } from "react-router-dom";
 import { Heading, VStack, Text, HStack } from "@chakra-ui/react";
 import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
 import { CustomAvatar, CustomButton } from "@/modules/core/components";
@@ -13,6 +14,7 @@ import {
 
 export function ProfilePage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   function renderAttribute(key: string, value: string, icon: React.ReactNode) {
     return (
@@ -89,6 +91,7 @@ export function ProfilePage() {
               </CustomButton>
             </HStack>
           </VStack>
+          <CustomButton onClick={() => navigate("/perfil/editar")}>Editar</CustomButton>
         </VStack>
       ) : (
         <TextSecondary>No se ha podido cargar el usuario.</TextSecondary>
