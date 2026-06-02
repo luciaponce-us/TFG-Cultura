@@ -14,6 +14,7 @@ import {
   IconLogout,
   IconSettings,
   IconBubble,
+  IconUser,
 } from "@tabler/icons-react";
 import { useAuth } from "../context/useAuth";
 import { toaster } from "./toaster/toaster";
@@ -127,6 +128,7 @@ function ClickableAvatar() {
   };
 
   const logedUserLinks: Link[] = [
+    {icon: <IconUser />, title: "Mi perfil", href: "/perfil"},
     {
       icon: <IconBubble />,
       title: "Mis sugerencias",
