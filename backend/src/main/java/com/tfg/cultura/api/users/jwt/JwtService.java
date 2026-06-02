@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.tfg.cultura.api.users.model.enumerators.Role;
 
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -74,8 +75,12 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        if (!(userDetails instanceof CustomUserDetails customUserDetails)) {
+            return false;
+        }
+
+        final String id = extractId(token);
+        return id.equals(customUserDetails.getId()) && !isTokenExpired(token);
     }
 
 }

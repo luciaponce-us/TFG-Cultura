@@ -36,6 +36,15 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new CustomUserDetails(user);
     }
 
+    public UserDetails loadUserById(String id) throws UserNotFoundException {
+        User user = userRepository.findById(id).orElseThrow(() -> {
+            logger.warn("Error al conceder permisos: El usuario con id {} no existe", id);
+            return new UserNotFoundException("El usuario con id " + id + " no existe");
+        });
+
+        return new CustomUserDetails(user);
+    }
+
     public CustomUserDetails getCurrentUserDetails() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
