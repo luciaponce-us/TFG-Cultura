@@ -2,7 +2,7 @@ import {
   fetchWithTimeout,
   handleResponse,
   jsonHeaders,
-  authHeaders
+  authHeaders,
 } from "../../core/utils/utils";
 import { USER_ROUTES } from "../routes";
 import type {

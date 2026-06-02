@@ -15,7 +15,7 @@ import {
 export function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   function renderAttribute(key: string, value: string, icon: React.ReactNode) {
     return (
       <HStack justify="space-between" w="100%" key={key} gap={6}>
@@ -39,17 +39,17 @@ export function ProfilePage() {
   ];
 
   return (
-    <VStack
-      bg="background"
-      borderRadius="xl"
-      boxShadow="lg"
-      p={6}
-      gap={6}
-    >
+    <VStack bg="background" borderRadius="xl" boxShadow="lg" p={6} gap={6}>
       <Heading as="h1">Mi perfil</Heading>
       {user ? (
         <VStack gap={6}>
-          <CustomAvatar name={user.name} src={user.avatar} size="2xl" w="100px" h="100px" />
+          <CustomAvatar
+            name={user.name}
+            src={user.avatar}
+            size="2xl"
+            w="100px"
+            h="100px"
+          />
           <VStack gap={0}>
             <Text fontSize="lg" fontWeight="bold">
               {user.name} {user.surname}
@@ -91,7 +91,9 @@ export function ProfilePage() {
               </CustomButton>
             </HStack>
           </VStack>
-          <CustomButton onClick={() => navigate("/perfil/editar")}>Editar</CustomButton>
+          <CustomButton onClick={() => navigate("/perfil/editar")}>
+            Editar
+          </CustomButton>
         </VStack>
       ) : (
         <TextSecondary>No se ha podido cargar el usuario.</TextSecondary>

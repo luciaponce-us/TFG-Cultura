@@ -128,7 +128,7 @@ function ClickableAvatar() {
   };
 
   const logedUserLinks: Link[] = [
-    {icon: <IconUser />, title: "Mi perfil", href: "/perfil"},
+    { icon: <IconUser />, title: "Mi perfil", href: "/perfil" },
     {
       icon: <IconBubble />,
       title: "Mis sugerencias",
