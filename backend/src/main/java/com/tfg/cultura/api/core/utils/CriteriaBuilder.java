@@ -6,6 +6,9 @@ import java.util.List;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 public class CriteriaBuilder {
+    private CriteriaBuilder() {
+    }
+
     public static Criteria buildTextCriteria(String text, List<String> fields) {
         if (text == null || text.isBlank() || fields == null || fields.isEmpty()) {
             return null;

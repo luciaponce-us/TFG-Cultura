@@ -62,7 +62,8 @@ public class SuggestionService {
             Boolean supportedByAdmins,Boolean mySuggestions, int page, int size) {
 
         Sort sort = Sort.by("totalSupporters").descending();
-        if (orderByCreationDate) {
+        boolean orderByCreationDateValue = Boolean.TRUE.equals(orderByCreationDate);
+        if (orderByCreationDateValue) {
             sort = Sort.by("createdAt").descending();
         }
 
