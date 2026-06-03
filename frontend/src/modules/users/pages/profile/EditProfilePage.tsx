@@ -231,7 +231,14 @@ export function EditProfilePage() {
           />
 
           <TextSecondary>
-            Para editar tu rol o tu DNI, contacta con <a href="mailto:cultura_etsii@us.es" style={{ color: "#4B759D", textDecoration: "underline" }}>cultura_etsii@us.es</a>.
+            Para editar tu rol o tu DNI, contacta con{" "}
+            <a
+              href="mailto:cultura_etsii@us.es"
+              style={{ color: "#4B759D", textDecoration: "underline" }}
+            >
+              cultura_etsii@us.es
+            </a>
+            .
           </TextSecondary>
 
           <CustomButton

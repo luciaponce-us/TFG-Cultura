@@ -159,7 +159,7 @@ function ClickableAvatar() {
       <Menu.Trigger asChild>
         <div>
           <CustomAvatar
-            name={user?.username+"s avatar"}
+            name={user?.username + "s avatar"}
             src={
               user?.avatar ||
               "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png"
