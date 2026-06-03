@@ -185,14 +185,24 @@ function ClickableAvatar() {
                 _highlighted={{ bg: "principal.600" }}
                 minH="44px"
                 px={3}
+                w="100%"
               >
-                {link.icon ? (
-                  <span>
-                    {link.icon} <a href={link.href}>{link.title}</a>
-                  </span>
-                ) : (
-                  <a href={link.href}>{link.title}</a>
-                )}
+                <a
+                  href={link.href}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    width: "100%",
+                  }}
+                >
+                  {link.icon && (
+                    <span style={{ display: "inline-flex", alignItems: "center" }}>
+                      {link.icon}
+                    </span>
+                  )}
+                  <span>{link.title}</span>
+                </a>
               </Menu.Item>
             ))}
             {user && (
