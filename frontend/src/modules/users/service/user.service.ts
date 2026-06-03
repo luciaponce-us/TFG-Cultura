@@ -161,3 +161,12 @@ export async function updateUserProfile(
 
   return handleResponse<User>(res);
 }
+
+export async function deleteMyAccount(token: string): Promise<void> {
+  const res = await fetchWithTimeout(USER_ROUTES.PROFILE, {
+    method: "DELETE",
+    headers: { ...jsonHeaders, ...authHeaders(token) },
+  });
+
+  return handleResponse<void>(res);
+}

@@ -1,8 +1,8 @@
 import { useAuth } from "@/modules/core/context/useAuth";
 import { useNavigate } from "react-router-dom";
-import { Heading, VStack, Text, HStack } from "@chakra-ui/react";
+import { Heading, VStack, Text, HStack, Dialog } from "@chakra-ui/react";
 import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
-import { CustomAvatar, CustomButton } from "@/modules/core/components";
+import { CustomAvatar, CustomButton, toaster } from "@/modules/core/components";
 import { parsePaymentReceiptUrl, parseRole } from "../../utils";
 import {
   IconEye,
@@ -10,11 +10,16 @@ import {
   IconId,
   IconMail,
   IconPhone,
+  IconPencil,
+  IconTrash,
 } from "@tabler/icons-react";
+import { useState } from "react";
+import { deleteMyAccount } from "../../service/user.service";
 
 export function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   function renderAttribute(key: string, value: string, icon: React.ReactNode) {
     return (
@@ -91,13 +96,84 @@ export function ProfilePage() {
               </CustomButton>
             </HStack>
           </VStack>
-          <CustomButton onClick={() => navigate("/perfil/editar")}>
-            Editar
-          </CustomButton>
+          <HStack>
+            <CustomButton onClick={() => navigate("/perfil/editar")}>
+              <IconPencil  /> Editar
+            </CustomButton>
+            <CustomButton onClick={() => setDeleteDialogOpen(true)} color="rojo">
+              <IconTrash  /> Eliminar
+            </CustomButton>
+          </HStack>
         </VStack>
       ) : (
         <TextSecondary>No se ha podido cargar el usuario.</TextSecondary>
       )}
+      <DeleteModal deleteDialogOpen={deleteDialogOpen} setDeleteDialogOpen={setDeleteDialogOpen} />
     </VStack>
+  
   );
+}
+
+function DeleteModal({deleteDialogOpen, setDeleteDialogOpen}: {deleteDialogOpen: boolean, setDeleteDialogOpen: (open: boolean) => void}) {
+  const [loading, setLoading] = useState(false);
+  const { token, logout } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleDelete() {
+    setLoading(true);
+    try {
+      await deleteMyAccount(token!);
+      toaster.create({
+        title: "Cuenta eliminada",
+        description: "Tu cuenta ha sido eliminada exitosamente.",
+        type: "success"
+      })
+      logout();
+      navigate("/iniciar-sesion");
+
+    } catch (error) {
+      console.error("Error al eliminar la cuenta:", error);
+      toaster.create({
+        title: "Error",
+        description: "No se pudo eliminar la cuenta. Por favor, intenta nuevamente.",
+        type: "error"
+      })
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Dialog.Root open={deleteDialogOpen} onOpenChange={() => setDeleteDialogOpen(false)}>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content
+              maxH="80vh"
+              overflow="hidden"
+              borderRadius="xl"
+              bg="background"
+            >
+              <Dialog.CloseTrigger />
+              <Dialog.Header>
+                <Dialog.Title>
+                  <Heading as="h1">Eliminar cuenta</Heading>
+                </Dialog.Title>
+              </Dialog.Header>
+              <Dialog.Body>
+                <VStack>
+                  <Text>¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible.</Text>
+                </VStack>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <CustomButton onClick={() => setDeleteDialogOpen(false)} color="rojo">
+                  Cancelar
+                </CustomButton>
+                <CustomButton onClick={handleDelete} loading={loading}>
+                  Confirmar
+                </CustomButton>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Dialog.Root>
+  )
 }
