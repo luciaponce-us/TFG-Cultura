@@ -1,13 +1,16 @@
 package com.tfg.cultura.api.users.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
@@ -26,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserProfileController {
     private final UserService userService;
-    
+
     @Operation(summary = "Obtener perfil", description = "Como usuario registrado, quiero poder ver los datos de mi usuario, para modificarlos si así lo deseo")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario obtenido correctamente"),
@@ -52,6 +55,16 @@ public class UserProfileController {
     @PutMapping
     public ResponseEntity<UserResponse> updateMyProfile(@RequestBody @Valid UserProfileUpdateRequest request) {
         UserResponse response = userService.updateProfile(request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @Operation(summary = "Modificar mi avatar", description = "Como usuario registrado, quiero poder modificar la imagen de mi perfil, para personalizar mi cuenta")
+    @PutMapping(value="/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> updateMyAvatar(@RequestPart(value = "avatar") MultipartFile avatar) {
+        UserResponse response = userService.updateCurrentUserAvatar(avatar);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
