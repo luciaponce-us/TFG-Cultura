@@ -20,6 +20,7 @@ import { useAuth } from "../context/useAuth";
 import { toaster } from "./toaster/toaster";
 import type { Role } from "@/modules/users/types";
 import { useNavigate } from "react-router-dom";
+import { CustomAvatar } from "./CustomAvatar";
 
 export const Header = () => {
   return (
@@ -156,17 +157,18 @@ function ClickableAvatar() {
   return (
     <Menu.Root>
       <Menu.Trigger asChild>
-        <Image
-          src={
-            user?.avatar ||
-            "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png"
-          }
-          alt="Avatar"
-          w="48px"
-          h="48px"
-          objectFit="cover"
-          filter={user ? undefined : "grayscale(100%)"}
-        />
+        <div>
+          <CustomAvatar
+            name={user?.username+"s avatar"}
+            src={
+              user?.avatar ||
+              "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png"
+            }
+            w="48px"
+            h="48px"
+            filter={user ? undefined : "grayscale(100%)"}
+          />
+        </div>
       </Menu.Trigger>
       <Portal>
         <Menu.Positioner>
