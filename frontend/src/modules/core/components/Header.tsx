@@ -197,7 +197,9 @@ function ClickableAvatar() {
                   }}
                 >
                   {link.icon && (
-                    <span style={{ display: "inline-flex", alignItems: "center" }}>
+                    <span
+                      style={{ display: "inline-flex", alignItems: "center" }}
+                    >
                       {link.icon}
                     </span>
                   )}
