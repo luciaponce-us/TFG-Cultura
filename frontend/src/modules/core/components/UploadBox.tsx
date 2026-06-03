@@ -24,6 +24,11 @@ export function UploadBox({
 
   function getErrorMessage(details: FileUpload.FileRejectDetails) {
     setErrors([]);
+    if (details.files.length === 0) {
+      console.error("File rejected but no details provided:", details);
+      setErrors(["Archivo rechazado por razones desconocidas."]);
+      return;
+    }
     const errorTypes = details.files[0].errors;
     const newErrors: string[] = [];
 
