@@ -162,6 +162,22 @@ export async function updateUserProfile(
   return handleResponse<User>(res);
 }
 
+export async function updateUserProfileAvatar(
+  token: string,
+  avatar: File,
+): Promise<User> {
+  const formData = new FormData();
+  formData.append("avatar", avatar);
+
+  const res = await fetchWithTimeout(USER_ROUTES.PROFILE_AVATAR, {
+    method: "PUT",
+    headers: { ...authHeaders(token) },
+    body: formData,
+  });
+
+  return handleResponse<User>(res);
+}
+
 export async function deleteMyAccount(token: string): Promise<void> {
   const res = await fetchWithTimeout(USER_ROUTES.PROFILE, {
     method: "DELETE",

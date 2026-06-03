@@ -2,7 +2,10 @@ import { Flex, Heading, HStack, Spinner, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useState, type ChangeEvent } from "react";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { updateUserProfile } from "../../service/user.service";
+import {
+  updateUserProfile,
+  updateUserProfileAvatar,
+} from "../../service/user.service";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import type { UserProfileUpdateRequest } from "../../types";
 import {
@@ -10,6 +13,7 @@ import {
   CustomInput,
   UploadBox,
   CustomAvatar,
+  TextSecondary,
 } from "@/modules/core/components";
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
 import * as validation from "../../validations/user.validations";
@@ -28,6 +32,7 @@ export function EditProfilePage() {
     email: user?.email || "",
     phone: user?.phone || "",
   });
+  const [loadingAvatar, setLoadingAvatar] = useState<boolean>(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({
     username: "",
@@ -107,6 +112,33 @@ export function EditProfilePage() {
     }
   }
 
+  async function handleAvatarChange(file: File | null) {
+    if (!token || !file) return;
+
+    try {
+      setLoadingAvatar(true);
+      const updatedUser = await updateUserProfileAvatar(token, file);
+      setUser(updatedUser);
+      toaster.create({
+        title: "Éxito",
+        description: "Tu foto de perfil se ha actualizado correctamente.",
+        type: "success",
+      });
+    } catch (err) {
+      console.error("Error al actualizar avatar:", err);
+      if (isApiError(err)) {
+        toaster.create({
+          title: "Error",
+          description:
+            "No se pudo actualizar la foto de perfil: " + err.message,
+          type: "error",
+        });
+      }
+    } finally {
+      setLoadingAvatar(false);
+    }
+  }
+
   return (
     <Flex
       bg="background"
@@ -136,6 +168,7 @@ export function EditProfilePage() {
               name={form?.name || "User"}
               w="100px"
               h="100px"
+              loading={loadingAvatar}
             />
 
             <UploadBox
@@ -146,8 +179,8 @@ export function EditProfilePage() {
               }
               secondaryText="JPG o PNG, tamaño no superior a 2MB"
               fileType="image/*"
-              onFileChange={() => {}}
-              disabled={true}
+              onFileChange={(file) => handleAvatarChange(file)}
+              disabled={loadingAvatar}
             />
           </HStack>
           <CustomInput
@@ -196,6 +229,10 @@ export function EditProfilePage() {
             onChange={handleFormChange}
             defaultValue={form?.phone}
           />
+
+          <TextSecondary>
+            Para editar tu rol o tu DNI, contacta con <a href="mailto:cultura_etsii@us.es" style={{ color: "#4B759D", textDecoration: "underline" }}>cultura_etsii@us.es</a>.
+          </TextSecondary>
 
           <CustomButton
             onClick={handleSubmit}
