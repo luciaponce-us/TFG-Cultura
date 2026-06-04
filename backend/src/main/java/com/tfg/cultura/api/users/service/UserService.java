@@ -99,7 +99,7 @@ public class UserService {
         return saveUpdatedUser(user);
     }
 
-    private UserResponse updateAvatar(User user, MultipartFile avatar) {
+    UserResponse updateAvatar(User user, MultipartFile avatar) {
         String newAvatar = userFileService.uploadAvatar(user.getId(), avatar);
         logger.info("Nuevo avatar subido para el usuario con username {}: {}", user.getUsername(), newAvatar);
         user.setAvatar(newAvatar);
@@ -108,7 +108,7 @@ public class UserService {
         return response;
     }
 
-    private User getCurrentUser() throws UserNotFoundException {
+    User getCurrentUser() throws UserNotFoundException {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         return findUserById(currentUser.getId());
     }

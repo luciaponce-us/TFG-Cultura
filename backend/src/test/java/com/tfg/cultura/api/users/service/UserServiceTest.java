@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -29,6 +31,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
@@ -67,6 +70,7 @@ class UserServiceTest {
     private UserService service;
 
     private User user;
+    private UserResponse userResponse;
     private UserUpdateRequest updateRequest;
     private CustomUserDetails userDetails;
     private UserProfileUpdateRequest userProfileUpdateRequest;
@@ -74,6 +78,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         user = UserFactory.validUser();
+        userResponse = UserFactory.validUserResponse();
         updateRequest = UserFactory.validUserUpdateRequest();
         userDetails = new CustomUserDetails(user);
         userProfileUpdateRequest = new UserProfileUpdateRequest();
@@ -102,6 +107,31 @@ class UserServiceTest {
                 () -> service.getUser("123"));
 
         assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    // GET CURRENT USER
+
+    @Test
+    void shouldReturnCurrentUserSuccessfully() throws Exception {
+        mockAuthContext();
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(user));
+
+        User result = service.getCurrentUser();
+
+        assertEquals(user, result);
+        verify(userRepository).findById(currentUser.getId());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserNotFoundInGetCurrentUser() {
+        mockAuthContext();
+
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class,
+                () -> service.getCurrentUser());
     }
 
     // FIND USER BY ID
@@ -498,6 +528,44 @@ class UserServiceTest {
         assertTrue(ex.getMessage().contains("no existe"));
         verifyNoInteractions(userFileService);
         verify(userRepository, never()).save(any());
+    }
+
+    // UPDATE CURRENT USER AVATAR
+
+    @Test
+    void shouldUpdateAvatarSuccessfully() throws Exception {
+        // Arrange
+        MultipartFile avatar = mock(MultipartFile.class);
+        mockAuthContext();
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+
+
+        UserResponse expectedResponse = userResponse;
+        
+        // Espiamos el service para mockear updateAvatar (método interno)
+        UserService spyService = Mockito.spy(service);
+        doReturn(expectedResponse).when(spyService).updateAvatar(user,avatar);
+
+        // Act
+        UserResponse result = spyService.updateCurrentUserAvatar(avatar);
+
+        // Assert
+        assertEquals(expectedResponse, result);
+        verify(spyService).updateCurrentUserAvatar(avatar);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserNotFoundInUpdateAvatar() {
+        // Arrange
+        MultipartFile avatar = mock(MultipartFile.class);
+        mockAuthContext();
+
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class,
+                () -> service.updateCurrentUserAvatar(avatar));
     }
 
     // DEACTIVATE USER
