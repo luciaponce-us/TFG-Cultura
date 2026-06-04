@@ -66,8 +66,8 @@ class JwtServiceTest {
     }
 
     @Test
-    void shouldReturnFalseWhenUsernameDoesNotMatch() {
-        String token = jwtService.generateToken("otroUsername", role, id);
+    void shouldReturnFalseWhenIdDoesNotMatch() {
+        String token = jwtService.generateToken(username, role, "otroId");
 
         assertFalse(jwtService.isTokenValid(token, userDetails));
     }

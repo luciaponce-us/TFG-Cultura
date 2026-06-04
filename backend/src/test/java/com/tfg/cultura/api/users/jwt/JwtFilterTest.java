@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.Authentication;
 
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class JwtFilterTest {
@@ -57,7 +58,7 @@ class JwtFilterTest {
 
         boolean result = filter.shouldNotFilter(request);
 
-        assert(result);
+        assertTrue(result);
     }
 
     @Test
@@ -66,7 +67,7 @@ class JwtFilterTest {
 
         boolean result = filter.shouldNotFilter(request);
 
-        assert(!result);
+        assertFalse(result);
     }
 
     // -------------------------------
@@ -99,21 +100,21 @@ class JwtFilterTest {
         String username = "lucia";
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractUsername(token)).thenReturn(username);
-        when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+        when(jwtService.extractId(token)).thenReturn(username);
+        when(userDetailsService.loadUserById(username)).thenReturn(userDetails);
         when(jwtService.isTokenValid(token, userDetails)).thenReturn(true);
         when(userDetails.getAuthorities()).thenReturn(java.util.List.of());
 
         filter.doFilterInternal(request, response, filterChain);
 
-        verify(jwtService).extractUsername(token);
-        verify(userDetailsService).loadUserByUsername(username);
+        verify(jwtService).extractId(token);
+        verify(userDetailsService).loadUserById(username);
         verify(jwtService).isTokenValid(token, userDetails);
 
         verify(filterChain).doFilter(request, response);
 
         // Verifica que se ha autenticado
-        assert(SecurityContextHolder.getContext().getAuthentication() != null);
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
@@ -122,8 +123,8 @@ class JwtFilterTest {
         String username = "lucia";
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractUsername(token)).thenReturn(username);
-        when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+        when(jwtService.extractId(token)).thenReturn(username);
+        when(userDetailsService.loadUserById(username)).thenReturn(userDetails);
         when(jwtService.isTokenValid(token, userDetails)).thenReturn(false);
 
         filter.doFilterInternal(request, response, filterChain);
@@ -131,7 +132,7 @@ class JwtFilterTest {
         verify(filterChain).doFilter(request, response);
 
         // No autenticado
-        assert(SecurityContextHolder.getContext().getAuthentication() == null);
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
@@ -139,12 +140,12 @@ class JwtFilterTest {
         String token = "token";
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractUsername(token)).thenReturn(null);
+        when(jwtService.extractId(token)).thenReturn(null);
 
         filter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        verify(userDetailsService, never()).loadUserByUsername(any());
+        verify(userDetailsService, never()).loadUserById(any());
     }
 
     @Test
@@ -152,14 +153,14 @@ class JwtFilterTest {
         String token = "token";
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractUsername(token)).thenReturn("lucia");
+        when(jwtService.extractId(token)).thenReturn("lucia");
 
         // Simular autenticación previa
         SecurityContextHolder.getContext().setAuthentication(mock(Authentication.class));
 
         filter.doFilterInternal(request, response, filterChain);
 
-        verify(userDetailsService, never()).loadUserByUsername(any());
+        verify(userDetailsService, never()).loadUserById(any());
         verify(filterChain).doFilter(request, response);
     }
 }
