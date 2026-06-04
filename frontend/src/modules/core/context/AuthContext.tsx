@@ -7,6 +7,7 @@ export interface AuthContextType {
   isLoading: boolean;
   login: (jwt: string) => void;
   logout: () => void;
+  setUser: (user: User | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

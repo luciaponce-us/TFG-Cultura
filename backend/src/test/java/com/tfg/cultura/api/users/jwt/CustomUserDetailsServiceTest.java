@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.Authentication;
 
 import java.util.Optional;
@@ -68,6 +69,46 @@ class CustomUserDetailsServiceTest {
                 service.loadUserByUsername(username));
 
         verify(userRepository).findByUsername(user.getUsername());
+    }
+
+    // -------------------------------
+    // loadUserByUserId
+    // -------------------------------
+	@Test
+    void shouldLoadUserByIdSuccessfully() throws Exception {
+        // Arrange
+        String userId = user.getId();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // Act
+        UserDetails result = service.loadUserById(userId);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result instanceof CustomUserDetails);
+
+        CustomUserDetails custom = (CustomUserDetails) result;
+        assertEquals(user.getId(), custom.getId());
+        assertEquals(user.getUsername(), custom.getUsername());
+
+        verify(userRepository).findById(userId);
+    }
+
+    @Test
+    void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        // Arrange
+        String userId = "non-existent-id";
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> service.loadUserById(userId)
+        );
+
+        assertEquals("El usuario con id " + userId + " no existe", exception.getMessage());
+
+        verify(userRepository).findById(userId);
     }
 
     // -------------------------------

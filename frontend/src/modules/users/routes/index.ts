@@ -6,6 +6,7 @@ export const USER_ROUTES = {
   REGISTER: `${USERS_BASE_URL}/auth/register`,
   LOGIN: `${USERS_BASE_URL}/auth/login`,
   PROFILE: `${USERS_BASE_URL}/profile`,
+  PROFILE_AVATAR: `${USERS_BASE_URL}/profile/avatar`,
   GET_ALL: `${USERS_BASE_URL}`,
   GET_BY_USERNAME: (username: string) => `${USERS_BASE_URL}/${username}`,
   DELETE: (username: string) => `${USERS_BASE_URL}/${username}`,

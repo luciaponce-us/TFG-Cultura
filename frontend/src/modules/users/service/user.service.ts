@@ -2,6 +2,7 @@ import {
   fetchWithTimeout,
   handleResponse,
   jsonHeaders,
+  authHeaders,
 } from "../../core/utils/utils";
 import { USER_ROUTES } from "../routes";
 import type {
@@ -9,6 +10,7 @@ import type {
   UserRegisterRequest,
   UserLoginRequest,
   UserUpdateRequest,
+  UserProfileUpdateRequest,
 } from "../types";
 import type { Paginated } from "../../core/types";
 
@@ -145,4 +147,42 @@ export async function toggleUserActive(
   });
 
   return handleResponse<User>(res);
+}
+
+export async function updateUserProfile(
+  token: string,
+  form: UserProfileUpdateRequest,
+): Promise<User> {
+  const res = await fetchWithTimeout(USER_ROUTES.PROFILE, {
+    method: "PUT",
+    headers: { ...jsonHeaders, ...authHeaders(token) },
+    body: JSON.stringify(form),
+  });
+
+  return handleResponse<User>(res);
+}
+
+export async function updateUserProfileAvatar(
+  token: string,
+  avatar: File,
+): Promise<User> {
+  const formData = new FormData();
+  formData.append("avatar", avatar);
+
+  const res = await fetchWithTimeout(USER_ROUTES.PROFILE_AVATAR, {
+    method: "PUT",
+    headers: { ...authHeaders(token) },
+    body: formData,
+  });
+
+  return handleResponse<User>(res);
+}
+
+export async function deleteMyAccount(token: string): Promise<void> {
+  const res = await fetchWithTimeout(USER_ROUTES.PROFILE, {
+    method: "DELETE",
+    headers: { ...jsonHeaders, ...authHeaders(token) },
+  });
+
+  return handleResponse<void>(res);
 }

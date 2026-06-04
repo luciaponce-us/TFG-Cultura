@@ -14,11 +14,13 @@ import {
   IconLogout,
   IconSettings,
   IconBubble,
+  IconUser,
 } from "@tabler/icons-react";
 import { useAuth } from "../context/useAuth";
 import { toaster } from "./toaster/toaster";
 import type { Role } from "@/modules/users/types";
 import { useNavigate } from "react-router-dom";
+import { CustomAvatar } from "./CustomAvatar";
 
 export const Header = () => {
   return (
@@ -127,6 +129,7 @@ function ClickableAvatar() {
   };
 
   const logedUserLinks: Link[] = [
+    { icon: <IconUser />, title: "Mi perfil", href: "/perfil" },
     {
       icon: <IconBubble />,
       title: "Mis sugerencias",
@@ -154,17 +157,18 @@ function ClickableAvatar() {
   return (
     <Menu.Root>
       <Menu.Trigger asChild>
-        <Image
-          src={
-            user?.avatar ||
-            "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png"
-          }
-          alt="Avatar"
-          w="48px"
-          h="48px"
-          objectFit="cover"
-          filter={user ? undefined : "grayscale(100%)"}
-        />
+        <div>
+          <CustomAvatar
+            name={user?.username + "s avatar"}
+            src={
+              user?.avatar ||
+              "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png"
+            }
+            w="48px"
+            h="48px"
+            filter={user ? undefined : "grayscale(100%)"}
+          />
+        </div>
       </Menu.Trigger>
       <Portal>
         <Menu.Positioner>
@@ -183,14 +187,26 @@ function ClickableAvatar() {
                 _highlighted={{ bg: "principal.600" }}
                 minH="44px"
                 px={3}
+                w="100%"
               >
-                {link.icon ? (
-                  <span>
-                    {link.icon} <a href={link.href}>{link.title}</a>
-                  </span>
-                ) : (
-                  <a href={link.href}>{link.title}</a>
-                )}
+                <a
+                  href={link.href}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    width: "100%",
+                  }}
+                >
+                  {link.icon && (
+                    <span
+                      style={{ display: "inline-flex", alignItems: "center" }}
+                    >
+                      {link.icon}
+                    </span>
+                  )}
+                  <span>{link.title}</span>
+                </a>
               </Menu.Item>
             ))}
             {user && (

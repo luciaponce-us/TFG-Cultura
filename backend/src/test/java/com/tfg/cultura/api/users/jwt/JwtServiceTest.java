@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
+import org.springframework.security.core.userdetails.UserDetails;
 
 class JwtServiceTest {
     private JwtService jwtService;
@@ -66,8 +67,8 @@ class JwtServiceTest {
     }
 
     @Test
-    void shouldReturnFalseWhenUsernameDoesNotMatch() {
-        String token = jwtService.generateToken("otroUsername", role, id);
+    void shouldReturnFalseWhenIdDoesNotMatch() {
+        String token = jwtService.generateToken(username, role, "otroId");
 
         assertFalse(jwtService.isTokenValid(token, userDetails));
     }
@@ -88,6 +89,14 @@ class JwtServiceTest {
         String token = jwtService.generateToken(username, role, id);
 
         assertFalse(jwtService.isTokenExpired(token));
+    }
+
+    @Test
+    void shouldReturnFalseWhenUserDetailsNotCustom() {
+        String token = jwtService.generateToken(username, role, id);
+        UserDetails loggedUser = null;
+
+        assertFalse(jwtService.isTokenValid(token, loggedUser));
     }
 
 }

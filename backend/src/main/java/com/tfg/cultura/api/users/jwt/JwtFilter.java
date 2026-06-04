@@ -74,16 +74,16 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         try {
-            // 3. Extraer username
-            String username = jwtService.extractUsername(token);
-            log.debug("Extracted username from token: {}", username);
+            // 3. Extraer id
+            String userId = jwtService.extractId(token);
+            log.debug("Extracted user id from token: {}", userId);
 
-            // 4. Si hay username y no hay autenticación previa
-            if (username != null &&
+            // 4. Si hay id y no hay autenticación previa
+            if (userId != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                log.debug("Loaded user details for username: {}", username);
+                UserDetails userDetails = userDetailsService.loadUserById(userId);
+                log.debug("Loaded user details for id: {}", userId);
 
                 // 5. Validar token
                 if (jwtService.isTokenValid(token, userDetails)) {
@@ -96,12 +96,12 @@ public class JwtFilter extends OncePerRequestFilter {
                     authToken.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    log.info("Token válido para usuario: {} - Path: {}", username, path);
+                    log.info("Token válido para usuario: {} - Path: {}", userDetails.getUsername(), path);
                 } else {
-                    log.warn("Token inválido o expirado para usuario: {} - Path: {}", username, path);
+                    log.warn("Token inválido o expirado para usuario: {} - Path: {}", userDetails.getUsername(), path);
                 }
-            } else if (username != null) {
-                log.debug("Usuario {} ya tiene autenticación previa", username);
+            } else if (userId != null) {
+                log.debug("Usuario con id {} ya tiene autenticación previa", userId);
             }
         } catch (io.jsonwebtoken.JwtException e) {
             log.error("Error procesando JWT para path {}: {}", path, e.getMessage(), e);

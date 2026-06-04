@@ -42,12 +42,12 @@ public class UserService {
     public Page<UserResponse> getAllUsers(int page, int size, Role role, Boolean active, String name) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<User> userPage;
-        if(name != null || role != null || active != null) {
+        if (name != null || role != null || active != null) {
             userPage = userRepository.findAllWithFilters(role, active, name, pageable);
         } else {
             userPage = userRepository.findAll(pageable);
         }
-        
+
         return userPage.map(UserResponse::new);
     }
 
@@ -78,8 +78,9 @@ public class UserService {
         return user.get();
     }
 
-    public UserResponse updateUser(String username, UserUpdateRequest request) throws UserNotFoundException, UserAlreadyExistsException {
-        
+    public UserResponse updateUser(String username, UserUpdateRequest request)
+            throws UserNotFoundException, UserAlreadyExistsException {
+
         User user = updateProfile(username, toProfileUpdateRequest(request));
 
         if (isChanged(request.getDni(), user.getDni())) {
@@ -98,14 +99,23 @@ public class UserService {
         return saveUpdatedUser(user);
     }
 
-    public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws UserNotFoundException {
-        User user = findUserByUsername(username);
+    UserResponse updateAvatar(User user, MultipartFile avatar) {
         String newAvatar = userFileService.uploadAvatar(user.getId(), avatar);
         logger.info("Nuevo avatar subido para el usuario con username {}: {}", user.getUsername(), newAvatar);
         user.setAvatar(newAvatar);
         UserResponse response = saveUpdatedUser(user);
         logger.info("Avatar del usuario con username {} actualizado correctamente", user.getUsername());
         return response;
+    }
+
+    User getCurrentUser() throws UserNotFoundException {
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+        return findUserById(currentUser.getId());
+    }
+
+    public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws UserNotFoundException {
+        User user = findUserByUsername(username);
+        return updateAvatar(user, avatar);
     }
 
     private boolean isChanged(String newValue, String currentValue) {
@@ -140,14 +150,16 @@ public class UserService {
         return getUser(currentUser.getUsername());
     }
 
-    public UserResponse updateProfile(UserProfileUpdateRequest request) throws UserNotFoundException, UserAlreadyExistsException {
+    public UserResponse updateProfile(UserProfileUpdateRequest request)
+            throws UserNotFoundException, UserAlreadyExistsException {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         User updatedUser = updateProfile(currentUser.getUsername(), request);
 
         return saveUpdatedUser(updatedUser);
     }
 
-    public User updateProfile(String username, UserProfileUpdateRequest request) throws UserNotFoundException, UserAlreadyExistsException {
+    public User updateProfile(String username, UserProfileUpdateRequest request)
+            throws UserNotFoundException, UserAlreadyExistsException {
         logger.info("Se va a actualizar un usuario con username");
         User user = findUserByUsername(username);
 
@@ -182,10 +194,15 @@ public class UserService {
         return user;
     }
 
-    public UserResponse saveUpdatedUser(User user){
+    public UserResponse saveUpdatedUser(User user) {
         User savedUser = userRepository.save(user);
         logger.info("Usuario con username {} actualizado correctamente", user.getUsername());
         return new UserResponse(savedUser);
+    }
+
+    public UserResponse updateCurrentUserAvatar(MultipartFile avatar) throws UserNotFoundException {
+        User user = getCurrentUser();
+        return updateAvatar(user, avatar);
     }
 
     @Transactional
@@ -233,7 +250,8 @@ public class UserService {
         }
         if (user.getId().equals(currentUser.getId())) {
             throw new SelfActivationNotAllowedException(
-                    String.format("El usuario %s con id %s ha intentado desactivar su propio usuario", user.getUsername(),
+                    String.format("El usuario %s con id %s ha intentado desactivar su propio usuario",
+                            user.getUsername(),
                             user.getId()));
         }
 
