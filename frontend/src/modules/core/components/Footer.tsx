@@ -146,6 +146,17 @@ export const Footer = () => {
             >
               <Text fontSize="sm">Términos de Servicio</Text>
             </Link>
+            <Link
+              href="/normas"
+              target="_blank"
+              rel="noopener noreferrer"
+              display="flex"
+              alignItems="center"
+              color="white"
+              _hover={{ color: "gray.300" }}
+            >
+              <Text fontSize="sm">Normas</Text>
+            </Link>
           </Stack>
         </SimpleGrid>
 

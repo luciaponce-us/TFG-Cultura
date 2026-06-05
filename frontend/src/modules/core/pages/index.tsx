@@ -3,3 +3,4 @@ export { default as NotFound } from "./NotFoundPage.tsx";
 export { default as AdminPanel } from "./AdminPanelPage.tsx";
 export { TermsOfUsePage } from "./information/TermsOfUsePage.tsx";
 export { PrivacyPolicyPage } from "./information/PrivacyPolicyPage.tsx";
+export { RulesPage } from "./information/RulesPage.tsx";
