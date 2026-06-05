@@ -171,7 +171,8 @@ export function SuggestionCard({
             {suggestion.title}
           </Text>
           <Text fontSize="sm" color="principal.500">
-            {parseType(suggestion.type)} · Propuesta por @{suggestion.author.username}
+            {parseType(suggestion.type)} · Propuesta por @
+            {suggestion.author.username}
           </Text>
           <Text fontSize="sm" color="gray.600">
             {suggestion.description}
@@ -204,11 +205,14 @@ export function SuggestionCard({
           />
         </VStack>
         <HStack gap={2} align="center">
-          {(isAuthor || isAdmin) && 
-            <CustomButton onClick={() => setDeleteDialogOpen(true)} color="rojo">
+          {(isAuthor || isAdmin) && (
+            <CustomButton
+              onClick={() => setDeleteDialogOpen(true)}
+              color="rojo"
+            >
               <IconTrash /> Eliminar
             </CustomButton>
-          }
+          )}
           {!isAuthor &&
             (isSupportedByUser ? (
               <CustomButton onClick={handleUnsupport} color="rojo">
