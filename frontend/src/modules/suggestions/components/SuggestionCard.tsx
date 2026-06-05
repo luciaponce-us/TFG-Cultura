@@ -7,16 +7,18 @@ import {
   CustomButton,
   toaster,
 } from "@/modules/core/components";
-import { IconThumbDown, IconThumbUp } from "@tabler/icons-react";
+import { IconThumbDown, IconThumbUp, IconTrash } from "@tabler/icons-react";
 import { parseRole } from "@/modules/users/utils";
 import { useAuth } from "@/modules/core/context/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { isApiError } from "@/modules/core/utils/utils";
 import {
+  deleteSuggestion,
   supportSuggestion,
   unsupportSuggestion,
 } from "../service/suggestion.service";
+import { DeleteDialog } from "@/modules/core/components/DeleteDialog";
 
 export function SuggestionCard({
   suggestion,
@@ -27,8 +29,10 @@ export function SuggestionCard({
 }) {
   const { token } = useAuth();
   const { user } = useAuth();
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [loadingSupport, setLoadingSupport] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   function parseType(type: SuggestionType): string {
     switch (type) {
@@ -167,7 +171,8 @@ export function SuggestionCard({
             {suggestion.title}
           </Text>
           <Text fontSize="sm" color="principal.500">
-            {parseType(suggestion.type)}
+            {parseType(suggestion.type)} · Propuesta por @
+            {suggestion.author.username}
           </Text>
           <Text fontSize="sm" color="gray.600">
             {suggestion.description}
@@ -199,17 +204,91 @@ export function SuggestionCard({
             max={3}
           />
         </VStack>
-        {!isAuthor &&
-          (isSupportedByUser ? (
-            <CustomButton onClick={handleUnsupport} color="rojo">
-              <IconThumbDown /> Dejar de apoyar
+        <HStack gap={2} align="center">
+          {(isAuthor || isAdmin) && (
+            <CustomButton
+              onClick={() => setDeleteDialogOpen(true)}
+              color="rojo"
+            >
+              <IconTrash /> Eliminar
             </CustomButton>
-          ) : (
-            <CustomButton onClick={handleSupport} loading={loadingSupport}>
-              <IconThumbUp /> Apoyar sugerencia
-            </CustomButton>
-          ))}
+          )}
+          {!isAuthor &&
+            (isSupportedByUser ? (
+              <CustomButton onClick={handleUnsupport} color="rojo">
+                <IconThumbDown /> Dejar de apoyar
+              </CustomButton>
+            ) : (
+              <CustomButton onClick={handleSupport} loading={loadingSupport}>
+                <IconThumbUp /> Apoyar sugerencia
+              </CustomButton>
+            ))}
+        </HStack>
       </HStack>
+      <DeleteSuggestionDialog
+        suggestionId={suggestion.id}
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+      />
     </VStack>
+  );
+}
+
+function DeleteSuggestionDialog({
+  suggestionId,
+  isOpen,
+  setIsOpen,
+}: {
+  suggestionId: string;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}) {
+  const { token } = useAuth();
+
+  async function handleDelete() {
+    if (!token) {
+      toaster.create({
+        title: "Inicia sesión para eliminar sugerencias",
+        description: "Necesitas iniciar sesión para eliminar esta sugerencia.",
+        type: "error",
+      });
+      return;
+    }
+    try {
+      await deleteSuggestion(token, suggestionId);
+      setIsOpen(false);
+      toaster.create({
+        title: "Sugerencia eliminada",
+        description: "La sugerencia se ha eliminado correctamente.",
+      });
+      window.location.reload();
+    } catch (error) {
+      if (isApiError(error)) {
+        console.error("Error deleting suggestion:", error.message);
+        toaster.create({
+          title: "Error al eliminar sugerencia",
+          description:
+            "Ocurrió un error al eliminar la sugerencia. Inténtalo de nuevo.",
+          type: "error",
+        });
+      } else {
+        console.error("Unexpected error:", error);
+        toaster.create({
+          title: "Error inesperado",
+          description: "Ocurrió un error inesperado. Inténtalo de nuevo.",
+          type: "error",
+        });
+      }
+    }
+  }
+
+  return (
+    <DeleteDialog
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      handleDelete={handleDelete}
+      title="Eliminar sugerencia"
+      message="¿Estás seguro de que quieres eliminar esta sugerencia? Esta acción es irreversible."
+    />
   );
 }

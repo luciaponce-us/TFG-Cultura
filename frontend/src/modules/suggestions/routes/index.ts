@@ -7,4 +7,5 @@ export const SUGGESTION_ROUTES = {
   CREATE: `${SUGGESTIONS_BASE_URL}/create`,
   SUPPORT: (id: string) => `${SUGGESTIONS_BASE_URL}/${id}/support`,
   UNSUPPORT: (id: string) => `${SUGGESTIONS_BASE_URL}/${id}/support/stop`,
+  DELETE: (id: string) => `${SUGGESTIONS_BASE_URL}/${id}`,
 };

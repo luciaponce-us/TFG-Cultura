@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,6 +24,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.suggestions.exception.*;
 import com.tfg.cultura.api.suggestions.factory.SuggestionFactory;
 import com.tfg.cultura.api.suggestions.model.*;
@@ -123,13 +126,13 @@ class SuggestionServiceTest {
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         Page<SuggestionResponse> responses = service.getAllWithFilters(
-            SuggestionType.EVENT,
-            "query",
-            Boolean.FALSE,
-            Boolean.TRUE,
-            Boolean.TRUE,
-            0,
-            5);
+                SuggestionType.EVENT,
+                "query",
+                Boolean.FALSE,
+                Boolean.TRUE,
+                Boolean.TRUE,
+                0,
+                5);
 
         assertNotNull(responses);
         assertEquals(1, responses.getTotalElements());
@@ -285,6 +288,60 @@ class SuggestionServiceTest {
         } catch (Exception e) {
             assertEquals(e.getClass(), SuggestionNotSupportedException.class);
             verify(repository, never()).save(any());
+        }
+    }
+
+    // DELETE SUGGESTION
+
+    @Test
+    void deleteSuggestion_success() throws Exception {
+        mockCurrentUser();
+        suggestion.setAuthorId(user.getId());
+
+        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        doNothing().when(repository).delete(any());
+
+        service.delete(suggestion.getId());
+        verify(repository).delete(suggestion);
+    }
+
+    @Test
+    void deleteSuggestion_unauthorized() throws Exception {
+        mockCurrentUser();
+        suggestion.setAuthorId("otherAuthorId");
+
+        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+
+        try {
+            service.delete(suggestion.getId());
+        } catch (Exception e) {
+            assertEquals(e.getClass(), UnauthorizedException.class);
+            verify(repository, never()).delete(any());
+        }
+    }
+
+    @Test
+    void deleteSuggestion_notFound() throws Exception {
+        mockCurrentUser();
+        when(repository.findById(any())).thenReturn(Optional.empty());
+
+        try {
+            service.delete(suggestion.getId());
+        } catch (Exception e) {
+            assertEquals(e.getClass(), SuggestionNotFoundException.class);
+            verify(repository, never()).delete(any());
+        }
+    }
+
+    @Test
+    void deleteSuggestion_unauthenticated() throws Exception {
+        when(userDetailsService.getCurrentUserDetails())
+                .thenThrow(new UnathenticatedException("User not authenticated"));
+        try {
+            service.delete(suggestion.getId());
+        } catch (Exception e) {
+            assertEquals(e.getClass(), UnathenticatedException.class);
+            verify(repository, never()).delete(any());
         }
     }
 

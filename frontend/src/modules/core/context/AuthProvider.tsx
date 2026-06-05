@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { AuthContext } from "./AuthContext";
 import type { User } from "@/modules/users/types";
 import { getMyProfile } from "@/modules/users/service/user.service";
+import { MANAGEMENT_ROLES } from "@/modules/users/types";
 
 interface AuthProviderProps {
   readonly children: ReactNode;
@@ -56,6 +57,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(nextUser);
   };
 
+  const isAdmin = user ? MANAGEMENT_ROLES.includes(user.role) : false;
+
   const value = useMemo(
     () => ({
       token,
@@ -64,8 +67,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       login,
       logout,
       setUser: updateUser,
+      isAdmin,
     }),
-    [token, user, isLoading],
+    [token, user, isLoading, isAdmin],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
