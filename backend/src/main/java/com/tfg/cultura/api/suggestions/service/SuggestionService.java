@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.suggestions.exception.*;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.dto.*;
@@ -23,6 +24,7 @@ import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -129,6 +131,26 @@ public class SuggestionService {
         suggestion.setTotalSupporters(supporters.size());
 
         return toResponse(repository.save(suggestion));
+    }
+
+    public void delete(String id) throws SuggestionNotFoundException, UnathenticatedException, UnauthorizedException, UserNotFoundException {
+        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+        Suggestion suggestion = findSuggestionById(id);
+
+        if (Role.getAdminRoles().contains(currentUser.getRole())) {
+            logger.info("Sugerencia con ID {} eliminada por el usuario con ID {} con rol de administrador", id, currentUser.getId());
+            repository.delete(suggestion);
+            return;
+        }
+
+        if (!suggestion.getAuthorId().equals(currentUser.getId())) {
+            logger.error("Error al eliminar la sugerencia: El usuario con ID {} ha intentado eliminar una sugerencia que no es suya",
+                    currentUser.getId());
+            throw new UnauthorizedException("No tienes permiso para eliminar esta sugerencia");
+        }
+
+        repository.delete(suggestion);
+        logger.info("Sugerencia con ID {} eliminada por el usuario con ID {}", id, currentUser.getId());
     }
 
     // Helpers

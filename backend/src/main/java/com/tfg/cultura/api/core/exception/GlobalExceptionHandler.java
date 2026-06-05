@@ -47,4 +47,9 @@ public class GlobalExceptionHandler {
         return apiErrorBuilder.build(ex, HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar el archivo", logger);
     }
 
+        @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException ex) {
+        return apiErrorBuilder.build(ex, HttpStatus.FORBIDDEN, "No autorizado", logger);
+    }
+
 }
