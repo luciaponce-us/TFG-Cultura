@@ -125,7 +125,7 @@ export const Footer = () => {
               Legal
             </Text>
             <Link
-              href=""
+              href="/politica-de-privacidad"
               target="_blank"
               rel="noopener noreferrer"
               display="flex"
@@ -136,7 +136,7 @@ export const Footer = () => {
               <Text fontSize="sm">Política de Privacidad</Text>
             </Link>
             <Link
-              href=""
+              href="/terminos-de-uso"
               target="_blank"
               rel="noopener noreferrer"
               display="flex"
@@ -145,6 +145,17 @@ export const Footer = () => {
               _hover={{ color: "gray.300" }}
             >
               <Text fontSize="sm">Términos de Servicio</Text>
+            </Link>
+            <Link
+              href="/normas"
+              target="_blank"
+              rel="noopener noreferrer"
+              display="flex"
+              alignItems="center"
+              color="white"
+              _hover={{ color: "gray.300" }}
+            >
+              <Text fontSize="sm">Normas</Text>
             </Link>
           </Stack>
         </SimpleGrid>
