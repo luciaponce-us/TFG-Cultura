@@ -17,6 +17,7 @@ public class SuggestionFactory {
         User author = UserFactory.validUser();
         List<String> supportersId = new ArrayList<>(List.of("2", "3"));
         return Suggestion.builder()
+                .id("1")
                 .title("testTitle")
                 .description("testDescription")
                 .type(SuggestionType.CATALOG)

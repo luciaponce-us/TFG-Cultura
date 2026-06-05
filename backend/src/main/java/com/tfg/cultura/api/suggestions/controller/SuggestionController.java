@@ -46,10 +46,23 @@ public class SuggestionController {
                         @RequestParam(required = false) Boolean supportedByAdmins,
                         @RequestParam(required = false, defaultValue = "false") Boolean mySuggestions
 
-                ) {
+        ) {
                 Page<SuggestionResponse> response = service.getAllWithFilters(type, text, orderByCreationDate,
                                 supportedByAdmins, mySuggestions, page,
                                 size);
+                return ResponseEntity
+                                .status(HttpStatus.OK)
+                                .body(response);
+        }
+
+        @Operation(summary = "Leer sugerencia por ID", description = "Como usuario, quiero poder leer una sugerencia específica para conocer su contenido y los detalles de la misma.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Sugerencia obtenida correctamente"),
+                        @ApiResponse(responseCode = "404", description = "Sugerencia no encontrada")
+        })
+        @GetMapping("/{id}")
+        public ResponseEntity<SuggestionResponse> getById(@PathVariable String id) {
+                SuggestionResponse response = service.getById(id);
                 return ResponseEntity
                                 .status(HttpStatus.OK)
                                 .body(response);

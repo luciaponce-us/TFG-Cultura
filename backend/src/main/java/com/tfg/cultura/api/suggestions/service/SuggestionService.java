@@ -79,6 +79,11 @@ public class SuggestionService {
         return suggestionPage.map(this::toResponse);
     }
 
+    public SuggestionResponse getById(String id) throws SuggestionNotFoundException {
+        Suggestion suggestion = findSuggestionById(id);
+        return toResponse(suggestion);
+    }
+
     public SuggestionResponse supportSuggestion(String id)
             throws SuggestionNotFoundException, SuggestionAlreadySupportedException, SelfSupportSuggestionException,
             UserNotFoundException, UnathenticatedException {
