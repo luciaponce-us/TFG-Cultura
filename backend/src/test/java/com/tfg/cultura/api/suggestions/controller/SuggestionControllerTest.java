@@ -139,6 +139,27 @@ class SuggestionControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(1));
     }
 
+    // GET SUGGESTION BY ID
+    @Test
+    void getById_success() throws Exception {
+        when(service.getById(suggestion.getId())).thenReturn(response);
+
+        mockMvc.perform(get(BASE_URL + "/{id}", suggestion.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(suggestion.getTitle()));
+    }
+
+    @Test
+    void getById_suggestionNotFound() throws Exception {
+        String id = suggestion.getId();
+        SuggestionNotFoundException ex = new SuggestionNotFoundException(id);
+        when(service.getById(any())).thenThrow(ex);
+
+        mockMvc.perform(get(BASE_URL + "/{id}", id))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
     // SUPPORT SUGGESTION
 
     @Test

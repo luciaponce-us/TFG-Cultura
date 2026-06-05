@@ -151,6 +151,29 @@ class SuggestionServiceTest {
         }
     }
 
+    // GET SUGGESTION BY ID
+
+    @Test
+    void getById_should_return_suggestion_response() throws SuggestionNotFoundException {
+        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        SuggestionResponse response = service.getById(suggestion.getId());
+        assertNotNull(response);
+        assertEquals(suggestion.getTitle(), response.getTitle());
+        assertEquals(suggestion.getDescription(), response.getDescription());
+        assertEquals(suggestion.getType(), response.getType());
+    }
+
+    @Test
+    void getById_should_throw_SuggestionNotFoundException_if_suggestion_does_not_exists() {
+        when(repository.findById(any())).thenReturn(Optional.empty());
+        try {
+            service.getById(suggestion.getId());
+        } catch (Exception e) {
+            assertEquals(e.getClass(), SuggestionNotFoundException.class);
+        }
+    }
+
     // SUPPORT SUGGESTIONS
 
     @Test
