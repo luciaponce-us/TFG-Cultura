@@ -5,7 +5,7 @@ import ProtectedRoute from "./modules/core/context/ProtectedRoute.tsx";
 import type { Role } from "./modules/users/types/index.ts";
 import Layout from "./modules/core/Layout";
 import { Toaster } from "./modules/core/components";
-import { AdminPanel, Home, NotFound } from "./modules/core/pages";
+import { AdminPanel, Home, NotFound, TermsOfUsePage } from "./modules/core/pages";
 import {
   RegistrationPage,
   LoginPage,
@@ -31,6 +31,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
+            <Route path="/terminos-de-uso" element={<TermsOfUsePage />} />
             <Route path="/registro" element={<RegistrationPage />} />
             <Route path="/iniciar-sesion" element={<LoginPage />} />
             <Route path="/sugerencias" element={<SuggestionsPage />} />
