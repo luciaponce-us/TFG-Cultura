@@ -1,4 +1,12 @@
-import { VStack, Heading, Flex, Text, HStack, Checkbox, Link } from "@chakra-ui/react";
+import {
+  VStack,
+  Heading,
+  Flex,
+  Text,
+  HStack,
+  Checkbox,
+  Link,
+} from "@chakra-ui/react";
 import { useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../service/user.service";
@@ -28,13 +36,13 @@ export default function RegistrationPage() {
     dni: "",
     phone: "",
     email: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
   const [avatar, setAvatar] = useState<File | null>(null);
   const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [rulesAccepted, setRulesAccepted] = useState(false);
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({
     username: "",
     password: "",
@@ -68,7 +76,9 @@ export default function RegistrationPage() {
       phone: "",
       email: "",
       general: paymentReceipt ? "" : "La carta de pago es obligatoria",
-      termsAccepted: termsAccepted ? "" : "Debes aceptar los términos y condiciones",
+      termsAccepted: termsAccepted
+        ? ""
+        : "Debes aceptar los términos y condiciones",
       rulesAccepted: rulesAccepted ? "" : "Debes aceptar las normas de uso",
     });
 
@@ -86,7 +96,7 @@ export default function RegistrationPage() {
         dni: "",
         phone: "",
         email: "",
-        confirmPassword: ""
+        confirmPassword: "",
       });
     } catch (err) {
       console.error("Error al registrar usuario:", err);
@@ -103,7 +113,9 @@ export default function RegistrationPage() {
       surname: validation.validateSurname(form.surname),
       dni: validation.validateDni(form.dni),
       general: paymentReceipt ? "" : "La carta de pago es obligatoria",
-      termsAccepted: termsAccepted ? "" : "Debes aceptar los términos y condiciones",
+      termsAccepted: termsAccepted
+        ? ""
+        : "Debes aceptar los términos y condiciones",
       rulesAccepted: rulesAccepted ? "" : "Debes aceptar las normas de uso",
     };
 
@@ -200,16 +212,57 @@ export default function RegistrationPage() {
             {paymentReceipt?.name && (
               <Text fontSize="sm">Archivo subido: {paymentReceipt.name}</Text>
             )}
-            <Checkbox.Root required checked={termsAccepted} onCheckedChange={(e) => setTermsAccepted(!!e.checked)} invalid={!!errors.termsAccepted}>
-      <Checkbox.HiddenInput />
-      <Checkbox.Control />
-      <Checkbox.Label>He leído y acepto los <Link href="/terminos-de-uso" target="_blank" rel="noopener noreferrer" color="principal.500">Términos de Uso</Link> y la <Link href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer" color="principal.500">Política de Privacidad</Link>.</Checkbox.Label>
-    </Checkbox.Root>
-    <Checkbox.Root required checked={rulesAccepted} onCheckedChange={(e) => setRulesAccepted(!!e.checked)} invalid={!!errors.rulesAccepted}>
-      <Checkbox.HiddenInput />
-      <Checkbox.Control />
-      <Checkbox.Label>He leído y acepto las <Link href="/normas" target="_blank" rel="noopener noreferrer" color="principal.500">Normas de Uso</Link>.</Checkbox.Label>
-    </Checkbox.Root>
+            <Checkbox.Root
+              required
+              checked={termsAccepted}
+              onCheckedChange={(e) => setTermsAccepted(!!e.checked)}
+              invalid={!!errors.termsAccepted}
+            >
+              <Checkbox.HiddenInput />
+              <Checkbox.Control />
+              <Checkbox.Label>
+                He leído y acepto los{" "}
+                <Link
+                  href="/terminos-de-uso"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  color="principal.500"
+                >
+                  Términos de Uso
+                </Link>{" "}
+                y la{" "}
+                <Link
+                  href="/politica-de-privacidad"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  color="principal.500"
+                >
+                  Política de Privacidad
+                </Link>
+                .
+              </Checkbox.Label>
+            </Checkbox.Root>
+            <Checkbox.Root
+              required
+              checked={rulesAccepted}
+              onCheckedChange={(e) => setRulesAccepted(!!e.checked)}
+              invalid={!!errors.rulesAccepted}
+            >
+              <Checkbox.HiddenInput />
+              <Checkbox.Control />
+              <Checkbox.Label>
+                He leído y acepto las{" "}
+                <Link
+                  href="/normas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  color="principal.500"
+                >
+                  Normas de Uso
+                </Link>
+                .
+              </Checkbox.Label>
+            </Checkbox.Root>
             <CustomButton
               onClick={() => {
                 const isValid = validateStep1(form);

@@ -34,7 +34,10 @@ export function TermsOfUsePage() {
           </List.Item>
           <List.Item _marker={{ color: "principal.800" }}>
             Email de contacto:{" "}
-            <a href="mailto:lucpongar@alum.us.es" style={{ color: "#4B759D", textDecoration: "underline" }}>
+            <a
+              href="mailto:lucpongar@alum.us.es"
+              style={{ color: "#4B759D", textDecoration: "underline" }}
+            >
               lucpongar@alum.us.es
             </a>
           </List.Item>
@@ -230,11 +233,11 @@ export function TermsOfUsePage() {
           El titular podrá modificar estos términos en cualquier momento sin
           previo aviso.
         </Text>
-        <Separator variant="solid" color="principal.800" w="100%"/>
-        <TextSecondary>Fecha de última actualización: 4 de junio de 2026</TextSecondary>
+        <Separator variant="solid" color="principal.800" w="100%" />
+        <TextSecondary>
+          Fecha de última actualización: 4 de junio de 2026
+        </TextSecondary>
       </VStack>
-      
-
     </Flex>
   );
 }

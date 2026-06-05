@@ -130,7 +130,8 @@ export function PrivacyPolicyPage() {
         ])}
         <Text {...h2Style}>8. Cambios en la política</Text>
         <Text>
-            La presente Política de Privacidad podrá modificarse en cualquier momento:
+          La presente Política de Privacidad podrá modificarse en cualquier
+          momento:
         </Text>
         {renderList([
           "Sin previo aviso",
@@ -138,14 +139,15 @@ export function PrivacyPolicyPage() {
           "Siendo efectiva desde su publicación en la plataforma",
         ])}
         <Text>
-          Se recomienda revisar esta política periódicamente para estar informado
-          sobre cualquier cambio.
+          Se recomienda revisar esta política periódicamente para estar
+          informado sobre cualquier cambio.
         </Text>
         <Text {...h2Style}>9. Aceptación de la política</Text>
         <Text>
           El uso de la plataforma implica la aceptación de esta Política de
           Privacidad. Si el usuario no está de acuerdo con alguna parte de esta
-          política, se recomienda no utilizar la plataforma y eliminar su cuenta.
+          política, se recomienda no utilizar la plataforma y eliminar su
+          cuenta.
         </Text>
         <Separator variant="solid" color="principal.800" w="100%" />
         <TextSecondary>
