@@ -8,6 +8,7 @@ export interface AuthContextType {
   login: (jwt: string) => void;
   logout: () => void;
   setUser: (user: User | null) => void;
+  isAdmin: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

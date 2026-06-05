@@ -89,3 +89,20 @@ export async function unsupportSuggestion(
 
   return handleResponse<Suggestion>(res);
 }
+
+export async function deleteSuggestion(
+  token: string,
+  suggestionId: string,
+): Promise<void> {
+  const res = await fetchWithTimeout(
+    SUGGESTION_ROUTES.DELETE(suggestionId),
+    {
+      method: "DELETE",
+      headers: {
+        ...authHeaders(token),
+      },
+    },
+  );
+
+  return handleResponse<void>(res);
+}
