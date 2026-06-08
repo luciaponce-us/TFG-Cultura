@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    
+    <Match>
+        <Class name="com.tfg.cultura.api.SecurityConfig"/>
+        <Method name="securityFilterChain"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+
+</FindBugsFilter>

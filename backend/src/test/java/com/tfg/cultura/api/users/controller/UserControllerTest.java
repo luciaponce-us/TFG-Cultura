@@ -1,0 +1,339 @@
+package com.tfg.cultura.api.users.controller;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.List;
+
+import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
+import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
+import com.tfg.cultura.api.users.exception.UserNotFoundException;
+import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
+import com.tfg.cultura.api.users.factory.UserFactory;
+import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
+import com.tfg.cultura.api.users.model.enumerators.Role;
+import com.tfg.cultura.api.users.service.UserService;
+import com.tfg.cultura.api.utils.BaseControllerTest;
+
+class UserControllerTest extends BaseControllerTest {
+
+    @Mock
+    private UserService userService;
+
+    private static final String BASE_URL = "/api/users";
+    private static final String USER_URL = BASE_URL + "/{username}";
+    private static final String ACTIVATE_URL = USER_URL + "/activate";
+        private static final String DEACTIVATE_URL = USER_URL + "/deactivate";
+        private static final String AVATAR_URL = USER_URL + "/avatar";
+
+    private UserResponse userResponse;
+    private UserUpdateRequest updateRequest;
+
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+        UserController controller = new UserController(userService);
+        mockMvc = buildMockMvc(controller, UsersExceptionHandler.class);
+
+        initTestData();
+    }
+
+    private void initTestData() {
+        userResponse = UserFactory.validUserResponse();
+        updateRequest = UserFactory.validUserUpdateRequest();
+    }
+
+    // ================ GET USER ================
+
+    @Test
+    void get_user_success() throws Exception {
+        when(userService.getUser(anyString())).thenReturn(userResponse);
+
+        mockMvc.perform(get(USER_URL, "username"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
+    }
+
+    @Test
+    void get_user_fail_unexisting_user() throws Exception {
+        String message = "El usuario no existe";
+        UserNotFoundException ex = new UserNotFoundException(message);
+        when(userService.getUser(anyString())).thenThrow(ex);
+
+        mockMvc.perform(get(USER_URL, "username"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(message));
+    }
+
+    // ================ UPDATE USER ================
+
+    @Test
+    void should_update_user_successfully() throws Exception {
+        String username = userResponse.getUsername();
+
+        when(userService.updateUser(anyString(), any()))
+                .thenReturn(userResponse);
+
+        mockMvc.perform(put(USER_URL, username)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(updateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(username));
+
+        verify(userService).updateUser(anyString(), any(UserUpdateRequest.class));
+    }
+
+    // ❌ 404 Not Found
+    @Test
+    void should_return_404_when_user_not_found() throws Exception {
+        String username = "notfound";
+
+        UserUpdateRequest request = new UserUpdateRequest();
+        request.setPassword("newPassword");
+
+        when(userService.updateUser(anyString(), any(UserUpdateRequest.class)))
+                .thenThrow(new UserNotFoundException("Usuario no encontrado"));
+
+        mockMvc.perform(put(USER_URL, username)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    // ❌ 409 Conflict
+    @Test
+    void should_return_409_when_user_already_exists() throws Exception {
+        String username = "testuser";
+
+        UserUpdateRequest request = new UserUpdateRequest();
+        request.setUsername("existingUser");
+
+        when(userService.updateUser(anyString(), any(UserUpdateRequest.class)))
+                .thenThrow(new UserAlreadyExistsException("Username en uso"));
+
+        mockMvc.perform(put(USER_URL, username)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isConflict());
+    }
+
+    // ================ DELETE USER ================
+
+    @Test
+    void should_delete_user_successfully() throws Exception {
+        mockMvc.perform(delete(USER_URL, "username"))
+                .andExpect(status().isNoContent());
+
+        verify(userService).deleteUser(anyString());
+    }
+
+    // ❌ 404 Not Found
+    @Test
+    void should_return_404_when_delete_unexisting_user() throws Exception {
+        doThrow(new UserNotFoundException("Usuario no encontrado"))
+            .when(userService).deleteUser(anyString());
+
+        mockMvc.perform(delete(USER_URL, "username"))
+                .andExpect(status().isNotFound());
+        
+        verify(userService).deleteUser(anyString());
+    }
+    
+    // ================ GET ALL USERS ================
+    @Test
+    void should_return_paginated_users() throws Exception {
+
+        UserResponse user1 = new UserResponse(UserFactory.validUser());
+        UserResponse user2 = new UserResponse(UserFactory.validUser());
+
+        Page<UserResponse> page = new PageImpl<>(
+                List.of(user1, user2),
+                PageRequest.of(0, 10),
+                2
+        );
+
+        when(userService.getAllUsers(0, 10, null, null, null)).thenReturn(page);
+
+        mockMvc.perform(get(BASE_URL)
+                        .param("page", "0")
+                        .param("size", "10")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.number").value(0));
+
+        verify(userService).getAllUsers(0, 10, null, null, null);
+    }
+
+    @Test
+    void should_return_paginated_users_with_filters() throws Exception {
+        UserResponse user = new UserResponse(UserFactory.validUser());
+
+        Page<UserResponse> page = new PageImpl<>(
+                List.of(user),
+                PageRequest.of(1, 5),
+                6
+        );
+
+        when(userService.getAllUsers(1, 5, Role.COLABORADOR, true, "Ana"))
+                .thenReturn(page);
+
+        mockMvc.perform(get(BASE_URL)
+                        .param("page", "1")
+                        .param("size", "5")
+                        .param("role", "COLABORADOR")
+                        .param("active", "true")
+                        .param("name", "Ana")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.totalElements").value(6))
+                .andExpect(jsonPath("$.size").value(5))
+                .andExpect(jsonPath("$.number").value(1));
+
+        verify(userService).getAllUsers(1, 5, Role.COLABORADOR, true, "Ana");
+    }
+
+    // ================ ACTIVATE USER ================
+
+    @Test
+    void activate_user_sucess() throws Exception {
+        when(userService.activateUser(any())).thenReturn(userResponse);
+
+        mockMvc.perform(put(ACTIVATE_URL, "123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
+    }
+
+    @Test
+    void activate_user_fail_unexisting_user() throws Exception {
+        String message = "El usuario con id 123 no existe";
+        UserNotFoundException ex = new UserNotFoundException(message);
+        when(userService.activateUser(any())).thenThrow(ex);
+
+        mockMvc.perform(put(ACTIVATE_URL, "123"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(message));
+    }
+
+    @Test
+    void activate_user_fail_self_activation() throws Exception {
+        String userId = "123";
+        String message = String.format("El usuario %s con id %s ha intentado activar su propio usuario",
+                userResponse.getUsername(), userId);
+        SelfActivationNotAllowedException ex = new SelfActivationNotAllowedException(message);
+        when(userService.activateUser(userId)).thenThrow(ex);
+
+        mockMvc.perform(put(ACTIVATE_URL, userId))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(message));
+    }
+
+    @Test
+    void activate_user_fail_unathenticated() throws Exception {
+        String message = "No se ha podido obtener la autenticación del usuario";
+        UnathenticatedException ex = new UnathenticatedException(message);
+        when(userService.activateUser(any())).thenThrow(ex);
+
+        mockMvc.perform(put(ACTIVATE_URL, "123"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value(message));
+    }
+
+    // ================ DEACTIVATE USER ================
+
+    @Test
+    void deactivate_user_success() throws Exception {
+        when(userService.deactivateUser(any())).thenReturn(userResponse);
+
+        mockMvc.perform(put(DEACTIVATE_URL, "123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
+
+        verify(userService).deactivateUser(anyString());
+    }
+
+    @Test
+    void deactivate_user_fail_unexisting_user() throws Exception {
+        String message = "El usuario con id 123 no existe";
+        UserNotFoundException ex = new UserNotFoundException(message);
+        when(userService.deactivateUser(any())).thenThrow(ex);
+
+        mockMvc.perform(put(DEACTIVATE_URL, "123"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(message));
+    }
+
+    // ================ UPDATE AVATAR ================
+
+    @Test
+    void update_user_avatar_success() throws Exception {
+        MockMultipartFile avatar = new MockMultipartFile(
+                "avatar",
+                "avatar.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "image-content".getBytes()
+        );
+
+        when(userService.updateUserAvatar(anyString(), any()))
+                .thenReturn(userResponse);
+
+        mockMvc.perform(multipart(AVATAR_URL, "username")
+                        .file(avatar)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
+
+        verify(userService).updateUserAvatar(anyString(), any());
+    }
+
+    @Test
+    void update_user_avatar_fail_unexisting_user() throws Exception {
+        MockMultipartFile avatar = new MockMultipartFile(
+                "avatar",
+                "avatar.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "image-content".getBytes()
+        );
+
+        String message = "Usuario no encontrado";
+        when(userService.updateUserAvatar(anyString(), any()))
+                .thenThrow(new UserNotFoundException(message));
+
+        mockMvc.perform(multipart(AVATAR_URL, "username")
+                        .file(avatar)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(message));
+    }
+
+}

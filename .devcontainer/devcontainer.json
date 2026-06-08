@@ -1,0 +1,67 @@
+{
+  "name": "TFG Cultura Development",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "vscode",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21",
+      "installMaven": true
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode-remote.remote-containers",
+        "ms-vscode.remote-explorer",
+        "vscjava.vscode-java-pack",
+        "redhat.vscode-yaml",
+        "mongodb.mongodb-vscode",
+        "github.copilot",
+        "sonarsource.sonarlint-vscode",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "usernamehw.errorlens",
+        "gruntfuggly.todo-tree",
+        "vivaxy.vscode-conventional-commits"
+      ],
+      "settings": {
+        "maven.executable.path": "/workspace/backend/mvnw",
+        "[java]": {
+          "editor.defaultFormatter": "redhat.java"
+        },
+        "sonarlint.analyzerProperties": {
+          "sonar.cfamily.enabled": "false"
+        }
+      }
+    }
+  },
+  "forwardPorts": [5173, 8080, 27018],
+  "portsAttributes": {
+    "5173": {
+      "label": "Frontend (Vite)",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Backend (Spring Boot)",
+      "onAutoForward": "notify"
+    },
+    "27018": {
+      "label": "MongoDB",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "remoteEnv": {
+    "NODE_ENV": "development"
+  },
+  "containerEnv": {
+    "WAYLAND_DISPLAY":""
+  }
+}

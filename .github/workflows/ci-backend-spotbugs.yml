@@ -1,0 +1,41 @@
+name: SpotBugs CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v6
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+        working-directory: backend
+
+      - name: Análisis SpotBugs
+        working-directory: backend
+        run: >-
+          ./mvnw spotbugs:spotbugs spotbugs:check
+          -DspotbugsXmlOutput=true
+          -DspotbugsXmlOutputDirectory=target
+          -DspotbugsXmlOutputFilename=spotbugsXml.xml
+          --no-transfer-progress
+
+      - name: Upload informe SpotBugs
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: spotbugs-report
+          path: backend/target/spotbugsXml.xml

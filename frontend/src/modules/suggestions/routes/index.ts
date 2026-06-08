@@ -1,0 +1,11 @@
+import { API_BASE_URL } from "@/modules/core/utils/utils";
+
+const SUGGESTIONS_BASE_URL = `${API_BASE_URL}/api/suggestions`;
+
+export const SUGGESTION_ROUTES = {
+  GET_ALL: `${SUGGESTIONS_BASE_URL}`,
+  CREATE: `${SUGGESTIONS_BASE_URL}/create`,
+  SUPPORT: (id: string) => `${SUGGESTIONS_BASE_URL}/${id}/support`,
+  UNSUPPORT: (id: string) => `${SUGGESTIONS_BASE_URL}/${id}/support/stop`,
+  DELETE: (id: string) => `${SUGGESTIONS_BASE_URL}/${id}`,
+};

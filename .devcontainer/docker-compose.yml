@@ -1,0 +1,45 @@
+services:
+  dev:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu-24.04
+    env_file:
+      - ../.env
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    depends_on:
+      - mongo
+    networks:
+      - devcontainer-network
+    deploy:
+      resources:
+        limits:
+          memory: 6gb
+    environment:
+      JAVA_OPTS: -Xmx1536m -XX:+UseG1GC
+
+  mongo:
+    image: mongo:7
+    container_name: mongo-dev
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: cultura_db
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - devcontainer-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo_data:
+
+networks:
+  devcontainer-network:
+    driver: bridge
