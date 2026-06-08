@@ -20,6 +20,7 @@ import com.tfg.cultura.api.users.jwt.JwtService;
 import java.util.Optional;
 
 import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +53,11 @@ public class UserAuthService {
 
         String avatarUrl = UserFileService.AVATAR_PLACEHOLDER;
         if (avatar != null && !avatar.isEmpty()) {
-            logger.info("Se va a intentar subir el avatar del usuario {}", request.getUsername());
+            logger.info("Se va a intentar subir el avatar para el usuario {}", LoggerSanitizer.sanitize(request.getUsername()));
             avatarUrl = userFileService.uploadAvatar(request.getUsername(), avatar);
         }
 
-        logger.info("Se va a intentar subir el PDF de la carta de pago del usuario {}",
-                request.getUsername());
+        logger.info("Se va a intentar subir el PDF de la carta de pago para el usuario {}", LoggerSanitizer.sanitize(request.getUsername()));
         String paymentReceiptUrl = userFileService.uploadPaymentReceiptPdf(request.getUsername(), paymentReceipt);
         logger.info("PDF subido a Cloudinary: {}", paymentReceiptUrl);
 

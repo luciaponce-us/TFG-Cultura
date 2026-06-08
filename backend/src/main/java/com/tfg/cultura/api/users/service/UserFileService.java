@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.service.FileService;
+import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,26 +42,27 @@ public class UserFileService {
     }
 
     String uploadPaymentReceiptPdf(String userId, MultipartFile file) throws FileUploadException {
+        String id = LoggerSanitizer.sanitize(userId);
         try {
             FileUploadRequest request = FileUploadRequest.builder()
                     .file(file)
                     .folder(PAYMENT_FOLDER)
-                    .publicId("payment_" + userId)
+                    .publicId("payment_" + id)
                     .resourceType("raw")
                     .build();
             String pdfUrl = fileService.uploadFile(request);
-            logger.info("Se ha subido el PDF {} para el usuario con id {}", pdfUrl, userId);
+            logger.info("Se ha subido el PDF {} para el usuario con id {}", pdfUrl, id);
 
             return pdfUrl;
         } catch (Exception ex) {
             logger.error(
                     "No se ha podido subir el PDF {} para el usuario con id {}: {}",
                     file.getOriginalFilename(),
-                    userId,
+                    id,
                     ex.getMessage());
 
             throw new FileUploadException(
-                    String.format("Error subiendo PDF '%s'", file.getOriginalFilename()));
+                    String.format("Error subiendo PDF '%s'", LoggerSanitizer.sanitize(file.getOriginalFilename())));
         }
     }
 

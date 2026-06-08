@@ -138,7 +138,7 @@ public class SuggestionService {
         Suggestion suggestion = findSuggestionById(id);
 
         if (Role.getAdminRoles().contains(currentUser.getRole())) {
-            logger.info("Sugerencia con ID {} eliminada por el usuario con ID {} con rol de administrador", id, currentUser.getId());
+            logger.info("Sugerencia con ID {} eliminada por el usuario con ID {} con rol de administrador", suggestion.getId(), currentUser.getId());
             repository.delete(suggestion);
             return;
         }
@@ -150,7 +150,7 @@ public class SuggestionService {
         }
 
         repository.delete(suggestion);
-        logger.info("Sugerencia con ID {} eliminada por el usuario con ID {}", id, currentUser.getId());
+        logger.info("Sugerencia con ID {} eliminada por el usuario con ID {}", suggestion.getId(), currentUser.getId());
     }
 
     // Helpers
