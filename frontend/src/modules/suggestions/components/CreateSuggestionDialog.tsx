@@ -50,7 +50,6 @@ export function CreateSuggestionDialog({
   const handleTypeChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "type", form, setErrors, setForm);
 
-
   async function handleSubmit() {
     setLoading(true);
     if (!token) {
