@@ -62,9 +62,16 @@ export default function EditUserPage() {
     });
   }
 
-  function handleFormChange(e: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) {
+  function handleFormChange(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
     if (!form) return;
-    handleChange(e, form, setErrors, setForm as React.Dispatch<React.SetStateAction<UserUpdateRequest>>);
+    handleChange(
+      e,
+      form,
+      setErrors,
+      setForm as React.Dispatch<React.SetStateAction<UserUpdateRequest>>,
+    );
   }
 
   const handleRoleChange = ({ value }: { value: string[] }) => {

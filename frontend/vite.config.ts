@@ -12,7 +12,7 @@ export default defineConfig({
     port: 5173,
     watch: {
       usePolling: false,
-      ignored: ["**/node_modules/**", "**/dist/**"]
+      ignored: ["**/node_modules/**", "**/dist/**"],
     },
     hmr: {
       clientPort: 5173,
