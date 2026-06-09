@@ -44,7 +44,7 @@ export function EditProfilePage() {
     general: "",
   });
 
-  const handleFormChange = (value: ChangeEvent<HTMLInputElement>) =>
+  const handleFormChange = (value: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) =>
     handleChange(value, form, setErrors, setForm);
 
   function validateForm(): boolean {
