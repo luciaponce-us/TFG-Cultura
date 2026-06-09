@@ -22,7 +22,7 @@ import {
   IconArrowNarrowLeft,
 } from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
-import { isApiError } from "@/modules/core/utils/utils";
+import { handleChange, isApiError } from "@/modules/core/utils/utils";
 import { parsePaymentReceiptUrl, parseUrl } from "../utils";
 
 export default function EditUserPage() {
@@ -62,13 +62,17 @@ export default function EditUserPage() {
     });
   }
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    resetErrors();
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    } as UserUpdateRequest);
-  };
+  function handleFormChange(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
+    if (!form) return;
+    handleChange(
+      e,
+      form,
+      setErrors,
+      setForm as React.Dispatch<React.SetStateAction<UserUpdateRequest>>,
+    );
+  }
 
   const handleRoleChange = ({ value }: { value: string[] }) => {
     if (!value[0]) return;
@@ -144,7 +148,7 @@ export default function EditUserPage() {
     }
 
     if (form.password === "") {
-      delete form.password;
+      setForm((prev) => (prev ? { ...prev, password: undefined } : prev));
     }
 
     try {
@@ -247,7 +251,7 @@ export default function EditUserPage() {
             label="Nombre de usuario"
             name="username"
             error={errors.username}
-            onChange={handleChange}
+            onChange={handleFormChange}
             defaultValue={form?.username}
           />
           <CustomInput
@@ -255,27 +259,27 @@ export default function EditUserPage() {
             name="password"
             password={true}
             error={errors.password}
-            onChange={handleChange}
+            onChange={handleFormChange}
           />
           <CustomInput
             label="Nombre"
             name="name"
             error={errors.name}
-            onChange={handleChange}
+            onChange={handleFormChange}
             defaultValue={form?.name}
           />
           <CustomInput
             label="Apellidos"
             name="surname"
             error={errors.surname}
-            onChange={handleChange}
+            onChange={handleFormChange}
             defaultValue={form?.surname}
           />
           <CustomInput
             label="DNI"
             name="dni"
             error={errors.dni}
-            onChange={handleChange}
+            onChange={handleFormChange}
             defaultValue={form?.dni}
           />
           <CustomSelect
@@ -298,7 +302,7 @@ export default function EditUserPage() {
             name="email"
             required={true}
             error={errors.email}
-            onChange={handleChange}
+            onChange={handleFormChange}
             defaultValue={form?.email}
           />
 
@@ -307,7 +311,7 @@ export default function EditUserPage() {
             name="phone"
             required={true}
             error={errors.phone}
-            onChange={handleChange}
+            onChange={handleFormChange}
             defaultValue={form?.phone}
           />
 
