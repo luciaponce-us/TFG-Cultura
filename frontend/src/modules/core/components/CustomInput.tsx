@@ -8,7 +8,9 @@ interface InputFieldProps {
   placeholder?: string;
   required?: boolean;
   error?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   password?: boolean;
   defaultValue?: string;
   textarea?: boolean;
@@ -62,7 +64,14 @@ export const CustomInput = ({
         />
       )}
       {textarea && (
-        <Textarea placeholder={placeholder} maxH={maxInputHeight} minH="40px" />
+        <Textarea
+          name={name}
+          placeholder={placeholder}
+          maxH={maxInputHeight}
+          minH="40px"
+          onChange={onChange}
+          defaultValue={defaultValue}
+        />
       )}
 
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
