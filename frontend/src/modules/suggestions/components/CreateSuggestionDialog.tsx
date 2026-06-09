@@ -51,7 +51,7 @@ export function CreateSuggestionDialog({
     handleSelectChange(value, "type", form, setErrors, setForm);
 
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => handleChange(e, form, setErrors, setForm);
 
   async function handleSubmit() {

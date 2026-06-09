@@ -9,7 +9,7 @@ interface InputFieldProps {
   required?: boolean;
   error?: string;
   onChange?: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   password?: boolean;
   defaultValue?: string;
