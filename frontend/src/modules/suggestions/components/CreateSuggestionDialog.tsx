@@ -1,6 +1,6 @@
 import { Dialog, Heading, VStack } from "@chakra-ui/react";
 import type { SuggestionCreateRequest, SuggestionType } from "../types";
-import { useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import {
   CustomButton,
   CustomInput,
@@ -50,9 +50,6 @@ export function CreateSuggestionDialog({
   const handleTypeChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "type", form, setErrors, setForm);
 
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => handleChange(e, form, setErrors, setForm);
 
   async function handleSubmit() {
     setLoading(true);
@@ -120,14 +117,14 @@ export function CreateSuggestionDialog({
                 placeholder="Describe brevemente la sugerencia"
                 required
                 error={errors.title ?? ""}
-                onChange={handleInputChange}
+                onChange={(e) => handleChange(e, form, setErrors, setForm)}
               />
               <CustomInput
                 label="Descripción"
                 name="description"
                 placeholder="Proporciona una descripción detallada de la sugerencia"
                 error={errors.description ?? ""}
-                onChange={handleInputChange}
+                onChange={(e) => handleChange(e, form, setErrors, setForm)}
                 textarea
                 maxInputHeight="125px"
               />

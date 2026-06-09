@@ -7,10 +7,10 @@ import {
 } from "@/modules/core/components";
 import { Flex, Heading, Link, VStack } from "@chakra-ui/react";
 import type { UserLoginRequest } from "../types";
-import { useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import * as validation from "../validations/user.validations";
 import { loginUser } from "../service/user.service";
-import { isApiError } from "@/modules/core/utils/utils";
+import { handleChange, isApiError } from "@/modules/core/utils/utils";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../core/context/useAuth";
 
@@ -45,14 +45,6 @@ export default function LoginPage() {
   };
 
   const [loadingLogin, setLoadingLogin] = useState(false);
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    resetErrors();
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value.trim(),
-    });
-  };
 
   const validateLoginForm = (form: UserLoginRequest) => {
     const newErrors: Record<string, string> = {
@@ -117,7 +109,7 @@ export default function LoginPage() {
           name="username"
           required={true}
           error={errors.username}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, form, setErrors, setForm)}
         />
 
         <CustomInput
@@ -125,7 +117,7 @@ export default function LoginPage() {
           name="password"
           required={true}
           error={errors.password}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, form, setErrors, setForm)}
           password={true}
         />
 
