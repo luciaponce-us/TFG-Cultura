@@ -81,7 +81,10 @@ export default function UsersAdminPage() {
   );
 
   useEffect(() => {
-    fetchUsers(page);
+    async function fetchData() {
+      await fetchUsers(page);
+    }
+    fetchData();
   }, [fetchUsers, page]);
 
   function renderUsers(users: User[]) {
