@@ -12,6 +12,7 @@ import com.tfg.cultura.api.users.model.enumerators.Role;
 
 public class CustomUserDetails implements UserDetails {
 
+    private static final long serialVersionUID = 1L; // Evita warnings de serialización
     private final String id;
     private final String username;
     private final String password;
