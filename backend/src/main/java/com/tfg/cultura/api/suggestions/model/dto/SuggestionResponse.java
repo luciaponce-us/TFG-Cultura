@@ -28,8 +28,8 @@ public class SuggestionResponse {
         this.description = suggestion.getDescription();
         this.type = suggestion.getType();
         this.author = author;
-        this.supporters = supporters;
-        this.someSupportersAvatars = someSupportersAvatars;
+        this.supporters = List.copyOf(supporters);
+        this.someSupportersAvatars = List.copyOf(someSupportersAvatars);
         this.totalSupporters = suggestion.getTotalSupporters();
         this.createdAt = suggestion.getCreatedAt();
     }
