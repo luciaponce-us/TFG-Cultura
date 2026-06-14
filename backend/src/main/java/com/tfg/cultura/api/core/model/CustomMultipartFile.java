@@ -14,7 +14,7 @@ public class CustomMultipartFile implements MultipartFile {
     private final String contentType;
 
     public CustomMultipartFile(byte[] content, String name, String originalFilename, String contentType) {
-        this.content = content;
+        this.content = content.clone();
         this.name = name;
         this.originalFilename = originalFilename;
         this.contentType = contentType;
@@ -25,7 +25,7 @@ public class CustomMultipartFile implements MultipartFile {
     @Override public String getContentType() { return contentType; }
     @Override public boolean isEmpty() { return content.length == 0; }
     @Override public long getSize() { return content.length; }
-    @Override public byte[] getBytes() { return content; }
+    @Override public byte[] getBytes() { return content.clone(); }
     @Override public InputStream getInputStream() { return new ByteArrayInputStream(content); }
     @Override public void transferTo(File dest) { /* opcional */ }
 }

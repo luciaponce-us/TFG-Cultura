@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +23,7 @@ public class FileService {
 
     private Cloudinary cloudinary;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
     public FileService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }

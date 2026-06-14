@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ public class SuggestionRepositoryImpl implements SuggestionRespositoryCustom {
             Role.ENCARGADO,
             Role.COLABORADOR);
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
     public SuggestionRepositoryImpl(MongoTemplate mongoTemplate, CustomUserDetailsService userDetailsService) {
         this.mongoTemplate = mongoTemplate;
         this.userDetailsService = userDetailsService;
