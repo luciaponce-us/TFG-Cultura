@@ -97,7 +97,7 @@ class UserFileServiceTest {
                 IllegalArgumentException.class,
                 () -> service.validateAvatar(file));
 
-        assertEquals("El archivo de avatar no puede superar los 2MB", ex.getMessage());
+        assertEquals("El archivo no puede superar los 2MB", ex.getMessage());
     }
 
     @Test
@@ -152,7 +152,7 @@ class UserFileServiceTest {
                 IllegalArgumentException.class,
                 () -> service.validatePaymentReceipt(file));
 
-        assertEquals("El archivo de carta de pago no puede superar los 2MB", ex.getMessage());
+        assertEquals("El archivo no puede superar los 2MB", ex.getMessage());
     }
 
     @Test
@@ -164,50 +164,7 @@ class UserFileServiceTest {
         assertDoesNotThrow(() -> service.validatePaymentReceipt(file));
     }
 
-    // DELETE USER FILES
-
-    @Test
-    void should_delete_files_successfully() {
-        String avatarUrl = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png";
-        String paymentReceiptUrl = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/payment_receipt.pdf";
-
-        assertDoesNotThrow(() -> service.deleteUserFiles(avatarUrl, paymentReceiptUrl));
-
-        verify(fileService).deleteFile(paymentReceiptUrl);
-    }
-
-    @Test
-    void should_delete_payment_receipt_when_avatar_is_placeholder() {
-        String avatarUrl = UserFileService.AVATAR_PLACEHOLDER;
-        String paymentReceiptUrl = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/payment_receipt.pdf";
-
-        assertDoesNotThrow(() -> service.deleteUserFiles(avatarUrl, paymentReceiptUrl));
-
-        verify(fileService).deleteFile(paymentReceiptUrl);
-    }
-
-    @Test
-    void should_delete_avatar_when_not_placeholder() {
-        String avatarUrl = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/user_avatar.png";
-        String paymentReceiptUrl = UserFileService.PAYMENT_RECEIPT_PLACEHOLDER;
-
-        assertDoesNotThrow(() -> service.deleteUserFiles(avatarUrl, paymentReceiptUrl));
-
-        verify(fileService).deleteFile(avatarUrl);
-        verify(fileService, never()).deleteFile(paymentReceiptUrl);
-    }
-
-    @Test
-    void should_not_delete_payment_receipt_when_placeholder() {
-        String avatarUrl = UserFileService.AVATAR_PLACEHOLDER;
-        String paymentReceiptUrl = UserFileService.PAYMENT_RECEIPT_PLACEHOLDER;
-
-        assertDoesNotThrow(() -> service.deleteUserFiles(avatarUrl, paymentReceiptUrl));
-
-        verify(fileService, never()).deleteFile(paymentReceiptUrl);
-    }
-
-    // DELETE SINGLE USER FILE
+    // DELETE USER FILE
 
     @Test
     void should_delete_user_file_when_valid_and_not_placeholder() {

@@ -136,7 +136,13 @@ public class UserService {
     @Transactional
     public void deleteUser(String username) throws UserNotFoundException {
         User user = findUserByUsername(username);
-        userFileService.deleteUserFiles(user.getAvatar(), user.getPaymentReceipt());
+        deleteUser(user);
+    }
+
+    @Transactional
+    void deleteUser(User user) {
+        userFileService.deleteUserFile(user.getAvatar());
+        userFileService.deleteUserFile(user.getPaymentReceipt());
         suggestionRepository.deleteByAuthorId(user.getId());
         userRepository.delete(user);
         logger.info("Usuario con username {} eliminado correctamente", user.getUsername());
@@ -208,13 +214,9 @@ public class UserService {
     @Transactional
     public void deleteProfile() throws UserNotFoundException {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        String username = currentUser.getUsername();
-        User user = findUserByUsername(username);
-        String userToDelete = user.getUsername();
-        userFileService.deleteUserFiles(user.getAvatar(), user.getPaymentReceipt());
-        suggestionRepository.deleteByAuthorId(user.getId());
-        userRepository.delete(user);
-        logger.info("Usuario con username {} eliminado correctamente", userToDelete);
+        User user = findUserById(currentUser.getId());
+
+        deleteUser(user);
     }
 
     public UserResponse activateUser(String username) throws UserNotFoundException {

@@ -384,12 +384,13 @@ class UserServiceTest {
         when(userDetailsService.getCurrentUserDetails())
                 .thenReturn(userDetails);
 
-        when(userRepository.findByUsername(anyString()))
+        when(userRepository.findById(anyString()))
                 .thenReturn(Optional.of(user));
 
         service.deleteProfile();
 
-        verify(userFileService).deleteUserFiles("avatar_url", "receipt_url");
+        verify(userFileService).deleteUserFile("avatar_url");
+        verify(userFileService).deleteUserFile("receipt_url");
         verify(suggestionRepository).deleteByAuthorId(user.getId());
         verify(userRepository).delete(user);
     }
@@ -399,7 +400,7 @@ class UserServiceTest {
         when(userDetailsService.getCurrentUserDetails())
                 .thenReturn(userDetails);
 
-        when(userRepository.findByUsername(anyString()))
+        when(userRepository.findById(anyString()))
                 .thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> {
