@@ -24,6 +24,10 @@ jobs:
         run: chmod +x mvnw
         working-directory: backend
 
+      - name: Compilar proyecto
+        working-directory: backend
+        run: ./mvnw clean compile --no-transfer-progress
+
       - name: Análisis SpotBugs
         working-directory: backend
         run: >-

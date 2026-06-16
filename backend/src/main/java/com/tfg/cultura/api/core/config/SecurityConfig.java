@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.core.config;
 
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }

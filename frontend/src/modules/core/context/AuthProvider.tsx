@@ -16,32 +16,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    console.log("Token actual:", token);
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
-
-    const loadUser = async () => {
-      try {
-        const res = await getMyProfile(token);
-        console.log("Perfil del usuario cargado:", res);
-        setUser(res);
-      } catch (error) {
-        console.error("Error loading user profile:", error);
-        // Si hay error al cargar el perfil, limpiar el token inválido
-        localStorage.removeItem("token");
-        setToken(null);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUser();
-  }, [token]);
-
   const login = (jwt: string) => {
     localStorage.setItem("token", jwt);
     setToken(jwt);
@@ -58,6 +32,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const isAdmin = user ? MANAGEMENT_ROLES.includes(user.role) : false;
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        if (!token) {
+          logout();
+          return;
+        }
+        const res = await getMyProfile(token);
+        console.log("Perfil del usuario cargado:", res);
+        setUser(res);
+      } catch (error) {
+        console.error("Error loading user profile:", error);
+        logout();
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadUser();
+  }, [token]);
 
   const value = useMemo(
     () => ({

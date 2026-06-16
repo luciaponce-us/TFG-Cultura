@@ -7,11 +7,11 @@ import {
   Checkbox,
   Link,
 } from "@chakra-ui/react";
-import { useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../service/user.service";
 import type { UserRegisterRequest } from "../types";
-import { isApiError } from "@/modules/core/utils/utils";
+import { handleChange, isApiError } from "@/modules/core/utils/utils";
 import {
   CustomAlert,
   CustomButton,
@@ -58,13 +58,6 @@ export default function RegistrationPage() {
 
   const [step, setStep] = useState(1);
   const [loadingRegister, setLoadingRegister] = useState(false);
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
 
   const handleSubmit = async () => {
     setErrors({
@@ -177,7 +170,7 @@ export default function RegistrationPage() {
               placeholder="Introduce tu nombre"
               required={true}
               error={errors.name}
-              onChange={handleChange}
+              onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.name}
             />
             <CustomInput
@@ -186,7 +179,7 @@ export default function RegistrationPage() {
               placeholder="Introduce tus apellidos"
               required={true}
               error={errors.surname}
-              onChange={handleChange}
+              onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.surname}
             />
             <CustomInput
@@ -195,7 +188,7 @@ export default function RegistrationPage() {
               placeholder="Introduce tu DNI"
               required={true}
               error={errors.dni}
-              onChange={handleChange}
+              onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.dni}
             />
 
@@ -283,7 +276,7 @@ export default function RegistrationPage() {
               placeholder="Introduce tu nombre de usuario"
               required={true}
               error={errors.username}
-              onChange={handleChange}
+              onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.username}
             />
             <CustomInput
@@ -291,7 +284,7 @@ export default function RegistrationPage() {
               name="password"
               required={true}
               error={errors.password}
-              onChange={handleChange}
+              onChange={(e) => handleChange(e, form, setErrors, setForm)}
               password={true}
               defaultValue={form.password}
             />
@@ -299,7 +292,7 @@ export default function RegistrationPage() {
               label="Confirma tu contraseña"
               name="confirmPassword"
               required={true}
-              onChange={handleChange}
+              onChange={(e) => handleChange(e, form, setErrors, setForm)}
               password={true}
               defaultValue={form.confirmPassword}
             />
@@ -308,7 +301,7 @@ export default function RegistrationPage() {
               name="email"
               required={true}
               error={errors.email}
-              onChange={handleChange}
+              onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.email}
             />
             <CustomInput
@@ -316,7 +309,7 @@ export default function RegistrationPage() {
               name="phone"
               required={true}
               error={errors.phone}
-              onChange={handleChange}
+              onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.phone}
             />
 

@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "dev-watch": "vite --host 0.0.0.0 --watch",
     "build": "tsc -b && vite build",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
     "preview": "vite preview",
@@ -14,34 +13,33 @@
     "release": "standard-version --skip.commit --skip.tag"
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.34.0",
+    "@chakra-ui/react": "^3.35.0",
     "@emotion/react": "^11.14.0",
     "@fontsource/lilita-one": "^5.2.8",
     "@fontsource/open-sans": "^5.2.7",
-    "@tabler/icons-react": "^3.41.1",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "react-icons": "^5.6.0",
-    "react-router-dom": "^7.13.2"
+    "@tabler/icons-react": "^3.44.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.17.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.4",
-    "@types/node": "^25.5.2",
-    "@types/react": "^19.2.14",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/react-router-dom": "^5.3.3",
-    "@typescript-eslint/eslint-plugin": "8.57.0",
-    "@typescript-eslint/parser": "8.57.0",
-    "@vitejs/plugin-react": "^6.0.1",
+    "@typescript-eslint/eslint-plugin": "8.61.0",
+    "@typescript-eslint/parser": "8.61.0",
+    "@vitejs/plugin-react": "^6.0.2",
     "depcheck": "^1.4.7",
-    "eslint": "^9.39.4",
-    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint": "^10.4.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "eslint-plugin-unused-imports": "^4.4.1",
-    "globals": "^17.4.0",
+    "globals": "^17.6.0",
     "prettier": "^3.8.1",
-    "typescript": "~5.9.3",
-    "typescript-eslint": "^8.57.0",
-    "vite": "^8.0.1"
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.61.0",
+    "vite": "^8.0.16"
   }
 }

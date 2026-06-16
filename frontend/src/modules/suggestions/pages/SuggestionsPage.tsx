@@ -79,8 +79,11 @@ export function SuggestionsPage({
   );
 
   useEffect(() => {
-    fetchSuggestions(page);
-  }, [page, filters, fetchSuggestions]);
+    async function loadSuggestions() {
+      await fetchSuggestions(page);
+    }
+    loadSuggestions();
+  }, [page, fetchSuggestions]);
 
   function renderSuggestions() {
     if (loading) {

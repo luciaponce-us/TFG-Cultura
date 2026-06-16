@@ -13,11 +13,10 @@ export async function handleResponse<T>(res: Response): Promise<T> {
 
   if (!res.ok) {
     let message = `Error ${res.status}`;
-    let data: unknown = null;
 
     try {
       if (contentType.includes("application/json")) {
-        data = await res.json();
+        const data = await res.json();
 
         if (typeof data === "object" && data !== null) {
           const d = data as Partial<ApiError>;
@@ -93,7 +92,7 @@ export const handleChange = <
   T extends object,
   E extends Partial<Record<keyof T, string>>,
 >(
-  e: ChangeEvent<HTMLInputElement>,
+  e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   form: T,
   setErrors: Dispatch<SetStateAction<E>>,
   setForm: Dispatch<SetStateAction<T>>,

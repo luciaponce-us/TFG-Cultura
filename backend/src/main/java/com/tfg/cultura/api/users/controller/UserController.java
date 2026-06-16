@@ -24,18 +24,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 import com.tfg.cultura.api.users.model.enumerators.Role;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 @Tag(name = "Users - CRUD", description = "Gestión de usuarios")
 public class UserController {
 
 	private final UserService userService;
-
-	public UserController(UserService userService) {
-		this.userService = userService;
-	}
 
 	@Operation(summary = "Obtener información de todos los usuarios", description = "Como colaborador/encargado/secretario/coordinador, quiero poder consultar la información de todos los usuarios, para poder revisar su información personal y realizar las operaciones CRUD")
 	@ApiResponses(value = {
