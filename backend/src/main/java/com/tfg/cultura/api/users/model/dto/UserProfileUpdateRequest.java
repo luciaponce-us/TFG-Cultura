@@ -35,4 +35,13 @@ public class UserProfileUpdateRequest {
     @Size(min = 5, max = 254, message = "El email debe tener entre 5 y 254 caracteres")
     @Email(message = "El email no es válido")
     private String email;
+
+    public UserProfileUpdateRequest(UserUpdateRequest request) {
+        this.username = request.getUsername();
+        this.password = request.getPassword();
+        this.name = request.getName();
+        this.surname = request.getSurname();
+        this.phone = request.getPhone();
+        this.email = request.getEmail();
+    }
 }

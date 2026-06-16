@@ -112,7 +112,7 @@ class UserServiceTest {
     // GET CURRENT USER
 
     @Test
-    void shouldReturnCurrentUserSuccessfully() throws Exception {
+    void should_return_current_user_successfully() throws Exception {
         mockAuthContext();
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(user));
@@ -124,7 +124,7 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserNotFoundInGetCurrentUser() {
+    void should_throw_exception_when_user_not_found_in_get_current_user() {
         mockAuthContext();
 
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
@@ -281,26 +281,13 @@ class UserServiceTest {
         when(userDetailsService.getCurrentUserDetails())
                 .thenReturn(userDetails);
 
-        when(userRepository.findByUsername(anyString()))
+        when(userRepository.findById(anyString()))
                 .thenReturn(Optional.of(user));
 
         UserResponse response = service.getProfile();
 
         assertNotNull(response);
         assertEquals(user.getUsername(), response.getUsername());
-    }
-
-    @Test
-    void should_throw_exception_when_user_not_found() {
-        when(userDetailsService.getCurrentUserDetails())
-                .thenReturn(userDetails);
-
-        when(userRepository.findByUsername(anyString()))
-                .thenThrow(new UserNotFoundException("User not found"));
-
-        assertThrows(UserNotFoundException.class, () -> {
-            service.getProfile();
-        });
     }
 
     @Test
@@ -326,7 +313,7 @@ class UserServiceTest {
         when(userDetailsService.getCurrentUserDetails())
                 .thenReturn(userDetails);
 
-        when(userRepository.findByUsername(anyString()))
+        when(userRepository.findById(anyString()))
                 .thenReturn(Optional.of(user));
 
         when(userRepository.save(any(User.class)))
@@ -346,7 +333,7 @@ class UserServiceTest {
         when(userDetailsService.getCurrentUserDetails())
                 .thenReturn(userDetails);
 
-        when(userRepository.findByUsername(anyString()))
+        when(userRepository.findById(anyString()))
                 .thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> {
@@ -362,7 +349,7 @@ class UserServiceTest {
         when(userDetailsService.getCurrentUserDetails())
                 .thenReturn(userDetails);
 
-        when(userRepository.findByUsername(anyString()))
+        when(userRepository.findById(anyString()))
                 .thenReturn(Optional.of(user));
 
         // simula conflicto
@@ -534,7 +521,7 @@ class UserServiceTest {
     // UPDATE CURRENT USER AVATAR
 
     @Test
-    void shouldUpdateAvatarSuccessfully() throws Exception {
+    void should_update_avatar_successfully() throws Exception {
         // Arrange
         MultipartFile avatar = mock(MultipartFile.class);
         mockAuthContext();
@@ -556,7 +543,7 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserNotFoundInUpdateAvatar() {
+    void should_throw_exception_when_user_not_found_in_update_avatar() {
         // Arrange
         MultipartFile avatar = mock(MultipartFile.class);
         mockAuthContext();
