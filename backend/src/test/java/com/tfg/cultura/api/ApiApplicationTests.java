@@ -13,7 +13,7 @@ import com.tfg.cultura.api.config.MockConfig;
 class ApiApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void context_loads() {
 	}
 
 }

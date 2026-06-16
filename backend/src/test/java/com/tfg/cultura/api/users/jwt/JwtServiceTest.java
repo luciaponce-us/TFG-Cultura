@@ -50,7 +50,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void shouldGenerateTokenAndExtractAllFields() {
+    void should_generate_token_and_extract_all_fields() {
         String token = jwtService.generateToken(username, role, id);
 
         assertNotNull(token);
@@ -60,21 +60,21 @@ class JwtServiceTest {
     }
 
     @Test
-    void shouldReturnTrueWhenTokenIsValid() {
+    void should_return_true_when_token_is_valid() {
         String token = jwtService.generateToken(username, role, id);
 
         assertTrue(jwtService.isTokenValid(token, userDetails));
     }
 
     @Test
-    void shouldReturnFalseWhenIdDoesNotMatch() {
+    void should_return_false_when_id_does_not_match() {
         String token = jwtService.generateToken(username, role, "otroId");
 
         assertFalse(jwtService.isTokenValid(token, userDetails));
     }
 
     @Test
-    void shouldDetectExpiredToken() throws Exception {
+    void should_detect_expired_token() throws Exception {
         // Token con expiración muy corta
         setField(jwtService, "expiration", -1000L);
         jwtService.init();
@@ -85,14 +85,14 @@ class JwtServiceTest {
     }
 
     @Test
-    void shouldReturnFalseWhenTokenNotExpired() {
+    void should_return_false_when_token_not_expired() {
         String token = jwtService.generateToken(username, role, id);
 
         assertFalse(jwtService.isTokenExpired(token));
     }
 
     @Test
-    void shouldReturnFalseWhenUserDetailsNotCustom() {
+    void should_return_false_when_user_details_not_custom() {
         String token = jwtService.generateToken(username, role, id);
         UserDetails loggedUser = null;
 

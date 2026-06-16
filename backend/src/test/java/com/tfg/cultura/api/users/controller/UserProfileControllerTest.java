@@ -161,7 +161,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	// UPDATE MY AVATAR
 
 	@Test
-	void shouldUpdateMyAvatarSuccessfully() throws Exception {
+	void should_update_my_avatar_successfully() throws Exception {
 		when(service.updateCurrentUserAvatar(any(MultipartFile.class)))
 				.thenReturn(userResponse);
 
@@ -180,7 +180,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	}
 
 	@Test
-	void shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
+	void should_return_not_found_when_user_does_not_exist() throws Exception {
 
 		when(service.updateCurrentUserAvatar(any()))
 				.thenThrow(new UserNotFoundException("User not found"));

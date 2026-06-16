@@ -29,14 +29,14 @@ class DummyControllerTests {
 	DummyController controller;
 
 	@Test
-	void getDummyDataReturnsExpectedMessage() {
+	void getDummyData_returns_expected_message() {
 		String result = controller.getDummyData();
 
 		assertEquals("This is some dummy data from the API!", result);
 	}
 
 	@Test
-	void getMongoDbDataReturnsOkWhenPingSucceeds() {
+	void getMongodbData_returns_ok_when_ping_succeeds() {
 		MongoDatabase mongoDatabase = mock(MongoDatabase.class);
 
 		when(mongoTemplate.getDb()).thenReturn(mongoDatabase);
@@ -48,7 +48,7 @@ class DummyControllerTests {
 	}
 
 	@Test
-	void getMongoDbDataReturnsErrorWhenPingFails() {
+	void getMongodbData_returns_error_when_ping_fails() {
 		MongoDatabase mongoDatabase = mock(MongoDatabase.class);
 
 		when(mongoTemplate.getDb()).thenReturn(mongoDatabase);

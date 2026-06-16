@@ -53,7 +53,7 @@ class JwtFilterTest {
     // -------------------------------
 
     @Test
-    void shouldNotFilterPublicUrls() throws Exception {
+    void should_not_filter_public_urls() throws Exception {
         when(request.getRequestURI()).thenReturn("/api/users/auth/register");
 
         boolean result = filter.shouldNotFilter(request);
@@ -62,7 +62,7 @@ class JwtFilterTest {
     }
 
     @Test
-    void shouldFilterNonPublicUrls() throws Exception {
+    void should_filter_non_public_urls() throws Exception {
         when(request.getRequestURI()).thenReturn("/api/private");
 
         boolean result = filter.shouldNotFilter(request);
@@ -75,7 +75,7 @@ class JwtFilterTest {
     // -------------------------------
 
     @Test
-    void shouldContinueWhenNoAuthorizationHeader() throws Exception {
+    void should_continue_when_no_authorization_header() throws Exception {
         when(request.getHeader("Authorization")).thenReturn(null);
 
         filter.doFilterInternal(request, response, filterChain);
@@ -85,7 +85,7 @@ class JwtFilterTest {
     }
 
     @Test
-    void shouldContinueWhenHeaderDoesNotStartWithBearer() throws Exception {
+    void should_continue_when_header_does_not_start_with_bearer() throws Exception {
         when(request.getHeader("Authorization")).thenReturn("Basic 123");
 
         filter.doFilterInternal(request, response, filterChain);
@@ -95,7 +95,7 @@ class JwtFilterTest {
     }
 
     @Test
-    void shouldAuthenticateWhenTokenIsValid() throws Exception {
+    void should_authenticate_when_token_is_valid() throws Exception {
         String token = "validToken";
         String username = "lucia";
 
@@ -118,7 +118,7 @@ class JwtFilterTest {
     }
 
     @Test
-    void shouldNotAuthenticateWhenTokenInvalid() throws Exception {
+    void should_not_authenticate_when_token_is_invalid() throws Exception {
         String token = "invalidToken";
         String username = "lucia";
 
@@ -136,7 +136,7 @@ class JwtFilterTest {
     }
 
     @Test
-    void shouldNotAuthenticateWhenUsernameIsNull() throws Exception {
+    void should_not_authenticate_when_username_is_null() throws Exception {
         String token = "token";
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
@@ -149,7 +149,7 @@ class JwtFilterTest {
     }
 
     @Test
-    void shouldSkipWhenAlreadyAuthenticated() throws Exception {
+    void should_skip_when_already_authenticated() throws Exception {
         String token = "token";
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
