@@ -44,23 +44,13 @@ public interface SuggestionControllerInterface {
     })
     public ResponseEntity<SuggestionResponse> create(@Valid @RequestBody SuggestionCreateRequest request);
 
-    @Operation(summary = "RF-09: Apoyar sugerencias", description = "Como usuario registrado, quiero poder expresar que estoy de acuerdo con una sugerencia para que la sugerencia que apoyo sea tenida en cuenta con mayor prioridad.")
+    @Operation(summary = "RF-09: Apoyar o dejar de apoyar sugerencias", description = "Como usuario registrado, quiero poder expresar que estoy de acuerdo o que ya no estoy de acuerdo con una sugerencia, para que la sugerencia que apoyo sea tenida en cuenta con mayor prioridad.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Sugerencia modificada correctamente"),
             @ApiResponse(responseCode = "403", description = "Acceso denegado"),
-            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado"),
-            @ApiResponse(responseCode = "400", description = "No puedes apoyar esta sugerencia porque eres su autor (RN-06) o ya la apoyas")
+            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado")
     })
-    public ResponseEntity<SuggestionResponse> supportSuggestion(@PathVariable String id);
-
-    @Operation(summary = "Dejar de apoyar sugerencias", description = "Como usuario registrado, quiero poder expresar que ya no estoy de acuerdo con una sugerencia para cambiar de opinión.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sugerencia modificada correctamente"),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
-            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado"),
-            @ApiResponse(responseCode = "400", description = "Ya no apoyabas esta sugerencia")
-    })
-    public ResponseEntity<SuggestionResponse> stopSupportingSuggestion(@PathVariable String id);
+    public ResponseEntity<SuggestionResponse> toggleSupport(@PathVariable String id);
 
     @Operation(summary = "Eliminar sugerencia", description = "Como usuario registrado, quiero poder eliminar una sugerencia que he realizado para retirar una propuesta que ya no considero relevante o adecuada.", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {

@@ -69,19 +69,9 @@ public class SuggestionController implements SuggestionControllerInterface {
     }
 
     @Override
-    @PutMapping("/{id}/support")
-    public ResponseEntity<SuggestionResponse> supportSuggestion(@PathVariable String id) {
-        SuggestionResponse response = service.supportSuggestion(id);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
-    }
-
-    @Override
-    @PutMapping("/{id}/support/stop")
-    public ResponseEntity<SuggestionResponse> stopSupportingSuggestion(@PathVariable String id) {
-        SuggestionResponse response = service.stopSupportingSuggestion(id);
+    @PutMapping("/{id}/toggle-support")
+    public ResponseEntity<SuggestionResponse> toggleSupport(@PathVariable String id) {
+        SuggestionResponse response = service.toggleSupport(id);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -59,7 +59,7 @@ export async function createSuggestion(
   return handleResponse<Suggestion>(res);
 }
 
-export async function supportSuggestion(
+export async function toggleSupportSuggestion(
   token: string,
   suggestionId: string,
 ): Promise<Suggestion> {
@@ -69,23 +69,6 @@ export async function supportSuggestion(
       ...authHeaders(token),
     },
   });
-
-  return handleResponse<Suggestion>(res);
-}
-
-export async function unsupportSuggestion(
-  token: string,
-  suggestionId: string,
-): Promise<Suggestion> {
-  const res = await fetchWithTimeout(
-    SUGGESTION_ROUTES.UNSUPPORT(suggestionId),
-    {
-      method: "PUT",
-      headers: {
-        ...authHeaders(token),
-      },
-    },
-  );
 
   return handleResponse<Suggestion>(res);
 }

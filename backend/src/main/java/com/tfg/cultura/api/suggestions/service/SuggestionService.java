@@ -61,7 +61,7 @@ public class SuggestionService {
     }
 
     public Page<SuggestionResponse> getAllWithFilters(SuggestionType type, String text, Boolean orderByCreationDate,
-            Boolean supportedByAdmins,Boolean mySuggestions, int page, int size) {
+            Boolean supportedByAdmins, Boolean mySuggestions, int page, int size) {
 
         Sort sort = Sort.by("totalSupporters").descending();
         boolean orderByCreationDateValue = Boolean.TRUE.equals(orderByCreationDate);
@@ -86,65 +86,47 @@ public class SuggestionService {
         return toResponse(suggestion);
     }
 
-    public SuggestionResponse supportSuggestion(String id)
-            throws SuggestionNotFoundException, SuggestionAlreadySupportedException, SelfSupportSuggestionException,
-            UserNotFoundException, UnathenticatedException {
+    public SuggestionResponse toggleSupport(String id) throws SuggestionNotFoundException,
+            SelfSupportSuggestionException, UserNotFoundException, UnathenticatedException {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         Suggestion suggestion = findSuggestionById(id);
-
-        if (suggestion.getSupportersId().contains(currentUser.getId())) {
-            logger.error("Error al apoyar la sugerencia: El usuario con ID {} ya apoya esta sugerencia",
-                    currentUser.getId());
-            throw new SuggestionAlreadySupportedException();
-        }
-
-        if (suggestion.getAuthorId().equals(currentUser.getId())) {
-            logger.error("Error al apoyar la sugerencia: El usuario con ID {} ha intentado apoyar su propia sugerencia",
-                    currentUser.getId());
-            throw new SelfSupportSuggestionException();
-        }
         List<String> supporters = new ArrayList<>(suggestion.getSupportersId());
-        supporters.add(currentUser.getId());
+        boolean isSupported = supporters.contains(currentUser.getId());
 
-        suggestion.setSupportersId(supporters);
-        suggestion.setTotalSupporters(supporters.size());
+        if (isSupported) {
+            supporters.remove(currentUser.getId());
+        } else {
+            if (suggestion.getAuthorId().equals(currentUser.getId())) {
+                logger.error(
+                        "Error al apoyar la sugerencia: El usuario con ID {} ha intentado apoyar su propia sugerencia",
+                        currentUser.getId());
+                throw new SelfSupportSuggestionException();
+            }
 
-        return toResponse(repository.save(suggestion));
-    }
-
-    public SuggestionResponse stopSupportingSuggestion(String id)
-            throws SuggestionNotFoundException, SuggestionNotSupportedException {
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        Suggestion suggestion = findSuggestionById(id);
-        List<String> supporters = suggestion.getSupportersId();
-
-        if (!supporters.contains(currentUser.getId())) {
-            logger.error(
-                    "Error al dejar de apoyar la sugerencia: El usuario con ID {} no está apoyando esta sugerencia",
-                    currentUser.getId());
-            throw new SuggestionNotSupportedException();
+            supporters.add(currentUser.getId());
         }
 
-        supporters.remove(currentUser.getId());
-
         suggestion.setSupportersId(supporters);
         suggestion.setTotalSupporters(supporters.size());
 
         return toResponse(repository.save(suggestion));
     }
 
-    public void delete(String id) throws SuggestionNotFoundException, UnathenticatedException, UnauthorizedException, UserNotFoundException {
+    public void delete(String id)
+            throws SuggestionNotFoundException, UnathenticatedException, UnauthorizedException, UserNotFoundException {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         Suggestion suggestion = findSuggestionById(id);
 
         if (Role.getAdminRoles().contains(currentUser.getRole())) {
-            logger.info("Sugerencia con ID {} eliminada por el usuario con ID {} con rol de administrador", suggestion.getId(), currentUser.getId());
+            logger.info("Sugerencia con ID {} eliminada por el usuario con ID {} con rol de administrador",
+                    suggestion.getId(), currentUser.getId());
             repository.delete(suggestion);
             return;
         }
 
         if (!suggestion.getAuthorId().equals(currentUser.getId())) {
-            logger.error("Error al eliminar la sugerencia: El usuario con ID {} ha intentado eliminar una sugerencia que no es suya",
+            logger.error(
+                    "Error al eliminar la sugerencia: El usuario con ID {} ha intentado eliminar una sugerencia que no es suya",
                     currentUser.getId());
             throw new UnauthorizedException("No tienes permiso para eliminar esta sugerencia");
         }
@@ -159,7 +141,7 @@ public class SuggestionService {
         Optional<User> optionalAuthor = userRepository.findById(id);
 
         if (optionalAuthor.isEmpty()) {
-            logger.warn("Error al convertir la sugerencia a respuesta: El autor de la sugerencia no existe");
+            logger.error("Error al convertir la sugerencia a respuesta: El autor de la sugerencia no existe");
             throw new UserNotFoundException("El autor de la sugerencia no existe");
         }
 
@@ -171,7 +153,9 @@ public class SuggestionService {
 
         UserResponse authorResponse = new UserResponse(author);
 
-        List<UserResponse> supporters = getAllSupporters(suggestion);
+        List<UserResponse> supporters = userRepository.findAllById(suggestion.getSupportersId()).stream()
+                .map(UserResponse::new)
+                .toList();
 
         List<String> avatars = supporters.stream()
                 .limit(3)
@@ -181,17 +165,11 @@ public class SuggestionService {
         return new SuggestionResponse(suggestion, authorResponse, supporters, avatars);
     }
 
-    private List<UserResponse> getAllSupporters(Suggestion suggestion) {
-        return userRepository.findAllById(suggestion.getSupportersId()).stream()
-                .map(UserResponse::new)
-                .toList();
-    }
-
     Suggestion findSuggestionById(String id) throws SuggestionNotFoundException {
         Optional<Suggestion> optionalSuggestion = repository.findById(id);
 
         if (optionalSuggestion.isEmpty()) {
-            logger.warn("Error al buscar la sugerencia: No existe ninguna sugerencia con el id solicitado");
+            logger.error("Error al buscar la sugerencia: No existe ninguna sugerencia con el id solicitado");
             throw new SuggestionNotFoundException(id);
         }
 
