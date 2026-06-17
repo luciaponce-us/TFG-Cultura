@@ -15,7 +15,7 @@ import { useState } from "react";
 import { isApiError } from "@/modules/core/utils/utils";
 import {
   deleteSuggestion,
-  toggleSupportSuggestion
+  toggleSupportSuggestion,
 } from "../service/suggestion.service";
 import { DeleteDialog } from "@/modules/core/components/DeleteDialog";
 
@@ -101,7 +101,10 @@ export function SuggestionCard({
         onSupportSuccess?.();
       } catch (error) {
         if (isApiError(error)) {
-          console.error("Error toggling support for suggestion:", error.message);
+          console.error(
+            "Error toggling support for suggestion:",
+            error.message,
+          );
           toaster.create({
             title: "Error al apoyar o dejar de apoyar sugerencia",
             description:
@@ -191,7 +194,10 @@ export function SuggestionCard({
                 <IconThumbDown /> Dejar de apoyar
               </CustomButton>
             ) : (
-              <CustomButton onClick={handleToggleSupport} loading={loadingSupport}>
+              <CustomButton
+                onClick={handleToggleSupport}
+                loading={loadingSupport}
+              >
                 <IconThumbUp /> Apoyar sugerencia
               </CustomButton>
             ))}
