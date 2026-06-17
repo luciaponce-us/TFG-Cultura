@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.service.UserService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,7 +39,7 @@ public class UserProfileController implements UserProfileControllerInterface {
 
     @Override
     @PutMapping
-    public ResponseEntity<UserResponse> updateMyProfile(@RequestBody @Valid UserProfileUpdateRequest request) {
+    public ResponseEntity<UserResponse> updateMyProfile(@RequestBody @Valid UserUpdateRequest request) {
         UserResponse response = userService.updateProfile(request);
 
         return ResponseEntity

@@ -20,7 +20,6 @@ import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.model.enumerators.Role;
@@ -98,36 +97,10 @@ public class UserService {
 
     // UPDATE
 
-    public UserResponse updateUser(String username, UserUpdateRequest request)
-            throws UserNotFoundException, UserAlreadyExistsException {
+    UserResponse updateUser(User user, UserUpdateRequest request, User currentUser) throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
         
-        User user = findUserByUsername(username);
-        User updatedUser = updateProfile(user, new UserProfileUpdateRequest(request));
+        boolean isAdmin = Role.getAdminRoles().contains(currentUser.getRole());
 
-        if (isChanged(request.getDni(), user.getDni())) {
-            if (userRepository.existsByDni(request.getDni()))
-                throw new UserAlreadyExistsException("El DNI ya está en uso");
-
-            updatedUser.setDni(request.getDni());
-        }
-
-        if (request.getRole() != null) {
-            updatedUser.setRole(request.getRole());
-        }
-
-        return saveUpdatedUser(updatedUser);
-    }
-
-    public UserResponse updateProfile(UserProfileUpdateRequest request)
-            throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
-        User currentUser = getCurrentUser();
-        User updatedUser = updateProfile(currentUser, request);
-
-        return saveUpdatedUser(updatedUser);
-    }
-
-    public User updateProfile(User user, UserProfileUpdateRequest request)
-            throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
         logger.info("Se va a actualizar el usuario con username {}", user.getUsername());
 
         if (isChanged(request.getUsername(), user.getUsername())) {
@@ -158,7 +131,33 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
-        return user;
+        if (isAdmin) {
+            if (isChanged(request.getDni(), user.getDni())) {
+                if (userRepository.existsByDni(request.getDni()))
+                    throw new UserAlreadyExistsException("El DNI ya está en uso");
+
+                user.setDni(request.getDni());
+            }
+
+            if (request.getRole() != null && request.getRole() != user.getRole()) {
+                user.setRole(request.getRole());
+            }
+        }
+
+        return saveUpdatedUser(user);
+    }
+
+    public UserResponse updateUser(String username, UserUpdateRequest request)
+            throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
+        User user = findUserByUsername(username);
+        User currentUser = getCurrentUser();
+        return updateUser(user, request, currentUser);
+    }
+
+    public UserResponse updateProfile(UserUpdateRequest request)
+            throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
+        User currentUser = getCurrentUser();
+        return updateUser(currentUser, request, currentUser);
     }
 
     UserResponse saveUpdatedUser(User user) {

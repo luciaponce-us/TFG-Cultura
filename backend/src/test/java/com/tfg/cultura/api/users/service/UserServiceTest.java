@@ -1,6 +1,7 @@
 package com.tfg.cultura.api.users.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,7 +43,6 @@ import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.model.enumerators.Role;
@@ -73,7 +73,6 @@ class UserServiceTest {
     private UserResponse userResponse;
     private UserUpdateRequest updateRequest;
     private CustomUserDetails userDetails;
-    private UserProfileUpdateRequest userProfileUpdateRequest;
 
     @BeforeEach
     void setUp() {
@@ -81,12 +80,17 @@ class UserServiceTest {
         userResponse = UserFactory.validUserResponse();
         updateRequest = UserFactory.validUserUpdateRequest();
         userDetails = new CustomUserDetails(user);
-        userProfileUpdateRequest = new UserProfileUpdateRequest();
     }
 
-    private void mockAuthContext() {
-        CustomUserDetails currentUser = UserFactory.mockAuthContext();
+    private void mockAuthContext(boolean isAdmin) {
+        CustomUserDetails currentUser = isAdmin ? UserFactory.mockAuthContextAdmin() : UserFactory.mockAuthContext();
         when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUser);
+        if (isAdmin) {
+            user.setRole(Role.COORDINADOR);
+        } else {
+            user.setRole(Role.SOCIO);
+        }
+        
     }
 
     // GET USER
@@ -113,7 +117,7 @@ class UserServiceTest {
 
     @Test
     void should_return_current_user_successfully() throws Exception {
-        mockAuthContext();
+        mockAuthContext(false);
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(user));
 
@@ -125,7 +129,7 @@ class UserServiceTest {
 
     @Test
     void should_throw_exception_when_user_not_found_in_get_current_user() {
-        mockAuthContext();
+        mockAuthContext(false);
 
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         when(userRepository.findById(currentUser.getId())).thenReturn(Optional.empty());
@@ -158,6 +162,8 @@ class UserServiceTest {
 
     @Test
     void should_update_user_successfully() {
+        mockAuthContext(false);
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
         UserResponse response = service.updateUser(user.getUsername(), updateRequest);
@@ -170,6 +176,8 @@ class UserServiceTest {
 
     @Test
     void should_update_user_username_successfully() {
+        mockAuthContext(false);
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         String newUsername = "newUsername";
         updateRequest.setUsername(newUsername);
 
@@ -185,6 +193,8 @@ class UserServiceTest {
 
     @Test
     void should_update_user_password_succesfully() {
+        mockAuthContext(false);
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         String username = user.getUsername();
         String oldEmail = user.getEmail();
 
@@ -213,6 +223,43 @@ class UserServiceTest {
     }
 
     @Test
+    void should_update_user_dni_and_role_successfully_when_admin() {
+        mockAuthContext(true);
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        String newDni = "12345678A";
+        Role newRole = Role.COORDINADOR;
+        updateRequest.setDni(newDni);
+        updateRequest.setRole(newRole);
+
+        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(userRepository.existsByDni(newDni)).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        UserResponse response = service.updateUser(user.getUsername(), updateRequest);
+        assertNotNull(response);
+        assertEquals(newDni, response.getDni());
+        assertEquals(newRole, response.getRole());
+    }
+
+    @Test
+    void should_not_update_user_dni_and_role_when_not_admin() {
+        mockAuthContext(false);
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        String originalDni = user.getDni();
+        Role originalRole = user.getRole();
+        updateRequest.setDni("12345678A");
+        updateRequest.setRole(Role.COORDINADOR);
+
+        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        UserResponse response = service.updateUser(user.getUsername(), updateRequest);
+        assertNotNull(response);
+        assertEquals(originalDni, response.getDni());
+        assertEquals(originalRole, response.getRole());
+    }
+
+    @Test
     void should_throw_UserNotFoundException_when_update_unexisting_user() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
@@ -224,6 +271,8 @@ class UserServiceTest {
 
     @Test
     void should_throw_UserAlreadyExistsException_when_update_user_with_existing_username() {
+        mockAuthContext(false);
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         String username = user.getUsername();
         String existingUsername = "existingUsername";
         updateRequest.setUsername(existingUsername);
@@ -239,12 +288,16 @@ class UserServiceTest {
 
     @Test
     void should_throw_UserAlreadyExistsException_when_update_user_with_existing_dni() {
+        mockAuthContext(true);
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         String username = user.getUsername();
         String existingDni = "06323988T";
         updateRequest.setDni(existingDni);
+        assertNotEquals(existingDni, user.getDni());
 
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
         when(userRepository.existsByDni(existingDni)).thenReturn(true);
+
         UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
                 () -> service.updateUser(username, updateRequest));
 
@@ -308,7 +361,7 @@ class UserServiceTest {
     @Test
     void should_update_profile_successfully() throws Exception {
 
-        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
+        UserUpdateRequest request = new UserUpdateRequest();
 
         when(userDetailsService.getCurrentUserDetails())
                 .thenReturn(userDetails);
@@ -337,7 +390,7 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> {
-            service.updateProfile(userProfileUpdateRequest);
+            service.updateProfile(updateRequest);
         });
 
         verify(userRepository, never()).save(any());
@@ -345,7 +398,7 @@ class UserServiceTest {
 
     @Test
     void should_throw_when_user_already_exists() {
-        userProfileUpdateRequest.setUsername("newUsername");
+        updateRequest.setUsername("newUsername");
         when(userDetailsService.getCurrentUserDetails())
                 .thenReturn(userDetails);
 
@@ -357,7 +410,7 @@ class UserServiceTest {
                 .thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> {
-            service.updateProfile(userProfileUpdateRequest);
+            service.updateProfile(updateRequest);
         });
     }
 
@@ -524,7 +577,7 @@ class UserServiceTest {
     void should_update_avatar_successfully() throws Exception {
         // Arrange
         MultipartFile avatar = mock(MultipartFile.class);
-        mockAuthContext();
+        mockAuthContext(false);
         when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
 
@@ -546,7 +599,7 @@ class UserServiceTest {
     void should_throw_exception_when_user_not_found_in_update_avatar() {
         // Arrange
         MultipartFile avatar = mock(MultipartFile.class);
-        mockAuthContext();
+        mockAuthContext(false);
 
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         when(userRepository.findById(currentUser.getId())).thenReturn(Optional.empty());
@@ -560,7 +613,7 @@ class UserServiceTest {
 
     @Test
     void should_return_user_response_when_toggle_activation_with_active_user() {
-        mockAuthContext();
+        mockAuthContext(false);
         user.setActive(true); // Usuario activo
         user.setId("otherId"); // Usuario distinto a sí mismo
 
@@ -575,7 +628,7 @@ class UserServiceTest {
 
     @Test
     void should_return_user_response_when_toggle_activation_with_inactive_user() {
-        mockAuthContext();
+        mockAuthContext(false);
         user.setActive(false); // Usuario inactivo
         user.setId("otherId"); // Usuario distinto a sí mismo
 
@@ -601,7 +654,7 @@ class UserServiceTest {
 
     @Test
     void should_throw_exception_when_user_toggles_activation_himself() {
-        mockAuthContext();
+        mockAuthContext(false);
         user.setActive(true);
 
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));

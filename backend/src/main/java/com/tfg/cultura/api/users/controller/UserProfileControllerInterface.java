@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,7 +30,7 @@ public interface UserProfileControllerInterface {
             @ApiResponse(responseCode = "403", description = "Forbidden - Usuario no autenticado"),
             @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario")
     })
-    public ResponseEntity<UserResponse> updateMyProfile(@RequestBody @Valid UserProfileUpdateRequest request);
+    public ResponseEntity<UserResponse> updateMyProfile(@RequestBody @Valid UserUpdateRequest request);
 
     @Operation(summary = "Modificar mi avatar", description = "Como usuario registrado, quiero poder modificar la imagen de mi perfil, para personalizar mi cuenta")
     public ResponseEntity<UserResponse> updateMyAvatar(@RequestPart(value = "avatar") MultipartFile avatar) ;
