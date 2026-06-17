@@ -44,7 +44,7 @@ public class UserService {
     User findUserByUsername(String username) throws UserNotFoundException {
         Optional<User> user = userRepository.findByUsername(username);
 
-        if (user.isEmpty()) {
+        if (user.isEmpty() || user == null) {
             logger.warn("Error al obtener el usuario: El usuario no existe");
             throw new UserNotFoundException(String.format("El usuario con username %s no existe", username));
         }
@@ -164,6 +164,10 @@ public class UserService {
     }
 
     UserResponse saveUpdatedUser(User user) {
+        if(user == null) {
+            logger.warn("Error al guardar el usuario: El usuario es nulo");
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
+        }
         User savedUser = userRepository.save(user);
         logger.info("Usuario con username {} actualizado correctamente", user.getUsername());
         return new UserResponse(savedUser);
@@ -188,51 +192,29 @@ public class UserService {
         return updateAvatar(user, avatar);
     }
 
-    public UserResponse activateUser(String username) throws UserNotFoundException {
-
+    public UserResponse toggleUserActivation(String username) throws UserNotFoundException {
         User user = findUserByUsername(username);
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 
         if (currentUser == null) {
             throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
         }
+
         if (user.getId().equals(currentUser.getId())) {
             throw new SelfActivationNotAllowedException(
-                    String.format("El usuario %s con id %s ha intentado activar su propio usuario", user.getUsername(),
-                            user.getId()));
-        }
-
-        if (!user.isActive()) {
-            user.setActive(true);
-            user = userRepository.save(user);
-        }
-
-        logger.info("Se ha aprobado el registro del usuario {} con id {}", user.getUsername(), user.getId());
-        return new UserResponse(user);
-    }
-
-    public UserResponse deactivateUser(String username) throws UserNotFoundException {
-
-        User user = findUserByUsername(username);
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-
-        if (currentUser == null) {
-            throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
-        }
-        if (user.getId().equals(currentUser.getId())) {
-            throw new SelfActivationNotAllowedException(
-                    String.format("El usuario %s con id %s ha intentado desactivar su propio usuario",
-                            user.getUsername(),
+                    String.format("El usuario %s con id %s ha intentado activar o desactivar su propio usuario", user.getUsername(),
                             user.getId()));
         }
 
         if (user.isActive()) {
             user.setActive(false);
-            user = userRepository.save(user);
+        } else {
+            user.setActive(true);
         }
 
-        logger.info("Se ha desactivado el usuario {} con id {}", user.getUsername(), user.getId());
-        return new UserResponse(user);
+        logger.info("Se ha cambiado el estado de activación del usuario {} con id {} a {}", user.getUsername(), user.getId(), user.isActive());
+
+        return saveUpdatedUser(user);
     }
 
     // DELETE

@@ -11,9 +11,6 @@ export const USER_ROUTES = {
   GET_BY_USERNAME: (username: string) => `${USERS_BASE_URL}/${username}`,
   DELETE: (username: string) => `${USERS_BASE_URL}/${username}`,
   EDIT_USER: (username: string) => `${USERS_BASE_URL}/${username}`,
-  EDIT_USER_AVATAR: (username: string) =>
-    `${USERS_BASE_URL}/${username}/avatar`,
-  ACTIVATE_USER: (username: string) => `${USERS_BASE_URL}/${username}/activate`,
-  DEACTIVATE_USER: (username: string) =>
-    `${USERS_BASE_URL}/${username}/deactivate`,
+  EDIT_USER_AVATAR: (username: string) => `${USERS_BASE_URL}/${username}/avatar`,
+  TOGGLE_USER_ACTIVATION: (username: string) => `${USERS_BASE_URL}/${username}/toggle-activation`
 };

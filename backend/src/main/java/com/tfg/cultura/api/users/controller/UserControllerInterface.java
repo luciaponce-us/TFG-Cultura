@@ -76,7 +76,5 @@ public interface UserControllerInterface {
             @ApiResponse(responseCode = "403", description = "Forbidden - El usuario no tiene permisos para aprobar registros o activar ese usuario"),
             @ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario a aprobar/rechazar")
     })
-    public ResponseEntity<UserResponse> activateUser(@PathVariable String username);
-
-	public ResponseEntity<UserResponse> deactivateUser(@PathVariable String username);
+	public ResponseEntity<UserResponse> toggleUserActivation(@PathVariable String username);
 }

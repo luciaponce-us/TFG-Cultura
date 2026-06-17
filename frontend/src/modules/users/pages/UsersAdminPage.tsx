@@ -224,7 +224,7 @@ export default function UsersAdminPage() {
   async function handleToggleActive(username: string, isActive: boolean) {
     if (!token) return;
     try {
-      await toggleUserActive(token, username, isActive);
+      await toggleUserActive(token, username);
       await fetchUsers(page);
       toaster.create({
         title: `Usuario ${isActive ? "desactivado" : "activado"}`,

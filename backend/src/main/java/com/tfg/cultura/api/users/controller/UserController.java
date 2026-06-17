@@ -81,22 +81,13 @@ public class UserController implements UserControllerInterface {
 	}
 
 	@Override
-	@PutMapping("/{username}/activate")
-    public ResponseEntity<UserResponse> activateUser(@PathVariable String username) {
-        UserResponse response = userService.activateUser(username);
+	@PutMapping("/{username}/toggle-activation")
+    public ResponseEntity<UserResponse> toggleUserActivation(@PathVariable String username) {
+        UserResponse response = userService.toggleUserActivation(username);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
-
-	@Override
-	@PutMapping("/{username}/deactivate")
-	public ResponseEntity<UserResponse> deactivateUser(@PathVariable String username) {
-		UserResponse response = userService.deactivateUser(username);
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.body(response);
-	}
 
 	@Override
 	@DeleteMapping("/{username}")
