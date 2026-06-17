@@ -115,8 +115,6 @@ public class UserService {
             updatedUser.setRole(request.getRole());
         }
 
-        updatedUser.setActive(request.isActive());
-
         return saveUpdatedUser(updatedUser);
     }
 

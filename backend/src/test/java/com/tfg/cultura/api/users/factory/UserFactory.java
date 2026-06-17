@@ -105,7 +105,6 @@ public class UserFactory {
         return UserUpdateRequest.builder()
                 .name("Jane")
                 .surname("Smith")
-                .active(false)
                 .dni("51835019B")
                 .email("test2@test.com")
                 .phone("987654321")
