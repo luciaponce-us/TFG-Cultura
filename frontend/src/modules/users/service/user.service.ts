@@ -135,12 +135,15 @@ export async function updateUserAvatar(
 
 export async function toggleUserActive(
   token: string,
-  username: string
+  username: string,
 ): Promise<User> {
-  const res = await fetchWithTimeout(USER_ROUTES.TOGGLE_USER_ACTIVATION(username), {
-    method: "PUT",
-    headers: { ...jsonHeaders, Authorization: `Bearer ${token}` },
-  });
+  const res = await fetchWithTimeout(
+    USER_ROUTES.TOGGLE_USER_ACTIVATION(username),
+    {
+      method: "PUT",
+      headers: { ...jsonHeaders, Authorization: `Bearer ${token}` },
+    },
+  );
 
   return handleResponse<User>(res);
 }
