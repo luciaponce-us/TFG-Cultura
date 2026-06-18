@@ -156,8 +156,20 @@ function ClickableAvatar() {
 
   return (
     <Menu.Root>
-      <Menu.Trigger asChild>
-        <div>
+      <Menu.Trigger>
+        <Box
+          cursor="pointer"
+          borderRadius="full"
+          transition="all 0.2s"
+          _hover={{
+            transform: "scale(1.05)",
+            boxShadow: "md",
+          }}
+          _active={{
+            transform: "scale(0.95)",
+            boxShadow: "sm",
+          }}
+        >
           <CustomAvatar
             name={user?.username + "s avatar"}
             src={
@@ -168,7 +180,7 @@ function ClickableAvatar() {
             h="48px"
             filter={user ? undefined : "grayscale(100%)"}
           />
-        </div>
+        </Box>
       </Menu.Trigger>
       <Portal>
         <Menu.Positioner>
@@ -188,6 +200,7 @@ function ClickableAvatar() {
                 minH="44px"
                 px={3}
                 w="100%"
+                cursor="pointer"
               >
                 <a
                   href={link.href}
@@ -216,6 +229,7 @@ function ClickableAvatar() {
                 _highlighted={{ bg: "principal.600" }}
                 minH="44px"
                 px={3}
+                cursor="pointer"
                 onSelect={() => {
                   logout();
                   toaster.create({
