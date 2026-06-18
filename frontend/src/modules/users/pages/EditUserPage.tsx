@@ -96,7 +96,6 @@ export default function EditUserPage() {
           dni: userData.dni,
           phone: userData.phone,
           email: userData.email,
-          active: userData.active,
           role: userData.role,
         });
       } catch (error) {
