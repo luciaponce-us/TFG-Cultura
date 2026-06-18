@@ -1,4 +1,4 @@
-export * from "./Header";
+export * from "./header/Header.tsx";
 export * from "./Footer";
 export * from "./NavButton";
 export * from "./SideBar";

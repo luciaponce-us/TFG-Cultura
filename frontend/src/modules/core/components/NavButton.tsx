@@ -2,12 +2,12 @@ import { Button } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import type { To } from "react-router-dom";
 
-type Props = {
+interface NavButtonProps extends React.ComponentProps<typeof Button> {
   to: To;
   children: React.ReactNode;
-};
+}
 
-export const NavButton = ({ to, children }: Props) => {
+export const NavButton = ({ to, children, ...props }: NavButtonProps) => {
   return (
     <Button
       asChild
@@ -21,6 +21,7 @@ export const NavButton = ({ to, children }: Props) => {
         transform: "scale(0.92)",
       }}
       fontSize="lg"
+      {...props}
     >
       <Link to={to}>{children}</Link>
     </Button>
