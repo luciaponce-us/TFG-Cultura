@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
@@ -35,6 +36,7 @@ public class UserService {
     private final CustomUserDetailsService userDetailsService;
     private final SuggestionRepository suggestionRepository;
     private final UserFileService userFileService;
+    private final AppProperties appProperties;
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
@@ -99,7 +101,7 @@ public class UserService {
 
     UserResponse updateUser(User user, UserUpdateRequest request, User currentUser) throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
         
-        boolean isAdmin = Role.getAdminRoles().contains(currentUser.getRole());
+        boolean isAdmin = appProperties.adminRoles().contains(currentUser.getRole());
 
         logger.info("Se va a actualizar el usuario con username {}", user.getUsername());
 

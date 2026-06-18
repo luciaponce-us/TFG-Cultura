@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.suggestions.exception.*;
@@ -24,7 +25,6 @@ import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
-import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -36,6 +36,7 @@ public class SuggestionService {
     private final SuggestionRepository repository;
     private final UserRepository userRepository;
     private final CustomUserDetailsService userDetailsService;
+    private final AppProperties appProperties;
 
     private static final Logger logger = LoggerFactory.getLogger("suggestionsLogger");
 
@@ -117,7 +118,7 @@ public class SuggestionService {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         Suggestion suggestion = findSuggestionById(id);
 
-        if (Role.getAdminRoles().contains(currentUser.getRole())) {
+        if (appProperties.adminRoles().contains(currentUser.getRole())) {
             logger.info("Sugerencia con ID {} eliminada por el usuario con ID {} con rol de administrador",
                     suggestion.getId(), currentUser.getId());
             repository.delete(suggestion);

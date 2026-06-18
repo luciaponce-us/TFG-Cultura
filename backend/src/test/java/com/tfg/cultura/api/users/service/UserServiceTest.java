@@ -20,7 +20,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,6 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
@@ -66,7 +66,8 @@ class UserServiceTest {
     @Mock
     private CustomUserDetailsService userDetailsService;
 
-    @InjectMocks
+    private AppProperties appProperties;
+
     private UserService service;
 
     private User user;
@@ -80,6 +81,16 @@ class UserServiceTest {
         userResponse = UserFactory.validUserResponse();
         updateRequest = UserFactory.validUserUpdateRequest();
         userDetails = new CustomUserDetails(user);
+        appProperties = createAppProperties();
+        service = new UserService(
+                userRepository,
+                passwordEncoder,
+                userDetailsService,
+                suggestionRepository,
+                userFileService,
+                appProperties
+            );
+    
     }
 
     private void mockAuthContext(boolean isAdmin) {
@@ -90,7 +101,22 @@ class UserServiceTest {
         } else {
             user.setRole(Role.SOCIO);
         }
-        
+    }
+
+    private AppProperties createAppProperties() {
+        AppProperties.Jwt jwt = new AppProperties.Jwt("test-secret", 3600);
+        AppProperties.Cloudinary cloudinary = new AppProperties.Cloudinary(
+                "test-cloud",
+                "test-key",
+                "test-secret",
+                false);
+        return new AppProperties(
+                "http://localhost:3000", // frontendUrl
+                false, // seedEnabled
+                jwt,
+                cloudinary,
+                List.of(Role.COORDINADOR)
+        );
     }
 
     // GET USER

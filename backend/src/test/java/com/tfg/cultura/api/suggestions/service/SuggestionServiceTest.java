@@ -26,6 +26,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.suggestions.exception.*;
@@ -54,6 +55,9 @@ class SuggestionServiceTest {
 
     @Mock
     private CustomUserDetailsService userDetailsService;
+
+    @Mock
+    private AppProperties appProperties;
 
     @InjectMocks
     private SuggestionService service;
