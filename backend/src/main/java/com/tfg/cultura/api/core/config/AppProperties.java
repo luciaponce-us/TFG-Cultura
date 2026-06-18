@@ -12,22 +12,21 @@ public record AppProperties(
         boolean seedEnabled,
         Jwt jwt,
         Cloudinary cloudinary,
-        List<Role> adminRoles
-) {
+        List<Role> adminRoles) {
+
+    public AppProperties {
+        adminRoles = List.copyOf(adminRoles);
+    }
 
     public record Jwt(
             String secret,
-            long expiration
-    ) {
+            long expiration) {
     }
 
     public record Cloudinary(
-        String cloudName,
-        String apiKey,
-        String apiSecret,
-        boolean enabled
-) {
+            String cloudName,
+            String apiKey,
+            String apiSecret,
+            boolean enabled) {
+    }
 }
-}
-
-

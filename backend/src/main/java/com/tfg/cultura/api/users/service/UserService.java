@@ -45,7 +45,7 @@ public class UserService {
     User findUserByUsername(String username) throws UserNotFoundException {
         Optional<User> user = userRepository.findByUsername(username);
 
-        if (user.isEmpty() || user == null) {
+        if (user.isEmpty()) {
             logger.warn("Error al obtener el usuario: El usuario no existe");
             throw new UserNotFoundException(String.format("El usuario con username %s no existe", username));
         }
