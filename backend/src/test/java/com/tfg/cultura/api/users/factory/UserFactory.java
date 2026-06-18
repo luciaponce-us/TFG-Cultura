@@ -9,7 +9,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
-import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
@@ -30,6 +29,7 @@ public class UserFactory {
                 .paymentReceipt("test.pdf")
                 .avatar("test.png")
                 .active(true)
+                .role(Role.SOCIO)
                 .build();
     }
 
@@ -91,6 +91,16 @@ public class UserFactory {
         return new CustomUserDetails(user);
     }
 
+    public static CustomUserDetails mockAuthContextAdmin() {
+        User user = validUser();
+        user.setRole(Role.COORDINADOR);
+
+        SecurityContext context = mock(SecurityContext.class);
+
+        SecurityContextHolder.setContext(context);
+        return new CustomUserDetails(user);
+    }
+
     public static MockMultipartFile valid_avatar_file() {
         return new MockMultipartFile("avatar", "avatar.png", "image/png",
             "fake-image-content".getBytes());
@@ -105,7 +115,6 @@ public class UserFactory {
         return UserUpdateRequest.builder()
                 .name("Jane")
                 .surname("Smith")
-                .active(false)
                 .dni("51835019B")
                 .email("test2@test.com")
                 .phone("987654321")
@@ -113,14 +122,4 @@ public class UserFactory {
                 .build();
     }
 
-    public static UserProfileUpdateRequest validUserProfileUpdateRequest() {
-        return UserProfileUpdateRequest.builder()
-            .username("janesmith")
-            .password("password123")
-            .name("Jane")
-            .surname("Smith")
-            .email("test2@test.com")
-            .phone("987654321")
-            .build();
-    }
 }

@@ -1,0 +1,11 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://root:root@localhost:27018/test?authSource=admin
+      database: test
+# Seeder
+app:
+  seed-enabled: false
+  # Cloudinary
+  cloudinary:
+    enabled: false

@@ -46,7 +46,7 @@ class CustomUserDetailsServiceTest {
     // -------------------------------
 
     @Test
-    void shouldLoadUserByUsername() {
+    void should_load_user_by_username() {
         when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(Optional.of(user));
 
@@ -59,7 +59,7 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserNotFound() {
+    void should_throw_exception_when_user_not_found() {
         when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(Optional.empty());
 
@@ -75,7 +75,7 @@ class CustomUserDetailsServiceTest {
     // loadUserByUserId
     // -------------------------------
 	@Test
-    void shouldLoadUserByIdSuccessfully() throws Exception {
+    void should_load_user_by_id_successfully() throws Exception {
         // Arrange
         String userId = user.getId();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -95,7 +95,7 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+    void should_throw_user_not_found_exception_when_user_does_not_exist() {
         // Arrange
         String userId = "non-existent-id";
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -116,7 +116,7 @@ class CustomUserDetailsServiceTest {
     // -------------------------------
 
     @Test
-    void shouldReturnCurrentUserDetails() {
+    void should_return_current_user_details() {
         CustomUserDetails userDetails = new CustomUserDetails(user);
 
         when(userRepository.existsById(user.getId()))
@@ -136,7 +136,7 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void shouldThrowWhenNoAuthentication() {
+    void should_throw_when_no_authentication() {
         SecurityContextHolder.clearContext();
 
         assertThrows(UnathenticatedException.class, () ->
@@ -144,7 +144,7 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void shouldThrowWhenNotAuthenticated() {
+    void should_throw_when_not_authenticated() {
         var auth = mock(org.springframework.security.core.Authentication.class);
         when(auth.isAuthenticated()).thenReturn(false);
 
@@ -155,7 +155,7 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void shouldThrowWhenUserDoesNotExistInDatabase() {
+    void should_throw_when_user_does_not_exist_in_database() {
         CustomUserDetails userDetails = new CustomUserDetails(user);
 
         when(userRepository.existsById(user.getId()))
@@ -173,7 +173,7 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void shouldThrowWhenPrincipalIsNotCustomUserDetails() {
+    void should_throw_when_principal_is_not_custom_user_details() {
         Authentication auth = mock(Authentication.class);
 
         when(auth.isAuthenticated()).thenReturn(true);

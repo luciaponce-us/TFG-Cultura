@@ -11,28 +11,24 @@ import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 
+import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-@ConditionalOnProperty(name = "app.seed.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "app.seed-enabled", havingValue = "true")
+@RequiredArgsConstructor
 public class DatabaseSeeder implements CommandLineRunner {
 
     private final MongoTemplate mongoTemplate;
     private final PasswordEncoder passwordEncoder;
 
     private static final Logger logger = LoggerFactory.getLogger("appLogger");
-
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
-    public DatabaseSeeder(MongoTemplate mongoTemplate, PasswordEncoder passwordEncoder) {
-        this.mongoTemplate = mongoTemplate;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public void run(String... args) throws Exception {

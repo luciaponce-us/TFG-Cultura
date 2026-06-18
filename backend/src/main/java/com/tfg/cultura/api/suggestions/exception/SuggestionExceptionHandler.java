@@ -27,30 +27,12 @@ public class SuggestionExceptionHandler {
             log);
     }
 
-    @ExceptionHandler(SuggestionAlreadySupportedException.class)
-    public ResponseEntity<ApiError> handleSuggestionAlreadySupportedException(SuggestionAlreadySupportedException ex) {
-        return apiErrorBuilder.build(
-            ex,
-            HttpStatus.BAD_REQUEST,
-            "Suggestion Already Supported",
-            log);
-    }
-
     @ExceptionHandler(SelfSupportSuggestionException.class)
     public ResponseEntity<ApiError> handleSelfSupportSuggestionException(SelfSupportSuggestionException ex) {
         return apiErrorBuilder.build(
             ex,
             HttpStatus.BAD_REQUEST,
             "Cant Support Own Suggestion",
-            log);
-    }
-
-    @ExceptionHandler(SuggestionNotSupportedException.class)
-    public ResponseEntity<ApiError> handleSuggestionNotSupportedException(SuggestionNotSupportedException ex) {
-        return apiErrorBuilder.build(
-            ex,
-            HttpStatus.BAD_REQUEST,
-            "Cant Stop Supporting Not Supported Suggestion",
             log);
     }
     

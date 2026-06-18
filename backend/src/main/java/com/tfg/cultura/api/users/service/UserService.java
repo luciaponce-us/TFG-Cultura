@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
@@ -20,7 +21,6 @@ import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.model.enumerators.Role;
@@ -36,25 +36,11 @@ public class UserService {
     private final CustomUserDetailsService userDetailsService;
     private final SuggestionRepository suggestionRepository;
     private final UserFileService userFileService;
+    private final AppProperties appProperties;
 
     private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
-    public Page<UserResponse> getAllUsers(int page, int size, Role role, Boolean active, String name) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<User> userPage;
-        if (name != null || role != null || active != null) {
-            userPage = userRepository.findAllWithFilters(role, active, name, pageable);
-        } else {
-            userPage = userRepository.findAll(pageable);
-        }
-
-        return userPage.map(UserResponse::new);
-    }
-
-    public UserResponse getUser(String username) throws UserNotFoundException {
-        User user = findUserByUsername(username);
-        return new UserResponse(user);
-    }
+    // HELPERS
 
     User findUserByUsername(String username) throws UserNotFoundException {
         Optional<User> user = userRepository.findByUsername(username);
@@ -78,90 +64,46 @@ public class UserService {
         return user.get();
     }
 
-    public UserResponse updateUser(String username, UserUpdateRequest request)
-            throws UserNotFoundException, UserAlreadyExistsException {
-
-        User user = updateProfile(username, toProfileUpdateRequest(request));
-
-        if (isChanged(request.getDni(), user.getDni())) {
-            if (userRepository.existsByDni(request.getDni()))
-                throw new UserAlreadyExistsException("El DNI ya está en uso");
-
-            user.setDni(request.getDni());
-        }
-
-        if (request.getRole() != null) {
-            user.setRole(request.getRole());
-        }
-
-        user.setActive(request.isActive());
-
-        return saveUpdatedUser(user);
-    }
-
-    UserResponse updateAvatar(User user, MultipartFile avatar) {
-        String newAvatar = userFileService.uploadAvatar(user.getId(), avatar);
-        logger.info("Nuevo avatar subido para el usuario con username {}: {}", user.getUsername(), newAvatar);
-        user.setAvatar(newAvatar);
-        UserResponse response = saveUpdatedUser(user);
-        logger.info("Avatar del usuario con username {} actualizado correctamente", user.getUsername());
-        return response;
-    }
-
-    User getCurrentUser() throws UserNotFoundException {
+    User getCurrentUser() throws UnathenticatedException, UserNotFoundException {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
         return findUserById(currentUser.getId());
-    }
-
-    public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws UserNotFoundException {
-        User user = findUserByUsername(username);
-        return updateAvatar(user, avatar);
     }
 
     private boolean isChanged(String newValue, String currentValue) {
         return newValue != null && !newValue.trim().equals(currentValue);
     }
 
-    private UserProfileUpdateRequest toProfileUpdateRequest(UserUpdateRequest request) {
-        return UserProfileUpdateRequest.builder()
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .name(request.getName())
-                .surname(request.getSurname())
-                .phone(request.getPhone())
-                .email(request.getEmail())
-                .build();
+    // GETTERS
+
+    public Page<UserResponse> getAllUsers(int page, int size, Role role, Boolean active, String name) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<User> userPage;
+        if (name != null || role != null || active != null) {
+            userPage = userRepository.findAllWithFilters(role, active, name, pageable);
+        } else {
+            userPage = userRepository.findAll(pageable);
+        }
+
+        return userPage.map(UserResponse::new);
     }
 
-    @Transactional
-    public void deleteUser(String username) throws UserNotFoundException {
+    public UserResponse getUser(String username) throws UserNotFoundException {
         User user = findUserByUsername(username);
-        userFileService.deleteUserFiles(user.getAvatar(), user.getPaymentReceipt());
-        suggestionRepository.deleteByAuthorId(user.getId());
-        userRepository.delete(user);
-        logger.info("Usuario con username {} eliminado correctamente", user.getUsername());
+        return new UserResponse(user);
     }
 
-    // PROFILE
-
-    public UserResponse getProfile() throws UserNotFoundException {
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-
-        return getUser(currentUser.getUsername());
+    public UserResponse getProfile() throws UserNotFoundException, UnathenticatedException {
+        User currentUser = getCurrentUser();
+        return new UserResponse(currentUser);
     }
 
-    public UserResponse updateProfile(UserProfileUpdateRequest request)
-            throws UserNotFoundException, UserAlreadyExistsException {
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        User updatedUser = updateProfile(currentUser.getUsername(), request);
+    // UPDATE
 
-        return saveUpdatedUser(updatedUser);
-    }
+    UserResponse updateUser(User user, UserUpdateRequest request, User currentUser) throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
+        
+        boolean isAdmin = appProperties.adminRoles().contains(currentUser.getRole());
 
-    public User updateProfile(String username, UserProfileUpdateRequest request)
-            throws UserNotFoundException, UserAlreadyExistsException {
-        logger.info("Se va a actualizar un usuario con username");
-        User user = findUserByUsername(username);
+        logger.info("Se va a actualizar el usuario con username {}", user.getUsername());
 
         if (isChanged(request.getUsername(), user.getUsername())) {
             if (userRepository.existsByUsername(request.getUsername()))
@@ -191,13 +133,57 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
-        return user;
+        if (isAdmin) {
+            if (isChanged(request.getDni(), user.getDni())) {
+                if (userRepository.existsByDni(request.getDni()))
+                    throw new UserAlreadyExistsException("El DNI ya está en uso");
+
+                user.setDni(request.getDni());
+            }
+
+            if (request.getRole() != null && request.getRole() != user.getRole()) {
+                user.setRole(request.getRole());
+            }
+        }
+
+        return saveUpdatedUser(user);
     }
 
-    public UserResponse saveUpdatedUser(User user) {
+    public UserResponse updateUser(String username, UserUpdateRequest request)
+            throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
+        User user = findUserByUsername(username);
+        User currentUser = getCurrentUser();
+        return updateUser(user, request, currentUser);
+    }
+
+    public UserResponse updateProfile(UserUpdateRequest request)
+            throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
+        User currentUser = getCurrentUser();
+        return updateUser(currentUser, request, currentUser);
+    }
+
+    UserResponse saveUpdatedUser(User user) {
+        if(user == null) {
+            logger.warn("Error al guardar el usuario: El usuario es nulo");
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
+        }
         User savedUser = userRepository.save(user);
         logger.info("Usuario con username {} actualizado correctamente", user.getUsername());
         return new UserResponse(savedUser);
+    }
+
+    UserResponse updateAvatar(User user, MultipartFile avatar) {
+        String newAvatar = userFileService.uploadAvatar(user.getId(), avatar);
+        logger.info("Nuevo avatar subido para el usuario con username {}: {}", user.getUsername(), newAvatar);
+        user.setAvatar(newAvatar);
+        UserResponse response = saveUpdatedUser(user);
+        logger.info("Avatar del usuario con username {} actualizado correctamente", user.getUsername());
+        return response;
+    }
+
+    public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws UserNotFoundException {
+        User user = findUserByUsername(username);
+        return updateAvatar(user, avatar);
     }
 
     public UserResponse updateCurrentUserAvatar(MultipartFile avatar) throws UserNotFoundException {
@@ -205,62 +191,52 @@ public class UserService {
         return updateAvatar(user, avatar);
     }
 
-    @Transactional
-    public void deleteProfile() throws UserNotFoundException {
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        String username = currentUser.getUsername();
-        User user = findUserByUsername(username);
-        String userToDelete = user.getUsername();
-        userFileService.deleteUserFiles(user.getAvatar(), user.getPaymentReceipt());
-        suggestionRepository.deleteByAuthorId(user.getId());
-        userRepository.delete(user);
-        logger.info("Usuario con username {} eliminado correctamente", userToDelete);
-    }
-
-    public UserResponse activateUser(String username) throws UserNotFoundException {
-
+    public UserResponse toggleUserActivation(String username) throws UserNotFoundException {
         User user = findUserByUsername(username);
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 
         if (currentUser == null) {
             throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
         }
+
         if (user.getId().equals(currentUser.getId())) {
             throw new SelfActivationNotAllowedException(
-                    String.format("El usuario %s con id %s ha intentado activar su propio usuario", user.getUsername(),
-                            user.getId()));
-        }
-
-        if (!user.isActive()) {
-            user.setActive(true);
-            user = userRepository.save(user);
-        }
-
-        logger.info("Se ha aprobado el registro del usuario {} con id {}", user.getUsername(), user.getId());
-        return new UserResponse(user);
-    }
-
-    public UserResponse deactivateUser(String username) throws UserNotFoundException {
-
-        User user = findUserByUsername(username);
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-
-        if (currentUser == null) {
-            throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
-        }
-        if (user.getId().equals(currentUser.getId())) {
-            throw new SelfActivationNotAllowedException(
-                    String.format("El usuario %s con id %s ha intentado desactivar su propio usuario",
-                            user.getUsername(),
+                    String.format("El usuario %s con id %s ha intentado activar o desactivar su propio usuario", user.getUsername(),
                             user.getId()));
         }
 
         if (user.isActive()) {
             user.setActive(false);
-            user = userRepository.save(user);
+        } else {
+            user.setActive(true);
         }
 
-        logger.info("Se ha desactivado el usuario {} con id {}", user.getUsername(), user.getId());
-        return new UserResponse(user);
+        logger.info("Se ha cambiado el estado de activación del usuario {} con id {} a {}", user.getUsername(), user.getId(), user.isActive());
+
+        return saveUpdatedUser(user);
     }
+
+    // DELETE
+
+    @Transactional
+    void deleteUser(User user) {
+        userFileService.deleteUserFile(user.getAvatar());
+        userFileService.deleteUserFile(user.getPaymentReceipt());
+        suggestionRepository.deleteByAuthorId(user.getId());
+        userRepository.delete(user);
+        logger.info("Usuario con username {} eliminado correctamente", user.getUsername());
+    }
+
+    @Transactional
+    public void deleteUser(String username) throws UserNotFoundException {
+        User user = findUserByUsername(username);
+        deleteUser(user);
+    }
+
+    @Transactional
+    public void deleteProfile() throws UserNotFoundException, UnathenticatedException {
+        User user = getCurrentUser();
+        deleteUser(user);
+    }
+
 }

@@ -1,7 +1,5 @@
 package com.tfg.cultura.api.core.config;
 
-import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,28 +15,25 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.tfg.cultura.api.users.jwt.JwtFilter;
+import com.tfg.cultura.api.users.model.enumerators.Role;
+
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
-
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
-    public SecurityConfig(JwtFilter jwtFilter) {
-        this.jwtFilter = jwtFilter;
-    }
-
-    @Value("${app.frontend.url}")
-    private String frontendUrl;
-
-    private static final String[] MANAGEMENT_ROLES = {
-        "SECRETARIO", "COORDINADOR", "ENCARGADO", "COLABORADOR"
-    };
+    private final AppProperties appProperties;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        String[] adminRoles = appProperties.adminRoles().stream()
+            .map(Role::name)
+            .toArray(String[]::new);
+
         http
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable()) // NOSONAR: CSRF deshabilitado porque la API es stateless y usa JWT en headers (no cookies)
@@ -64,9 +59,8 @@ public class SecurityConfig {
                 // Users - Profile (requiere autenticación)
                 .requestMatchers("/api/users/profile", "/api/users/profile/**").authenticated()
                 // Users - Admin (requiere roles específicos)
-                .requestMatchers("/api/users/*/activate").hasAnyRole(MANAGEMENT_ROLES)
-                .requestMatchers("/api/users/*/deactivate").hasAnyRole(MANAGEMENT_ROLES)
-                .requestMatchers("/api/users", "/api/users/**").hasAnyRole(MANAGEMENT_ROLES)
+                .requestMatchers("/api/users/*/toggle-activation").hasAnyRole(adminRoles)
+                .requestMatchers("/api/users", "/api/users/**").hasAnyRole(adminRoles)
                 // Suggestions
                 .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
                 .anyRequest().authenticated()
@@ -81,7 +75,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(frontendUrl));
+        configuration.setAllowedOrigins(List.of(appProperties.frontendUrl()));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

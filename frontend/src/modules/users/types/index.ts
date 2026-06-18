@@ -21,7 +21,6 @@ export interface UserUpdateRequest {
   dni: string;
   phone: string;
   email: string;
-  active: boolean;
   role: Role;
 }
 

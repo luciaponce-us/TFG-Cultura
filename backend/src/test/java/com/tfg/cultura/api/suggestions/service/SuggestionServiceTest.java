@@ -1,9 +1,11 @@
 package com.tfg.cultura.api.suggestions.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.suggestions.exception.*;
@@ -52,6 +55,9 @@ class SuggestionServiceTest {
 
     @Mock
     private CustomUserDetailsService userDetailsService;
+
+    @Mock
+    private AppProperties appProperties;
 
     @InjectMocks
     private SuggestionService service;
@@ -180,7 +186,7 @@ class SuggestionServiceTest {
     // SUPPORT SUGGESTIONS
 
     @Test
-    void supportSuggestion_success() throws Exception {
+    void toggleSupport_when_sugestion_not_supported_success() throws Exception {
         mockCurrentUser();
         suggestion.setAuthorId("otherAuthorId");
         suggestion.setSupportersId(new ArrayList<>());
@@ -190,7 +196,7 @@ class SuggestionServiceTest {
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(userRepository.findAllById(any())).thenReturn(List.of(user));
 
-        SuggestionResponse response = service.supportSuggestion(suggestion.getId());
+        SuggestionResponse response = service.toggleSupport(suggestion.getId());
         List<String> supportersUsernames = response.getSupporters().stream().map(UserResponse::getUsername).toList();
 
         assertNotNull(response);
@@ -201,28 +207,37 @@ class SuggestionServiceTest {
     }
 
     @Test
-    void supportSuggestion_alreadySupported() {
+    void toggleSupport_when_sugestion_supported_success() throws Exception {
         mockCurrentUser();
-        suggestion.getSupportersId().add(user.getId());
+        suggestion.setAuthorId("otherAuthorId");
+        assertEquals(user.getId(), userDetailsService.getCurrentUserDetails().getId());
+        suggestion.setSupportersId(new ArrayList<>(List.of(user.getId())));
 
         when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        
+        when(userRepository.findAllById(eq(List.of())))
+            .thenReturn(List.of());
+        when(repository.save(any(Suggestion.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        try {
-            service.supportSuggestion(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SuggestionAlreadySupportedException.class);
-            verify(repository, never()).save(any());
-        }
+        SuggestionResponse response = service.toggleSupport(suggestion.getId());
+        List<String> supportersUsernames = response.getSupporters().stream().map(UserResponse::getUsername).toList();
+
+        assertNotNull(response);
+        assertEquals(0, response.getTotalSupporters());
+        assertFalse(supportersUsernames.contains(user.getUsername()));
+        verify(repository).save(suggestion);
+        assertFalse(suggestion.getSupportersId().contains(user.getId()));
     }
 
     @Test
-    void supportSuggestion_selfSupport() {
+    void toggleSupport_selfSupport() {
         mockCurrentUser();
         // El autor de suggestion ya es currentUser
         when(repository.findById(any())).thenReturn(Optional.of(suggestion));
 
         try {
-            service.supportSuggestion(suggestion.getId());
+            service.toggleSupport(suggestion.getId());
         } catch (Exception e) {
             assertEquals(e.getClass(), SelfSupportSuggestionException.class);
             verify(repository, never()).save(any());
@@ -230,63 +245,15 @@ class SuggestionServiceTest {
     }
 
     @Test
-    void supportSuggestion_notFound() {
+    void toggleSupport_notFound() {
         mockCurrentUser();
 
         when(repository.findById(any())).thenReturn(Optional.empty());
 
         try {
-            service.supportSuggestion(suggestion.getId());
+            service.toggleSupport(suggestion.getId());
         } catch (Exception e) {
             assertEquals(e.getClass(), SuggestionNotFoundException.class);
-            verify(repository, never()).save(any());
-        }
-    }
-
-    // STOP SUPPORTING SUGGESTIONS
-
-    @Test
-    void stopSupportingSuggestion_success() {
-        mockCurrentUser();
-        List<String> supportersId = new ArrayList<>(List.of(user.getId()));
-        suggestion.setSupportersId(supportersId);
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
-        when(repository.save(any())).thenReturn(suggestion);
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-        when(userRepository.findAllById(any())).thenReturn(List.of());
-
-        SuggestionResponse response = service.stopSupportingSuggestion(suggestion.getId());
-
-        verify(repository).save(suggestion);
-        assertNotNull(response);
-        assertEquals(0, response.getTotalSupporters());
-        assertEquals(List.of(), response.getSupporters());
-    }
-
-    @Test
-    void stopSupportingSuggestion_notFound() {
-        mockCurrentUser();
-
-        when(repository.findById(any())).thenReturn(Optional.empty());
-
-        try {
-            service.stopSupportingSuggestion(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SuggestionNotFoundException.class);
-            verify(repository, never()).save(any());
-        }
-    }
-
-    @Test
-    void stopSupportingSuggestion_suggestionNotSupported() {
-        mockCurrentUser();
-
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
-
-        try {
-            service.stopSupportingSuggestion(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SuggestionNotSupportedException.class);
             verify(repository, never()).save(any());
         }
     }

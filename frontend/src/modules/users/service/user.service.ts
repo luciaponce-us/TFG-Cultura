@@ -136,15 +136,14 @@ export async function updateUserAvatar(
 export async function toggleUserActive(
   token: string,
   username: string,
-  isActive: boolean,
 ): Promise<User> {
-  const route = isActive
-    ? USER_ROUTES.DEACTIVATE_USER(username)
-    : USER_ROUTES.ACTIVATE_USER(username);
-  const res = await fetchWithTimeout(route, {
-    method: "PUT",
-    headers: { ...jsonHeaders, Authorization: `Bearer ${token}` },
-  });
+  const res = await fetchWithTimeout(
+    USER_ROUTES.TOGGLE_USER_ACTIVATION(username),
+    {
+      method: "PUT",
+      headers: { ...jsonHeaders, Authorization: `Bearer ${token}` },
+    },
+  );
 
   return handleResponse<User>(res);
 }

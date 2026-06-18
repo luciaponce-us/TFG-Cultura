@@ -15,8 +15,7 @@ import { useState } from "react";
 import { isApiError } from "@/modules/core/utils/utils";
 import {
   deleteSuggestion,
-  supportSuggestion,
-  unsupportSuggestion,
+  toggleSupportSuggestion,
 } from "../service/suggestion.service";
 import { DeleteDialog } from "@/modules/core/components/DeleteDialog";
 
@@ -86,11 +85,11 @@ export function SuggestionCard({
   );
   const isAuthor = suggestion.author.username === user?.username;
 
-  async function handleSupport() {
+  async function handleToggleSupport() {
     setLoadingSupport(true);
     if (!token) {
       toaster.create({
-        title: "Inicia sesión para apoyar sugerencias",
+        title: "Inicia sesión para apoyar o dejar de apoyar sugerencias",
         description: "Serás redirigido a la página de inicio de sesión",
         closable: true,
       });
@@ -98,15 +97,18 @@ export function SuggestionCard({
       setLoadingSupport(false);
     } else {
       try {
-        await supportSuggestion(token, suggestion.id);
+        await toggleSupportSuggestion(token, suggestion.id);
         onSupportSuccess?.();
       } catch (error) {
         if (isApiError(error)) {
-          console.error("Error supporting suggestion:", error.message);
+          console.error(
+            "Error toggling support for suggestion:",
+            error.message,
+          );
           toaster.create({
-            title: "Error al apoyar sugerencia",
+            title: "Error al apoyar o dejar de apoyar sugerencia",
             description:
-              "Ocurrió un error al apoyar la sugerencia. Inténtalo de nuevo.",
+              "Ocurrió un error al apoyar o dejar de apoyar la sugerencia. Inténtalo de nuevo.",
             type: "error",
           });
         } else {
@@ -120,33 +122,6 @@ export function SuggestionCard({
       }
       setLoadingSupport(false);
     }
-  }
-
-  async function handleUnsupport() {
-    setLoadingSupport(true);
-    if (!token) return;
-    try {
-      await unsupportSuggestion(token, suggestion.id);
-      onSupportSuccess?.();
-    } catch (error) {
-      if (isApiError(error)) {
-        console.error("Error unsupporting suggestion:", error.message);
-        toaster.create({
-          title: "Error al dejar de apoyar sugerencia",
-          description:
-            "Ocurrió un error al dejar de apoyar la sugerencia. Inténtalo de nuevo.",
-          type: "error",
-        });
-      } else {
-        console.error("Unexpected error:", error);
-        toaster.create({
-          title: "Error inesperado",
-          description: "Ocurrió un error inesperado. Inténtalo de nuevo.",
-          type: "error",
-        });
-      }
-    }
-    setLoadingSupport(false);
   }
 
   return (
@@ -215,11 +190,14 @@ export function SuggestionCard({
           )}
           {!isAuthor &&
             (isSupportedByUser ? (
-              <CustomButton onClick={handleUnsupport} color="rojo">
+              <CustomButton onClick={handleToggleSupport} color="rojo">
                 <IconThumbDown /> Dejar de apoyar
               </CustomButton>
             ) : (
-              <CustomButton onClick={handleSupport} loading={loadingSupport}>
+              <CustomButton
+                onClick={handleToggleSupport}
+                loading={loadingSupport}
+              >
                 <IconThumbUp /> Apoyar sugerencia
               </CustomButton>
             ))}

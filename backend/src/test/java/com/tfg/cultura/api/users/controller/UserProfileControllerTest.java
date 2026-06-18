@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.users.controller;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -22,8 +23,9 @@ import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.dto.UserProfileUpdateRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.service.UserService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
@@ -36,7 +38,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 
 	private UserResponse userResponse;
 	private User user;
-	private UserProfileUpdateRequest updateRequest;
+	private UserUpdateRequest updateRequest;
 	private MockMultipartFile avatar;
 
 	@BeforeEach
@@ -51,7 +53,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	private void initTestData() {
 		userResponse = UserFactory.validUserResponse();
 		user = UserFactory.validUser();
-		updateRequest = UserFactory.validUserProfileUpdateRequest();
+		updateRequest = UserFactory.validUserUpdateRequest();
 		avatar = new MockMultipartFile(
 				"avatar",
 				"avatar.png",
@@ -104,9 +106,34 @@ class UserProfileControllerTest extends BaseControllerTest {
 	}
 
 	@Test
+	void should_not_update_dni_and_role_when_user_is_not_admin() throws Exception {
+		String dni = user.getDni();
+		Role role = user.getRole();
+		assertNotEquals(updateRequest.getDni(), dni);
+		assertNotEquals(updateRequest.getRole(), role);
+
+		user.setUsername(updateRequest.getUsername());
+
+		UserResponse response = new UserResponse(user);
+
+		when(service.updateProfile(any()))
+				.thenReturn(response);
+
+		mockMvc.perform(put(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(updateRequest)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value(user.getUsername()))
+				.andExpect(jsonPath("$.dni").value(dni))
+				.andExpect(jsonPath("$.role").value(role.name()));
+
+		verify(service).updateProfile(any());
+	}
+
+	@Test
 	void should_return_400_when_validation_fails() throws Exception {
 
-		UserProfileUpdateRequest request = UserProfileUpdateRequest.builder()
+		UserUpdateRequest request = UserUpdateRequest.builder()
 				.username("ab") // ❌ < 3
 				.password("123") // ❌ < 8
 				.email("email-mal") // ❌ inválido
@@ -122,6 +149,8 @@ class UserProfileControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_user_not_found_at_update() throws Exception {
+
+
 		when(service.updateProfile(any()))
 				.thenThrow(new UserNotFoundException("User not found"));
 
@@ -161,7 +190,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	// UPDATE MY AVATAR
 
 	@Test
-	void shouldUpdateMyAvatarSuccessfully() throws Exception {
+	void should_update_my_avatar_successfully() throws Exception {
 		when(service.updateCurrentUserAvatar(any(MultipartFile.class)))
 				.thenReturn(userResponse);
 
@@ -180,7 +209,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	}
 
 	@Test
-	void shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
+	void should_return_not_found_when_user_does_not_exist() throws Exception {
 
 		when(service.updateCurrentUserAvatar(any()))
 				.thenThrow(new UserNotFoundException("User not found"));

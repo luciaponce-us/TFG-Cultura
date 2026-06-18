@@ -5,11 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.Field;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
@@ -28,12 +29,9 @@ class JwtServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        jwtService = new JwtService();
+        AppProperties appProperties = createAppProperties(SECRET, EXPIRATION);
 
-        // Inyectar valores de @Value manualmente
-        setField(jwtService, "secret", SECRET);
-        setField(jwtService, "expiration", EXPIRATION);
-
+        jwtService = new JwtService(appProperties);
         jwtService.init();
 
         User user = UserFactory.validUser();
@@ -43,14 +41,24 @@ class JwtServiceTest {
         id = user.getId();
     }
 
-    private void setField(Object target, String fieldName, Object value) throws Exception {
-        Field field = JwtService.class.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(target, value);
+    private AppProperties createAppProperties(String secret, long expiration) {
+        AppProperties.Jwt jwt = new AppProperties.Jwt(secret, expiration);
+        AppProperties.Cloudinary cloudinary = new AppProperties.Cloudinary(
+                "test-cloud",
+                "test-key",
+                "test-secret",
+                false);
+        return new AppProperties(
+                "http://localhost:3000", // frontendUrl
+                false, // seedEnabled
+                jwt,
+                cloudinary,
+                List.of(Role.COORDINADOR)
+        );
     }
 
     @Test
-    void shouldGenerateTokenAndExtractAllFields() {
+    void should_generate_token_and_extract_all_fields() {
         String token = jwtService.generateToken(username, role, id);
 
         assertNotNull(token);
@@ -60,23 +68,24 @@ class JwtServiceTest {
     }
 
     @Test
-    void shouldReturnTrueWhenTokenIsValid() {
+    void should_return_true_when_token_is_valid() {
         String token = jwtService.generateToken(username, role, id);
 
         assertTrue(jwtService.isTokenValid(token, userDetails));
     }
 
     @Test
-    void shouldReturnFalseWhenIdDoesNotMatch() {
+    void should_return_false_when_id_does_not_match() {
         String token = jwtService.generateToken(username, role, "otroId");
 
         assertFalse(jwtService.isTokenValid(token, userDetails));
     }
 
     @Test
-    void shouldDetectExpiredToken() throws Exception {
-        // Token con expiración muy corta
-        setField(jwtService, "expiration", -1000L);
+    void should_detect_expired_token() throws Exception {
+        AppProperties appProperties = createAppProperties(SECRET, -1000L);
+
+        JwtService jwtService = new JwtService(appProperties);
         jwtService.init();
 
         String token = jwtService.generateToken(username, role, id);
@@ -85,14 +94,14 @@ class JwtServiceTest {
     }
 
     @Test
-    void shouldReturnFalseWhenTokenNotExpired() {
+    void should_return_false_when_token_not_expired() {
         String token = jwtService.generateToken(username, role, id);
 
         assertFalse(jwtService.isTokenExpired(token));
     }
 
     @Test
-    void shouldReturnFalseWhenUserDetailsNotCustom() {
+    void should_return_false_when_user_details_not_custom() {
         String token = jwtService.generateToken(username, role, id);
         UserDetails loggedUser = null;
 
