@@ -32,7 +32,7 @@ export const Header = () => {
         color="white"
         shadow="card"
         h="80px"
-        overflow={isMobile ?  "visible":"hidden"}
+        overflow={isMobile ? "visible" : "hidden"}
       >
         {/* HAMBURGER solo móvil */}
         <Flex hideFrom="md" direction="row" gap={2} align="center">
@@ -50,11 +50,10 @@ export const Header = () => {
             }}
             boxSize="48px"
           >
-            <IconMenu2 style={{ width: 40, height: 40 }}/>
+            <IconMenu2 style={{ width: 40, height: 40 }} />
           </IconButton>
           <Heading fontSize="xl">Cultura ETSII</Heading>
         </Flex>
-
 
         <Logo />
 
@@ -115,7 +114,7 @@ function SearchBar() {
       onClick={() => {
         toaster.create({
           title: "Funcionalidad no implementada",
-          description: "Por el momento, no se pueden realizar búsquedas"
+          description: "Por el momento, no se pueden realizar búsquedas",
         });
       }}
       variant="ghost"
@@ -128,7 +127,9 @@ function SearchBar() {
         transform: "scale(0.92)",
       }}
       boxSize="48px"
-    ><IconSearch style={{ width: 35, height: 35 }}/></IconButton>
+    >
+      <IconSearch style={{ width: 35, height: 35 }} />
+    </IconButton>
   ) : (
     <InputGroup
       endElement={

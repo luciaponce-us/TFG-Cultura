@@ -13,13 +13,10 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { CustomAvatar, NavButton } from "../";
-import {
-  IconLogout,
-  IconX,
-} from "@tabler/icons-react";
+import { IconLogout, IconX } from "@tabler/icons-react";
 import type { User } from "@/modules/users/types";
 import { toaster } from "../toaster/toaster";
-import {getUserLinks, type NavLink} from "../../config/navigation.config";
+import { getUserLinks, type NavLink } from "../../config/navigation.config";
 
 export function AvatarMenu() {
   const { user } = useAuth();
@@ -103,40 +100,38 @@ function AvatarDropdownMenu({
             boxShadow="lg"
             p={2}
           >
-            {links.map(
-              (link: NavLink) => (
-                <Menu.Item
-                  key={link.href}
-                  asChild
-                  value={link.title}
-                  color="white"
-                  _highlighted={{ bg: "principal.600" }}
-                  minH="44px"
-                  px={3}
-                  w="100%"
-                  cursor="pointer"
+            {links.map((link: NavLink) => (
+              <Menu.Item
+                key={link.href}
+                asChild
+                value={link.title}
+                color="white"
+                _highlighted={{ bg: "principal.600" }}
+                minH="44px"
+                px={3}
+                w="100%"
+                cursor="pointer"
+              >
+                <a
+                  href={link.href}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    width: "100%",
+                  }}
                 >
-                  <a
-                    href={link.href}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      width: "100%",
-                    }}
-                  >
-                    {link.icon && (
-                      <span
-                        style={{ display: "inline-flex", alignItems: "center" }}
-                      >
-                        {link.icon}
-                      </span>
-                    )}
-                    <span>{link.title}</span>
-                  </a>
-                </Menu.Item>
-              ),
-            )}
+                  {link.icon && (
+                    <span
+                      style={{ display: "inline-flex", alignItems: "center" }}
+                    >
+                      {link.icon}
+                    </span>
+                  )}
+                  <span>{link.title}</span>
+                </a>
+              </Menu.Item>
+            ))}
             {user && (
               <Menu.Item
                 value="Cerrar sesión"
@@ -228,17 +223,22 @@ function AvatarDrawerMenu({
               }}
               boxSize="48px"
             >
-              <IconX style={{ width: 35, height: 35 }}/>
+              <IconX style={{ width: 35, height: 35 }} />
             </IconButton>
           </Flex>
         </Box>
 
         <Drawer.Body>
-          <Flex direction="column" justify="space-between" h="100%" >
+          <Flex direction="column" justify="space-between" h="100%">
             <Flex direction="column" gap={2}>
-            {links.map(
-              (link: NavLink) => (
-                <NavButton key={link.href} to={link.href} onClick={onClose} w="100%" h="50px">
+              {links.map((link: NavLink) => (
+                <NavButton
+                  key={link.href}
+                  to={link.href}
+                  onClick={onClose}
+                  w="100%"
+                  h="50px"
+                >
                   {link.icon && (
                     <span
                       style={{ display: "inline-flex", alignItems: "center" }}
@@ -248,39 +248,37 @@ function AvatarDrawerMenu({
                   )}
                   <span>{link.title}</span>
                 </NavButton>
-              ),
-            )}
+              ))}
             </Flex>
-<Box>
-            {user && (
-              <Button
-                variant="ghost"
-                color="white"
-                _hover={{
-                  bg: "principal.600",
-                }}
-                _active={{
-                  bg: "principal.700",
-                  transform: "scale(0.92)",
-                }}
-                fontSize="lg"
-                onClick={() => {
-                onClose();
-                  logout();
-                  toaster.create({
-                    title: "Sesión cerrada exitosamente",
-                    description: "¡Hasta pronto! 👋​",
-                    type: "info",
-                  });
-                  navigate("/");
-                }}
-                w="100%"
-                h="50px"
-        
-              >
-                <IconLogout /> Cerrar sesión
-              </Button>
-            )}
+            <Box>
+              {user && (
+                <Button
+                  variant="ghost"
+                  color="white"
+                  _hover={{
+                    bg: "principal.600",
+                  }}
+                  _active={{
+                    bg: "principal.700",
+                    transform: "scale(0.92)",
+                  }}
+                  fontSize="lg"
+                  onClick={() => {
+                    onClose();
+                    logout();
+                    toaster.create({
+                      title: "Sesión cerrada exitosamente",
+                      description: "¡Hasta pronto! 👋​",
+                      type: "info",
+                    });
+                    navigate("/");
+                  }}
+                  w="100%"
+                  h="50px"
+                >
+                  <IconLogout /> Cerrar sesión
+                </Button>
+              )}
             </Box>
           </Flex>
         </Drawer.Body>

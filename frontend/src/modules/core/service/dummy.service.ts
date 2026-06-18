@@ -18,9 +18,12 @@ export const fetchDummyData = async (): Promise<string> => {
 
 export const fetchMongoData = async (): Promise<string> => {
   try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/dummy/mongodb`, {
-      method: "GET",
-    });
+    const response = await fetchWithTimeout(
+      `${API_BASE_URL}/api/dummy/mongodb`,
+      {
+        method: "GET",
+      },
+    );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

@@ -17,7 +17,7 @@ export const ADMIN_ROLES: Role[] = [
 
 export const MAIN_MENU_LINKS: NavLink[] = [
   { icon: null, title: "Inicio", href: "/" },
-  { icon: null, title: "Sugerencias", href: "/sugerencias" }
+  { icon: null, title: "Sugerencias", href: "/sugerencias" },
 ];
 
 // Si no usamos tsx no podemos colocar así los iconos
