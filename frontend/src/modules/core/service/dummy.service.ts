@@ -1,8 +1,10 @@
-import { API_BASE_URL } from "../utils/utils";
+import { API_BASE_URL, fetchWithTimeout } from "../utils/utils";
 
 export const fetchDummyData = async (): Promise<string> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/dummy`);
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/dummy`, {
+      method: "GET",
+    });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -16,7 +18,9 @@ export const fetchDummyData = async (): Promise<string> => {
 
 export const fetchMongoData = async (): Promise<string> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/dummy/mongodb`);
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/dummy/mongodb`, {
+      method: "GET",
+    });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
