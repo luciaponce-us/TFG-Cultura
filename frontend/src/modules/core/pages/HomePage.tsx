@@ -97,8 +97,9 @@ function Alerts() {
       } catch (error) {
         setBackendState("error");
         setBackendMessage(
-          "No se pudo conectar con el backend. ERROR: " + error,
+          "No se pudo conectar con el backend. Inténtalo de nuevo más tarde.",
         );
+        console.error("Error al conectar con el backend:", error);
         return;
       }
       setBackendState("success");
@@ -111,8 +112,9 @@ function Alerts() {
       } catch (error) {
         setMongoState("error");
         setMongoMessage(
-          "No se pudo conectar con la base de datos. ERROR: " + error,
+          "No se pudo conectar con la base de datos. Inténtalo de nuevo más tarde.",
         );
+        console.error("Error al conectar con la base de datos:", error);
         return;
       }
       setMongoState("success");
