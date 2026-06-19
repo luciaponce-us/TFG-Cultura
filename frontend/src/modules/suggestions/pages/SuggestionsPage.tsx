@@ -47,12 +47,13 @@ export function SuggestionsPage({
   const navigate = useNavigate();
 
   const fetchSuggestions = useCallback(
-    async (pageToLoad: number = 0) => {
-      setLoading(true);
+    async (pageToLoad: number = 0, isInitialLoad: boolean = false) => {
+      setLoading(isInitialLoad);
+
       try {
         const data = await fetchAllSuggestions(
           pageToLoad,
-          10,
+          3,
           filters.type,
           filters.text,
           filters.orderByCreationDate,
@@ -80,7 +81,7 @@ export function SuggestionsPage({
 
   useEffect(() => {
     async function loadSuggestions() {
-      await fetchSuggestions(page);
+      await fetchSuggestions(page, true);
     }
     loadSuggestions();
   }, [page, fetchSuggestions]);
@@ -101,6 +102,7 @@ export function SuggestionsPage({
             key={suggestion.id}
             suggestion={suggestion}
             onSupportSuccess={() => fetchSuggestions(page)}
+            fetchSuggestions={fetchSuggestions}
           />
         ))}
       </VStack>
@@ -216,7 +218,7 @@ export function SuggestionsPage({
             setPage={setPage}
             page={page}
             totalElements={suggestions.totalElements ?? 0}
-            size={suggestions.size ?? 10}
+            size={suggestions.size ?? 3}
           />
         )}
       </VStack>

@@ -14,7 +14,7 @@ import type { Paginated } from "@/modules/core/types";
 
 export async function fetchAllSuggestions(
   page: number = 0,
-  limit: number = 10,
+  size: number = 3,
   type?: SuggestionType | null | undefined,
   text?: string,
   orderByCreationDate?: boolean,
@@ -22,7 +22,7 @@ export async function fetchAllSuggestions(
   mySuggestions: boolean = false,
   token?: string | null,
 ): Promise<Paginated<Suggestion>> {
-  let queryParams = `?page=${page}&limit=${limit}`;
+  let queryParams = `?page=${page}&size=${size}`;
 
   if (type) queryParams += `&type=${type}`;
   if (text) queryParams += `&text=${encodeURIComponent(text)}`;

@@ -12,7 +12,7 @@ import { parseRole } from "@/modules/users/utils";
 import { useAuth } from "@/modules/core/context/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { isApiError } from "@/modules/core/utils/utils";
+import { isApiError, useIsMobile } from "@/modules/core/utils/utils";
 import {
   deleteSuggestion,
   toggleSupportSuggestion,
@@ -22,13 +22,16 @@ import { DeleteDialog } from "@/modules/core/components/DeleteDialog";
 export function SuggestionCard({
   suggestion,
   onSupportSuccess,
+  fetchSuggestions,
 }: {
   suggestion: Suggestion;
   onSupportSuccess?: () => void;
+  fetchSuggestions: (pageToLoad?: number) => Promise<void>;
 }) {
   const { token } = useAuth();
   const { user } = useAuth();
   const { isAdmin } = useAuth();
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [loadingSupport, setLoadingSupport] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -185,20 +188,20 @@ export function SuggestionCard({
               onClick={() => setDeleteDialogOpen(true)}
               color="rojo"
             >
-              <IconTrash /> Eliminar
+              <IconTrash /> {isMobile ? "":"Eliminar"}
             </CustomButton>
           )}
           {!isAuthor &&
             (isSupportedByUser ? (
               <CustomButton onClick={handleToggleSupport} color="rojo">
-                <IconThumbDown /> Dejar de apoyar
+                <IconThumbDown /> {isMobile ? "":"Dejar de apoyar"}
               </CustomButton>
             ) : (
               <CustomButton
                 onClick={handleToggleSupport}
                 loading={loadingSupport}
               >
-                <IconThumbUp /> Apoyar sugerencia
+                <IconThumbUp /> {isMobile ? "":"Apoyar sugerencia"}
               </CustomButton>
             ))}
         </HStack>
@@ -207,6 +210,7 @@ export function SuggestionCard({
         suggestionId={suggestion.id}
         isOpen={deleteDialogOpen}
         setIsOpen={setDeleteDialogOpen}
+        fetchSuggestions={fetchSuggestions}
       />
     </VStack>
   );
@@ -216,10 +220,12 @@ function DeleteSuggestionDialog({
   suggestionId,
   isOpen,
   setIsOpen,
+  fetchSuggestions,
 }: {
   suggestionId: string;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  fetchSuggestions: (pageToLoad?: number) => Promise<void>;
 }) {
   const { token } = useAuth();
 
@@ -239,7 +245,7 @@ function DeleteSuggestionDialog({
         title: "Sugerencia eliminada",
         description: "La sugerencia se ha eliminado correctamente.",
       });
-      window.location.reload();
+      await fetchSuggestions(0); // Refresca la lista de sugerencias después de eliminar
     } catch (error) {
       if (isApiError(error)) {
         console.error("Error deleting suggestion:", error.message);
