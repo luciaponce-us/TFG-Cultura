@@ -1,11 +1,4 @@
-import {
-  Flex,
-  Grid,
-  Heading,
-  Link,
-  Spinner,
-  VStack,
-} from "@chakra-ui/react";
+import { Flex, Grid, Heading, Link, Spinner, VStack } from "@chakra-ui/react";
 import {
   SideBar,
   CustomPagination,
@@ -15,9 +8,7 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import type { Role, User } from "../types";
 import { useAuth } from "@/modules/core/context/useAuth";
-import {
-  getAllUsers
-} from "../service/user.service";
+import { getAllUsers } from "../service/user.service";
 import type { Paginated } from "@/modules/core/types";
 import { UsersTable } from "../components/UsersTable";
 import { useIsMobile } from "@/modules/core/utils/utils";
@@ -69,11 +60,7 @@ export default function UsersAdminPage() {
   }, [fetchUsers, page]);
 
   return (
-    <Grid
-      templateColumns={{ base: "1fr", md: "1fr 4fr" }}
-      gap={10}
-      w="100%"
-    >
+    <Grid templateColumns={{ base: "1fr", md: "1fr 4fr" }} gap={10} w="100%">
       <SideBar>
         <VStack align="start" gap={4} w="100%">
           <Heading as="h1">Filtros</Heading>
@@ -145,7 +132,9 @@ export default function UsersAdminPage() {
         minH="80vh"
         gap={6}
       >
-        <Heading as="h1" textAlign="center">Administración de Usuarios</Heading>
+        <Heading as="h1" textAlign="center">
+          Administración de Usuarios
+        </Heading>
         {isMobile && (
           <CustomSearchBar
             placeholder="Buscar por nombre..."

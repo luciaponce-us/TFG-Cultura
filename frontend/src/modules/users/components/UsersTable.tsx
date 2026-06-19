@@ -23,8 +23,8 @@ interface UsersTableProps {
 
 export function UsersTable({ users, fetchUsers, page }: UsersTableProps) {
   return (
-    <Table.ScrollArea borderWidth="1px" rounded="md" w="100%" overflowX="auto" >
-      <Table.Root size="sm"  stickyHeader showColumnBorder>
+    <Table.ScrollArea borderWidth="1px" rounded="md" w="100%" overflowX="auto">
+      <Table.Root size="sm" stickyHeader showColumnBorder>
         <Table.Header>
           <UsersTableHeader />
         </Table.Header>
@@ -45,7 +45,7 @@ export function UsersTable({ users, fetchUsers, page }: UsersTableProps) {
 }
 
 function UsersTableHeader() {
-    const isMobile = useIsMobile();
+  const isMobile = useIsMobile();
   const headers = [
     "Avatar",
     "Username",
@@ -59,23 +59,28 @@ function UsersTableHeader() {
     "Fecha de Creación",
     "Acciones",
   ];
-  const mobileHeaders = ["Avatar", "Username", "Nombre", "Rol", "Creación", "Acciones"];
+  const mobileHeaders = [
+    "Avatar",
+    "Username",
+    "Nombre",
+    "Rol",
+    "Creación",
+    "Acciones",
+  ];
 
   return (
     <Table.Row bg="principal.200">
-      {isMobile ? (
-        mobileHeaders.map((header) => (
-          <Table.ColumnHeader fontWeight="bold" textAlign="center">
-            {header}
-          </Table.ColumnHeader>
-        ))
-      ) : (
-        headers.map((header) => (
-          <Table.ColumnHeader fontWeight="bold" textAlign="center">
-            {header}
-          </Table.ColumnHeader>
-        ))
-      )}
+      {isMobile
+        ? mobileHeaders.map((header) => (
+            <Table.ColumnHeader fontWeight="bold" textAlign="center">
+              {header}
+            </Table.ColumnHeader>
+          ))
+        : headers.map((header) => (
+            <Table.ColumnHeader fontWeight="bold" textAlign="center">
+              {header}
+            </Table.ColumnHeader>
+          ))}
     </Table.Row>
   );
 }
@@ -87,10 +92,10 @@ interface UserRowProps {
 }
 
 function UserRow({ user, fetchUsers, page }: UserRowProps) {
-    const isMobile = useIsMobile();
+  const isMobile = useIsMobile();
 
-    const mobileRowsContent = (user: User) => [
-{
+  const mobileRowsContent = (user: User) => [
+    {
       key: "avatar",
       content: (
         <CustomAvatar
@@ -109,8 +114,8 @@ function UserRow({ user, fetchUsers, page }: UserRowProps) {
       content: new Date(user.createdAt)
         .toLocaleString("es-ES", {
           year: "2-digit",
-            month: "2-digit",
-            day: "2-digit",
+          month: "2-digit",
+          day: "2-digit",
         })
         .replace(",", ""),
     },
@@ -118,7 +123,7 @@ function UserRow({ user, fetchUsers, page }: UserRowProps) {
       key: "actions",
       content: <UserActions user={user} fetchUsers={fetchUsers} page={page} />,
     },
-    ]
+  ];
   const rowsContent = (user: User) => [
     {
       key: "avatar",
@@ -180,24 +185,25 @@ function UserRow({ user, fetchUsers, page }: UserRowProps) {
       _hover={{ bg: "principal.50" }}
       cursor="pointer"
     >
-      {isMobile? mobileRowsContent(user).map((item)=>(
-<Table.Cell
-          key={`${user.username}-${item.key}`}
-          textAlign="center"
-          alignItems="center"
-        >
-          {item.content}
-        </Table.Cell>
-      )):
-        rowsContent(user).map((item) => (
-        <Table.Cell
-          key={`${user.username}-${item.key}`}
-          textAlign="center"
-          alignItems="center"
-        >
-          {item.content}
-        </Table.Cell>
-      ))}
+      {isMobile
+        ? mobileRowsContent(user).map((item) => (
+            <Table.Cell
+              key={`${user.username}-${item.key}`}
+              textAlign="center"
+              alignItems="center"
+            >
+              {item.content}
+            </Table.Cell>
+          ))
+        : rowsContent(user).map((item) => (
+            <Table.Cell
+              key={`${user.username}-${item.key}`}
+              textAlign="center"
+              alignItems="center"
+            >
+              {item.content}
+            </Table.Cell>
+          ))}
     </Table.Row>
   );
 }
