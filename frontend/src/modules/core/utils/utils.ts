@@ -1,6 +1,7 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import type { ApiError } from "../types";
+import { useBreakpointValue } from "@chakra-ui/react/hooks";
 
 export const jsonHeaders = { "Content-Type": "application/json" };
 export const authHeaders = (token: string) => ({
@@ -120,3 +121,7 @@ export const handleSelectChange = <
     [name]: value[0],
   } as T);
 };
+
+export function useIsMobile() {
+  return useBreakpointValue({ base: true, md: false });
+}
