@@ -1,10 +1,13 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import { AuthProvider } from "./modules/core/context/AuthProvider";
 import ProtectedRoute from "./modules/core/context/ProtectedRoute.tsx";
-import type { Role } from "./modules/users/types/index.ts";
+
 import Layout from "./modules/core/Layout";
 import { Toaster } from "./modules/core/components";
+
 import {
   AdminPanel,
   Home,
@@ -13,6 +16,7 @@ import {
   RulesPage,
   TermsOfUsePage,
 } from "./modules/core/pages";
+
 import {
   RegistrationPage,
   LoginPage,
@@ -21,7 +25,12 @@ import {
   ProfilePage,
   EditProfilePage,
 } from "./modules/users/pages";
+
 import { SuggestionsPage } from "@/modules/suggestions/pages";
+
+import type { Role } from "./modules/users/types/index.ts";
+
+const queryClient = new QueryClient();
 
 export default function App() {
   const MANAGEMENT_ROLES: Role[] = [
@@ -34,12 +43,13 @@ export default function App() {
   return (
     <>
       <Toaster />
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="/terminos-de-uso" element={<TermsOfUsePage />} />
-            <Route
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="/terminos-de-uso" element={<TermsOfUsePage />} />
+              <Route
               path="/politica-de-privacidad"
               element={<PrivacyPolicyPage />}
             />
@@ -70,6 +80,7 @@ export default function App() {
           </Route>
         </Routes>
       </AuthProvider>
+      </QueryClientProvider>
     </>
   );
 }
