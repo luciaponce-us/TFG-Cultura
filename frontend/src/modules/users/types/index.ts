@@ -33,6 +33,12 @@ export interface UserProfileUpdateRequest {
   email?: string;
 }
 
+export interface FiltersGetAllUsers {
+  name?: string;
+  role?: string;
+  active?: string;
+}
+
 export interface User {
   username: string;
   name: string;
