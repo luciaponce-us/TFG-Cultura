@@ -49,36 +49,36 @@ export default function App() {
               <Route index element={<Home />} />
               <Route path="/terminos-de-uso" element={<TermsOfUsePage />} />
               <Route
-              path="/politica-de-privacidad"
-              element={<PrivacyPolicyPage />}
-            />
-            <Route path="/normas" element={<RulesPage />} />
-            <Route path="/registro" element={<RegistrationPage />} />
-            <Route path="/iniciar-sesion" element={<LoginPage />} />
-            <Route path="/sugerencias" element={<SuggestionsPage />} />
-            <Route
-              path="/mis-sugerencias"
-              element={<SuggestionsPage mySuggestions />}
-            />
-            <Route path="/perfil" element={<ProfilePage />} />
-            <Route path="/perfil/editar" element={<EditProfilePage />} />
-            <Route
-              path="/admin"
-              element={withRoleProtection(AdminPanel, MANAGEMENT_ROLES)}
-            />
-            <Route
-              path="/admin/usuarios"
-              element={withRoleProtection(UsersAdminPage, MANAGEMENT_ROLES)}
-            />
-            <Route
-              path="/admin/usuarios/:username"
-              element={withRoleProtection(EditUserPage, MANAGEMENT_ROLES)}
-            />
-            <Route path="/no-encontrado" element={<NotFound />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </AuthProvider>
+                path="/politica-de-privacidad"
+                element={<PrivacyPolicyPage />}
+              />
+              <Route path="/normas" element={<RulesPage />} />
+              <Route path="/registro" element={<RegistrationPage />} />
+              <Route path="/iniciar-sesion" element={<LoginPage />} />
+              <Route path="/sugerencias" element={<SuggestionsPage />} />
+              <Route
+                path="/mis-sugerencias"
+                element={<SuggestionsPage mySuggestions />}
+              />
+              <Route path="/perfil" element={<ProfilePage />} />
+              <Route path="/perfil/editar" element={<EditProfilePage />} />
+              <Route
+                path="/admin"
+                element={withRoleProtection(AdminPanel, MANAGEMENT_ROLES)}
+              />
+              <Route
+                path="/admin/usuarios"
+                element={withRoleProtection(UsersAdminPage, MANAGEMENT_ROLES)}
+              />
+              <Route
+                path="/admin/usuarios/:username"
+                element={withRoleProtection(EditUserPage, MANAGEMENT_ROLES)}
+              />
+              <Route path="/no-encontrado" element={<NotFound />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
       </QueryClientProvider>
     </>
   );
