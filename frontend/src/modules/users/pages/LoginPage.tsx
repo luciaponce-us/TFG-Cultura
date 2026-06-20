@@ -7,7 +7,7 @@ import {
 } from "@/modules/core/components";
 import { Flex, Heading, Link, VStack } from "@chakra-ui/react";
 import type { UserLoginRequest } from "../types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as validation from "../validations/user.validations";
 import { loginUser } from "../service/user.service";
 import { handleChange, isApiError } from "@/modules/core/utils/utils";
@@ -43,6 +43,10 @@ export default function LoginPage() {
       password: "",
     });
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const [loadingLogin, setLoadingLogin] = useState(false);
 
@@ -92,7 +96,15 @@ export default function LoginPage() {
       maxW="520px"
       minW="400px"
     >
-      <VStack gap={4} w="100%">
+      <VStack
+        as="form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+        gap={4}
+        w="100%"
+      >
         <Heading as="h1">Iniciar sesión</Heading>
 
         {errors.general && (
@@ -129,7 +141,11 @@ export default function LoginPage() {
           .
         </TextSecondary>
 
-        <CustomButton onClick={handleSubmit} loading={loadingLogin}>
+        <CustomButton
+          onClick={handleSubmit}
+          loading={loadingLogin}
+          type="submit"
+        >
           Iniciar sesión
         </CustomButton>
       </VStack>
