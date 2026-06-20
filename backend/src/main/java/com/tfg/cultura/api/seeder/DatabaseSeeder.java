@@ -10,11 +10,9 @@ import com.tfg.cultura.api.seeder.parser.UserCsvParser;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.enumerators.Role;
 
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
