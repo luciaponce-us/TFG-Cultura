@@ -188,20 +188,20 @@ export function SuggestionCard({
               onClick={() => setDeleteDialogOpen(true)}
               color="rojo"
             >
-              <IconTrash /> {isMobile ? "":"Eliminar"}
+              <IconTrash /> {isMobile ? "" : "Eliminar"}
             </CustomButton>
           )}
           {!isAuthor &&
             (isSupportedByUser ? (
               <CustomButton onClick={handleToggleSupport} color="rojo">
-                <IconThumbDown /> {isMobile ? "":"Dejar de apoyar"}
+                <IconThumbDown /> {isMobile ? "" : "Dejar de apoyar"}
               </CustomButton>
             ) : (
               <CustomButton
                 onClick={handleToggleSupport}
                 loading={loadingSupport}
               >
-                <IconThumbUp /> {isMobile ? "":"Apoyar sugerencia"}
+                <IconThumbUp /> {isMobile ? "" : "Apoyar sugerencia"}
               </CustomButton>
             ))}
         </HStack>
