@@ -53,12 +53,15 @@ export interface User {
   createdAt: string; // LocalDateTime → ISO string
 }
 
-export type Role =
-  | "COORDINADOR"
-  | "SECRETARIO"
-  | "ENCARGADO"
-  | "COLABORADOR"
-  | "SOCIO";
+export const ROLES = [
+  "SOCIO",
+  "COLABORADOR",
+  "ENCARGADO",
+  "SECRETARIO",
+  "COORDINADOR",
+] as const;
+
+export type Role = typeof ROLES[number];
 
 export const MANAGEMENT_ROLES: Role[] = [
   "COORDINADOR",
