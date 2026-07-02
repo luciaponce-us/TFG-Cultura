@@ -1,6 +1,5 @@
 import { HStack, VStack, Text } from "@chakra-ui/react";
-import { useCallback, useEffect, useState, type ChangeEvent } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState, type ChangeEvent } from "react";
 import {
   CustomButton,
   CustomInput,
@@ -19,7 +18,6 @@ import {
 import { useAuth } from "@/modules/core/context/useAuth";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 
-import { updateUser, updateUserAvatar } from "../service/user.service";
 import {
   mapUserToUserUpdateRequest,
   parsePaymentReceiptUrl,
@@ -29,6 +27,8 @@ import {
 import { validateUserUpdateForm } from "../validations/user.validations";
 
 import type { UserUpdateRequest, User } from "../types";
+import { useUpdateUser } from "../hooks/useUpdateUser";
+import { useUpdateUserAvatar } from "../hooks/useUpdateUserAvatar";
 
 const DEFAULT_ERRORS: Record<string, string> = {
   username: "",
@@ -45,14 +45,16 @@ export function EditUserForm({ user }: { readonly user: User }) {
   const { username } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const updateUserMutation = useUpdateUser();
 
-  const [loadingChanges, setLoadingChanges] = useState<boolean>(false);
-  const [loadingAvatar, setLoadingAvatar] = useState<boolean>(false);
+  const loadingChanges: boolean = updateUserMutation.isPending;
+  const updateAvatarMutation = useUpdateUserAvatar();
+  const loadingAvatar = updateAvatarMutation.isPending;
+
   const [form, setForm] = useState<UserUpdateRequest>(() =>
     mapUserToUserUpdateRequest(user),
   );
-  const [avatar, setAvatar] = useState<File | null>(null);
+
   const [errors, setErrors] = useState<Record<string, string>>(DEFAULT_ERRORS);
 
   const resetErrors = useCallback(() => {
@@ -71,75 +73,102 @@ export function EditUserForm({ user }: { readonly user: User }) {
     return !Object.values(newErrors).some((v) => !!v);
   }
 
-  async function handleSubmit() {
-    setLoadingChanges(true);
-    if (!token || !username || !form) return;
+  function onSuccessUpdate(request: UserUpdateRequest, res: User) {
+    const isUsernameChanged = request.username !== username;
+
+    void navigate(
+      isUsernameChanged
+        ? `/admin/usuarios/${request.username}`
+        : "/admin/usuarios",
+    );
+
+    toaster.create({
+      title: "Éxito",
+      description: `Usuario "${res.username}" actualizado correctamente.`,
+      type: "success",
+    });
+  }
+
+  function onErrorUpdate(err: Error) {
+    console.error(err);
+
+    if (isApiError(err)) {
+      setErrors((prev) => ({
+        ...prev,
+        general: "Error: " + err.message,
+      }));
+
+      toaster.create({
+        title: "Error",
+        description: "No se pudo actualizar el usuario: " + err.message,
+        type: "error",
+      });
+    } else {
+      toaster.create({
+        title: "Error",
+        description:
+          "Ha ocurrido un error inesperado. No se pudo actualizar el usuario.",
+        type: "error",
+      });
+    }
+  }
+
+  function handleSubmit() {
+    if (!token || !username) return;
+
     resetErrors();
+
     if (!validateForm()) {
       toaster.create({
         title: "Error",
         description: "Por favor corrige los errores en el formulario.",
         type: "error",
       });
-      setLoadingChanges(false);
       return;
     }
 
-    if (form.password === "") {
-      setForm((prev) => (prev ? { ...prev, password: undefined } : prev));
-    }
+    const request: UserUpdateRequest =
+      form.password === "" ? { ...form, password: undefined } : form;
 
-    try {
-      const res = await updateUser(token, username, form);
-      const isUsernameChanged = form.username !== username;
-      const nextUrl = isUsernameChanged
-        ? `/admin/usuarios/${form.username}`
-        : `/admin/usuarios`;
-      void navigate(nextUrl);
-
-      toaster.create({
-        title: "Éxito",
-        description: `Usuario "${res.username}" actualizado correctamente.`,
-        type: "success",
-      });
-    } catch (err) {
-      console.error("Error al registrar usuario:", err);
-      if (isApiError(err)) {
-        setErrors({ ...errors, general: "Error: " + err.message });
-        toaster.create({
-          title: "Error",
-          description: "No se pudo actualizar el usuario: " + err.message,
-          type: "error",
-        });
-      }
-    } finally {
-      setLoadingChanges(false);
-    }
+    updateUserMutation.mutate(
+      {
+        token,
+        username,
+        data: request,
+      },
+      {
+        onSuccess: (res) => {
+          onSuccessUpdate(request, res);
+        },
+        onError: (err) => {
+          onErrorUpdate(err);
+        },
+      },
+    );
   }
 
-  useEffect(() => {
-    async function handleAvatarUpload() {
-      if (!avatar || !token || !username) return;
-      try {
-        setLoadingAvatar(true);
-        await updateUserAvatar(token, username, avatar);
-        await queryClient.invalidateQueries({
-          queryKey: ["user", username],
-        });
-      } catch (error) {
-        console.error("Error al actualizar el avatar:", error);
-        toaster.create({
-          title: "Error",
-          description: "No se pudo actualizar el avatar.",
-          type: "error",
-        });
-      } finally {
-        setLoadingAvatar(false);
-      }
-    }
+  function handleAvatarChange(file: File | null) {
+    if (!file || !token || !username) return;
 
-    void handleAvatarUpload();
-  }, [avatar, token, username, queryClient]);
+    updateAvatarMutation.mutate(
+      {
+        token,
+        username,
+        avatar: file,
+      },
+      {
+        onError: (error) => {
+          console.error("Error al actualizar el avatar:", error);
+
+          toaster.create({
+            title: "Error",
+            description: "No se pudo actualizar el avatar.",
+            type: "error",
+          });
+        },
+      },
+    );
+  }
 
   return (
     <VStack gap={4}>
@@ -160,7 +189,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
           }
           secondaryText="JPG o PNG, tamaño no superior a 2MB"
           fileType="image/*"
-          onFileChange={setAvatar}
+          onFileChange={handleAvatarChange}
           disabled={loadingChanges}
         />
       </HStack>
