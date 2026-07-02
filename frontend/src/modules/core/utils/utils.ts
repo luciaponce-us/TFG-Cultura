@@ -1,6 +1,6 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
-import type { ApiError } from "../types";
+import { ApiError } from "../types";
 import { useBreakpointValue } from "@chakra-ui/react/hooks";
 
 export const jsonHeaders = { "Content-Type": "application/json" };
@@ -17,11 +17,11 @@ export async function handleResponse<T>(res: Response): Promise<T> {
 
     try {
       if (contentType.includes("application/json")) {
-        const data = await res.json();
+        const data : unknown = await res.json();
 
         if (typeof data === "object" && data !== null) {
           const d = data as Partial<ApiError>;
-          message = d.message || d.error || message;
+          message = d.message || message;
         }
       } else {
         const text = await res.text();
@@ -31,14 +31,7 @@ export async function handleResponse<T>(res: Response): Promise<T> {
       // ignore parsing errors
     }
 
-    const apiError: ApiError = {
-      timestamp: new Date().toISOString(),
-      status: res.status,
-      error: "Request failed",
-      message,
-    };
-
-    throw apiError;
+    throw new ApiError(message, res.status);
   }
 
   if (!contentType.includes("application/json")) {
@@ -64,16 +57,11 @@ export async function fetchWithTimeout(
     return await fetch(input, { ...init, signal: controller.signal });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      const apiError: ApiError = {
-        timestamp: new Date().toISOString(),
-        status: 500,
-        error: "Request failed",
-        message:
-          "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.",
-      };
-      throw apiError;
+      const message = "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde."
+      throw new ApiError(message, 500);
+    } else {
+      throw error;
     }
-    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
@@ -102,7 +90,7 @@ export const handleChange = <
   setForm({
     ...form,
     [e.target.name]: e.target.value,
-  } as T);
+  });
 };
 
 export const handleSelectChange = <
@@ -119,7 +107,7 @@ export const handleSelectChange = <
   setForm({
     ...form,
     [name]: value[0],
-  } as T);
+  });
 };
 
 export function useIsMobile() {
