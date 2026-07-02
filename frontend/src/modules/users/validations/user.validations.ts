@@ -1,3 +1,5 @@
+import type { UserUpdateRequest } from "../types";
+
 export const validateName = (value: string): string => {
   if (!value) return "El nombre es obligatorio.";
   if (value.length < 2) return "El nombre debe tener al menos 2 caracteres.";
@@ -107,3 +109,19 @@ export const validatePasswordAtLogin = (value: string): string => {
     return "La contraseña puede tener 64 caracteres como máximo.";
   return "";
 };
+
+export function validateUserUpdateForm(
+  form: UserUpdateRequest,
+): Record<string, string> {
+  return {
+    username: validateUsername(form.username),
+    password: validatePassword(form.password ?? "", true, false),
+    name: validateName(form.name),
+    surname: validateSurname(form.surname),
+    dni: validateDni(form.dni),
+    phone: validatePhone(form.phone),
+    email: validateEmail(form.email),
+    role: "",
+    general: "",
+  };
+}

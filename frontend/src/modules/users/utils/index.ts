@@ -1,4 +1,4 @@
-import { ROLES, type Role } from "../types";
+import { ROLES, type Role, type User, type UserUpdateRequest } from "../types";
 
 export function parsePaymentReceiptUrl(url: string | null | undefined): string {
   if (!url) return "";
@@ -13,8 +13,8 @@ export function parsePaymentReceiptUrl(url: string | null | undefined): string {
 
 /**
  * Extrae el nombre de archivo de una URL, eliminando cualquier carácter de control y caracteres no permitidos en nombres de archivo.
- * @param url 
- * @returns 
+ * @param url
+ * @returns
  */
 export function parseUrlFilename(url: string | null | undefined): string {
   if (!url) return "";
@@ -27,12 +27,13 @@ export function parseUrlFilename(url: string | null | undefined): string {
   const filename = parts.at(-1) ?? "";
 
   const controlChars = Array.from({ length: 32 }, (_, i) =>
-    String.fromCodePoint(i)
+    String.fromCodePoint(i),
   ).join("");
 
   const controlRegex = new RegExp(`[${controlChars}]`, "g");
 
- const sanitizedFilename = filename.replace(controlRegex, "")
+  const sanitizedFilename = filename
+    .replace(controlRegex, "")
     .replace(/[<>:"|?*]/g, "")
     .trim();
 
@@ -52,3 +53,16 @@ export const activeOptions = [
   { value: "true", label: "Activo" },
   { value: "false", label: "Inactivo" },
 ];
+
+export function mapUserToUserUpdateRequest(user: User): UserUpdateRequest {
+  return {
+    username: user.username,
+    password: "",
+    name: user.name,
+    surname: user.surname,
+    dni: user.dni,
+    phone: user.phone,
+    email: user.email,
+    role: user.role,
+  };
+}
