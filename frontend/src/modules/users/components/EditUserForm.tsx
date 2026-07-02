@@ -281,7 +281,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
         </CustomButton>
       </HStack>
       <CustomButton
-        onClick={() => void handleSubmit()}
+        onClick={() => handleSubmit()}
         loading={loadingChanges}
         disabled={loadingChanges}
       >

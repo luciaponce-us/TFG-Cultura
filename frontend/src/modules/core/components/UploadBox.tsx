@@ -22,39 +22,37 @@ export function UploadBox({
 }: UploadBoxProps) {
   const [errors, setErrors] = useState<string[]>([]);
 
+  function parseErrorMessage(errorType: string) {
+    let allowedFileType: string | undefined;
+    switch (errorType) {
+      case "FILE_TOO_LARGE":
+        return "El archivo es demasiado grande. El tamaño máximo permitido es de 2MB.";
+      case "FILE_INVALID_TYPE":
+        if (fileType == "application/pdf") allowedFileType = "archivos PDF";
+        if (fileType == "image/*") allowedFileType = "imágenes";
+        return allowedFileType
+          ? "El tipo de archivo no es válido."
+          : `El tipo de archivo no es válido. Solo se permiten ${allowedFileType}.`;
+      case "TOO_MANY_FILES":
+        return "Se ha superado el número máximo de archivos permitidos.";
+      default:
+        return `Archivo rechazado por razones desconocidas: ${errorType}`;
+    }
+  }
+
   function getErrorMessage(details: FileUpload.FileRejectDetails) {
     setErrors([]);
     if (details.files.length === 0) {
-      console.error("File rejected but no details provided:", details);
-      setErrors(["Archivo rechazado por razones desconocidas."]);
+      console.warn("Ignoring empty FileReject event", details);
       return;
     }
     const errorTypes = details.files[0].errors;
     const newErrors: string[] = [];
 
-    if (errorTypes.includes("FILE_TOO_LARGE")) {
-      newErrors.push(
-        "El archivo es demasiado grande. El tamaño máximo permitido es de 2MB.",
-      );
+    for (const errorType of errorTypes) {
+      newErrors.push(parseErrorMessage(errorType));
     }
 
-    if (errorTypes.includes("FILE_INVALID_TYPE")) {
-      let allowedFileType = "desconocido";
-      if (fileType == "application/pdf") allowedFileType = "archivos PDF";
-      if (fileType == "image/*") allowedFileType = "imágenes";
-      newErrors.push(
-        `El tipo de archivo no es válido. Solo se permiten ${allowedFileType}.`,
-      );
-    }
-    const isUnknownError =
-      !errorTypes.includes("FILE_TOO_LARGE") &&
-      !errorTypes.includes("FILE_INVALID_TYPE") &&
-      errorTypes.length > 0;
-    if (isUnknownError) {
-      setErrors([
-        `Archivo rechazado por razones desconocidas: ${errorTypes[0]}`,
-      ]);
-    }
     setErrors(newErrors);
   }
 
