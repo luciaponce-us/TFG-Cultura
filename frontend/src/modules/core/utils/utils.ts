@@ -17,7 +17,7 @@ export async function handleResponse<T>(res: Response): Promise<T> {
 
     try {
       if (contentType.includes("application/json")) {
-        const data : unknown = await res.json();
+        const data: unknown = await res.json();
 
         if (typeof data === "object" && data !== null) {
           const d = data as Partial<ApiError>;
@@ -57,7 +57,8 @@ export async function fetchWithTimeout(
     return await fetch(input, { ...init, signal: controller.signal });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      const message = "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde."
+      const message =
+        "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.";
       throw new ApiError(message, 500);
     } else {
       throw error;

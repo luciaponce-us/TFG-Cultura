@@ -52,14 +52,14 @@ export function RegistrationPage() {
   };
 
   const navigate = useNavigate();
-  
+
   const [form, setForm] = useState<RegistrationForm>(defaultForm);
   const [errors, setErrors] = useState<Record<string, string>>(defaultErrors);
   const [avatar, setAvatar] = useState<File | null>(null);
   const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [rulesAccepted, setRulesAccepted] = useState(false);
-  
+
   const [step, setStep] = useState(1);
   const [loadingRegister, setLoadingRegister] = useState(false);
 
@@ -78,11 +78,15 @@ export function RegistrationPage() {
     } catch (err) {
       console.error("Error al registrar usuario:", err);
       if (isApiError(err))
-        setErrors({ ...errors, general: "Ha ocurrido un error durante el registro. Inténtalo de nuevo más tarde." });
+        setErrors({
+          ...errors,
+          general:
+            "Ha ocurrido un error durante el registro. Inténtalo de nuevo más tarde.",
+        });
     } finally {
       setLoadingRegister(false);
     }
-  };
+  }
 
   function validateStep1(form: RegistrationForm): boolean {
     const newErrors = {
@@ -98,7 +102,7 @@ export function RegistrationPage() {
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
     return !Object.values(newErrors).some((error) => error !== "");
-  };
+  }
 
   function validateStep2(form: RegistrationForm): boolean {
     const newErrors = {
@@ -115,7 +119,7 @@ export function RegistrationPage() {
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
     return !Object.values(newErrors).some((error) => error !== "");
-  };
+  }
 
   return (
     <Flex
@@ -323,7 +327,10 @@ export function RegistrationPage() {
               >
                 <IconArrowNarrowLeft stroke={2} /> Volver atrás
               </CustomButton>
-              <CustomButton onClick={()=> void handleSubmit()} loading={loadingRegister}>
+              <CustomButton
+                onClick={() => void handleSubmit()}
+                loading={loadingRegister}
+              >
                 Registrarse
               </CustomButton>
             </HStack>

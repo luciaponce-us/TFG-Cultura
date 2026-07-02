@@ -49,7 +49,9 @@ export function EditUserForm({ user }: { readonly user: User }) {
 
   const [loadingChanges, setLoadingChanges] = useState<boolean>(false);
   const [loadingAvatar, setLoadingAvatar] = useState<boolean>(false);
-  const [form, setForm] = useState<UserUpdateRequest>(() => mapUserToUserUpdateRequest(user));
+  const [form, setForm] = useState<UserUpdateRequest>(() =>
+    mapUserToUserUpdateRequest(user),
+  );
   const [avatar, setAvatar] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>(DEFAULT_ERRORS);
 

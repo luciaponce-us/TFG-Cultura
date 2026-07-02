@@ -61,7 +61,7 @@ export const ROLES = [
   "COORDINADOR",
 ] as const;
 
-export type Role = typeof ROLES[number];
+export type Role = (typeof ROLES)[number];
 
 export const MANAGEMENT_ROLES: Role[] = [
   "COORDINADOR",
