@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { useAuth } from "@/modules/core/context/useAuth";
 import { useIsMobile } from "@/modules/core/utils/utils";
+
 import {
   SideBar,
   CustomPagination,
@@ -11,12 +12,14 @@ import {
   toaster,
 } from "@/modules/core/components";
 
-import { UsersTable } from "../components/UsersTable";
 import { useUsers } from "../hooks/useUsers";
+import { UsersTable } from "../components/UsersTable";
+
+import { activeOptions, roleOptions } from "../utils";
 
 import type { FiltersGetAllUsers as Filters } from "../types";
 
-export default function UsersAdminPage() {
+export function UsersAdminPage() {
   const isMobile = useIsMobile();
   const { token } = useAuth();
 
@@ -61,6 +64,8 @@ export default function UsersAdminPage() {
     });
   }
 
+  const users = paginatedUsers?.content || [];
+
   return (
     <Grid templateColumns={{ base: "1fr", md: "1fr 4fr" }} gap={10} w="100%">
       <SideBar>
@@ -86,10 +91,7 @@ export default function UsersAdminPage() {
           />
           <CustomSelect
             placeholder="Filtrar por actividad"
-            options={[
-              { label: "Activo", value: "true" },
-              { label: "Inactivo", value: "false" },
-            ]}
+            options={activeOptions}
             value={filters.active ? [filters.active] : []}
             onValueChange={({ value }) =>
               updateFilter("active", value[0] || "")
@@ -99,13 +101,7 @@ export default function UsersAdminPage() {
 
           <CustomSelect
             placeholder="Filtrar por rol"
-            options={[
-              { label: "Socio", value: "SOCIO" },
-              { label: "Colaborador", value: "COLABORADOR" },
-              { label: "Encargado", value: "ENCARGADO" },
-              { label: "Secretario", value: "SECRETARIO" },
-              { label: "Coordinador", value: "COORDINADOR" },
-            ]}
+            options={roleOptions}
             value={filters.role ? [filters.role] : []}
             onValueChange={({ value }) => {
               updateFilter("role", value[0] || "");
@@ -144,13 +140,12 @@ export default function UsersAdminPage() {
           <Spinner size="xl" borderWidth="4px" color="principal.800" />
         ) : (
           <>
-            {paginatedUsers?.content.length === 0 &&
-            paginatedUsers?.content !== undefined ? (
+            {users.length === 0 ? (
               <Flex mt={4} color="text.muted">
                 No se encontraron usuarios.
               </Flex>
             ) : (
-              <UsersTable users={paginatedUsers?.content || []} />
+              <UsersTable users={users} />
             )}
           </>
         )}

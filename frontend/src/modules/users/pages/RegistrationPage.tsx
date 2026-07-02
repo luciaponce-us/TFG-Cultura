@@ -26,9 +26,8 @@ type RegistrationForm = UserRegisterRequest & {
   confirmPassword: string;
 };
 
-export default function RegistrationPage() {
-  const navigate = useNavigate();
-  const [form, setForm] = useState<RegistrationForm>({
+export function RegistrationPage() {
+  const defaultForm: RegistrationForm = {
     username: "",
     password: "",
     name: "",
@@ -37,13 +36,9 @@ export default function RegistrationPage() {
     phone: "",
     email: "",
     confirmPassword: "",
-  });
-  const [avatar, setAvatar] = useState<File | null>(null);
-  const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [rulesAccepted, setRulesAccepted] = useState(false);
+  };
 
-  const [errors, setErrors] = useState<Record<string, string>>({
+  const defaultErrors: Record<string, string> = {
     username: "",
     password: "",
     name: "",
@@ -54,53 +49,42 @@ export default function RegistrationPage() {
     general: "",
     termsAccepted: "",
     rulesAccepted: "",
-  });
+  };
 
+  const navigate = useNavigate();
+  
+  const [form, setForm] = useState<RegistrationForm>(defaultForm);
+  const [errors, setErrors] = useState<Record<string, string>>(defaultErrors);
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [rulesAccepted, setRulesAccepted] = useState(false);
+  
   const [step, setStep] = useState(1);
   const [loadingRegister, setLoadingRegister] = useState(false);
 
-  const handleSubmit = async () => {
-    setErrors({
-      username: "",
-      password: "",
-      name: "",
-      surname: "",
-      dni: "",
-      phone: "",
-      email: "",
-      general: paymentReceipt ? "" : "La carta de pago es obligatoria",
-      termsAccepted: termsAccepted
-        ? ""
-        : "Debes aceptar los términos y condiciones",
-      rulesAccepted: rulesAccepted ? "" : "Debes aceptar las normas de uso",
-    });
+  async function handleSubmit() {
+    setErrors(defaultErrors);
 
-    const isValid = validateStep2(form);
-    if (!isValid || !paymentReceipt) return;
+    const isValidStep1 = validateStep1(form) && paymentReceipt;
+    const isValidStep2 = validateStep2(form);
+    const isValid = isValidStep1 && isValidStep2;
+    if (!isValid) return;
     try {
       setLoadingRegister(true);
       await registerUser(form, paymentReceipt, avatar || undefined);
       setStep(3);
-      setForm({
-        username: "",
-        password: "",
-        name: "",
-        surname: "",
-        dni: "",
-        phone: "",
-        email: "",
-        confirmPassword: "",
-      });
+      setForm(defaultForm);
     } catch (err) {
       console.error("Error al registrar usuario:", err);
       if (isApiError(err))
-        setErrors({ ...errors, general: "Error: " + err.message });
+        setErrors({ ...errors, general: "Ha ocurrido un error durante el registro. Inténtalo de nuevo más tarde." });
     } finally {
       setLoadingRegister(false);
     }
   };
 
-  const validateStep1 = (form: RegistrationForm): boolean => {
+  function validateStep1(form: RegistrationForm): boolean {
     const newErrors = {
       name: validation.validateName(form.name),
       surname: validation.validateSurname(form.surname),
@@ -116,7 +100,7 @@ export default function RegistrationPage() {
     return !Object.values(newErrors).some((error) => error !== "");
   };
 
-  const validateStep2 = (form: RegistrationForm): boolean => {
+  function validateStep2(form: RegistrationForm): boolean {
     const newErrors = {
       username: validation.validateUsername(form.username),
       password: validation.validatePassword(
@@ -162,6 +146,7 @@ export default function RegistrationPage() {
           </>
         )}
 
+        {/* ====== Paso 1 ====== */}
         {step === 1 && (
           <>
             <CustomInput
@@ -268,6 +253,8 @@ export default function RegistrationPage() {
             </CustomButton>
           </>
         )}
+
+        {/* ====== Paso 2 ====== */}
         {step == 2 && (
           <>
             <CustomInput
@@ -336,7 +323,7 @@ export default function RegistrationPage() {
               >
                 <IconArrowNarrowLeft stroke={2} /> Volver atrás
               </CustomButton>
-              <CustomButton onClick={handleSubmit} loading={loadingRegister}>
+              <CustomButton onClick={()=> void handleSubmit()} loading={loadingRegister}>
                 Registrarse
               </CustomButton>
             </HStack>
@@ -348,6 +335,8 @@ export default function RegistrationPage() {
             </TextSecondary>
           </>
         )}
+
+        {/* ====== Paso 3 ====== */}
         {step == 3 && (
           <>
             <CustomAlert
@@ -361,10 +350,10 @@ export default function RegistrationPage() {
               registro. <br />
               Muchas gracias por tu paciencia.
             </Text>
-            <CustomButton onClick={() => navigate("/iniciar-sesion")}>
+            <CustomButton onClick={() => void navigate("/iniciar-sesion")}>
               Intentar iniciar sesión ahora
             </CustomButton>
-            <CustomButton onClick={() => navigate("/")}>
+            <CustomButton onClick={() => void navigate("/")}>
               Volver al inicio
             </CustomButton>
           </>

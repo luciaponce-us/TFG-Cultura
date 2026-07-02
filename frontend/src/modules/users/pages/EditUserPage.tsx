@@ -23,9 +23,13 @@ import {
 } from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
 import { handleChange, isApiError } from "@/modules/core/utils/utils";
-import { parsePaymentReceiptUrl, parseUrl } from "../utils";
+import {
+  parsePaymentReceiptUrl,
+  parseUrlFilename,
+  roleOptions,
+} from "../utils";
 
-export default function EditUserPage() {
+export function EditUserPage() {
   const { username } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
@@ -110,18 +114,13 @@ export default function EditUserPage() {
       }
     }
 
-    fetchUser();
+    void fetchUser();
   }, [token, username]);
 
   function validateForm(): boolean {
     const newErrors: Record<string, string> = {
       username: validation.validateUsername(form?.username || ""),
-      password: validation.validatePassword(
-        form?.password || "",
-        true,
-        false,
-        undefined,
-      ),
+      password: validation.validatePassword(form?.password || "", true, false),
       name: validation.validateName(form?.name || ""),
       surname: validation.validateSurname(form?.surname || ""),
       dni: validation.validateDni(form?.dni || ""),
@@ -151,12 +150,13 @@ export default function EditUserPage() {
     }
 
     try {
-      const res = await updateUser(token!, username!, form!);
-      if (form.username !== username) {
-        navigate(`/admin/usuarios/${form.username}`);
-      } else {
-        navigate(`/admin/usuarios`);
-      }
+      const res = await updateUser(token, username, form);
+      const isUsernameChanged = form.username !== username;
+      const nextUrl = isUsernameChanged
+        ? `/admin/usuarios/${form.username}`
+        : `/admin/usuarios`;
+      void navigate(nextUrl);
+
       toaster.create({
         title: "Éxito",
         description: `Usuario "${res.username}" actualizado correctamente.`,
@@ -196,7 +196,7 @@ export default function EditUserPage() {
       }
     }
 
-    handleAvatarUpload();
+    void handleAvatarUpload();
   }, [avatar, token, username]);
 
   return (
@@ -213,7 +213,7 @@ export default function EditUserPage() {
       <HStack w="100%" justify="space-between" align="center" mb={4}>
         <CustomButton
           color="transparent"
-          onClick={() => navigate("/admin/usuarios")}
+          onClick={() => void navigate("/admin/usuarios")}
         >
           <IconArrowNarrowLeft stroke={2} style={{ width: 32, height: 32 }} />
         </CustomButton>
@@ -284,13 +284,7 @@ export default function EditUserPage() {
           <CustomSelect
             label="Rol"
             placeholder="Selecciona un rol"
-            options={[
-              { label: "Socio", value: "SOCIO" as Role },
-              { label: "Colaborador", value: "COLABORADOR" as Role },
-              { label: "Encargado", value: "ENCARGADO" as Role },
-              { label: "Secretario", value: "SECRETARIO" as Role },
-              { label: "Coordinador", value: "COORDINADOR" as Role },
-            ]}
+            options={roleOptions}
             defaultValue={[form?.role as string]}
             disabled={loadingChanges}
             error={errors.role}
@@ -323,12 +317,14 @@ export default function EditUserPage() {
           >
             <HStack gap={2} align="center">
               <IconFileDollar stroke={1.5} size={40} />
-              <Text>Carta de pago: {parseUrl(user?.paymentReceipt || "")}</Text>
+              <Text>
+                Carta de pago: {parseUrlFilename(user?.paymentReceipt)}
+              </Text>
             </HStack>
             <CustomButton
               onClick={() =>
                 window.open(
-                  parsePaymentReceiptUrl(user?.paymentReceipt as string),
+                  parsePaymentReceiptUrl(user?.paymentReceipt),
                   "_blank",
                   "noopener,noreferrer",
                 )
@@ -338,7 +334,7 @@ export default function EditUserPage() {
             </CustomButton>
           </HStack>
           <CustomButton
-            onClick={handleSubmit}
+            onClick={() => void handleSubmit()}
             loading={loadingChanges}
             disabled={loadingChanges}
           >

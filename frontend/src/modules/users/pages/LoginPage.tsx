@@ -14,35 +14,32 @@ import { handleChange, isApiError } from "@/modules/core/utils/utils";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../core/context/useAuth";
 
-export default function LoginPage() {
+export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [form, setForm] = useState<UserLoginRequest>({
+  const defaultForm: UserLoginRequest = {
     username: "",
     password: "",
-  });
+  };
 
-  const [errors, setErrors] = useState<Record<string, string>>({
+  const defaultErrors: Record<string, string> = {
     username: "",
     password: "",
     general: "",
-  });
-
-  const resetErrors = () => {
-    setErrors({
-      username: "",
-      password: "",
-      general: "",
-    });
   };
 
-  const resetForm = () => {
-    setForm({
-      username: "",
-      password: "",
-    });
-  };
+  const [form, setForm] = useState<UserLoginRequest>(defaultForm);
+
+  const [errors, setErrors] = useState<Record<string, string>>(defaultErrors);
+
+  function resetErrors() {
+    setErrors(defaultErrors);
+  }
+
+  function resetForm() {
+    setForm(defaultForm);
+  }
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -50,7 +47,7 @@ export default function LoginPage() {
 
   const [loadingLogin, setLoadingLogin] = useState(false);
 
-  const validateLoginForm = (form: UserLoginRequest) => {
+  function validateLoginForm(form: UserLoginRequest): boolean {
     const newErrors: Record<string, string> = {
       username: validation.validateUsername(form.username),
       password: validation.validatePasswordAtLogin(form.password),
@@ -58,9 +55,9 @@ export default function LoginPage() {
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
     return !Object.values(newErrors).some((error) => error !== "");
-  };
+  }
 
-  const handleSubmit = async () => {
+  async function handleSubmit() {
     resetErrors();
     const isValid = validateLoginForm(form);
     if (!isValid) return;
@@ -74,15 +71,19 @@ export default function LoginPage() {
         description: "Has iniciado sesión exitosamente.",
         type: "success",
       });
-      navigate("/");
+      void navigate("/");
     } catch (err) {
       console.error("Error al iniciar sesión:", err);
       if (isApiError(err))
-        setErrors({ ...errors, general: "Error: " + err.message });
+        setErrors({
+          ...errors,
+          general:
+            "Error al iniciar sesión. Por favor, intentálo de nuevo más tarde.",
+        });
     } finally {
       setLoadingLogin(false);
     }
-  };
+  }
 
   return (
     <Flex
@@ -100,7 +101,7 @@ export default function LoginPage() {
         as="form"
         onSubmit={(e) => {
           e.preventDefault();
-          handleSubmit();
+          void handleSubmit();
         }}
         gap={4}
         w="100%"
@@ -142,7 +143,7 @@ export default function LoginPage() {
         </TextSecondary>
 
         <CustomButton
-          onClick={handleSubmit}
+          onClick={() => void handleSubmit()}
           loading={loadingLogin}
           type="submit"
         >
