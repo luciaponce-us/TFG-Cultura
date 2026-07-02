@@ -20,7 +20,7 @@ export const CustomAvatar = ({
       </Avatar.Root>
     );
   }
-  
+
   return (
     <Avatar.Root {...props}>
       <Avatar.Fallback name={name} />
