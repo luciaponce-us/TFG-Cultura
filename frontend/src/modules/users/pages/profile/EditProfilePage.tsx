@@ -1,23 +1,26 @@
 import { Flex, Heading, HStack, Spinner, VStack } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { IconArrowNarrowLeft } from "@tabler/icons-react";
 import { useState, type ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
+
+import {
+  CustomAvatar,
+  CustomButton,
+  CustomInput,
+  TextSecondary,
+  toaster,
+  UploadBox,
+} from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
+import { handleChange, isApiError } from "@/modules/core/utils/utils";
+
 import {
   updateUserProfile,
   updateUserProfileAvatar,
 } from "../../service/user.service";
-import { toaster } from "@/modules/core/components/toaster/toaster";
-import type { UserProfileUpdateRequest } from "../../types";
-import {
-  CustomButton,
-  CustomInput,
-  UploadBox,
-  CustomAvatar,
-  TextSecondary,
-} from "@/modules/core/components";
-import { IconArrowNarrowLeft } from "@tabler/icons-react";
 import * as validation from "../../validations/user.validations";
-import { handleChange, isApiError } from "@/modules/core/utils/utils";
+
+import type { UserProfileUpdateRequest } from "../../types";
 
 export function EditProfilePage() {
   const { user, token, setUser } = useAuth();

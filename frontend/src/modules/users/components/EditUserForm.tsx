@@ -16,7 +16,7 @@ import {
   isApiError,
 } from "@/modules/core/utils/utils";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { toaster } from "@/modules/core/components/toaster/toaster";
+import { toaster } from "@/modules/core/components";
 
 import {
   mapUserToUserUpdateRequest,
@@ -27,8 +27,7 @@ import {
 import { validateUserUpdateForm } from "../validations/user.validations";
 
 import type { UserUpdateRequest, User } from "../types";
-import { useUpdateUser } from "../hooks/useUpdateUser";
-import { useUpdateUserAvatar } from "../hooks/useUpdateUserAvatar";
+import { useUpdateUser, useUpdateUserAvatar } from "../hooks";
 
 const DEFAULT_ERRORS: Record<string, string> = {
   username: "",

@@ -12,8 +12,8 @@ import {
   toaster,
 } from "@/modules/core/components";
 
-import { useUsers } from "../hooks/useUsers";
-import { UsersTable } from "../components/UsersTable";
+import { useUsers } from "../hooks";
+import { UsersTable } from "../components";
 
 import { activeOptions, roleOptions } from "../utils";
 

@@ -4,10 +4,9 @@ import { useEffect } from "react";
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
 
 import { useAuth } from "@/modules/core/context/useAuth";
-import { toaster } from "@/modules/core/components/toaster/toaster";
-import { CustomButton, TextSecondary } from "@/modules/core/components";
+import { CustomButton, TextSecondary, toaster } from "@/modules/core/components";
 
-import { useUser } from "../hooks/useUser";
+import { useUser } from "../hooks";
 import { EditUserForm } from "../components";
 
 export function EditUserPage() {
