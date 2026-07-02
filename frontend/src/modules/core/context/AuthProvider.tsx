@@ -1,70 +1,63 @@
-import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
 import { AuthContext } from "./AuthContext";
-import type { User } from "@/modules/users/types";
-import { getMyProfile } from "@/modules/users/service/user.service";
+
+import { useUserProfile } from "@/modules/users/hooks";
 import { MANAGEMENT_ROLES } from "@/modules/users/types";
+
+import type { User } from "@/modules/users/types";
+
 
 interface AuthProviderProps {
   readonly children: ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [token, setToken] = useState<string | null>(
+  const queryClient = useQueryClient();
+
+  const [token, setToken] = useState<string | null>(() =>
     localStorage.getItem("token"),
   );
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  const login = (jwt: string) => {
+  const login = useCallback((jwt: string) => {
     localStorage.setItem("token", jwt);
     setToken(jwt);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setToken(null);
-    setUser(null);
-  };
 
-  const updateUser = (nextUser: User | null) => {
-    setUser(nextUser);
-  };
+    queryClient.removeQueries({
+      queryKey: ["userProfile"],
+    });
+  }, [queryClient]);
+
+  const updateUser = useCallback(
+    (nextUser: User | null) => {
+      queryClient.setQueryData(["userProfile"], nextUser);
+    },
+    [queryClient],
+  );
+
+  const { data: user } = useUserProfile({
+    token,
+    onUnauthorized: logout,
+  });
 
   const isAdmin = user ? MANAGEMENT_ROLES.includes(user.role) : false;
-
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        if (!token) {
-          logout();
-          return;
-        }
-        const res = await getMyProfile(token);
-        console.log("Perfil del usuario cargado:", res);
-        setUser(res);
-      } catch (error) {
-        console.error("Error loading user profile:", error);
-        logout();
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadUser();
-  }, [token]);
 
   const value = useMemo(
     () => ({
       token,
       user,
-      isLoading,
       login,
       logout,
       setUser: updateUser,
       isAdmin,
     }),
-    [token, user, isLoading, isAdmin],
+    [token, user, login, logout, updateUser, isAdmin],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,9 +1,5 @@
-import { useAuth } from "@/modules/core/context/useAuth";
-import { useNavigate } from "react-router-dom";
 import { Heading, VStack, Text, HStack, Dialog } from "@chakra-ui/react";
-import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
-import { CustomAvatar, CustomButton, toaster } from "@/modules/core/components";
-import { parsePaymentReceiptUrl, parseRole } from "../../utils";
+import { useNavigate } from "react-router-dom";
 import {
   IconEye,
   IconFileDollar,
@@ -14,6 +10,11 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useState } from "react";
+
+import { useAuth } from "@/modules/core/context/useAuth";
+import { CustomAvatar, CustomButton, toaster, TextSecondary } from "@/modules/core/components";
+
+import { parsePaymentReceiptUrl, parseRole } from "../../utils";
 import { deleteMyAccount } from "../../service/user.service";
 
 export function ProfilePage() {
@@ -97,7 +98,7 @@ export function ProfilePage() {
             </HStack>
           </VStack>
           <HStack>
-            <CustomButton onClick={() => navigate("/perfil/editar")}>
+            <CustomButton onClick={() => void navigate("/perfil/editar")}>
               <IconPencil /> Editar
             </CustomButton>
             <CustomButton
@@ -140,7 +141,7 @@ function DeleteModal({
         type: "success",
       });
       logout();
-      navigate("/iniciar-sesion");
+      void navigate("/iniciar-sesion");
     } catch (error) {
       console.error("Error al eliminar la cuenta:", error);
       toaster.create({
@@ -188,7 +189,7 @@ function DeleteModal({
             >
               Cancelar
             </CustomButton>
-            <CustomButton onClick={handleDelete} loading={loading}>
+            <CustomButton onClick={() => void handleDelete()} loading={loading}>
               Confirmar
             </CustomButton>
           </Dialog.Footer>
