@@ -8,7 +8,6 @@ import { MANAGEMENT_ROLES } from "@/modules/users/types";
 
 import type { User } from "@/modules/users/types";
 
-
 interface AuthProviderProps {
   readonly children: ReactNode;
 }

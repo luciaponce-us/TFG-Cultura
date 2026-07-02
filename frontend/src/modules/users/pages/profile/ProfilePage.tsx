@@ -12,7 +12,12 @@ import {
 import { useState } from "react";
 
 import { useAuth } from "@/modules/core/context/useAuth";
-import { CustomAvatar, CustomButton, toaster, TextSecondary } from "@/modules/core/components";
+import {
+  CustomAvatar,
+  CustomButton,
+  toaster,
+  TextSecondary,
+} from "@/modules/core/components";
 
 import { parsePaymentReceiptUrl, parseRole } from "../../utils";
 import { deleteMyAccount } from "../../service/user.service";

@@ -5,4 +5,3 @@ export * from "./useUpdateUserAvatar";
 export * from "./useUser";
 export * from "./useUserProfile";
 export * from "./useUsers";
-

@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ApiError } from "@/modules/core/types";
 import { getMyProfile } from "../service/user.service";
 
-
 type UseUserProfileOptions = {
   token: string | null;
   onUnauthorized?: () => void;
