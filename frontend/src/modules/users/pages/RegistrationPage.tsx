@@ -6,6 +6,7 @@ import {
   HStack,
   Checkbox,
   Link,
+  Field,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +19,7 @@ import {
   TextSecondary,
   CustomInput,
   UploadBox,
+  toaster,
 } from "@/modules/core/components";
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
@@ -69,7 +71,14 @@ export function RegistrationPage() {
     const isValidStep1 = validateStep1(form) && paymentReceipt;
     const isValidStep2 = validateStep2(form);
     const isValid = isValidStep1 && isValidStep2;
-    if (!isValid) return;
+    if (!isValid) {
+      toaster.create({
+        title: "Error",
+        description: "Por favor corrige los errores en el formulario.",
+        type: "error",
+      });
+      return;
+    }
     try {
       setLoadingRegister(true);
       await registerUser(form, paymentReceipt, avatar || undefined);
@@ -77,12 +86,21 @@ export function RegistrationPage() {
       setForm(defaultForm);
     } catch (err) {
       console.error("Error al registrar usuario:", err);
-      if (isApiError(err))
-        setErrors({
-          ...errors,
-          general:
-            "Ha ocurrido un error durante el registro. Inténtalo de nuevo más tarde.",
-        });
+      if (isApiError(err)) {
+        if (err.message.includes("DNI")) {
+          setErrors({
+            ...errors,
+            dni: "El DNI ya está registrado",
+            general: "El DNI ya está registrado. Vuelve atrás para corregirlo.",
+          });
+        } else {
+          setErrors({
+            ...errors,
+            general:
+              "Ha ocurrido un error durante el registro. Inténtalo de nuevo más tarde.",
+          });
+        }
+      }
     } finally {
       setLoadingRegister(false);
     }
@@ -101,7 +119,15 @@ export function RegistrationPage() {
     };
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
-    return !Object.values(newErrors).some((error) => error !== "");
+    const isValid = !Object.values(newErrors).some((error) => error !== "");
+    if (!isValid) {
+      toaster.create({
+        title: "Error",
+        description: "Por favor corrige los errores en el formulario.",
+        type: "error",
+      });
+    }
+    return isValid;
   }
 
   function validateStep2(form: RegistrationForm): boolean {
@@ -189,62 +215,74 @@ export function RegistrationPage() {
               }
               secondaryText="PDF, tamaño no superior a 2MB"
               fileType="application/pdf"
-              onFileChange={setPaymentReceipt}
+              onFileChange={(file) => {
+                setErrors((prev) => ({ ...prev, general: "" }));
+                setPaymentReceipt(file);
+              }}
+              disabled={loadingRegister}
             />
-            {paymentReceipt?.name && (
-              <Text fontSize="sm">Archivo subido: {paymentReceipt.name}</Text>
-            )}
-            <Checkbox.Root
-              required
-              checked={termsAccepted}
-              onCheckedChange={(e) => setTermsAccepted(!!e.checked)}
-              invalid={!!errors.termsAccepted}
-            >
-              <Checkbox.HiddenInput />
-              <Checkbox.Control />
-              <Checkbox.Label>
-                He leído y acepto los{" "}
-                <Link
-                  href="/terminos-de-uso"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="principal.500"
-                >
-                  Términos de Uso
-                </Link>{" "}
-                y la{" "}
-                <Link
-                  href="/politica-de-privacidad"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="principal.500"
-                >
-                  Política de Privacidad
-                </Link>
-                .
-              </Checkbox.Label>
-            </Checkbox.Root>
-            <Checkbox.Root
-              required
-              checked={rulesAccepted}
-              onCheckedChange={(e) => setRulesAccepted(!!e.checked)}
-              invalid={!!errors.rulesAccepted}
-            >
-              <Checkbox.HiddenInput />
-              <Checkbox.Control />
-              <Checkbox.Label>
-                He leído y acepto las{" "}
-                <Link
-                  href="/normas"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="principal.500"
-                >
-                  Normas de Uso
-                </Link>
-                .
-              </Checkbox.Label>
-            </Checkbox.Root>
+
+            <Field.Root invalid={!!errors.termsAccepted} required>
+              <Checkbox.Root
+                checked={termsAccepted}
+                onCheckedChange={(e) => {
+                  setErrors((prev) => ({ ...prev, termsAccepted: "" }));
+                  setTermsAccepted(!!e.checked);
+                }}
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label>
+                  He leído y acepto los{" "}
+                  <Link
+                    href="/terminos-de-uso"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="principal.500"
+                  >
+                    Términos de Uso
+                  </Link>{" "}
+                  y la{" "}
+                  <Link
+                    href="/politica-de-privacidad"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="principal.500"
+                  >
+                    Política de Privacidad
+                  </Link>
+                  .
+                </Checkbox.Label>
+              </Checkbox.Root>
+
+              <Field.ErrorText>{errors.termsAccepted}</Field.ErrorText>
+            </Field.Root>
+            <Field.Root invalid={!!errors.rulesAccepted} required>
+              <Checkbox.Root
+                checked={rulesAccepted}
+                onCheckedChange={(e) => {
+                  setErrors((prev) => ({ ...prev, rulesAccepted: "" }));
+                  setRulesAccepted(!!e.checked);
+                }}
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label>
+                  He leído y acepto las{" "}
+                  <Link
+                    href="/normas"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="principal.500"
+                  >
+                    Normas de Uso
+                  </Link>
+                  .
+                </Checkbox.Label>
+              </Checkbox.Root>
+
+              <Field.ErrorText>{errors.rulesAccepted}</Field.ErrorText>
+            </Field.Root>
             <CustomButton
               onClick={() => {
                 const isValid = validateStep1(form);

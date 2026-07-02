@@ -21,6 +21,7 @@ export function UploadBox({
   disabled = false,
 }: UploadBoxProps) {
   const [errors, setErrors] = useState<string[]>([]);
+  const [acceptedFiles, setAcceptedFiles] = useState<File[]>([]);
 
   function parseErrorMessage(errorType: string) {
     let allowedFileType: string | undefined;
@@ -60,11 +61,13 @@ export function UploadBox({
     const file = details.files[0] ?? null;
 
     setErrors([]);
+    setAcceptedFiles([file]); // Sustituye el anterior
     onFileChange?.(file);
   }
 
   return (
     <FileUpload.Root
+      acceptedFiles={acceptedFiles}
       maxFiles={1}
       allowDrop={true}
       maxFileSize={2 * 1024 * 1024}
@@ -72,6 +75,10 @@ export function UploadBox({
       required={required}
       onFileAccept={handleAccept}
       onFileReject={getErrorMessage}
+      onFileChange={(details) => {
+        setAcceptedFiles(details.acceptedFiles);
+        onFileChange?.(details.acceptedFiles[0] ?? null);
+      }}
       disabled={disabled}
     >
       <FileUpload.HiddenInput />
@@ -122,7 +129,7 @@ export function UploadBox({
         </Text>
       ))}
 
-      <FileUpload.List showSize clearable />
+      {acceptedFiles.length > 0 && <FileUpload.List showSize clearable />}
     </FileUpload.Root>
   );
 }
