@@ -7,16 +7,18 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
-import { CustomButton, toaster } from "@/modules/core/components";
+import { ConfirmDialog, CustomButton, toaster } from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
 
 import { useDeleteUser, useToggleUserActive } from "../hooks";
 
 import type { User } from "../types";
+import { useState } from "react";
 
 export function UserActions({ user }: { readonly user: User }) {
   const { token, logout, user: currentUser } = useAuth();
   const navigate = useNavigate();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
 
   const { mutateAsync: deleteUserMutation, isPending: isDeleting } =
     useDeleteUser();
@@ -96,14 +98,14 @@ export function UserActions({ user }: { readonly user: User }) {
   return (
     <HStack>
       <CustomButton
-        onClick={() => navigate(`/admin/usuarios/${user.username}`)}
+        onClick={() => void navigate(`/admin/usuarios/${user.username}`)}
       >
         <IconPencil size={16} />
       </CustomButton>
 
       <CustomButton
         color="rojo"
-        onClick={() => handleDeleteUser(user.username)}
+        onClick={() => setIsDeleteDialogOpen(true)}
         loading={isDeleting}
       >
         <IconTrash size={16} />
@@ -111,10 +113,18 @@ export function UserActions({ user }: { readonly user: User }) {
 
       <CustomButton
         color={user.active ? "rojo" : "verde"}
-        onClick={() => handleToggleActive(user.username, user.active)}
+        onClick={() => void handleToggleActive(user.username, user.active)}
       >
         {user.active ? <IconLock size={16} /> : <IconLockOpen size={16} />}
       </CustomButton>
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        setIsOpen={setIsDeleteDialogOpen}
+        handleAction={() => void handleDeleteUser(user.username)}
+        title={`Eliminar usuario ${user.username}`}
+        message={`¿Estás seguro de que deseas eliminar al usuario ${user.username}? Esta acción no se puede deshacer.`}
+      />
     </HStack>
+
   );
 }

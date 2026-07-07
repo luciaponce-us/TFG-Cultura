@@ -10,7 +10,7 @@ export { CustomInput } from "./CustomInput";
 export { CustomPagination } from "./CustomPagination";
 export { CustomSearchBar } from "./CustomSearchBar";
 export { CustomSelect } from "./CustomSelect";
-export { DeleteDialog } from "./DeleteDialog";
+export { ConfirmDialog } from "./ConfirmDialog.tsx";
 export { Footer } from "./Footer";
 export { NavButton } from "./NavButton";
 export { SideBar } from "./SideBar";

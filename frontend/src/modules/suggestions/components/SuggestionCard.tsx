@@ -2,6 +2,7 @@ import { VStack, HStack, Text } from "@chakra-ui/react";
 import type { Suggestion, SuggestionType } from "../types";
 import { MANAGEMENT_ROLES, type User } from "@/modules/users/types";
 import {
+  ConfirmDialog,
   CustomAvatar,
   CustomAvatarGroup,
   CustomButton,
@@ -17,7 +18,6 @@ import {
   deleteSuggestion,
   toggleSupportSuggestion,
 } from "../service/suggestion.service";
-import { DeleteDialog } from "@/modules/core/components/DeleteDialog";
 
 export function SuggestionCard({
   suggestion,
@@ -267,10 +267,10 @@ function DeleteSuggestionDialog({
   }
 
   return (
-    <DeleteDialog
+    <ConfirmDialog
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      handleDelete={handleDelete}
+      handleAction={handleDelete}
       title="Eliminar sugerencia"
       message="¿Estás seguro de que quieres eliminar esta sugerencia? Esta acción es irreversible."
     />

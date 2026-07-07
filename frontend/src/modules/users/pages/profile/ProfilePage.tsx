@@ -15,7 +15,7 @@ import { useAuth } from "@/modules/core/context/useAuth";
 import {
   CustomAvatar,
   CustomButton,
-  DeleteDialog,
+  ConfirmDialog,
   toaster,
   TextSecondary
 } from "@/modules/core/components";
@@ -118,10 +118,10 @@ export function ProfilePage() {
       ) : (
         <TextSecondary>No se ha podido cargar el usuario.</TextSecondary>
       )}
-      <DeleteDialog
+      <ConfirmDialog
         isOpen={deleteDialogOpen}
         setIsOpen={setDeleteDialogOpen}
-        handleDelete={() => void handleDelete(token, logout, navigate)}
+        handleAction={() => void handleDelete(token, logout, navigate)}
         title="Eliminar cuenta"
         message="¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible."
       />

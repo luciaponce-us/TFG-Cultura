@@ -1,28 +1,28 @@
-import { Dialog, Heading, VStack, Text } from "@chakra-ui/react";
+import { Dialog, Heading, Portal, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { CustomButton } from "./CustomButton";
 
-interface DeleteDialogProps {
+interface ConfirmDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  handleDelete: () => void;
+  handleAction: () => void;
   title: string;
   message: string;
 }
 
-export function DeleteDialog({
+export function ConfirmDialog({
   isOpen,
   setIsOpen,
-  handleDelete,
+  handleAction,
   title,
   message,
-}: DeleteDialogProps) {
+}: ConfirmDialogProps) {
   const [loading, setLoading] = useState(false);
 
   function handleConfirm() {
     setLoading(true);
     try {
-      handleDelete();
+      handleAction();
     } catch (error) {
       console.error("Error al eliminar:", error);
     } finally {
@@ -32,7 +32,8 @@ export function DeleteDialog({
   }
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={() => setIsOpen(false)}>
+    <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)} modal>
+      <Portal>
       <Dialog.Backdrop />
       <Dialog.Positioner>
         <Dialog.Content
@@ -47,10 +48,10 @@ export function DeleteDialog({
               <Heading as="h1">{title}</Heading>
             </Dialog.Title>
           </Dialog.Header>
-          <Dialog.Body>
-            <VStack>
-              <Text>{message}</Text>
-            </VStack>
+          <Dialog.Body >
+              <Text whiteSpace="normal" overflowWrap="break-word" textAlign="left" >
+                {message}
+              </Text>
           </Dialog.Body>
           <Dialog.Footer>
             <CustomButton onClick={() => setIsOpen(false)} color="rojo">
@@ -62,6 +63,7 @@ export function DeleteDialog({
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog.Positioner>
+      </Portal>
     </Dialog.Root>
   );
 }
