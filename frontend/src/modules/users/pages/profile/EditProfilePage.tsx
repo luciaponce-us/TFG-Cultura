@@ -12,21 +12,22 @@ import {
   UploadBox,
 } from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { handleChange, isApiError } from "@/modules/core/utils/utils";
+import { handleChange } from "@/modules/core/utils/utils";
 
 import {
-  updateUserProfile,
-  updateUserProfileAvatar,
-} from "../../service/user.service";
-import * as validation from "../../validations/user.validations";
+  useUpdateUserProfile,
+  useUpdateUserProfileAvatar,
+} from "../../hooks";
+import { validateUserProfileUpdateForm } from "../../validations/user.validations";
 
 import type { UserProfileUpdateRequest } from "../../types";
 
 export function EditProfilePage() {
-  const { user, token, setUser } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
 
-  const [loadingChanges, setLoadingChanges] = useState<boolean>(false);
+  const updateProfile = useUpdateUserProfile();
+  const updateAvatar = useUpdateUserProfileAvatar();
 
   const [form, setForm] = useState<UserProfileUpdateRequest>({
     username: user?.username || "",
@@ -35,7 +36,6 @@ export function EditProfilePage() {
     email: user?.email || "",
     phone: user?.phone || "",
   });
-  const [loadingAvatar, setLoadingAvatar] = useState<boolean>(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({
     username: "",
@@ -52,95 +52,60 @@ export function EditProfilePage() {
   ) => handleChange(value, form, setErrors, setForm);
 
   function validateForm(): boolean {
-    const newErrors: Record<string, string> = {
-      username: validation.validateUsername(form?.username || ""),
-      password: validation.validatePassword(
-        form?.password || "",
-        true,
-        false,
-        undefined,
-      ),
-      name: validation.validateName(form?.name || ""),
-      surname: validation.validateSurname(form?.surname || ""),
-      phone: validation.validatePhone(form?.phone || ""),
-      email: validation.validateEmail(form?.email || ""),
-      general: "",
-    };
+    const newErrors: Record<string, string> =
+      validateUserProfileUpdateForm(form);
     setErrors(newErrors);
     return !Object.values(newErrors).some((v) => !!v);
   }
 
-  async function handleSubmit() {
-    setLoadingChanges(true);
-    if (!token || !form) {
-      setLoadingChanges(false);
-      return;
-    }
+  function handleSubmit() {
+    if (!token || !user) return;
+
     if (!validateForm()) {
       toaster.create({
         title: "Error",
         description: "Por favor corrige los errores en el formulario.",
         type: "error",
       });
-      setLoadingChanges(false);
       return;
     }
 
     const payload: UserProfileUpdateRequest = { ...form };
+
     if (!payload.password) {
       delete payload.password;
     }
 
-    try {
-      const updatedUser = await updateUserProfile(token, payload);
-      setUser(updatedUser);
-      navigate(`/perfil`);
+    updateProfile.mutate({
+      token,
+      data: payload,
+      oldUsername: user.username,
+    });
 
-      toaster.create({
-        title: "Éxito",
-        description: `Tu perfil se ha actualizado correctamente.`,
-        type: "success",
-      });
-    } catch (err) {
-      console.error("Error al registrar usuario:", err);
-      if (isApiError(err)) {
-        setErrors({ ...errors, general: "Error: " + err.message });
-        toaster.create({
-          title: "Error",
-          description: "No se pudo actualizar el usuario: " + err.message,
-          type: "error",
-        });
-      }
-    } finally {
-      setLoadingChanges(false);
+    if (updateProfile.isError){
+      setErrors((prev) => ({
+        ...prev,
+        general: "Error: " + updateProfile.error?.message,
+      }));
     }
   }
 
-  async function handleAvatarChange(file: File | null) {
-    if (!token || !file) return;
+  function handleAvatarChange(file: File | null) {
+    if (!token || !file || !user) return;
 
-    try {
-      setLoadingAvatar(true);
-      const updatedUser = await updateUserProfileAvatar(token, file);
-      setUser(updatedUser);
-      toaster.create({
-        title: "Éxito",
-        description: "Tu foto de perfil se ha actualizado correctamente.",
-        type: "success",
-      });
-    } catch (err) {
-      console.error("Error al actualizar avatar:", err);
-      if (isApiError(err)) {
-        toaster.create({
-          title: "Error",
-          description:
-            "No se pudo actualizar la foto de perfil: " + err.message,
-          type: "error",
-        });
-      }
-    } finally {
-      setLoadingAvatar(false);
+    updateAvatar.mutate({
+      token,
+      avatar: file,
+      username: user.username,
+    });
+
+    if (updateAvatar.isError){
+      setErrors((prev) => ({
+        ...prev,
+        general: "Error al actualizar el avatar: " + updateAvatar.error?.message,
+      }));
     }
+
   }
 
   return (
@@ -155,7 +120,10 @@ export function EditProfilePage() {
       width="fit-content"
     >
       <HStack w="100%" justify="space-between" align="center" mb={4}>
-        <CustomButton color="transparent" onClick={() => navigate("/perfil")}>
+        <CustomButton
+          color="transparent"
+          onClick={() => void navigate("/perfil")}
+        >
           <IconArrowNarrowLeft stroke={2} style={{ width: 32, height: 32 }} />
         </CustomButton>
 
@@ -168,11 +136,11 @@ export function EditProfilePage() {
         <VStack gap={4}>
           <HStack gap={4}>
             <CustomAvatar
-              src={user?.avatar || "https://via.placeholder.com/150"}
+              src={user?.avatar}
               name={form?.name || "User"}
               w="100px"
               h="100px"
-              loading={loadingAvatar}
+              loading={updateAvatar.isPending}
             />
 
             <UploadBox
@@ -183,8 +151,8 @@ export function EditProfilePage() {
               }
               secondaryText="JPG o PNG, tamaño no superior a 2MB"
               fileType="image/*"
-              onFileChange={(file) => handleAvatarChange(file)}
-              disabled={loadingAvatar}
+              onFileChange={(file) => void handleAvatarChange(file)}
+              disabled={updateAvatar.isPending}
             />
           </HStack>
           <CustomInput
@@ -246,9 +214,9 @@ export function EditProfilePage() {
           </TextSecondary>
 
           <CustomButton
-            onClick={handleSubmit}
-            loading={loadingChanges}
-            disabled={loadingChanges}
+            onClick={() => void handleSubmit()}
+            loading={updateProfile.isPending}
+            disabled={updateProfile.isPending}
           >
             Guardar cambios
           </CustomButton>

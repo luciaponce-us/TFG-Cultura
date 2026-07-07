@@ -1,4 +1,4 @@
-import type { UserUpdateRequest } from "../types";
+import type { UserProfileUpdateRequest, UserUpdateRequest } from "../types";
 
 export const validateName = (value: string): string => {
   if (!value) return "El nombre es obligatorio.";
@@ -122,6 +122,20 @@ export function validateUserUpdateForm(
     phone: validatePhone(form.phone),
     email: validateEmail(form.email),
     role: "",
+    general: "",
+  };
+}
+
+export function validateUserProfileUpdateForm(
+  form: UserProfileUpdateRequest,
+): Record<string, string> {
+  return {
+    username: validateUsername(form.username || ""),
+    password: validatePassword(form.password || "", true, false),
+    name: validateName(form.name|| ""),
+    surname: validateSurname(form.surname|| ""),
+    phone: validatePhone(form.phone|| ""),
+    email: validateEmail(form.email|| ""),
     general: "",
   };
 }
