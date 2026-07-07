@@ -27,17 +27,11 @@ import {
 
 import { SuggestionsPage } from "@/modules/suggestions/pages";
 
-import type { Role } from "./modules/users/types/index.ts";
+import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
 
 const queryClient = new QueryClient();
 
 export default function App() {
-  const MANAGEMENT_ROLES: Role[] = [
-    "COORDINADOR",
-    "SECRETARIO",
-    "ENCARGADO",
-    "COLABORADOR",
-  ];
 
   return (
     <>
