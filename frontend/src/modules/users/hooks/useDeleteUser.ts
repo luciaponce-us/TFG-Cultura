@@ -14,14 +14,13 @@ export function useDeleteUser() {
     mutationFn: async ({ token, username }: DeleteUserParams) => {
       return deleteUser(token, username);
     },
-    onSuccess: () => {
-      // invalidamos TODA la lista de usuarios (respeta page + filters automáticamente)
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["users"],
       });
     },
     onError: (error) => {
-      console.error("Error deleting user:", error);
+      console.error("Error al eliminar usuario:", error);
     },
   });
 }

@@ -15,8 +15,8 @@ export function useToggleUserActive() {
     }) => {
       return toggleUserActive(token, username);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["users"],
       });
     },
