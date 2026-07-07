@@ -28,8 +28,7 @@ type RegistrationForm = UserRegisterRequest & {
   confirmPassword: string;
 };
 
-export function RegistrationPage() {
-  const defaultForm: RegistrationForm = {
+const defaultForm: RegistrationForm = {
     username: "",
     password: "",
     name: "",
@@ -53,6 +52,7 @@ export function RegistrationPage() {
     rulesAccepted: "",
   };
 
+export function RegistrationPage() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState<RegistrationForm>(defaultForm);
