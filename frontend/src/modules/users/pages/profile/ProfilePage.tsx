@@ -1,5 +1,5 @@
-import { Heading, VStack, Text, HStack, Dialog } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { Heading, VStack, Text, HStack } from "@chakra-ui/react";
+import { useNavigate, type NavigateFunction } from "react-router-dom";
 import {
   IconEye,
   IconFileDollar,
@@ -15,15 +15,16 @@ import { useAuth } from "@/modules/core/context/useAuth";
 import {
   CustomAvatar,
   CustomButton,
+  DeleteDialog,
   toaster,
-  TextSecondary,
+  TextSecondary
 } from "@/modules/core/components";
 
 import { parsePaymentReceiptUrl, parseRole } from "../../utils";
 import { deleteMyAccount } from "../../service/user.service";
 
 export function ProfilePage() {
-  const { user } = useAuth();
+  const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -117,27 +118,18 @@ export function ProfilePage() {
       ) : (
         <TextSecondary>No se ha podido cargar el usuario.</TextSecondary>
       )}
-      <DeleteModal
-        deleteDialogOpen={deleteDialogOpen}
-        setDeleteDialogOpen={setDeleteDialogOpen}
+      <DeleteDialog
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+        handleDelete={() => void handleDelete(token, logout, navigate)}
+        title="Eliminar cuenta"
+        message="¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible."
       />
     </VStack>
   );
 }
 
-function DeleteModal({
-  deleteDialogOpen,
-  setDeleteDialogOpen,
-}: {
-  deleteDialogOpen: boolean;
-  setDeleteDialogOpen: (open: boolean) => void;
-}) {
-  const [loading, setLoading] = useState(false);
-  const { token, logout } = useAuth();
-  const navigate = useNavigate();
-
-  async function handleDelete() {
-    setLoading(true);
+async function handleDelete(token: string | null, logout: () => void, navigate: NavigateFunction) {
     try {
       await deleteMyAccount(token!);
       toaster.create({
@@ -152,54 +144,8 @@ function DeleteModal({
       toaster.create({
         title: "Error",
         description:
-          "No se pudo eliminar la cuenta. Por favor, intenta nuevamente.",
+          "No se pudo eliminar la cuenta. Por favor, intentálo de nuevo más tarde.",
         type: "error",
       });
-    } finally {
-      setLoading(false);
     }
-  }
-
-  return (
-    <Dialog.Root
-      open={deleteDialogOpen}
-      onOpenChange={() => setDeleteDialogOpen(false)}
-    >
-      <Dialog.Backdrop />
-      <Dialog.Positioner>
-        <Dialog.Content
-          maxH="80vh"
-          overflow="hidden"
-          borderRadius="xl"
-          bg="background"
-        >
-          <Dialog.CloseTrigger />
-          <Dialog.Header>
-            <Dialog.Title>
-              <Heading as="h1">Eliminar cuenta</Heading>
-            </Dialog.Title>
-          </Dialog.Header>
-          <Dialog.Body>
-            <VStack>
-              <Text>
-                ¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es
-                irreversible.
-              </Text>
-            </VStack>
-          </Dialog.Body>
-          <Dialog.Footer>
-            <CustomButton
-              onClick={() => setDeleteDialogOpen(false)}
-              color="rojo"
-            >
-              Cancelar
-            </CustomButton>
-            <CustomButton onClick={() => void handleDelete()} loading={loading}>
-              Confirmar
-            </CustomButton>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog.Positioner>
-    </Dialog.Root>
-  );
 }
