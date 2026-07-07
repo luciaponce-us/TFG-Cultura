@@ -16,55 +16,54 @@ interface UpdateUserProfileParams {
 }
 
 export function useUpdateUserProfile() {
-    const queryClient = useQueryClient();
-    const { setUser } = useAuth();
-    const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { setUser } = useAuth();
+  const navigate = useNavigate();
 
-    return useMutation({
-        mutationFn: ({ token, data }: UpdateUserProfileParams) =>
-          updateUserProfile(token, data),
+  return useMutation({
+    mutationFn: ({ token, data }: UpdateUserProfileParams) =>
+      updateUserProfile(token, data),
 
-        onSuccess: async (updatedUser, variables) => {
-            setUser(updatedUser)
-            void navigate(`/perfil`);
+    onSuccess: async (updatedUser, variables) => {
+      setUser(updatedUser);
+      void navigate(`/perfil`);
 
-            toaster.create({
-                    title: "Éxito",
-                    description: `Tu perfil se ha actualizado correctamente.`,
-                    type: "success",
-                  });
-
-            const newUsername = variables.data.username;
-
-            if (newUsername && newUsername !== variables.oldUsername) {
-                queryClient.removeQueries({
-                queryKey: ["user", variables.oldUsername],
-                exact: true,
-                });
-
-                await queryClient.invalidateQueries({
-                queryKey: ["user", newUsername],
-                });
-            } else {
-                await queryClient.invalidateQueries({
-                queryKey: ["user", variables.oldUsername],
-                });
-            }
-
-            await queryClient.invalidateQueries({
-                queryKey: ["users"],
-            });
-        },
-        onError: (error: Error) => {
-            console.error("Error al registrar usuario:", error);
-            if (isApiError(error)) {
-            toaster.create({
-                title: "Error",
-                description: "No se pudo actualizar el usuario: " + error.message,
-                type: "error",
-            });
-            }
-        }
-
+      toaster.create({
+        title: "Éxito",
+        description: `Tu perfil se ha actualizado correctamente.`,
+        type: "success",
       });
+
+      const newUsername = variables.data.username;
+
+      if (newUsername && newUsername !== variables.oldUsername) {
+        queryClient.removeQueries({
+          queryKey: ["user", variables.oldUsername],
+          exact: true,
+        });
+
+        await queryClient.invalidateQueries({
+          queryKey: ["user", newUsername],
+        });
+      } else {
+        await queryClient.invalidateQueries({
+          queryKey: ["user", variables.oldUsername],
+        });
+      }
+
+      await queryClient.invalidateQueries({
+        queryKey: ["users"],
+      });
+    },
+    onError: (error: Error) => {
+      console.error("Error al registrar usuario:", error);
+      if (isApiError(error)) {
+        toaster.create({
+          title: "Error",
+          description: "No se pudo actualizar el usuario: " + error.message,
+          type: "error",
+        });
+      }
+    },
+  });
 }

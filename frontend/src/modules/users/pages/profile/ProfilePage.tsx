@@ -17,7 +17,7 @@ import {
   CustomButton,
   ConfirmDialog,
   toaster,
-  TextSecondary
+  TextSecondary,
 } from "@/modules/core/components";
 
 import { parsePaymentReceiptUrl, parseRole } from "../../utils";
@@ -129,23 +129,27 @@ export function ProfilePage() {
   );
 }
 
-async function handleDelete(token: string | null, logout: () => void, navigate: NavigateFunction) {
-    try {
-      await deleteMyAccount(token!);
-      toaster.create({
-        title: "Cuenta eliminada",
-        description: "Tu cuenta ha sido eliminada exitosamente.",
-        type: "success",
-      });
-      logout();
-      void navigate("/iniciar-sesion");
-    } catch (error) {
-      console.error("Error al eliminar la cuenta:", error);
-      toaster.create({
-        title: "Error",
-        description:
-          "No se pudo eliminar la cuenta. Por favor, intentálo de nuevo más tarde.",
-        type: "error",
-      });
-    }
+async function handleDelete(
+  token: string | null,
+  logout: () => void,
+  navigate: NavigateFunction,
+) {
+  try {
+    await deleteMyAccount(token!);
+    toaster.create({
+      title: "Cuenta eliminada",
+      description: "Tu cuenta ha sido eliminada exitosamente.",
+      type: "success",
+    });
+    logout();
+    void navigate("/iniciar-sesion");
+  } catch (error) {
+    console.error("Error al eliminar la cuenta:", error);
+    toaster.create({
+      title: "Error",
+      description:
+        "No se pudo eliminar la cuenta. Por favor, intentálo de nuevo más tarde.",
+      type: "error",
+    });
+  }
 }

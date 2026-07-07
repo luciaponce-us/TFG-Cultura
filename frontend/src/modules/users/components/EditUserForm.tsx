@@ -10,10 +10,7 @@ import {
 import { IconEye, IconFileDollar } from "@tabler/icons-react";
 import { useParams } from "react-router-dom";
 
-import {
-  handleChange,
-  handleSelectChange,
-} from "@/modules/core/utils/utils";
+import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import { useAuth } from "@/modules/core/context/useAuth";
 import { toaster } from "@/modules/core/components";
 
@@ -27,7 +24,6 @@ import { validateUserUpdateForm } from "../validations/user.validations";
 import { useUpdateUser, useUpdateUserAvatar } from "../hooks";
 
 import type { UserUpdateRequest, User } from "../types";
-
 
 const DEFAULT_ERRORS: Record<string, string> = {
   username: "",
@@ -80,13 +76,11 @@ export function EditUserForm({ user }: { readonly user: User }) {
     const request: UserUpdateRequest =
       form.password === "" ? { ...form, password: undefined } : form;
 
-    updateUserMutation.mutate(
-      {
-        token,
-        username,
-        data: request,
-      }
-    );
+    updateUserMutation.mutate({
+      token,
+      username,
+      data: request,
+    });
 
     if (updateUserMutation.isError) {
       setErrors((prev) => ({
@@ -99,13 +93,11 @@ export function EditUserForm({ user }: { readonly user: User }) {
   function handleAvatarChange(file: File | null) {
     if (!file || !token || !username) return;
 
-    updateAvatarMutation.mutate(
-      {
-        token,
-        username,
-        avatar: file,
-      }
-    );
+    updateAvatarMutation.mutate({
+      token,
+      username,
+      avatar: file,
+    });
   }
 
   return (
@@ -128,7 +120,9 @@ export function EditUserForm({ user }: { readonly user: User }) {
           secondaryText="JPG o PNG, tamaño no superior a 2MB"
           fileType="image/*"
           onFileChange={handleAvatarChange}
-          disabled={updateUserMutation.isPending || updateAvatarMutation.isPending}
+          disabled={
+            updateUserMutation.isPending || updateAvatarMutation.isPending
+          }
         />
       </HStack>
       <CustomInput

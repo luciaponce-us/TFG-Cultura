@@ -7,7 +7,11 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
-import { ConfirmDialog, CustomButton, toaster } from "@/modules/core/components";
+import {
+  ConfirmDialog,
+  CustomButton,
+  toaster,
+} from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
 
 import { useDeleteUser, useToggleUserActive } from "../hooks";
@@ -125,6 +129,5 @@ export function UserActions({ user }: { readonly user: User }) {
         message={`¿Estás seguro de que deseas eliminar al usuario ${user.username}? Esta acción no se puede deshacer.`}
       />
     </HStack>
-
   );
 }

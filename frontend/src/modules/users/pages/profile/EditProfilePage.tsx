@@ -14,10 +14,7 @@ import {
 import { useAuth } from "@/modules/core/context/useAuth";
 import { handleChange } from "@/modules/core/utils/utils";
 
-import {
-  useUpdateUserProfile,
-  useUpdateUserProfileAvatar,
-} from "../../hooks";
+import { useUpdateUserProfile, useUpdateUserProfileAvatar } from "../../hooks";
 import { validateUserProfileUpdateForm } from "../../validations/user.validations";
 
 import type { UserProfileUpdateRequest } from "../../types";
@@ -82,7 +79,7 @@ export function EditProfilePage() {
       oldUsername: user.username,
     });
 
-    if (updateProfile.isError){
+    if (updateProfile.isError) {
       setErrors((prev) => ({
         ...prev,
         general: "Error: " + updateProfile.error?.message,
@@ -99,13 +96,13 @@ export function EditProfilePage() {
       username: user.username,
     });
 
-    if (updateAvatar.isError){
+    if (updateAvatar.isError) {
       setErrors((prev) => ({
         ...prev,
-        general: "Error al actualizar el avatar: " + updateAvatar.error?.message,
+        general:
+          "Error al actualizar el avatar: " + updateAvatar.error?.message,
       }));
     }
-
   }
 
   return (

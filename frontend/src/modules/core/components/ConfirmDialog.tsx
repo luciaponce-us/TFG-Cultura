@@ -34,35 +34,39 @@ export function ConfirmDialog({
   return (
     <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)} modal>
       <Portal>
-      <Dialog.Backdrop />
-      <Dialog.Positioner>
-        <Dialog.Content
-          maxH="80vh"
-          overflow="hidden"
-          borderRadius="xl"
-          bg="background"
-        >
-          <Dialog.CloseTrigger />
-          <Dialog.Header>
-            <Dialog.Title>
-              <Heading as="h1">{title}</Heading>
-            </Dialog.Title>
-          </Dialog.Header>
-          <Dialog.Body >
-              <Text whiteSpace="normal" overflowWrap="break-word" textAlign="left" >
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content
+            maxH="80vh"
+            overflow="hidden"
+            borderRadius="xl"
+            bg="background"
+          >
+            <Dialog.CloseTrigger />
+            <Dialog.Header>
+              <Dialog.Title>
+                <Heading as="h1">{title}</Heading>
+              </Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <Text
+                whiteSpace="normal"
+                overflowWrap="break-word"
+                textAlign="left"
+              >
                 {message}
               </Text>
-          </Dialog.Body>
-          <Dialog.Footer>
-            <CustomButton onClick={() => setIsOpen(false)} color="rojo">
-              Cancelar
-            </CustomButton>
-            <CustomButton onClick={handleConfirm} loading={loading}>
-              Confirmar
-            </CustomButton>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog.Positioner>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <CustomButton onClick={() => setIsOpen(false)} color="rojo">
+                Cancelar
+              </CustomButton>
+              <CustomButton onClick={handleConfirm} loading={loading}>
+                Confirmar
+              </CustomButton>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
       </Portal>
     </Dialog.Root>
   );

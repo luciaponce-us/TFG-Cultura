@@ -32,7 +32,6 @@ import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
 const queryClient = new QueryClient();
 
 export default function App() {
-
   return (
     <>
       <Toaster />

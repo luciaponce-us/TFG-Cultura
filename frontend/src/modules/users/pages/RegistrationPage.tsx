@@ -29,28 +29,28 @@ type RegistrationForm = UserRegisterRequest & {
 };
 
 const defaultForm: RegistrationForm = {
-    username: "",
-    password: "",
-    name: "",
-    surname: "",
-    dni: "",
-    phone: "",
-    email: "",
-    confirmPassword: "",
-  };
+  username: "",
+  password: "",
+  name: "",
+  surname: "",
+  dni: "",
+  phone: "",
+  email: "",
+  confirmPassword: "",
+};
 
-  const defaultErrors: Record<string, string> = {
-    username: "",
-    password: "",
-    name: "",
-    surname: "",
-    dni: "",
-    phone: "",
-    email: "",
-    general: "",
-    termsAccepted: "",
-    rulesAccepted: "",
-  };
+const defaultErrors: Record<string, string> = {
+  username: "",
+  password: "",
+  name: "",
+  surname: "",
+  dni: "",
+  phone: "",
+  email: "",
+  general: "",
+  termsAccepted: "",
+  rulesAccepted: "",
+};
 
 export function RegistrationPage() {
   const navigate = useNavigate();

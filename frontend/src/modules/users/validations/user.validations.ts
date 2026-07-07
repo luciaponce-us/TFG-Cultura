@@ -132,10 +132,10 @@ export function validateUserProfileUpdateForm(
   return {
     username: validateUsername(form.username || ""),
     password: validatePassword(form.password || "", true, false),
-    name: validateName(form.name|| ""),
-    surname: validateSurname(form.surname|| ""),
-    phone: validatePhone(form.phone|| ""),
-    email: validateEmail(form.email|| ""),
+    name: validateName(form.name || ""),
+    surname: validateSurname(form.surname || ""),
+    phone: validatePhone(form.phone || ""),
+    email: validateEmail(form.email || ""),
     general: "",
   };
 }

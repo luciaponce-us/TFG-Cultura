@@ -13,7 +13,10 @@ export default function ProtectedRoute({
   allowedRoles,
 }: ProtectedRouteProps) {
   const { user, token } = useAuth();
-  console.log("ProtectedRoute - Accediendo a ruta protegida con el rol:", user?.role);
+  console.log(
+    "ProtectedRoute - Accediendo a ruta protegida con el rol:",
+    user?.role,
+  );
 
   // No autenticado
   if (!token) {
