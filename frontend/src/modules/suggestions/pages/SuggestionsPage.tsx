@@ -1,28 +1,27 @@
 import { Grid, Heading, Link, VStack } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "@/modules/core/context/useAuth";
+import { IconPlus } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchAllSuggestions } from "../service/suggestion.service";
-import type { Suggestion, SuggestionType } from "../types";
-import type { Paginated } from "@/modules/core/types";
+
 import {
-  SideBar,
+  CustomButton,
   CustomPagination,
   CustomSearchBar,
   CustomSelect,
+  SideBar,
   TextSecondary,
-  CustomButton,
   toaster,
 } from "@/modules/core/components";
-import { CreateSuggestionDialog, SuggestionCard } from "../components";
-import { IconPlus } from "@tabler/icons-react";
+import { useAuth } from "@/modules/core/context/useAuth";
 
-interface Filters {
-  type?: SuggestionType;
-  text: string;
-  orderByCreationDate: boolean;
-  supportedByAdmins: boolean;
-}
+import { CreateSuggestionDialog, SuggestionCard } from "../components";
+import { useSuggestions } from "../hooks";
+
+import type {
+  FiltersGetAllSuggestions as Filters,
+  SuggestionType,
+} from "../types";
 
 const initialFilters: Filters = {
   type: undefined,
@@ -31,64 +30,46 @@ const initialFilters: Filters = {
   supportedByAdmins: false,
 };
 
+const suggestionTypeOptions = [
+  { label: "Todos (sin filtrar)", value: "" },
+  { label: "Catálogo", value: "CATALOG" },
+  { label: "Eventos", value: "EVENT" },
+  { label: "Otros", value: "OTHER" },
+];
+
 export function SuggestionsPage({
   mySuggestions = false,
 }: {
   mySuggestions?: boolean;
 }) {
-  const [suggestions, setSuggestions] = useState<Paginated<Suggestion> | null>(
-    null,
-  );
-  const [page, setPage] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [filters, setFilters] = useState<Filters>(initialFilters);
-  const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false);
   const { token } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const fetchSuggestions = useCallback(
-    async (pageToLoad: number = 0, isInitialLoad: boolean = false) => {
-      setLoading(isInitialLoad);
+  const [page, setPage] = useState<number>(0);
+  const [filters, setFilters] = useState<Filters>(initialFilters);
+  const {
+    data: suggestions,
+    isLoading,
+    error,
+    isError,
+  } = useSuggestions(token, page, filters, mySuggestions);
 
-      try {
-        const data = await fetchAllSuggestions(
-          pageToLoad,
-          3,
-          filters.type,
-          filters.text,
-          filters.orderByCreationDate,
-          filters.supportedByAdmins,
-          mySuggestions,
-          token,
-        );
-        setSuggestions(data);
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-        setSuggestions(null);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [
-      filters.orderByCreationDate,
-      filters.supportedByAdmins,
-      filters.text,
-      filters.type,
-      mySuggestions,
-      token,
-    ],
-  );
-
-  useEffect(() => {
-    async function loadSuggestions() {
-      await fetchSuggestions(page, true);
-    }
-    loadSuggestions();
-  }, [page, fetchSuggestions]);
+  const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false);
 
   function renderSuggestions() {
-    if (loading) {
+    if (isLoading) {
       return <TextSecondary>Cargando sugerencias...</TextSecondary>;
+    }
+    if (isError) {
+      console.error(error);
+      toaster.create({
+        title: "Error al cargar sugerencias",
+        description:
+          "No se pudieron cargar las sugerencias. Inténtalo de nuevo.",
+        type: "error",
+      });
+      return <TextSecondary>Error al cargar sugerencias.</TextSecondary>;
     }
 
     if (!suggestions || suggestions.content.length === 0) {
@@ -101,8 +82,6 @@ export function SuggestionsPage({
           <SuggestionCard
             key={suggestion.id}
             suggestion={suggestion}
-            onSupportSuccess={() => fetchSuggestions(page)}
-            fetchSuggestions={fetchSuggestions}
           />
         ))}
       </VStack>
@@ -156,12 +135,7 @@ export function SuggestionsPage({
 
           <CustomSelect
             placeholder="Filtrar por tipo"
-            options={[
-              { label: "Todos (sin filtrar)", value: "" as SuggestionType },
-              { label: "Catálogo", value: "CATALOG" as SuggestionType },
-              { label: "Eventos", value: "EVENT" as SuggestionType },
-              { label: "Otros", value: "OTHER" as SuggestionType },
-            ]}
+            options={suggestionTypeOptions}
             value={filters.type ? [filters.type] : []}
             onValueChange={({ value }) => {
               setPage(0);
@@ -202,7 +176,7 @@ export function SuggestionsPage({
                 description: "Serás redirigido a la página de inicio de sesión",
                 closable: true,
               });
-              navigate("/iniciar-sesion");
+              void navigate("/iniciar-sesion");
             } else {
               setShowCreateDialog(true);
             }
@@ -228,7 +202,9 @@ export function SuggestionsPage({
           onClose={() => {
             setShowCreateDialog(false);
             setPage(0);
-            fetchSuggestions(0);
+            void queryClient.invalidateQueries({
+              queryKey: ["suggestions"],
+            });
           }}
           token={token}
         />

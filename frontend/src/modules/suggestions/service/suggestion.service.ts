@@ -15,7 +15,7 @@ import type { Paginated } from "@/modules/core/types";
 export async function fetchAllSuggestions(
   page: number = 0,
   size: number = 3,
-  type?: SuggestionType | null | undefined,
+  type?: SuggestionType,
   text?: string,
   orderByCreationDate?: boolean,
   supportedByAdmins?: boolean,

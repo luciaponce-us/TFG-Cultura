@@ -1,6 +1,9 @@
-import { VStack, HStack, Text } from "@chakra-ui/react";
-import type { Suggestion, SuggestionType } from "../types";
-import { MANAGEMENT_ROLES, type User } from "@/modules/users/types";
+import { HStack, Text, VStack } from "@chakra-ui/react";
+import { IconThumbDown, IconThumbUp, IconTrash } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   ConfirmDialog,
   CustomAvatar,
@@ -8,31 +11,27 @@ import {
   CustomButton,
   toaster,
 } from "@/modules/core/components";
-import { IconThumbDown, IconThumbUp, IconTrash } from "@tabler/icons-react";
-import { parseRole } from "@/modules/users/utils";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { isApiError, useIsMobile } from "@/modules/core/utils/utils";
-import {
-  deleteSuggestion,
-  toggleSupportSuggestion,
-} from "../service/suggestion.service";
+import { MANAGEMENT_ROLES, type User } from "@/modules/users/types";
+import { parseRole } from "@/modules/users/utils";
+
+import { useDeleteSuggestion } from "../hooks";
+import { toggleSupportSuggestion } from "../service/suggestion.service";
+
+import type { Suggestion, SuggestionType } from "../types";
 
 export function SuggestionCard({
-  suggestion,
-  onSupportSuccess,
-  fetchSuggestions,
+  suggestion
 }: {
   suggestion: Suggestion;
-  onSupportSuccess?: () => void;
-  fetchSuggestions: (pageToLoad?: number) => Promise<void>;
 }) {
-  const { token } = useAuth();
-  const { user } = useAuth();
-  const { isAdmin } = useAuth();
+  const { token, user, isAdmin } = useAuth();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutateAsync: deleteSuggestion, isPending: isDeleting } = useDeleteSuggestion();
   const [loadingSupport, setLoadingSupport] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -44,8 +43,6 @@ export function SuggestionCard({
         return "#eventos";
       case "OTHER":
         return "#otro";
-      default:
-        return "#" + type;
     }
   }
 
@@ -89,6 +86,7 @@ export function SuggestionCard({
   const isAuthor = suggestion.author.username === user?.username;
 
   async function handleToggleSupport() {
+    console.log("Toggling support for suggestion:", suggestion.id);
     setLoadingSupport(true);
     if (!token) {
       toaster.create({
@@ -96,12 +94,14 @@ export function SuggestionCard({
         description: "Serás redirigido a la página de inicio de sesión",
         closable: true,
       });
-      navigate("/iniciar-sesion");
+      void navigate("/iniciar-sesion");
       setLoadingSupport(false);
     } else {
       try {
         await toggleSupportSuggestion(token, suggestion.id);
-        onSupportSuccess?.();
+        await queryClient.invalidateQueries({
+                queryKey: ["suggestions"],
+              });
       } catch (error) {
         if (isApiError(error)) {
           console.error(
@@ -187,18 +187,22 @@ export function SuggestionCard({
             <CustomButton
               onClick={() => setDeleteDialogOpen(true)}
               color="rojo"
+              loading={isDeleting}
             >
               <IconTrash /> {isMobile ? "" : "Eliminar"}
             </CustomButton>
           )}
           {!isAuthor &&
             (isSupportedByUser ? (
-              <CustomButton onClick={handleToggleSupport} color="rojo">
+              <CustomButton
+                onClick={() => void handleToggleSupport()}
+                color="rojo"
+              >
                 <IconThumbDown /> {isMobile ? "" : "Dejar de apoyar"}
               </CustomButton>
             ) : (
               <CustomButton
-                onClick={handleToggleSupport}
+                onClick={() => void handleToggleSupport()}
                 loading={loadingSupport}
               >
                 <IconThumbUp /> {isMobile ? "" : "Apoyar sugerencia"}
@@ -206,73 +210,15 @@ export function SuggestionCard({
             ))}
         </HStack>
       </HStack>
-      <DeleteSuggestionDialog
-        suggestionId={suggestion.id}
+      <ConfirmDialog
         isOpen={deleteDialogOpen}
         setIsOpen={setDeleteDialogOpen}
-        fetchSuggestions={fetchSuggestions}
+        handleAction={() => {
+          void deleteSuggestion({ suggestionId: suggestion.id });
+        }}
+        title="Eliminar sugerencia"
+        message="¿Estás seguro de que quieres eliminar esta sugerencia? Esta acción es irreversible."
       />
     </VStack>
-  );
-}
-
-function DeleteSuggestionDialog({
-  suggestionId,
-  isOpen,
-  setIsOpen,
-  fetchSuggestions,
-}: {
-  suggestionId: string;
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  fetchSuggestions: (pageToLoad?: number) => Promise<void>;
-}) {
-  const { token } = useAuth();
-
-  async function handleDelete() {
-    if (!token) {
-      toaster.create({
-        title: "Inicia sesión para eliminar sugerencias",
-        description: "Necesitas iniciar sesión para eliminar esta sugerencia.",
-        type: "error",
-      });
-      return;
-    }
-    try {
-      await deleteSuggestion(token, suggestionId);
-      setIsOpen(false);
-      toaster.create({
-        title: "Sugerencia eliminada",
-        description: "La sugerencia se ha eliminado correctamente.",
-      });
-      await fetchSuggestions(0); // Refresca la lista de sugerencias después de eliminar
-    } catch (error) {
-      if (isApiError(error)) {
-        console.error("Error deleting suggestion:", error.message);
-        toaster.create({
-          title: "Error al eliminar sugerencia",
-          description:
-            "Ocurrió un error al eliminar la sugerencia. Inténtalo de nuevo.",
-          type: "error",
-        });
-      } else {
-        console.error("Unexpected error:", error);
-        toaster.create({
-          title: "Error inesperado",
-          description: "Ocurrió un error inesperado. Inténtalo de nuevo.",
-          type: "error",
-        });
-      }
-    }
-  }
-
-  return (
-    <ConfirmDialog
-      isOpen={isOpen}
-      setIsOpen={setIsOpen}
-      handleAction={handleDelete}
-      title="Eliminar sugerencia"
-      message="¿Estás seguro de que quieres eliminar esta sugerencia? Esta acción es irreversible."
-    />
   );
 }

@@ -12,7 +12,16 @@ export interface Suggestion {
   createdAt: Date;
 }
 
-export type SuggestionType = "CATALOG" | "EVENT" | "OTHER";
+export interface FiltersGetAllSuggestions {
+  type?: SuggestionType;
+  text: string;
+  orderByCreationDate: boolean;
+  supportedByAdmins: boolean;
+}
+
+export const SUGGESTION_TYPES = ["CATALOG", "EVENT", "OTHER"] as const;
+
+export type SuggestionType = typeof SUGGESTION_TYPES[number];
 
 export interface SuggestionCreateRequest {
   title: string;
