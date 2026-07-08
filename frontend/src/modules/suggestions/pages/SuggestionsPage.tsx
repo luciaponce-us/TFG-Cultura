@@ -49,11 +49,13 @@ export function SuggestionsPage({
   const [page, setPage] = useState<number>(0);
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const {
-    data: suggestions,
+    data: paginatedSuggestions,
     isLoading,
     error,
     isError,
   } = useSuggestions(token, page, filters, mySuggestions);
+
+  const suggestions = paginatedSuggestions?.content;
 
   const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false);
 
@@ -72,13 +74,13 @@ export function SuggestionsPage({
       return <TextSecondary>Error al cargar sugerencias.</TextSecondary>;
     }
 
-    if (!suggestions || suggestions.content.length === 0) {
+    if (!paginatedSuggestions || suggestions?.length === 0) {
       return <TextSecondary>No hay sugerencias disponibles.</TextSecondary>;
     }
 
     return (
       <VStack align="stretch" gap={4} w="100%">
-        {suggestions.content.map((suggestion) => (
+        {suggestions?.map((suggestion) => (
           <SuggestionCard
             key={suggestion.id}
             suggestion={suggestion}
@@ -187,12 +189,12 @@ export function SuggestionsPage({
         </CustomButton>
 
         {renderSuggestions()}
-        {suggestions && suggestions?.totalPages > 1 && (
+        {suggestions && paginatedSuggestions?.totalPages > 1 && (
           <CustomPagination
             setPage={setPage}
             page={page}
-            totalElements={suggestions.totalElements ?? 0}
-            size={suggestions.size ?? 3}
+            totalElements={paginatedSuggestions.totalElements ?? 0}
+            size={paginatedSuggestions.size ?? 3}
           />
         )}
       </VStack>

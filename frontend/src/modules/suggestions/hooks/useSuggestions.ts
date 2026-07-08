@@ -8,8 +8,6 @@ export function useSuggestions(token: string | null, page: number, filters: Filt
   return useQuery<Paginated<Suggestion>>({
     queryKey: ["suggestions", page, filters, mySuggestions],
     queryFn: async () => {
-      if (!token) throw new Error("No token");
-      
       return fetchAllSuggestions(
         page,
         10,
@@ -21,7 +19,6 @@ export function useSuggestions(token: string | null, page: number, filters: Filt
         token
       );
     },
-    enabled: !!token,
     placeholderData: keepPreviousData,
   });
 }
