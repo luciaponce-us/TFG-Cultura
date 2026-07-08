@@ -1,7 +1,10 @@
-export const validateSuggestionForm = (form: {
-  title: string;
-  description?: string;
-}, token?: string | null): Partial<Record<string, string>> => {
+export const validateSuggestionForm = (
+  form: {
+    title: string;
+    description?: string;
+  },
+  token?: string | null,
+): Partial<Record<string, string>> => {
   const errors: Partial<Record<string, string>> = {};
 
   if (!token) {

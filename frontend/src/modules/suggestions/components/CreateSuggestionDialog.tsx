@@ -6,10 +6,7 @@ import {
   CustomInput,
   CustomSelect,
 } from "@/modules/core/components";
-import {
-  handleChange,
-  handleSelectChange,
-} from "@/modules/core/utils/utils";
+import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 
 import { useCreateSuggestion } from "../hooks";
 import { validateSuggestionForm } from "../validations/suggestion.validations";

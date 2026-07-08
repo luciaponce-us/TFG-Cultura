@@ -79,10 +79,7 @@ export function SuggestionsPage({
     return (
       <VStack align="stretch" gap={4} w="100%">
         {suggestions?.map((suggestion) => (
-          <SuggestionCard
-            key={suggestion.id}
-            suggestion={suggestion}
-          />
+          <SuggestionCard key={suggestion.id} suggestion={suggestion} />
         ))}
       </VStack>
     );

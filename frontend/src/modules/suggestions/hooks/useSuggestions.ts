@@ -4,7 +4,12 @@ import { fetchAllSuggestions } from "../service/suggestion.service";
 import type { Paginated } from "@/modules/core/types";
 import type { FiltersGetAllSuggestions as Filters, Suggestion } from "../types";
 
-export function useSuggestions(token: string | null, page: number, filters: Filters, mySuggestions: boolean = false) {
+export function useSuggestions(
+  token: string | null,
+  page: number,
+  filters: Filters,
+  mySuggestions: boolean = false,
+) {
   return useQuery<Paginated<Suggestion>>({
     queryKey: ["suggestions", page, filters, mySuggestions],
     queryFn: async () => {
@@ -16,7 +21,7 @@ export function useSuggestions(token: string | null, page: number, filters: Filt
         filters.orderByCreationDate,
         filters.supportedByAdmins,
         mySuggestions,
-        token
+        token,
       );
     },
     placeholderData: keepPreviousData,

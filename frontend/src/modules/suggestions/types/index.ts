@@ -21,7 +21,7 @@ export interface FiltersGetAllSuggestions {
 
 export const SUGGESTION_TYPES = ["CATALOG", "EVENT", "OTHER"] as const;
 
-export type SuggestionType = typeof SUGGESTION_TYPES[number];
+export type SuggestionType = (typeof SUGGESTION_TYPES)[number];
 
 export interface SuggestionCreateRequest {
   title: string;

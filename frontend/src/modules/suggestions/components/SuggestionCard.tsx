@@ -21,17 +21,14 @@ import { toggleSupportSuggestion } from "../service/suggestion.service";
 
 import type { Suggestion, SuggestionType } from "../types";
 
-export function SuggestionCard({
-  suggestion
-}: {
-  suggestion: Suggestion;
-}) {
+export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
   const { token, user, isAdmin } = useAuth();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { mutateAsync: deleteSuggestion, isPending: isDeleting } = useDeleteSuggestion();
+  const { mutateAsync: deleteSuggestion, isPending: isDeleting } =
+    useDeleteSuggestion();
   const [loadingSupport, setLoadingSupport] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -100,8 +97,8 @@ export function SuggestionCard({
       try {
         await toggleSupportSuggestion(token, suggestion.id);
         await queryClient.invalidateQueries({
-                queryKey: ["suggestions"],
-              });
+          queryKey: ["suggestions"],
+        });
       } catch (error) {
         if (isApiError(error)) {
           console.error(
