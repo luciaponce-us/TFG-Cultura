@@ -1,6 +1,5 @@
 import { Grid, Heading, Link, VStack } from "@chakra-ui/react";
 import { IconPlus } from "@tabler/icons-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -44,7 +43,6 @@ export function SuggestionsPage({
 }) {
   const { token } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const [page, setPage] = useState<number>(0);
   const [filters, setFilters] = useState<Filters>(initialFilters);
@@ -201,13 +199,7 @@ export function SuggestionsPage({
       {token && (
         <CreateSuggestionDialog
           isOpen={showCreateDialog}
-          onClose={() => {
-            setShowCreateDialog(false);
-            setPage(0);
-            void queryClient.invalidateQueries({
-              queryKey: ["suggestions"],
-            });
-          }}
+          setIsOpen={setShowCreateDialog}
           token={token}
         />
       )}

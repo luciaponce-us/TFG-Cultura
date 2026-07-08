@@ -1,8 +1,13 @@
 export const validateSuggestionForm = (form: {
   title: string;
   description?: string;
-}): Partial<Record<keyof typeof form, string>> => {
-  const errors: Partial<Record<keyof typeof form, string>> = {};
+}, token?: string | null): Partial<Record<string, string>> => {
+  const errors: Partial<Record<string, string>> = {};
+
+  if (!token) {
+    errors.general = "Debes iniciar sesión para crear una sugerencia";
+    return errors;
+  }
 
   if (!form.title.trim()) {
     errors.title = "El título es obligatorio";
