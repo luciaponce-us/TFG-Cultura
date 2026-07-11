@@ -60,7 +60,7 @@ export function CreateSuggestionDialog({
   }
 
   return (
-    <Dialog.Root open={isOpen}>
+    <Dialog.Root open={isOpen} >
       <Dialog.Backdrop />
       <Dialog.Positioner>
         <Dialog.Content
@@ -68,6 +68,7 @@ export function CreateSuggestionDialog({
           overflow="hidden"
           borderRadius="xl"
           bg="background"
+          as="form"
         >
           <Dialog.CloseTrigger />
           <Dialog.Header>
@@ -76,7 +77,7 @@ export function CreateSuggestionDialog({
             </Dialog.Title>
           </Dialog.Header>
           <Dialog.Body>
-            <VStack>
+            <VStack >
               <CustomInput
                 label="Título"
                 name="title"
@@ -112,7 +113,7 @@ export function CreateSuggestionDialog({
             <CustomButton onClick={() => setIsOpen(false)} color="rojo">
               Cancelar
             </CustomButton>
-            <CustomButton onClick={() => void handleSubmit()} loading={loading}>
+            <CustomButton onClick={() => void handleSubmit()} loading={loading} type="submit">
               Crear
             </CustomButton>
           </Dialog.Footer>
