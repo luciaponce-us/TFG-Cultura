@@ -31,26 +31,26 @@ export const CustomInput = ({
   password = false,
   defaultValue,
   textarea = false,
-  maxInputHeight
+  maxInputHeight,
 }: InputFieldProps) => {
   const [show, setShow] = useState(false);
-  const [length, setLength] = useState(defaultValue?.length?? 0);
+  const [length, setLength] = useState(defaultValue?.length ?? 0);
 
   const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-) => {
-  setLength(e.target.value.length);
-  onChange?.(e);
-};
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setLength(e.target.value.length);
+    onChange?.(e);
+  };
 
-const commonProps = {
-  name,
-  placeholder,
-  onChange: handleChange,
-  focusRingColor: "principal.600",
-  defaultValue,
-  maxLength,
-};
+  const commonProps = {
+    name,
+    placeholder,
+    onChange: handleChange,
+    focusRingColor: "principal.600",
+    defaultValue,
+    maxLength,
+  };
   return (
     <Field.Root invalid={!!error} required={required}>
       <Field.Label>
@@ -64,31 +64,22 @@ const commonProps = {
             </Button>
           }
         >
-          <Input
-            {...commonProps}
-            type={show ? "text" : "password"}
-
-          />
+          <Input {...commonProps} type={show ? "text" : "password"} />
         </InputGroup>
       )}
-      {!password && !textarea && (
-        <Input
-          {...commonProps}
-        />
-      )}
+      {!password && !textarea && <Input {...commonProps} />}
       {textarea && (
-        <Textarea
-          {...commonProps}
-          maxH={maxInputHeight}
-          minH="40px"
-        />
+        <Textarea {...commonProps} maxH={maxInputHeight} minH="40px" />
       )}
 
       {maxLength && showMaxLength && length >= maxLength * 0.8 && (
-  <Field.HelperText textAlign="right" color={length > maxLength ? "red.500" : "gray.500"}>
-    {length}/{maxLength}
-  </Field.HelperText>
-)}
+        <Field.HelperText
+          textAlign="right"
+          color={length > maxLength ? "red.500" : "gray.500"}
+        >
+          {length}/{maxLength}
+        </Field.HelperText>
+      )}
 
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
     </Field.Root>

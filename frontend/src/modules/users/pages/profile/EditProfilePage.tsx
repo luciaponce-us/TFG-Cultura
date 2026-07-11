@@ -15,7 +15,10 @@ import { useAuth } from "@/modules/core/context/useAuth";
 import { handleChange } from "@/modules/core/utils/utils";
 
 import { useUpdateUserProfile, useUpdateUserProfileAvatar } from "../../hooks";
-import { MAX_LENGTH, validateUserProfileUpdateForm } from "../../validations/user.validations";
+import {
+  MAX_LENGTH,
+  validateUserProfileUpdateForm,
+} from "../../validations/user.validations";
 
 import type { UserProfileUpdateRequest } from "../../types";
 

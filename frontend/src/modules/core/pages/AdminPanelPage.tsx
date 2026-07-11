@@ -19,7 +19,13 @@ interface AdminCardProps {
 
 function AdminCard({ icon, label, onClick }: AdminCardProps) {
   return (
-    <GridItem onClick={onClick} cursor="pointer" _hover={{ color: "principal.600" }} _active={{ color: "principal.700", transform: "scale(0.98)" }} transition="all 0.2s">
+    <GridItem
+      onClick={onClick}
+      cursor="pointer"
+      _hover={{ color: "principal.600" }}
+      _active={{ color: "principal.700", transform: "scale(0.98)" }}
+      transition="all 0.2s"
+    >
       <VStack align="center" justify="center" h="100%">
         {icon}
         <CustomButton onClick={onClick}>{label}</CustomButton>

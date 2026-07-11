@@ -8,7 +8,10 @@ import {
 import { Flex, Heading, Link, VStack } from "@chakra-ui/react";
 import type { UserLoginRequest } from "../types";
 import { useEffect, useState } from "react";
-import {MAX_LENGTH, validateUserLoginForm} from "../validations/user.validations";
+import {
+  MAX_LENGTH,
+  validateUserLoginForm,
+} from "../validations/user.validations";
 import { loginUser } from "../service/user.service";
 import { handleChange, isApiError } from "@/modules/core/utils/utils";
 import { useNavigate } from "react-router-dom";
@@ -71,21 +74,21 @@ export function LoginPage() {
       void navigate("/");
     } catch (err) {
       console.error("Error al iniciar sesión:", err);
-      if (isApiError(err)){
-        console.log(err)
+      if (isApiError(err)) {
+        console.log(err);
         if (err.status != 500) {
           setErrors({
             ...errors,
             general: "Usuario o contraseña incorrectos.",
           });
-        }else{
-        setErrors({
-          ...errors,
-          general:
-            "Error al iniciar sesión. Por favor, intentálo de nuevo más tarde.",
-        });
+        } else {
+          setErrors({
+            ...errors,
+            general:
+              "Error al iniciar sesión. Por favor, intentálo de nuevo más tarde.",
+          });
+        }
       }
-    }
     } finally {
       setLoadingLogin(false);
     }

@@ -113,7 +113,7 @@ export const validateUsernameAtLogin = (value: string): string => {
   return "";
 };
 
-export const validatePasswordAtLogin = (value: string|undefined): string => {
+export const validatePasswordAtLogin = (value: string | undefined): string => {
   if (!value) return "La contraseña es obligatoria.";
   if (value.length > 64)
     return "La contraseña puede tener 64 caracteres como máximo.";

@@ -1,6 +1,6 @@
 export const MAX_LENGTH = {
   TITLE: 50,
-  DESCRIPTION: 280
+  DESCRIPTION: 280,
 };
 
 export const validateSuggestionForm = (

@@ -20,7 +20,10 @@ import {
   parseUrlFilename,
   roleOptions,
 } from "../utils";
-import { MAX_LENGTH, validateUserUpdateForm } from "../validations/user.validations";
+import {
+  MAX_LENGTH,
+  validateUserUpdateForm,
+} from "../validations/user.validations";
 import { useUpdateUser, useUpdateUserAvatar } from "../hooks";
 
 import type { UserUpdateRequest, User } from "../types";

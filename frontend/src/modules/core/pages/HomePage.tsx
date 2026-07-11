@@ -90,39 +90,39 @@ function Alerts() {
     "Comprobando conexión con la base de datos...",
   );
 
-  useEffect( () => {
-  const loadData = async () => {
-    // fetchDummyData y fetchMongoData se ejecutan en paralelo para optimizar el tiempo de espera
-    const [backendResult, mongoResult] = await Promise.allSettled([
-      fetchDummyData(),
-      fetchMongoData(),
-    ]);
+  useEffect(() => {
+    const loadData = async () => {
+      // fetchDummyData y fetchMongoData se ejecutan en paralelo para optimizar el tiempo de espera
+      const [backendResult, mongoResult] = await Promise.allSettled([
+        fetchDummyData(),
+        fetchMongoData(),
+      ]);
 
-    if (backendResult.status === "fulfilled") {
-      setBackendState("success");
-      setBackendMessage("Conexión con el backend establecida.");
-    } else {
-      setBackendState("error");
-      setBackendMessage(
-        "No se pudo conectar con el backend. Inténtalo de nuevo más tarde."
-      );
-      console.error(backendResult.reason);
-    }
+      if (backendResult.status === "fulfilled") {
+        setBackendState("success");
+        setBackendMessage("Conexión con el backend establecida.");
+      } else {
+        setBackendState("error");
+        setBackendMessage(
+          "No se pudo conectar con el backend. Inténtalo de nuevo más tarde.",
+        );
+        console.error(backendResult.reason);
+      }
 
-    if (mongoResult.status === "fulfilled") {
-      setMongoState("success");
-      setMongoMessage("Conexión con la base de datos establecida.");
-    } else {
-      setMongoState("error");
-      setMongoMessage(
-        "No se pudo conectar con la base de datos. Inténtalo de nuevo más tarde."
-      );
-      console.error(mongoResult.reason);
-    }
-  };
+      if (mongoResult.status === "fulfilled") {
+        setMongoState("success");
+        setMongoMessage("Conexión con la base de datos establecida.");
+      } else {
+        setMongoState("error");
+        setMongoMessage(
+          "No se pudo conectar con la base de datos. Inténtalo de nuevo más tarde.",
+        );
+        console.error(mongoResult.reason);
+      }
+    };
 
-  void loadData();
-}, []);
+    void loadData();
+  }, []);
 
   return (
     <VStack gap="4" width="full">
