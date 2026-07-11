@@ -30,8 +30,9 @@ export async function handleResponse<T>(res: Response): Promise<T> {
     } catch {
       // ignore parsing errors
     }
+    const apiError = new ApiError(message, res.status);
 
-    throw new ApiError(message, res.status);
+    throw apiError;
   }
 
   if (!contentType.includes("application/json")) {

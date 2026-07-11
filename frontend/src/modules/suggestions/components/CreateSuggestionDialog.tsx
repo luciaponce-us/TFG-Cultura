@@ -9,7 +9,7 @@ import {
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 
 import { useCreateSuggestion } from "../hooks";
-import { validateSuggestionForm } from "../validations/suggestion.validations";
+import { MAX_LENGTH, validateSuggestionForm } from "../validations/suggestion.validations";
 
 import type { SuggestionCreateRequest } from "../types";
 
@@ -85,6 +85,7 @@ export function CreateSuggestionDialog({
                 required
                 error={errors.title ?? ""}
                 onChange={(e) => handleChange(e, form, setErrors, setForm)}
+                maxLength={MAX_LENGTH.TITLE}
               />
               <CustomInput
                 label="Descripción"
@@ -94,6 +95,7 @@ export function CreateSuggestionDialog({
                 onChange={(e) => handleChange(e, form, setErrors, setForm)}
                 textarea
                 maxInputHeight="125px"
+                maxLength={MAX_LENGTH.DESCRIPTION}
               />
               <CustomSelect
                 label="Tipo de sugerencia"

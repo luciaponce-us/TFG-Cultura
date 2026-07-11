@@ -15,7 +15,7 @@ import { useAuth } from "@/modules/core/context/useAuth";
 import { handleChange } from "@/modules/core/utils/utils";
 
 import { useUpdateUserProfile, useUpdateUserProfileAvatar } from "../../hooks";
-import { validateUserProfileUpdateForm } from "../../validations/user.validations";
+import { MAX_LENGTH, validateUserProfileUpdateForm } from "../../validations/user.validations";
 
 import type { UserProfileUpdateRequest } from "../../types";
 
@@ -158,6 +158,7 @@ export function EditProfilePage() {
             error={errors.username}
             onChange={handleFormChange}
             defaultValue={form?.username}
+            maxLength={MAX_LENGTH.USERNAME}
           />
           <CustomInput
             label="Nueva contraseña"
@@ -165,6 +166,7 @@ export function EditProfilePage() {
             password={true}
             error={errors.password}
             onChange={handleFormChange}
+            maxLength={MAX_LENGTH.PASSWORD}
           />
           <CustomInput
             label="Nombre"
@@ -172,6 +174,7 @@ export function EditProfilePage() {
             error={errors.name}
             onChange={handleFormChange}
             defaultValue={form?.name}
+            maxLength={MAX_LENGTH.NAME}
           />
           <CustomInput
             label="Apellidos"
@@ -179,6 +182,7 @@ export function EditProfilePage() {
             error={errors.surname}
             onChange={handleFormChange}
             defaultValue={form?.surname}
+            maxLength={MAX_LENGTH.SURNAME}
           />
 
           <CustomInput
@@ -188,6 +192,7 @@ export function EditProfilePage() {
             error={errors.email}
             onChange={handleFormChange}
             defaultValue={form?.email}
+            maxLength={MAX_LENGTH.EMAIL}
           />
 
           <CustomInput
@@ -197,6 +202,7 @@ export function EditProfilePage() {
             error={errors.phone}
             onChange={handleFormChange}
             defaultValue={form?.phone}
+            maxLength={MAX_LENGTH.PHONE}
           />
 
           <TextSecondary>

@@ -8,7 +8,7 @@ import {
 import { Flex, Heading, Link, VStack } from "@chakra-ui/react";
 import type { UserLoginRequest } from "../types";
 import { useEffect, useState } from "react";
-import * as validation from "../validations/user.validations";
+import {MAX_LENGTH, validateUserLoginForm} from "../validations/user.validations";
 import { loginUser } from "../service/user.service";
 import { handleChange, isApiError } from "@/modules/core/utils/utils";
 import { useNavigate } from "react-router-dom";
@@ -48,10 +48,7 @@ export function LoginPage() {
   const [loadingLogin, setLoadingLogin] = useState(false);
 
   function validateLoginForm(form: UserLoginRequest): boolean {
-    const newErrors: Record<string, string> = {
-      username: validation.validateUsername(form.username),
-      password: validation.validatePasswordAtLogin(form.password),
-    };
+    const newErrors: Record<string, string> = validateUserLoginForm(form);
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
     return !Object.values(newErrors).some((error) => error !== "");
@@ -74,12 +71,21 @@ export function LoginPage() {
       void navigate("/");
     } catch (err) {
       console.error("Error al iniciar sesión:", err);
-      if (isApiError(err))
+      if (isApiError(err)){
+        console.log(err)
+        if (err.status != 500) {
+          setErrors({
+            ...errors,
+            general: "Usuario o contraseña incorrectos.",
+          });
+        }else{
         setErrors({
           ...errors,
           general:
             "Error al iniciar sesión. Por favor, intentálo de nuevo más tarde.",
         });
+      }
+    }
     } finally {
       setLoadingLogin(false);
     }
@@ -123,6 +129,8 @@ export function LoginPage() {
           required={true}
           error={errors.username}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
+          maxLength={MAX_LENGTH.USERNAME}
+          showMaxLength={false}
         />
 
         <CustomInput
@@ -132,6 +140,8 @@ export function LoginPage() {
           error={errors.password}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           password={true}
+          maxLength={MAX_LENGTH.PASSWORD}
+          showMaxLength={false}
         />
 
         <TextSecondary>

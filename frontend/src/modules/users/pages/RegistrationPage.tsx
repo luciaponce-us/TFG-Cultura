@@ -23,6 +23,7 @@ import {
 } from "@/modules/core/components";
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
+import { MAX_LENGTH } from "../validations/user.validations";
 
 type RegistrationForm = UserRegisterRequest & {
   confirmPassword: string;
@@ -187,6 +188,7 @@ export function RegistrationPage() {
               error={errors.name}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.name}
+              maxLength={MAX_LENGTH.NAME}
             />
             <CustomInput
               label="Apellidos"
@@ -196,6 +198,7 @@ export function RegistrationPage() {
               error={errors.surname}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.surname}
+              maxLength={MAX_LENGTH.SURNAME}
             />
             <CustomInput
               label="DNI"
@@ -205,6 +208,8 @@ export function RegistrationPage() {
               error={errors.dni}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.dni}
+              maxLength={MAX_LENGTH.DNI}
+              showMaxLength={false}
             />
 
             <UploadBox
@@ -307,6 +312,7 @@ export function RegistrationPage() {
               error={errors.username}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.username}
+              maxLength={MAX_LENGTH.USERNAME}
             />
             <CustomInput
               label="Contraseña"
@@ -316,6 +322,7 @@ export function RegistrationPage() {
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               password={true}
               defaultValue={form.password}
+              maxLength={MAX_LENGTH.PASSWORD}
             />
             <CustomInput
               label="Confirma tu contraseña"
@@ -324,6 +331,7 @@ export function RegistrationPage() {
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               password={true}
               defaultValue={form.confirmPassword}
+              maxLength={MAX_LENGTH.PASSWORD}
             />
             <CustomInput
               label="Correo electrónico"
@@ -332,6 +340,7 @@ export function RegistrationPage() {
               error={errors.email}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.email}
+              maxLength={MAX_LENGTH.EMAIL}
             />
             <CustomInput
               label="Teléfono"
@@ -340,6 +349,7 @@ export function RegistrationPage() {
               error={errors.phone}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.phone}
+              maxLength={MAX_LENGTH.PHONE}
             />
 
             <UploadBox
