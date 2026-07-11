@@ -90,40 +90,39 @@ function Alerts() {
     "Comprobando conexión con la base de datos...",
   );
 
-  useEffect(() => {
-    const loadDummyData = async () => {
-      try {
-        await fetchDummyData();
-      } catch (error) {
-        setBackendState("error");
-        setBackendMessage(
-          "No se pudo conectar con el backend. Inténtalo de nuevo más tarde.",
-        );
-        console.error("Error al conectar con el backend:", error);
-        return;
-      }
+  useEffect( () => {
+  const loadData = async () => {
+    // fetchDummyData y fetchMongoData se ejecutan en paralelo para optimizar el tiempo de espera
+    const [backendResult, mongoResult] = await Promise.allSettled([
+      fetchDummyData(),
+      fetchMongoData(),
+    ]);
+
+    if (backendResult.status === "fulfilled") {
       setBackendState("success");
       setBackendMessage("Conexión con el backend establecida.");
-    };
+    } else {
+      setBackendState("error");
+      setBackendMessage(
+        "No se pudo conectar con el backend. Inténtalo de nuevo más tarde."
+      );
+      console.error(backendResult.reason);
+    }
 
-    const loadMongoData = async () => {
-      try {
-        await fetchMongoData();
-      } catch (error) {
-        setMongoState("error");
-        setMongoMessage(
-          "No se pudo conectar con la base de datos. Inténtalo de nuevo más tarde.",
-        );
-        console.error("Error al conectar con la base de datos:", error);
-        return;
-      }
+    if (mongoResult.status === "fulfilled") {
       setMongoState("success");
       setMongoMessage("Conexión con la base de datos establecida.");
-    };
+    } else {
+      setMongoState("error");
+      setMongoMessage(
+        "No se pudo conectar con la base de datos. Inténtalo de nuevo más tarde."
+      );
+      console.error(mongoResult.reason);
+    }
+  };
 
-    loadDummyData();
-    loadMongoData();
-  }, []);
+  void loadData();
+}, []);
 
   return (
     <VStack gap="4" width="full">
