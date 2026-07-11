@@ -1,4 +1,4 @@
-import { Flex, Grid, GridItem, Heading, VStack } from "@chakra-ui/react";
+import { Flex, Grid, GridItem, Heading, VStack, Text } from "@chakra-ui/react";
 import { CustomButton, SideBar, toaster } from "../components";
 import {
   IconUsers,
@@ -19,7 +19,7 @@ interface AdminCardProps {
 
 function AdminCard({ icon, label, onClick }: AdminCardProps) {
   return (
-    <GridItem>
+    <GridItem onClick={onClick} cursor="pointer" _hover={{ color: "principal.600" }} _active={{ color: "principal.700", transform: "scale(0.98)" }} transition="all 0.2s">
       <VStack align="center" justify="center" h="100%">
         {icon}
         <CustomButton onClick={onClick}>{label}</CustomButton>
@@ -42,7 +42,7 @@ export default function AdminPanelPage() {
     {
       icon: <IconUsers style={adminCardIconStyle} stroke={1.5} />,
       label: "Usuarios",
-      onClick: () => navigation("/admin/usuarios"),
+      onClick: () => void navigation("/admin/usuarios"),
     },
     {
       icon: <IconBox style={adminCardIconStyle} stroke={1.5} />,
@@ -99,9 +99,11 @@ export default function AdminPanelPage() {
     >
       {/* IZQUIERDA */}
       <SideBar order={{ base: 2, md: 1 }} hideOnMobile={false}>
-        <VStack align="start" gap={0}>
+        <VStack align="start" gap={4}>
           <Heading as="h1">Actividad reciente</Heading>
-          <VStack align="start" gap={2}></VStack>
+          <VStack align="start" gap={2}>
+            <Text>Próximamente...</Text>
+          </VStack>
         </VStack>
       </SideBar>
 
