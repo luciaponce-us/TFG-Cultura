@@ -133,7 +133,7 @@ export default function AdminPanelPage() {
           Panel de administración
         </Heading>
         <Grid
-          templateColumns={{base: "repeat(2, 1fr)", md: "repeat(3, 1fr)"}}
+          templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }}
           templateRows="repeat(2, 1fr)"
           gap={8}
           color="principal.500"
