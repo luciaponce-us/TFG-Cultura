@@ -25,6 +25,8 @@ function AdminCard({ icon, label, onClick }: AdminCardProps) {
       _hover={{ color: "principal.600" }}
       _active={{ color: "principal.700", transform: "scale(0.98)" }}
       transition="all 0.2s"
+      minW={0}
+      maxW="300px"
     >
       <VStack align="center" justify="center" h="100%">
         {icon}
@@ -127,9 +129,11 @@ export default function AdminPanelPage() {
         order={{ base: 1, md: 2 }}
         gap={6}
       >
-        <Heading as="h1">Panel de administración</Heading>
+        <Heading as="h1" textAlign="center">
+          Panel de administración
+        </Heading>
         <Grid
-          templateColumns="repeat(3, 1fr)"
+          templateColumns={{base: "repeat(2, 1fr)", md: "repeat(3, 1fr)"}}
           templateRows="repeat(2, 1fr)"
           gap={8}
           color="principal.500"
