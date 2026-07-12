@@ -1,24 +1,25 @@
 import { Dialog, Heading, VStack } from "@chakra-ui/react";
-import type { SuggestionCreateRequest, SuggestionType } from "../types";
 import { useState } from "react";
+
 import {
   CustomButton,
   CustomInput,
   CustomSelect,
-  toaster,
 } from "@/modules/core/components";
+import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
+
+import { useCreateSuggestion } from "../hooks";
 import {
-  handleChange,
-  handleSelectChange,
-  isApiError,
-} from "@/modules/core/utils/utils";
-import { validateSuggestionForm } from "../validations/suggestion.validations";
-import { createSuggestion } from "../service/suggestion.service";
+  MAX_LENGTH,
+  validateSuggestionForm,
+} from "../validations/suggestion.validations";
+
+import type { SuggestionCreateRequest } from "../types";
 
 const initialForm: SuggestionCreateRequest = {
   title: "",
   description: "",
-  type: "OTHER" as SuggestionType,
+  type: "OTHER",
 };
 
 type SuggestionFormErrors = Partial<
@@ -36,64 +37,33 @@ const initialErrors: SuggestionFormErrors = {
 
 export function CreateSuggestionDialog({
   isOpen,
-  onClose,
+  setIsOpen,
   token,
 }: {
   isOpen: boolean;
-  onClose: () => void;
+  setIsOpen: (isOpen: boolean) => void;
   token?: string | null;
 }) {
   const [form, setForm] = useState<SuggestionCreateRequest>(initialForm);
+  const { mutateAsync: createSuggestion, isPending: loading } =
+    useCreateSuggestion();
   const [errors, setErrors] = useState<SuggestionFormErrors>(initialErrors);
-  const [loading, setLoading] = useState(false);
 
   const handleTypeChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "type", form, setErrors, setForm);
 
   async function handleSubmit() {
-    setLoading(true);
-    if (!token) {
-      setErrors({ general: "Debes iniciar sesión para crear una sugerencia" });
-      setLoading(false);
-      return;
-    }
-
-    const errors = validateSuggestionForm(form);
+    const errors = validateSuggestionForm(form, token);
     setErrors(errors);
     if (Object.keys(errors).length > 0) {
-      setLoading(false);
       return;
     }
-
-    try {
-      const res = await createSuggestion(token, form);
-      toaster.create({
-        title: "Sugerencia creada",
-        description: "Tu sugerencia ha sido creada exitosamente",
-        type: "success",
-      });
-      onClose();
-      console.log("Sugerencia creada:", res);
-    } catch (error) {
-      if (isApiError(error)) {
-        console.error("Error creating suggestion:", error.message);
-        setErrors({
-          general:
-            "Ocurrió un error al crear la sugerencia. Inténtalo de nuevo.",
-        });
-      } else {
-        console.error("Unexpected error creating suggestion:", error);
-        setErrors({
-          general: "Ocurrió un error inesperado. Inténtalo de nuevo.",
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
+    await createSuggestion(form);
+    setIsOpen(false);
   }
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog.Root open={isOpen}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
         <Dialog.Content
@@ -101,6 +71,7 @@ export function CreateSuggestionDialog({
           overflow="hidden"
           borderRadius="xl"
           bg="background"
+          as="form"
         >
           <Dialog.CloseTrigger />
           <Dialog.Header>
@@ -117,6 +88,7 @@ export function CreateSuggestionDialog({
                 required
                 error={errors.title ?? ""}
                 onChange={(e) => handleChange(e, form, setErrors, setForm)}
+                maxLength={MAX_LENGTH.TITLE}
               />
               <CustomInput
                 label="Descripción"
@@ -126,6 +98,7 @@ export function CreateSuggestionDialog({
                 onChange={(e) => handleChange(e, form, setErrors, setForm)}
                 textarea
                 maxInputHeight="125px"
+                maxLength={MAX_LENGTH.DESCRIPTION}
               />
               <CustomSelect
                 label="Tipo de sugerencia"
@@ -142,10 +115,14 @@ export function CreateSuggestionDialog({
             </VStack>
           </Dialog.Body>
           <Dialog.Footer>
-            <CustomButton onClick={onClose} color="rojo">
+            <CustomButton onClick={() => setIsOpen(false)} color="rojo">
               Cancelar
             </CustomButton>
-            <CustomButton onClick={handleSubmit} loading={loading}>
+            <CustomButton
+              onClick={() => void handleSubmit()}
+              loading={loading}
+              type="submit"
+            >
               Crear
             </CustomButton>
           </Dialog.Footer>

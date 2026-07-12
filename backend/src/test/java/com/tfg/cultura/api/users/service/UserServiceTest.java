@@ -13,6 +13,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -610,7 +610,7 @@ class UserServiceTest {
         UserResponse expectedResponse = userResponse;
         
         // Espiamos el service para mockear updateAvatar (método interno)
-        UserService spyService = Mockito.spy(service);
+        UserService spyService = spy(service);
         doReturn(expectedResponse).when(spyService).updateAvatar(user,avatar);
 
         // Act

@@ -81,14 +81,18 @@ public class SuggestionRepositoryImpl implements SuggestionRespositoryCustom {
 
         // 🔹 Construcción del criteria
         Criteria criteria = filters.isEmpty()
-            ? new Criteria()
-            : buildFiltersCriteria(filters);
+                ? new Criteria()
+                : buildFiltersCriteria(filters);
 
-        // 🔹 Query + paginación + sort
-        Query query = new Query(criteria).with(pageable);
+        // Query base SIN paginación
+        Query baseQuery = new Query(criteria);
 
-        long total = mongoTemplate.count(query, Suggestion.class);
-        List<Suggestion> results = mongoTemplate.find(query, Suggestion.class);
+        // Count SIN pageable
+        long total = mongoTemplate.count(baseQuery, Suggestion.class);
+
+        // Query paginada
+        Query pagedQuery = new Query(criteria).with(pageable);
+        List<Suggestion> results = mongoTemplate.find(pagedQuery, Suggestion.class);
 
         return new PageImpl<>(results, pageable, total);
     }

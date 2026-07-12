@@ -1,8 +1,20 @@
+import type { UserProfileUpdateRequest, UserUpdateRequest } from "../types";
+
+export const MAX_LENGTH = {
+  NAME: 50,
+  SURNAME: 50,
+  DNI: 9,
+  USERNAME: 20,
+  PASSWORD: 64,
+  EMAIL: 254,
+  PHONE: 15,
+};
+
 export const validateName = (value: string): string => {
   if (!value) return "El nombre es obligatorio.";
   if (value.length < 2) return "El nombre debe tener al menos 2 caracteres.";
-  if (value.length > 50)
-    return "El nombre pueden tener 50 caracteres como máximo.";
+  if (value.length > MAX_LENGTH.NAME)
+    return `El nombre puede tener ${MAX_LENGTH.NAME} caracteres como máximo.`;
   return "";
 };
 
@@ -10,8 +22,8 @@ export const validateSurname = (value: string): string => {
   if (!value) return "Los apellidos son obligatorios.";
   if (value.length < 2)
     return "Los apellidos deben tener al menos 2 caracteres.";
-  if (value.length > 50)
-    return "Los apellidos pueden tener 50 caracteres como máximo.";
+  if (value.length > MAX_LENGTH.SURNAME)
+    return `Los apellidos pueden tener ${MAX_LENGTH.SURNAME} caracteres como máximo.`;
   return "";
 };
 
@@ -39,8 +51,8 @@ export const validateUsername = (value: string): string => {
   if (!value) return "El nombre de usuario es obligatorio.";
   if (value.length < 3)
     return "El nombre de usuario debe tener al menos 3 caracteres.";
-  if (value.length > 20)
-    return "El nombre de usuario puede tener 20 caracteres como máximo.";
+  if (value.length > MAX_LENGTH.USERNAME)
+    return `El nombre de usuario puede tener ${MAX_LENGTH.USERNAME} caracteres como máximo.`;
   return "";
 };
 
@@ -56,8 +68,8 @@ export const validatePassword = (
   }
   if (value.length < 8)
     return "La contraseña debe tener al menos 8 caracteres.";
-  if (value.length > 64)
-    return "La contraseña puede tener 64 caracteres como máximo.";
+  if (value.length > MAX_LENGTH.PASSWORD)
+    return `La contraseña puede tener ${MAX_LENGTH.PASSWORD} caracteres como máximo.`;
   if (withConfirmation) {
     if (!confirmationValue || confirmationValue == "")
       return "Confirma la contraseña.";
@@ -70,8 +82,8 @@ export const validateEmail = (value: string): string => {
   if (!value) return "El correo electrónico es obligatorio.";
   if (value.length < 5)
     return "El correo electrónico debe tener al menos 5 caracteres.";
-  if (value.length > 254)
-    return "El correo electrónico puede tener 254 caracteres como máximo.";
+  if (value.length > MAX_LENGTH.EMAIL)
+    return `El correo electrónico puede tener ${MAX_LENGTH.EMAIL} caracteres como máximo.`;
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(value)) {
@@ -101,9 +113,49 @@ export const validateUsernameAtLogin = (value: string): string => {
   return "";
 };
 
-export const validatePasswordAtLogin = (value: string): string => {
+export const validatePasswordAtLogin = (value: string | undefined): string => {
   if (!value) return "La contraseña es obligatoria.";
   if (value.length > 64)
     return "La contraseña puede tener 64 caracteres como máximo.";
   return "";
 };
+
+export function validateUserUpdateForm(
+  form: UserUpdateRequest,
+): Record<string, string> {
+  return {
+    username: validateUsername(form.username),
+    password: validatePassword(form.password ?? "", true, false),
+    name: validateName(form.name),
+    surname: validateSurname(form.surname),
+    dni: validateDni(form.dni),
+    phone: validatePhone(form.phone),
+    email: validateEmail(form.email),
+    role: "",
+    general: "",
+  };
+}
+
+export function validateUserProfileUpdateForm(
+  form: UserProfileUpdateRequest,
+): Record<string, string> {
+  return {
+    username: validateUsername(form.username || ""),
+    password: validatePassword(form.password || "", true, false),
+    name: validateName(form.name || ""),
+    surname: validateSurname(form.surname || ""),
+    phone: validatePhone(form.phone || ""),
+    email: validateEmail(form.email || ""),
+    general: "",
+  };
+}
+
+export function validateUserLoginForm(
+  form: Pick<UserUpdateRequest, "username" | "password">,
+): Record<string, string> {
+  return {
+    username: validateUsernameAtLogin(form.username),
+    password: validatePasswordAtLogin(form.password),
+    general: "",
+  };
+}

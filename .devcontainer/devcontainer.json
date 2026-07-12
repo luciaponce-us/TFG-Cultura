@@ -22,13 +22,11 @@
         "ms-vscode.remote-explorer",
         "vscjava.vscode-java-pack",
         "redhat.vscode-yaml",
-        "mongodb.mongodb-vscode",
         "github.copilot",
         "sonarsource.sonarlint-vscode",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         "usernamehw.errorlens",
-        "gruntfuggly.todo-tree",
         "vivaxy.vscode-conventional-commits"
       ],
       "settings": {
@@ -63,5 +61,9 @@
   },
   "containerEnv": {
     "WAYLAND_DISPLAY":""
-  }
+  },
+  "runArgs": [
+    "--memory=6g",
+    "--memory-swap=8g"
+  ]
 }

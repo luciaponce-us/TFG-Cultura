@@ -1,8 +1,13 @@
-export interface ApiError {
-  timestamp: string; // LocalDateTime → ISO string
+export class ApiError extends Error {
   status: number;
-  error: string;
-  message: string;
+  timestamp: string;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.timestamp = new Date().toISOString();
+  }
 }
 
 export interface Paginated<T> {

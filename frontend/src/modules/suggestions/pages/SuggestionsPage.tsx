@@ -1,28 +1,26 @@
 import { Grid, Heading, Link, VStack } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "@/modules/core/context/useAuth";
+import { IconPlus } from "@tabler/icons-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchAllSuggestions } from "../service/suggestion.service";
-import type { Suggestion, SuggestionType } from "../types";
-import type { Paginated } from "@/modules/core/types";
+
 import {
-  SideBar,
+  CustomButton,
   CustomPagination,
   CustomSearchBar,
   CustomSelect,
+  SideBar,
   TextSecondary,
-  CustomButton,
   toaster,
 } from "@/modules/core/components";
-import { CreateSuggestionDialog, SuggestionCard } from "../components";
-import { IconPlus } from "@tabler/icons-react";
+import { useAuth } from "@/modules/core/context/useAuth";
 
-interface Filters {
-  type?: SuggestionType;
-  text: string;
-  orderByCreationDate: boolean;
-  supportedByAdmins: boolean;
-}
+import { CreateSuggestionDialog, SuggestionCard } from "../components";
+import { useSuggestions } from "../hooks";
+
+import type {
+  FiltersGetAllSuggestions as Filters,
+  SuggestionType,
+} from "../types";
 
 const initialFilters: Filters = {
   type: undefined,
@@ -31,77 +29,57 @@ const initialFilters: Filters = {
   supportedByAdmins: false,
 };
 
+const suggestionTypeOptions = [
+  { label: "Todos (sin filtrar)", value: "" },
+  { label: "Catálogo", value: "CATALOG" },
+  { label: "Eventos", value: "EVENT" },
+  { label: "Otros", value: "OTHER" },
+];
+
 export function SuggestionsPage({
   mySuggestions = false,
 }: {
   mySuggestions?: boolean;
 }) {
-  const [suggestions, setSuggestions] = useState<Paginated<Suggestion> | null>(
-    null,
-  );
-  const [page, setPage] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [filters, setFilters] = useState<Filters>(initialFilters);
-  const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false);
   const { token } = useAuth();
   const navigate = useNavigate();
 
-  const fetchSuggestions = useCallback(
-    async (pageToLoad: number = 0) => {
-      setLoading(true);
-      try {
-        const data = await fetchAllSuggestions(
-          pageToLoad,
-          10,
-          filters.type,
-          filters.text,
-          filters.orderByCreationDate,
-          filters.supportedByAdmins,
-          mySuggestions,
-          token,
-        );
-        setSuggestions(data);
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-        setSuggestions(null);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [
-      filters.orderByCreationDate,
-      filters.supportedByAdmins,
-      filters.text,
-      filters.type,
-      mySuggestions,
-      token,
-    ],
-  );
+  const [page, setPage] = useState<number>(0);
+  const [filters, setFilters] = useState<Filters>(initialFilters);
+  const {
+    data: paginatedSuggestions,
+    isLoading,
+    error,
+    isError,
+  } = useSuggestions(token, page, filters, mySuggestions);
 
-  useEffect(() => {
-    async function loadSuggestions() {
-      await fetchSuggestions(page);
-    }
-    loadSuggestions();
-  }, [page, fetchSuggestions]);
+  const suggestions = paginatedSuggestions?.content;
+
+  const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false);
 
   function renderSuggestions() {
-    if (loading) {
+    if (isLoading) {
       return <TextSecondary>Cargando sugerencias...</TextSecondary>;
     }
+    if (isError) {
+      console.error(error);
+      toaster.create({
+        title: "Error al cargar sugerencias",
+        description:
+          "No se pudieron cargar las sugerencias. Inténtalo de nuevo.",
+        type: "error",
+      });
+      return <TextSecondary>Error al cargar sugerencias.</TextSecondary>;
+    }
 
-    if (!suggestions || suggestions.content.length === 0) {
+    if (!paginatedSuggestions || suggestions?.length === 0) {
       return <TextSecondary>No hay sugerencias disponibles.</TextSecondary>;
     }
 
     return (
       <VStack align="stretch" gap={4} w="100%">
-        {suggestions.content.map((suggestion) => (
-          <SuggestionCard
-            key={suggestion.id}
-            suggestion={suggestion}
-            onSupportSuccess={() => fetchSuggestions(page)}
-          />
+        {suggestions?.map((suggestion) => (
+          <SuggestionCard key={suggestion.id} suggestion={suggestion} />
         ))}
       </VStack>
     );
@@ -154,12 +132,7 @@ export function SuggestionsPage({
 
           <CustomSelect
             placeholder="Filtrar por tipo"
-            options={[
-              { label: "Todos (sin filtrar)", value: "" as SuggestionType },
-              { label: "Catálogo", value: "CATALOG" as SuggestionType },
-              { label: "Eventos", value: "EVENT" as SuggestionType },
-              { label: "Otros", value: "OTHER" as SuggestionType },
-            ]}
+            options={suggestionTypeOptions}
             value={filters.type ? [filters.type] : []}
             onValueChange={({ value }) => {
               setPage(0);
@@ -200,7 +173,7 @@ export function SuggestionsPage({
                 description: "Serás redirigido a la página de inicio de sesión",
                 closable: true,
               });
-              navigate("/iniciar-sesion");
+              void navigate("/iniciar-sesion");
             } else {
               setShowCreateDialog(true);
             }
@@ -211,23 +184,19 @@ export function SuggestionsPage({
         </CustomButton>
 
         {renderSuggestions()}
-        {suggestions && suggestions?.totalPages > 1 && (
+        {suggestions && paginatedSuggestions?.totalPages > 1 && (
           <CustomPagination
             setPage={setPage}
             page={page}
-            totalElements={suggestions.totalElements ?? 0}
-            size={suggestions.size ?? 10}
+            totalElements={paginatedSuggestions.totalElements ?? 0}
+            size={paginatedSuggestions.size ?? 3}
           />
         )}
       </VStack>
       {token && (
         <CreateSuggestionDialog
           isOpen={showCreateDialog}
-          onClose={() => {
-            setShowCreateDialog(false);
-            setPage(0);
-            fetchSuggestions(0);
-          }}
+          setIsOpen={setShowCreateDialog}
           token={token}
         />
       )}

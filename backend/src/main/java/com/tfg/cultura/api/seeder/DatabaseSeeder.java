@@ -1,4 +1,4 @@
-package com.tfg.cultura.api.core.config;
+package com.tfg.cultura.api.seeder;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -6,14 +6,13 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.tfg.cultura.api.seeder.parser.UserCsvParser;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.enumerators.Role;
 
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -65,87 +64,10 @@ public class DatabaseSeeder implements CommandLineRunner {
     private List<User> seedUsuarios() {
         logger.info("👥 Creando colección: users");
 
-        String password = "cultura123"; // NOSONAR
-        String file = "https://www.soundczech.cz/temp/lorem-ipsum.pdf";
+        List<User> usersFromCsv = new UserCsvParser(passwordEncoder).loadUsersFromCsv();
 
-        User coordinador = User.builder()
-                .username("coordinador")
-                .password(passwordEncoder.encode(password)) // NOSONAR
-                .name("Álvaro")
-                .surname("Coordinador")
-                .dni("33256506R")
-                .phone("+34600123456")
-                .email("coordinador@cultura.es")
-                .paymentReceipt(file)
-                .active(true)
-                .role(Role.COORDINADOR)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        User secretario = User.builder()
-                .username("secretario")
-                .password(passwordEncoder.encode(password)) // NOSONAR
-                .name("Aurora")
-                .surname("Secretaria")
-                .dni("65403949E")
-                .phone("+34600123457")
-                .email("secretario@cultura.es")
-                .paymentReceipt(file)
-                .active(true)
-                .role(Role.SECRETARIO)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        User encargado = User.builder()
-                .username("encargado")
-                .password(passwordEncoder.encode(password)) // NOSONAR
-                .name("Luis")
-                .surname("Encargado")
-                .dni("76824876T")
-                .phone("+34600123458")
-                .email("encargado@cultura.es")
-                .paymentReceipt(file)
-                .active(true)
-                .role(Role.ENCARGADO)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        User colaborador = User.builder()
-                .username("colaborador")
-                .password(passwordEncoder.encode(password)) // NOSONAR
-                .name("Atenea")
-                .surname("Colaboradora")
-                .dni("51417783H")
-                .phone("+34600123459")
-                .email("colaborador@cultura.es")
-                .paymentReceipt(file)
-                .active(true)
-                .role(Role.COLABORADOR)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        User socio = User.builder()
-                .username("socio")
-                .password(passwordEncoder.encode(password)) // NOSONAR
-                .name("Lucía")
-                .surname("Socia")
-                .dni("28712238G")
-                .phone("+34600123460")
-                .email("socio@cultura.es")
-                .paymentReceipt(file)
-                .active(true)
-                .role(Role.SOCIO)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        List<User> usuarios = List.of(
-                coordinador,
-                secretario,
-                encargado,
-                colaborador,
-                socio);
-
-        Collection<User> users = mongoTemplate.insertAll(usuarios);
+        Collection<User> users = mongoTemplate.insertAll(usersFromCsv);
+        
         logger.info("✅👥 Insertados {} usuarios", users.size());
         return users.stream().toList();
     }

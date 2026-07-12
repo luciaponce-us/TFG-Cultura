@@ -51,4 +51,4 @@ jobs:
               -Dsonar.projectKey=luciaponce-us_TFG-Cultura \
               -Dsonar.organization=luciaponce-us \
               -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.coverage.exclusions=**/src/test/**,**/src/main/resources/**,**/config/**,**/DatabaseSeeder.java,**/exception/**,**/model/**,**/enumerators/**,**/CustomMultipartFile.java
+              -Dsonar.coverage.exclusions=**/src/test/**,**/src/main/resources/**,**/config/**,**/seeder/**,**/exception/**,**/model/**,**/enumerators/**,**/CustomMultipartFile.java

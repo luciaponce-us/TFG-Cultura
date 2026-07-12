@@ -8,6 +8,8 @@ interface InputFieldProps {
   placeholder?: string;
   required?: boolean;
   error?: string;
+  maxLength?: number;
+  showMaxLength?: boolean;
   onChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
@@ -23,6 +25,8 @@ export const CustomInput = ({
   placeholder,
   required = false,
   error,
+  maxLength,
+  showMaxLength = true,
   onChange,
   password = false,
   defaultValue,
@@ -30,7 +34,23 @@ export const CustomInput = ({
   maxInputHeight,
 }: InputFieldProps) => {
   const [show, setShow] = useState(false);
+  const [length, setLength] = useState(defaultValue?.length ?? 0);
 
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setLength(e.target.value.length);
+    onChange?.(e);
+  };
+
+  const commonProps = {
+    name,
+    placeholder,
+    onChange: handleChange,
+    focusRingColor: "principal.600",
+    defaultValue,
+    maxLength,
+  };
   return (
     <Field.Root invalid={!!error} required={required}>
       <Field.Label>
@@ -44,34 +64,21 @@ export const CustomInput = ({
             </Button>
           }
         >
-          <Input
-            name={name}
-            placeholder={placeholder}
-            type={show ? "text" : "password"}
-            onChange={onChange}
-            focusRingColor="principal.600"
-            defaultValue={defaultValue}
-          />
+          <Input {...commonProps} type={show ? "text" : "password"} />
         </InputGroup>
       )}
-      {!password && !textarea && (
-        <Input
-          name={name}
-          placeholder={placeholder}
-          onChange={onChange}
-          focusRingColor="principal.600"
-          defaultValue={defaultValue}
-        />
-      )}
+      {!password && !textarea && <Input {...commonProps} />}
       {textarea && (
-        <Textarea
-          name={name}
-          placeholder={placeholder}
-          maxH={maxInputHeight}
-          minH="40px"
-          onChange={onChange}
-          defaultValue={defaultValue}
-        />
+        <Textarea {...commonProps} maxH={maxInputHeight} minH="40px" />
+      )}
+
+      {maxLength && showMaxLength && length >= maxLength * 0.8 && (
+        <Field.HelperText
+          textAlign="right"
+          color={length > maxLength ? "red.500" : "gray.500"}
+        >
+          {length}/{maxLength}
+        </Field.HelperText>
       )}
 
       {error && <Field.ErrorText>{error}</Field.ErrorText>}

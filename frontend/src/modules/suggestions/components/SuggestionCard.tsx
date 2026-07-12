@@ -1,35 +1,34 @@
-import { VStack, HStack, Text } from "@chakra-ui/react";
-import type { Suggestion, SuggestionType } from "../types";
-import { MANAGEMENT_ROLES, type User } from "@/modules/users/types";
+import { HStack, Text, VStack } from "@chakra-ui/react";
+import { IconThumbDown, IconThumbUp, IconTrash } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
+  ConfirmDialog,
   CustomAvatar,
   CustomAvatarGroup,
   CustomButton,
   toaster,
 } from "@/modules/core/components";
-import { IconThumbDown, IconThumbUp, IconTrash } from "@tabler/icons-react";
-import { parseRole } from "@/modules/users/utils";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { isApiError } from "@/modules/core/utils/utils";
-import {
-  deleteSuggestion,
-  toggleSupportSuggestion,
-} from "../service/suggestion.service";
-import { DeleteDialog } from "@/modules/core/components/DeleteDialog";
+import { isApiError, useIsMobile } from "@/modules/core/utils/utils";
+import { MANAGEMENT_ROLES, type User } from "@/modules/users/types";
+import { parseRole } from "@/modules/users/utils";
 
-export function SuggestionCard({
-  suggestion,
-  onSupportSuccess,
-}: {
-  suggestion: Suggestion;
-  onSupportSuccess?: () => void;
-}) {
-  const { token } = useAuth();
-  const { user } = useAuth();
-  const { isAdmin } = useAuth();
+import { useDeleteSuggestion } from "../hooks";
+import { toggleSupportSuggestion } from "../service/suggestion.service";
+
+import type { Suggestion, SuggestionType } from "../types";
+
+export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
+  const { token, user, isAdmin } = useAuth();
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutateAsync: deleteSuggestion, isPending: isDeleting } =
+    useDeleteSuggestion();
   const [loadingSupport, setLoadingSupport] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -41,8 +40,6 @@ export function SuggestionCard({
         return "#eventos";
       case "OTHER":
         return "#otro";
-      default:
-        return "#" + type;
     }
   }
 
@@ -86,6 +83,7 @@ export function SuggestionCard({
   const isAuthor = suggestion.author.username === user?.username;
 
   async function handleToggleSupport() {
+    console.log("Toggling support for suggestion:", suggestion.id);
     setLoadingSupport(true);
     if (!token) {
       toaster.create({
@@ -93,12 +91,14 @@ export function SuggestionCard({
         description: "Serás redirigido a la página de inicio de sesión",
         closable: true,
       });
-      navigate("/iniciar-sesion");
+      void navigate("/iniciar-sesion");
       setLoadingSupport(false);
     } else {
       try {
         await toggleSupportSuggestion(token, suggestion.id);
-        onSupportSuccess?.();
+        await queryClient.invalidateQueries({
+          queryKey: ["suggestions"],
+        });
       } catch (error) {
         if (isApiError(error)) {
           console.error(
@@ -134,22 +134,33 @@ export function SuggestionCard({
       align="start"
       gap={4}
     >
-      <HStack gap={4} mb={2} align="start">
+      <HStack gap={4} mb={2} align="start" minW={0} maxW="100%" w="100%">
         <CustomAvatar
           src={suggestion.author.avatar}
           name={suggestion.author.name}
           w="80px"
           h="80px"
         />
-        <VStack align="start" gap={0}>
-          <Text fontSize="lg" fontWeight="bold">
+        <VStack align="start" gap={0} minW={0} maxW="100%" flex={1}>
+          <Text
+            fontSize="lg"
+            fontWeight="bold"
+            overflowWrap="break-word"
+            maxW="100%"
+          >
             {suggestion.title}
           </Text>
           <Text fontSize="sm" color="principal.500">
             {parseType(suggestion.type)} · Propuesta por @
             {suggestion.author.username}
           </Text>
-          <Text fontSize="sm" color="gray.600">
+          <Text
+            fontSize="sm"
+            color="gray.600"
+            minW={0}
+            maxW="100%"
+            overflowWrap="break-word"
+          >
             {suggestion.description}
           </Text>
         </VStack>
@@ -160,7 +171,13 @@ export function SuggestionCard({
             items={importantSupporters.map(parseUserAvatar)}
             max={3}
           />
-          <Text fontSize="sm" color="gray.600">
+          <Text
+            fontSize="sm"
+            color="gray.600"
+            minW={0}
+            maxW="100%"
+            overflowWrap="break-word"
+          >
             {formatSupporterList(importantSupporters)}{" "}
             {importantSupporters.length === 1 ? "apoya" : "apoyan"} esta
             sugerencia.
@@ -184,89 +201,38 @@ export function SuggestionCard({
             <CustomButton
               onClick={() => setDeleteDialogOpen(true)}
               color="rojo"
+              loading={isDeleting}
             >
-              <IconTrash /> Eliminar
+              <IconTrash /> {isMobile ? "" : "Eliminar"}
             </CustomButton>
           )}
           {!isAuthor &&
             (isSupportedByUser ? (
-              <CustomButton onClick={handleToggleSupport} color="rojo">
-                <IconThumbDown /> Dejar de apoyar
+              <CustomButton
+                onClick={() => void handleToggleSupport()}
+                color="rojo"
+              >
+                <IconThumbDown /> {isMobile ? "" : "Dejar de apoyar"}
               </CustomButton>
             ) : (
               <CustomButton
-                onClick={handleToggleSupport}
+                onClick={() => void handleToggleSupport()}
                 loading={loadingSupport}
               >
-                <IconThumbUp /> Apoyar sugerencia
+                <IconThumbUp /> {isMobile ? "" : "Apoyar sugerencia"}
               </CustomButton>
             ))}
         </HStack>
       </HStack>
-      <DeleteSuggestionDialog
-        suggestionId={suggestion.id}
+      <ConfirmDialog
         isOpen={deleteDialogOpen}
         setIsOpen={setDeleteDialogOpen}
+        handleAction={() => {
+          void deleteSuggestion({ suggestionId: suggestion.id });
+        }}
+        title="Eliminar sugerencia"
+        message="¿Estás seguro de que quieres eliminar esta sugerencia? Esta acción es irreversible."
       />
     </VStack>
-  );
-}
-
-function DeleteSuggestionDialog({
-  suggestionId,
-  isOpen,
-  setIsOpen,
-}: {
-  suggestionId: string;
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-}) {
-  const { token } = useAuth();
-
-  async function handleDelete() {
-    if (!token) {
-      toaster.create({
-        title: "Inicia sesión para eliminar sugerencias",
-        description: "Necesitas iniciar sesión para eliminar esta sugerencia.",
-        type: "error",
-      });
-      return;
-    }
-    try {
-      await deleteSuggestion(token, suggestionId);
-      setIsOpen(false);
-      toaster.create({
-        title: "Sugerencia eliminada",
-        description: "La sugerencia se ha eliminado correctamente.",
-      });
-      window.location.reload();
-    } catch (error) {
-      if (isApiError(error)) {
-        console.error("Error deleting suggestion:", error.message);
-        toaster.create({
-          title: "Error al eliminar sugerencia",
-          description:
-            "Ocurrió un error al eliminar la sugerencia. Inténtalo de nuevo.",
-          type: "error",
-        });
-      } else {
-        console.error("Unexpected error:", error);
-        toaster.create({
-          title: "Error inesperado",
-          description: "Ocurrió un error inesperado. Inténtalo de nuevo.",
-          type: "error",
-        });
-      }
-    }
-  }
-
-  return (
-    <DeleteDialog
-      isOpen={isOpen}
-      setIsOpen={setIsOpen}
-      handleDelete={handleDelete}
-      title="Eliminar sugerencia"
-      message="¿Estás seguro de que quieres eliminar esta sugerencia? Esta acción es irreversible."
-    />
   );
 }

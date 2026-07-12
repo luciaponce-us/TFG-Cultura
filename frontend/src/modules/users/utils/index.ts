@@ -1,4 +1,6 @@
-export function parsePaymentReceiptUrl(url: string | null): string {
+import { ROLES, type Role, type User, type UserUpdateRequest } from "../types";
+
+export function parsePaymentReceiptUrl(url: string | null | undefined): string {
   if (!url) return "";
   if (url.includes("cloudinary")) {
     return (
@@ -9,23 +11,58 @@ export function parsePaymentReceiptUrl(url: string | null): string {
   return url;
 }
 
-export function parseUrl(url: string | null): string {
-  return url?.trim().split("/").slice(-1)[0] || "";
+/**
+ * Extrae el nombre de archivo de una URL, eliminando cualquier carácter de control y caracteres no permitidos en nombres de archivo.
+ * @param url
+ * @returns
+ */
+export function parseUrlFilename(url: string | null | undefined): string {
+  if (!url) return "";
+
+  const trimmed = url.trim();
+
+  const cleaned = trimmed.split("?")[0].split("#")[0];
+
+  const parts = cleaned.split("/").filter(Boolean);
+  const filename = parts.at(-1) ?? "";
+
+  const controlChars = Array.from({ length: 32 }, (_, i) =>
+    String.fromCodePoint(i),
+  ).join("");
+
+  const controlRegex = new RegExp(`[${controlChars}]`, "g");
+
+  const sanitizedFilename = filename
+    .replace(controlRegex, "")
+    .replace(/[<>:"|?*]/g, "")
+    .trim();
+
+  return sanitizedFilename;
 }
 
-export function parseRole(role: string) {
-  switch (role) {
-    case "COORDINADOR":
-      return "Coordinador";
-    case "SECRETARIO":
-      return "Secretario";
-    case "ENCARGADO":
-      return "Encargado";
-    case "COLABORADOR":
-      return "Colaborador";
-    case "SOCIO":
-      return "Socio";
-    default:
-      return role;
-  }
+export function parseRole(role: Role): string {
+  return role.charAt(0) + role.slice(1).toLowerCase();
+}
+
+export const roleOptions = ROLES.map((role) => ({
+  value: role,
+  label: parseRole(role),
+}));
+
+export const activeOptions = [
+  { value: "true", label: "Activo" },
+  { value: "false", label: "Inactivo" },
+];
+
+export function mapUserToUserUpdateRequest(user: User): UserUpdateRequest {
+  return {
+    username: user.username,
+    password: "",
+    name: user.name,
+    surname: user.surname,
+    dni: user.dni,
+    phone: user.phone,
+    email: user.email,
+    role: user.role,
+  };
 }

@@ -59,6 +59,7 @@
 
     <logger name="suggestionsLogger" level="INFO" additivity="false">
         <appender-ref ref="SUGGESTIONS"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <logger name="org.springframework" level="WARN"/>
@@ -66,6 +67,7 @@
 
     <root level="INFO">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </root>
 
 </configuration>
