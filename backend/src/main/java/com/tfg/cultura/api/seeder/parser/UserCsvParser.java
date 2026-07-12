@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -80,7 +81,7 @@ public class UserCsvParser {
                 .paymentReceipt(row.getPaymentReceipt())
                 .active(row.isActive())
                 .role(Role.valueOf(row.getRole()))
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now(ZoneId.of("Europe/Madrid")))
                 .build();
     }
 }
