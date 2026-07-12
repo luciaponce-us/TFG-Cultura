@@ -134,22 +134,22 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
       align="start"
       gap={4}
     >
-      <HStack gap={4} mb={2} align="start">
+      <HStack gap={4} mb={2} align="start" minW={0} maxW="100%" w="100%">
         <CustomAvatar
           src={suggestion.author.avatar}
           name={suggestion.author.name}
           w="80px"
           h="80px"
         />
-        <VStack align="start" gap={0}>
-          <Text fontSize="lg" fontWeight="bold">
+        <VStack align="start" gap={0} minW={0} maxW="100%" flex={1}>
+          <Text fontSize="lg" fontWeight="bold" overflowWrap="break-word" maxW="100%">
             {suggestion.title}
           </Text>
           <Text fontSize="sm" color="principal.500">
             {parseType(suggestion.type)} · Propuesta por @
             {suggestion.author.username}
           </Text>
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color="gray.600" minW={0} maxW="100%" overflowWrap="break-word">
             {suggestion.description}
           </Text>
         </VStack>
@@ -160,7 +160,7 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
             items={importantSupporters.map(parseUserAvatar)}
             max={3}
           />
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color="gray.600" minW={0} maxW="100%" overflowWrap="break-word">
             {formatSupporterList(importantSupporters)}{" "}
             {importantSupporters.length === 1 ? "apoya" : "apoyan"} esta
             sugerencia.
