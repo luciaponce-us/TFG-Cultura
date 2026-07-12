@@ -1,8 +1,11 @@
 package com.tfg.cultura.api.seeder.parser;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,8 +25,16 @@ public class UserCsvParser {
     private final PasswordEncoder passwordEncoder;
 
     public List<User> loadUsersFromCsv() {
-        try (InputStream is = getClass().getResourceAsStream(CSV_FILE_PATH);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        InputStream is = UserCsvParser.class.getResourceAsStream(CSV_FILE_PATH);
+
+        if (is == null) {
+            throw new IllegalStateException("No se encontró " + CSV_FILE_PATH);
+        }
+
+        // Try-with-resources para asegurar que el BufferedReader se cierre
+        // automáticamente
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(is, StandardCharsets.UTF_8));) {
 
             List<User> users = reader.lines()
                     .skip(1) // header
@@ -33,8 +44,8 @@ public class UserCsvParser {
 
             return users;
 
-        } catch (Exception e) {
-            throw new RuntimeException("Error leyendo users.csv", e);
+        } catch (IOException e) {
+            throw new IllegalStateException("Error leyendo users.csv", e);
         }
     }
 
