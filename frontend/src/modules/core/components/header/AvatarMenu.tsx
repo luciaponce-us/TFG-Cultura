@@ -21,7 +21,6 @@ import { getUserLinks, type NavLink } from "../../config/navigation.config";
 export function AvatarMenu() {
   const { user } = useAuth();
   const { logout } = useAuth();
-  const navigate = useNavigate();
   const isMobile = useBreakpointValue({ base: true, md: false });
   const [open, setOpen] = useState(false);
 
@@ -35,19 +34,17 @@ export function AvatarMenu() {
       user={user}
       links={links}
       logout={logout}
-      navigate={navigate}
     />
   ) : (
     <AvatarDropdownMenu
       user={user}
       links={links}
       logout={logout}
-      navigate={navigate}
     />
   );
 }
 
-function TriggerAvatar({ user }: { user: User | null }) {
+function TriggerAvatar({ user }: { user: User | null | undefined }) {
   return (
     <Box
       cursor="pointer"
@@ -79,14 +76,13 @@ function TriggerAvatar({ user }: { user: User | null }) {
 function AvatarDropdownMenu({
   user,
   links,
-  logout,
-  navigate,
+  logout
 }: {
-  user: User | null;
+  user: User | null | undefined;
   links: NavLink[];
   logout: () => void;
-  navigate: (path: string) => void;
 }) {
+  const navigate = useNavigate();
   return (
     <Menu.Root>
       <Menu.Trigger>
@@ -147,7 +143,7 @@ function AvatarDropdownMenu({
                     description: "¡Hasta pronto! 👋​",
                     type: "info",
                   });
-                  navigate("/");
+                  void navigate("/");
                 }}
               >
                 <IconLogout />
@@ -167,17 +163,16 @@ function AvatarDrawerMenu({
   onClose,
   user,
   links,
-  logout,
-  navigate,
+  logout
 }: {
   open: boolean;
   onOpen: () => void;
   onClose: () => void;
-  user: User | null;
+  user: User | null | undefined;
   links: NavLink[];
   logout: () => void;
-  navigate: (path: string) => void;
 }) {
+  const navigate = useNavigate();
   return (
     <Drawer.Root
       open={open}
@@ -271,7 +266,7 @@ function AvatarDrawerMenu({
                       description: "¡Hasta pronto! 👋​",
                       type: "info",
                     });
-                    navigate("/");
+                    void navigate("/");
                   }}
                   w="100%"
                   h="50px"

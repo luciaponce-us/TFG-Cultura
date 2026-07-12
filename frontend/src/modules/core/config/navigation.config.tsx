@@ -39,7 +39,7 @@ export const NOT_LOGGED_USER_LINKS: NavLink[] = [
   { icon: null, title: "Registrarse", href: "/registro" },
 ];
 
-export function getUserLinks(user: User | null): NavLink[] {
+export function getUserLinks(user: User | null | undefined): NavLink[] {
   if (!user) return NOT_LOGGED_USER_LINKS;
 
   const base = [...LOGGED_USER_LINKS];
