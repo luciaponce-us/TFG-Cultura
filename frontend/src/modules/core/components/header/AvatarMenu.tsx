@@ -36,11 +36,7 @@ export function AvatarMenu() {
       logout={logout}
     />
   ) : (
-    <AvatarDropdownMenu
-      user={user}
-      links={links}
-      logout={logout}
-    />
+    <AvatarDropdownMenu user={user} links={links} logout={logout} />
   );
 }
 
@@ -76,7 +72,7 @@ function TriggerAvatar({ user }: { user: User | null | undefined }) {
 function AvatarDropdownMenu({
   user,
   links,
-  logout
+  logout,
 }: {
   user: User | null | undefined;
   links: NavLink[];
@@ -163,7 +159,7 @@ function AvatarDrawerMenu({
   onClose,
   user,
   links,
-  logout
+  logout,
 }: {
   open: boolean;
   onOpen: () => void;
