@@ -49,7 +49,7 @@ export function EditUserPage() {
       bg="background"
       borderRadius="xl"
       boxShadow="lg"
-      p={6}
+      p={{ base: 4, md: 6 }}
       direction="column"
       align="center"
       justify="flex-start"

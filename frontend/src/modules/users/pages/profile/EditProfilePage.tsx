@@ -113,13 +113,13 @@ export function EditProfilePage() {
       bg="background"
       borderRadius="xl"
       boxShadow="lg"
-      p={6}
+      p={{ base: 4, md: 6 }}
       direction="column"
       align="center"
       justify="flex-start"
-      width="fit-content"
+      minW={0}
     >
-      <HStack w="100%" justify="space-between" align="center" mb={4}>
+      <HStack w="100%" justify="space-between" mb={4} minW={0}>
         <CustomButton
           color="transparent"
           onClick={() => void navigate("/perfil")}
@@ -127,20 +127,24 @@ export function EditProfilePage() {
           <IconArrowNarrowLeft stroke={2} style={{ width: 32, height: 32 }} />
         </CustomButton>
 
-        <Heading as="h1"> Perfil - {user?.username} </Heading>
+        <Heading as="h1" overflowWrap="break-word" textAlign="center">
+          Perfil - {user?.username}
+        </Heading>
         <HStack w="48px" />
       </HStack>
       {!user ? (
         <Spinner size="xl" borderWidth="4px" color="principal.800" />
       ) : (
-        <VStack gap={4}>
-          <HStack gap={4}>
+        <VStack w="100%" align="stretch" gap={4} minW={0}>
+          <HStack w="100%" gap={4} minW={0}>
             <CustomAvatar
               src={user?.avatar}
               name={form?.name || "User"}
+              minW={0}
               w="100px"
               h="100px"
               loading={updateAvatar.isPending}
+              flexShrink={0}
             />
 
             <UploadBox
