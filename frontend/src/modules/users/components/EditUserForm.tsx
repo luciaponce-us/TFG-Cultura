@@ -26,7 +26,7 @@ import {
 } from "../validations/user.validations";
 import { useUpdateUser, useUpdateUserAvatar } from "../hooks";
 
-import type { UserUpdateRequest, User } from "../types";
+import type { UserUpdateRequest, User, Role } from "../types";
 
 const DEFAULT_ERRORS: Record<string, string> = {
   username: "",
@@ -40,9 +40,11 @@ const DEFAULT_ERRORS: Record<string, string> = {
 };
 
 export function EditUserForm({ user }: { readonly user: User }) {
+  // TODO: Ask confirmation before changing role
   const { username } = useParams();
-  const { token } = useAuth();
-
+  const { user: loggedUser, token } = useAuth();
+  const loggedUserRole: Role | undefined = loggedUser?.role;
+  
   const updateUserMutation = useUpdateUser();
   const updateAvatarMutation = useUpdateUserAvatar();
 
@@ -59,7 +61,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
   }
 
   function validateForm(): boolean {
-    const newErrors: Record<string, string> = validateUserUpdateForm(form);
+    const newErrors: Record<string, string> = validateUserUpdateForm(loggedUserRole, form);
     setErrors(newErrors);
     return !Object.values(newErrors).some((v) => !!v);
   }
@@ -172,7 +174,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
       <CustomSelect
         label="Rol"
         placeholder="Selecciona un rol"
-        options={roleOptions}
+        options={roleOptions(loggedUserRole)}
         defaultValue={[form?.role]}
         disabled={updateUserMutation.isPending}
         error={errors.role}

@@ -1,4 +1,4 @@
-import type { UserProfileUpdateRequest, UserUpdateRequest } from "../types";
+import type { Role, UserProfileUpdateRequest, UserUpdateRequest } from "../types";
 
 export const MAX_LENGTH = {
   NAME: 50,
@@ -104,6 +104,30 @@ export const validatePhone = (value: string): string => {
   return "";
 };
 
+function isInferiorRole(userRole: string, newRole: string): boolean {
+  switch (userRole) {
+            case "COORDINADOR":
+                return true;
+            case "SECRETARIO":
+                return newRole == "ENCARGADO" || newRole == "COLABORADOR" || newRole == "SOCIO";
+            case "ENCARGADO":
+                return newRole == "COLABORADOR" || newRole == "SOCIO";
+            case "COLABORADOR":
+                return newRole == "SOCIO";
+            default:
+                return false;
+        }
+}
+
+function validateRole(loggedUserRole: Role | undefined, value: string): string {
+  if (!value) return "";
+  if (!loggedUserRole) return "No tienes permisos para asignar un rol.";
+  if(!isInferiorRole(loggedUserRole, value)) {
+    return "No puedes asignar un rol igual o superior al tuyo.";
+  }
+  return "";
+}
+
 // LOGIN VALIDATIONS
 
 export const validateUsernameAtLogin = (value: string): string => {
@@ -121,6 +145,7 @@ export const validatePasswordAtLogin = (value: string | undefined): string => {
 };
 
 export function validateUserUpdateForm(
+  loggedUserRole: Role | undefined,
   form: UserUpdateRequest,
 ): Record<string, string> {
   return {
@@ -131,7 +156,7 @@ export function validateUserUpdateForm(
     dni: validateDni(form.dni),
     phone: validatePhone(form.phone),
     email: validateEmail(form.email),
-    role: "",
+    role: validateRole(loggedUserRole, form.role),
     general: "",
   };
 }

@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
+import com.tfg.cultura.api.users.exception.RoleModificationNotAllowedException;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
@@ -69,6 +70,21 @@ public class UserService {
         return findUserById(currentUser.getId());
     }
 
+    boolean isInferiorRole(Role userRole, Role selectedRole) {
+        switch (userRole) {
+            case Role.COORDINADOR:
+                return true;
+            case Role.SECRETARIO:
+                return selectedRole == Role.ENCARGADO || selectedRole == Role.COLABORADOR || selectedRole == Role.SOCIO;
+            case Role.ENCARGADO:
+                return selectedRole == Role.COLABORADOR || selectedRole == Role.SOCIO;
+            case Role.COLABORADOR:
+                return selectedRole == Role.SOCIO;
+            default:
+                return false;
+        }
+    }
+
     private boolean isChanged(String newValue, String currentValue) {
         return newValue != null && !newValue.trim().equals(currentValue);
     }
@@ -99,7 +115,7 @@ public class UserService {
 
     // UPDATE
 
-    UserResponse updateUser(User user, UserUpdateRequest request, User currentUser) throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
+    UserResponse updateUser(User user, UserUpdateRequest request, User currentUser) throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException, RoleModificationNotAllowedException {
         
         boolean isAdmin = appProperties.adminRoles().contains(currentUser.getRole());
 
@@ -142,6 +158,12 @@ public class UserService {
             }
 
             if (request.getRole() != null && request.getRole() != user.getRole()) {
+                if(!isInferiorRole(currentUser.getRole(), request.getRole())) {
+                    throw new RoleModificationNotAllowedException(
+                            String.format("El usuario %s con rol %s ha intentado asignar un rol %s a otro usuario",
+                                    currentUser.getUsername(), currentUser.getRole(), request.getRole()));
+                }
+                // FIXME: Check if older role is same or higher than current user role, if so, throw exception. Excepts if is self update, in that case allow it.
                 user.setRole(request.getRole());
             }
         }

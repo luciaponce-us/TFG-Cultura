@@ -101,7 +101,7 @@ export function UsersAdminPage() {
 
           <CustomSelect
             placeholder="Filtrar por rol"
-            options={roleOptions}
+            options={roleOptions("COLABORADOR")}
             value={filters.role ? [filters.role] : []}
             onValueChange={({ value }) => {
               updateFilter("role", value[0] || "");
