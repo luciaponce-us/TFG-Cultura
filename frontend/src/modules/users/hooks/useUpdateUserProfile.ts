@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 import { toaster } from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { isApiError } from "@/modules/core/utils/utils";
+import {
+  isApiError,
+  isDeactivatedUserError,
+  throwDeactivatedUserError,
+} from "@/modules/core/utils/utils";
 
 import { updateUserProfile } from "../service/user.service";
 
@@ -57,6 +61,11 @@ export function useUpdateUserProfile() {
     },
     onError: (error: Error) => {
       console.error("Error al registrar usuario:", error);
+      if (isApiError(error) && isDeactivatedUserError(error)) {
+        throwDeactivatedUserError(error);
+        return;
+      }
+
       if (isApiError(error)) {
         toaster.create({
           title: "Error",

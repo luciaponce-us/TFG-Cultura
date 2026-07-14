@@ -14,9 +14,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -102,6 +108,7 @@ class JwtFilterTest {
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(jwtService.extractId(token)).thenReturn(username);
         when(userDetailsService.loadUserById(username)).thenReturn(userDetails);
+        when(userDetails.isEnabled()).thenReturn(true);
         when(jwtService.isTokenValid(token, userDetails)).thenReturn(true);
         when(userDetails.getAuthorities()).thenReturn(java.util.List.of());
 
@@ -125,6 +132,7 @@ class JwtFilterTest {
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(jwtService.extractId(token)).thenReturn(username);
         when(userDetailsService.loadUserById(username)).thenReturn(userDetails);
+        when(userDetails.isEnabled()).thenReturn(true);
         when(jwtService.isTokenValid(token, userDetails)).thenReturn(false);
 
         filter.doFilterInternal(request, response, filterChain);
@@ -162,5 +170,35 @@ class JwtFilterTest {
 
         verify(userDetailsService, never()).loadUserById(any());
         verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void should_return_403_when_user_is_disabled() throws Exception {
+        String token = "validToken";
+        String userId = "lucia";
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(jwtService.extractId(token)).thenReturn(userId);
+        when(userDetailsService.loadUserById(userId)).thenReturn(userDetails);
+        when(userDetails.isEnabled()).thenReturn(false);
+        when(response.getWriter()).thenReturn(writer);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+        verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        verify(jwtService, never()).isTokenValid(any(), any());
+        verify(filterChain, never()).doFilter(any(), any());
+
+        writer.flush();
+
+        String json = stringWriter.toString();
+        assertTrue(json.contains("\"status\":403"));
+        assertTrue(json.contains("Usuario desactivado"));
+        assertTrue(json.contains("Tu usuario está desactivado"));
     }
 }

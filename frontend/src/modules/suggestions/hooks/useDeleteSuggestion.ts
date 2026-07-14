@@ -4,6 +4,11 @@ import { toaster } from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
 
 import { deleteSuggestion } from "../service/suggestion.service";
+import {
+  isApiError,
+  isDeactivatedUserError,
+  throwDeactivatedUserError,
+} from "@/modules/core/utils/utils";
 
 export function useDeleteSuggestion() {
   const { token } = useAuth();
@@ -33,6 +38,11 @@ export function useDeleteSuggestion() {
     },
     onError: (error) => {
       console.error("Error al eliminar sugerencia:", error);
+      if (isApiError(error) && isDeactivatedUserError(error)) {
+        throwDeactivatedUserError(error);
+        return;
+      }
+
       toaster.create({
         title: "Error al eliminar sugerencia",
         description:

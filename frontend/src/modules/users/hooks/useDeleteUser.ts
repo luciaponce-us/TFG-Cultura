@@ -1,6 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { deleteUser } from "../service/user.service";
+import {
+  isApiError,
+  isDeactivatedUserError,
+  throwDeactivatedUserError,
+} from "@/modules/core/utils/utils";
 
 type DeleteUserParams = {
   token: string;
@@ -21,6 +26,10 @@ export function useDeleteUser() {
     },
     onError: (error) => {
       console.error("Error al eliminar usuario:", error);
+      if (isApiError(error) && isDeactivatedUserError(error)) {
+        throwDeactivatedUserError(error);
+        return;
+      }
     },
   });
 }
