@@ -44,7 +44,9 @@ export function parseRole(role: Role): string {
   return role.charAt(0) + role.slice(1).toLowerCase();
 }
 
-export const roleOptions = (loggedUserRole: Role | undefined) : { label: string; value: string }[] => {
+export const roleOptions = (
+  loggedUserRole: Role | undefined,
+): { label: string; value: string }[] => {
   console.log("roleOptions called with loggedUserRole:", loggedUserRole);
   switch (loggedUserRole) {
     case "COORDINADOR":
@@ -55,9 +57,7 @@ export const roleOptions = (loggedUserRole: Role | undefined) : { label: string;
     case "SECRETARIO":
       return ROLES.filter(
         (role) =>
-          role === "ENCARGADO" ||
-          role === "COLABORADOR" ||
-          role === "SOCIO",
+          role === "ENCARGADO" || role === "COLABORADOR" || role === "SOCIO",
       ).map((role) => ({
         value: role,
         label: parseRole(role),
@@ -76,8 +76,8 @@ export const roleOptions = (loggedUserRole: Role | undefined) : { label: string;
       }));
     default:
       return [];
-  };
-}
+  }
+};
 
 export const activeOptions = [
   { value: "true", label: "Activo" },

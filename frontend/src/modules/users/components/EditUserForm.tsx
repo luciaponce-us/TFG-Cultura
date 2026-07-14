@@ -44,7 +44,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
   const { username } = useParams();
   const { user: loggedUser, token } = useAuth();
   const loggedUserRole: Role | undefined = loggedUser?.role;
-  
+
   const updateUserMutation = useUpdateUser();
   const updateAvatarMutation = useUpdateUserAvatar();
 
@@ -61,7 +61,10 @@ export function EditUserForm({ user }: { readonly user: User }) {
   }
 
   function validateForm(): boolean {
-    const newErrors: Record<string, string> = validateUserUpdateForm(loggedUserRole, form);
+    const newErrors: Record<string, string> = validateUserUpdateForm(
+      loggedUserRole,
+      form,
+    );
     setErrors(newErrors);
     return !Object.values(newErrors).some((v) => !!v);
   }

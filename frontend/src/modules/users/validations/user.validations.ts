@@ -1,4 +1,8 @@
-import type { Role, UserProfileUpdateRequest, UserUpdateRequest } from "../types";
+import type {
+  Role,
+  UserProfileUpdateRequest,
+  UserUpdateRequest,
+} from "../types";
 
 export const MAX_LENGTH = {
   NAME: 50,
@@ -106,23 +110,25 @@ export const validatePhone = (value: string): string => {
 
 function isInferiorRole(userRole: string, newRole: string): boolean {
   switch (userRole) {
-            case "COORDINADOR":
-                return true;
-            case "SECRETARIO":
-                return newRole == "ENCARGADO" || newRole == "COLABORADOR" || newRole == "SOCIO";
-            case "ENCARGADO":
-                return newRole == "COLABORADOR" || newRole == "SOCIO";
-            case "COLABORADOR":
-                return newRole == "SOCIO";
-            default:
-                return false;
-        }
+    case "COORDINADOR":
+      return true;
+    case "SECRETARIO":
+      return (
+        newRole == "ENCARGADO" || newRole == "COLABORADOR" || newRole == "SOCIO"
+      );
+    case "ENCARGADO":
+      return newRole == "COLABORADOR" || newRole == "SOCIO";
+    case "COLABORADOR":
+      return newRole == "SOCIO";
+    default:
+      return false;
+  }
 }
 
 function validateRole(loggedUserRole: Role | undefined, value: string): string {
   if (!value) return "";
   if (!loggedUserRole) return "No tienes permisos para asignar un rol.";
-  if(!isInferiorRole(loggedUserRole, value)) {
+  if (!isInferiorRole(loggedUserRole, value)) {
     return "No puedes asignar un rol igual o superior al tuyo.";
   }
   return "";
