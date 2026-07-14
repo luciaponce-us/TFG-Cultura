@@ -3,6 +3,11 @@ import { toaster } from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
 import { createSuggestion } from "../service/suggestion.service";
 import type { SuggestionCreateRequest } from "../types";
+import {
+  isApiError,
+  isDeactivatedUserError,
+  throwDeactivatedUserError,
+} from "@/modules/core/utils/utils";
 
 export function useCreateSuggestion() {
   const { token } = useAuth();
@@ -32,6 +37,10 @@ export function useCreateSuggestion() {
     },
     onError: (error) => {
       console.error("Error al crear sugerencia:", error);
+      if (isApiError(error) && isDeactivatedUserError(error)) {
+        throwDeactivatedUserError(error);
+        return;
+      }
       toaster.create({
         title: "Error al crear sugerencia",
         description:

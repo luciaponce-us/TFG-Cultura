@@ -2,6 +2,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import { ApiError } from "../types";
 import { useBreakpointValue } from "@chakra-ui/react/hooks";
+import { toaster } from "../components";
 
 export const jsonHeaders = { "Content-Type": "application/json" };
 export const authHeaders = (token: string) => ({
@@ -77,6 +78,21 @@ export function isApiError(err: unknown): err is ApiError {
     "message" in err &&
     "timestamp" in err
   );
+}
+
+export function isDeactivatedUserError(err: unknown): boolean {
+  if (!isApiError(err)) return false;
+  return err.status === 403 && err.message.includes("desactivado");
+}
+
+export function throwDeactivatedUserError(err: ApiError): void {
+  console.error("Error de autorización al eliminar sugerencia:", err.message);
+  toaster.create({
+    title: "No autorizado",
+    description:
+      "No tienes permiso para realizar esta acción. Tu usuario está desactivado.",
+    type: "error",
+  });
 }
 
 export const handleChange = <

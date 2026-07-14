@@ -2,7 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { toaster } from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { isApiError } from "@/modules/core/utils/utils";
+import {
+  isApiError,
+  isDeactivatedUserError,
+  throwDeactivatedUserError,
+} from "@/modules/core/utils/utils";
 
 import { updateUserProfileAvatar } from "../service/user.service";
 
@@ -39,6 +43,11 @@ export function useUpdateUserProfileAvatar() {
     },
     onError: (error: Error) => {
       console.error("Error al actualizar avatar:", error);
+      if (isApiError(error) && isDeactivatedUserError(error)) {
+        throwDeactivatedUserError(error);
+        return;
+      }
+
       if (isApiError(error)) {
         toaster.create({
           title: "Error",
