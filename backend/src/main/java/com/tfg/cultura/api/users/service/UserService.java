@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.RoleModificationNotAllowedException;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
@@ -70,20 +71,27 @@ public class UserService {
         return findUserById(currentUser.getId());
     }
 
-    boolean isInferiorRole(Role userRole, Role selectedRole) {
-        switch (userRole) {
-            case Role.COORDINADOR:
-                return true;
-            case Role.SECRETARIO:
-                return selectedRole == Role.ENCARGADO || selectedRole == Role.COLABORADOR || selectedRole == Role.SOCIO;
-            case Role.ENCARGADO:
-                return selectedRole == Role.COLABORADOR || selectedRole == Role.SOCIO;
-            case Role.COLABORADOR:
-                return selectedRole == Role.SOCIO;
-            default:
-                return false;
-        }
+boolean isSameOrHigherRole(Role role1, Role role2) {
+    if (role1 == role2) {
+        return true;
     }
+
+    switch (role1) {
+        case COORDINADOR:
+            return true;
+        case SECRETARIO:
+            return role2 == Role.ENCARGADO
+                    || role2 == Role.COLABORADOR
+                    || role2 == Role.SOCIO;
+        case ENCARGADO:
+            return role2 == Role.COLABORADOR
+                    || role2 == Role.SOCIO;
+        case COLABORADOR:
+            return role2 == Role.SOCIO;
+        default:
+            return false;
+    }
+}
 
     private boolean isChanged(String newValue, String currentValue) {
         return newValue != null && !newValue.trim().equals(currentValue);
@@ -115,9 +123,15 @@ public class UserService {
 
     // UPDATE
 
-    UserResponse updateUser(User user, UserUpdateRequest request, User currentUser) throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException, RoleModificationNotAllowedException {
+    UserResponse updateUser(User user, UserUpdateRequest request, User currentUser) throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException, RoleModificationNotAllowedException, UnauthorizedException {
         
         boolean isAdmin = appProperties.adminRoles().contains(currentUser.getRole());
+
+        boolean isSelfUpdate = currentUser.getId().equals(user.getId());
+        if(isSameOrHigherRole(user.getRole(),currentUser.getRole()) && !isSelfUpdate) {
+            logger.warn("El usuario {} con rol {} ha intentado actualizar un usuario con rol {}", currentUser.getUsername(), currentUser.getRole(), user.getRole());
+            throw new UnauthorizedException("No tienes permisos para actualizar este usuario.");
+        }
 
         logger.info("Se va a actualizar el usuario con username {}", user.getUsername());
 
@@ -157,13 +171,20 @@ public class UserService {
                 user.setDni(request.getDni());
             }
 
-            if (request.getRole() != null && request.getRole() != user.getRole()) {
-                if(!isInferiorRole(currentUser.getRole(), request.getRole())) {
-                    throw new RoleModificationNotAllowedException(
-                            String.format("El usuario %s con rol %s ha intentado asignar un rol %s a otro usuario",
-                                    currentUser.getUsername(), currentUser.getRole(), request.getRole()));
+            boolean isRoleChanged = request.getRole() != null && request.getRole() != user.getRole();
+            if (isRoleChanged) {
+                boolean isSameRole = request.getRole() == currentUser.getRole();
+                boolean isHigherRole = isSameOrHigherRole(request.getRole(), currentUser.getRole()) && !isSameRole;
+                if(isSelfUpdate && isHigherRole) {
+                    logger.warn("El usuario {} con rol {} ha intentado actualizar su propio rol a {}", currentUser.getUsername(), currentUser.getRole(), request.getRole());
+                    throw new RoleModificationNotAllowedException("No puedes asignarte un rol superior al tuyo");
                 }
-                // FIXME: Check if older role is same or higher than current user role, if so, throw exception. Excepts if is self update, in that case allow it.
+
+                if(!isSelfUpdate && isSameOrHigherRole(request.getRole(), currentUser.getRole())) {
+                    logger.warn("El usuario {} con rol {} ha intentado actualizar el rol de otro usuario a {}", currentUser.getUsername(), currentUser.getRole(), request.getRole());
+                    throw new RoleModificationNotAllowedException("No puedes asignar un rol igual o superior al tuyo");
+                }
+                
                 user.setRole(request.getRole());
             }
         }

@@ -17,11 +17,12 @@ import { UsersTable } from "../components";
 
 import { activeOptions, roleOptions } from "../utils";
 
-import type { FiltersGetAllUsers as Filters } from "../types";
+import type { FiltersGetAllUsers as Filters, Role } from "../types";
 
 export function UsersAdminPage() {
   const isMobile = useIsMobile();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const currentUserRole : Role | undefined = user?.role;
 
   const [page, setPage] = useState<number>(0);
 
@@ -136,7 +137,7 @@ export function UsersAdminPage() {
             }}
           />
         )}
-        {isLoading ? (
+        {isLoading || !currentUserRole ? (
           <Spinner size="xl" borderWidth="4px" color="principal.800" />
         ) : (
           <>

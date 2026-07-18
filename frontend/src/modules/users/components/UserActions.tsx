@@ -10,17 +10,21 @@ import { useNavigate } from "react-router-dom";
 import {
   ConfirmDialog,
   CustomButton,
+  TextSecondary,
   toaster,
 } from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
 
 import { useDeleteUser, useToggleUserActive } from "../hooks";
 
-import type { User } from "../types";
+import type { Role, User } from "../types";
 import { useState } from "react";
+import { isLowerRole } from "../utils";
 
 export function UserActions({ user }: { readonly user: User }) {
   const { token, logout, user: currentUser } = useAuth();
+  const currentUserRole: Role = currentUser?.role ?? "SOCIO";
+  const userHasLowerRole: boolean = isLowerRole(user.role, currentUserRole);
   const navigate = useNavigate();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
 
@@ -100,27 +104,42 @@ export function UserActions({ user }: { readonly user: User }) {
   }
 
   return (
-    <HStack>
-      <CustomButton
-        onClick={() => void navigate(`/admin/usuarios/${user.username}`)}
-      >
-        <IconPencil size={16} />
-      </CustomButton>
+    <HStack align="center" justify="center" w="180px">
+      {currentUserRole && userHasLowerRole && (
+        <>
+          <CustomButton
+            onClick={() => void navigate(`/admin/usuarios/${user.username}`)}
+          >
+            <IconPencil size={16} />
+          </CustomButton>
 
-      <CustomButton
-        color="rojo"
-        onClick={() => setIsDeleteDialogOpen(true)}
-        loading={isDeleting}
-      >
-        <IconTrash size={16} />
-      </CustomButton>
+          <CustomButton
+            color="rojo"
+            onClick={() => setIsDeleteDialogOpen(true)}
+            loading={isDeleting}
+          >
+            <IconTrash size={16} />
+          </CustomButton>
 
-      <CustomButton
-        color={user.active ? "rojo" : "verde"}
-        onClick={() => void handleToggleActive(user.username, user.active)}
-      >
-        {user.active ? <IconLock size={16} /> : <IconLockOpen size={16} />}
-      </CustomButton>
+          <CustomButton
+            color={user.active ? "rojo" : "verde"}
+            onClick={() => void handleToggleActive(user.username, user.active)}
+          >
+            {user.active ? <IconLock size={16} /> : <IconLockOpen size={16} />}
+          </CustomButton>
+        </>
+      )}
+      {!userHasLowerRole && (
+        <TextSecondary
+          textAlign="center"
+          style={{
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+          }}
+        >
+          El rol de este usuario es igual o superior al tuyo.
+        </TextSecondary>
+      )}
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
         setIsOpen={setIsDeleteDialogOpen}

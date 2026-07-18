@@ -35,7 +35,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
+import com.tfg.cultura.api.users.exception.RoleModificationNotAllowedException;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
@@ -88,9 +90,8 @@ class UserServiceTest {
                 userDetailsService,
                 suggestionRepository,
                 userFileService,
-                appProperties
-            );
-    
+                appProperties);
+
     }
 
     private void mockAuthContext(boolean isAdmin) {
@@ -115,7 +116,7 @@ class UserServiceTest {
                 false, // seedEnabled
                 jwt,
                 cloudinary,
-                List.of(Role.COORDINADOR)
+                List.of(Role.COORDINADOR, Role.SECRETARIO, Role.ENCARGADO, Role.COLABORADOR) // adminRoles
         );
     }
 
@@ -186,12 +187,17 @@ class UserServiceTest {
 
     // UPDATE USER
 
+    void mockSaveUser() {
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+    }
+
     @Test
     void should_update_user_successfully() {
         mockAuthContext(false);
+        mockSaveUser();
         when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenReturn(user);
         UserResponse response = service.updateUser(user.getUsername(), updateRequest);
 
         assertNotNull(response);
@@ -203,13 +209,14 @@ class UserServiceTest {
     @Test
     void should_update_user_username_successfully() {
         mockAuthContext(false);
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        mockSaveUser();
+
         String newUsername = "newUsername";
         updateRequest.setUsername(newUsername);
 
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
         when(userRepository.existsByUsername(newUsername)).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenReturn(user);
 
         UserResponse response = service.updateUser(user.getUsername(), updateRequest);
 
@@ -220,21 +227,19 @@ class UserServiceTest {
     @Test
     void should_update_user_password_succesfully() {
         mockAuthContext(false);
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        mockSaveUser();
+
         String username = user.getUsername();
         String oldEmail = user.getEmail();
 
         UserUpdateRequest request = new UserUpdateRequest();
         request.setPassword("newPassword");
 
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userRepository.findByUsername(username))
                 .thenReturn(Optional.of(user));
-
         when(passwordEncoder.encode(any()))
                 .thenReturn("encodedNewPassword");
-
-        when(userRepository.save(any(User.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // WHEN
         UserResponse response = service.updateUser(username, request);
@@ -251,15 +256,16 @@ class UserServiceTest {
     @Test
     void should_update_user_dni_and_role_successfully_when_admin() {
         mockAuthContext(true);
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        mockSaveUser();
+
         String newDni = "12345678A";
         Role newRole = Role.COORDINADOR;
         updateRequest.setDni(newDni);
         updateRequest.setRole(newRole);
 
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
         when(userRepository.existsByDni(newDni)).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenReturn(user);
 
         UserResponse response = service.updateUser(user.getUsername(), updateRequest);
         assertNotNull(response);
@@ -270,14 +276,15 @@ class UserServiceTest {
     @Test
     void should_not_update_user_dni_and_role_when_not_admin() {
         mockAuthContext(false);
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        mockSaveUser();
+
         String originalDni = user.getDni();
         Role originalRole = user.getRole();
         updateRequest.setDni("12345678A");
         updateRequest.setRole(Role.COORDINADOR);
 
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenReturn(user);
 
         UserResponse response = service.updateUser(user.getUsername(), updateRequest);
         assertNotNull(response);
@@ -328,6 +335,115 @@ class UserServiceTest {
                 () -> service.updateUser(username, updateRequest));
 
         assertTrue(ex.getMessage().contains("ya está en uso"));
+    }
+
+    @Test
+    void should_throw_UnauthorizedException_when_update_user_with_higher_role() {
+        User currentUser = UserFactory.validUser2();
+        currentUser.setRole(Role.SOCIO); // Rol inferior al del usuario a actualizar
+        updateRequest.setRole(Role.COORDINADOR); // Rol superior al del usuario actual
+
+        UnauthorizedException ex = assertThrows(UnauthorizedException.class,
+                () -> service.updateUser(user, updateRequest, currentUser));
+
+        assertTrue(ex.getMessage().contains("No tienes permisos"));
+    }
+
+    // UPDATE ROLES
+
+    @Test
+    void should_update_other_user_to_inferior_role() throws Exception {
+        mockSaveUser();
+        User currentUser = UserFactory.validUser();
+        currentUser.setId("1");
+        currentUser.setRole(Role.SECRETARIO);
+
+        User user = UserFactory.validUser2();
+        user.setId("2");
+        user.setRole(Role.COLABORADOR);
+
+        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+        request.setRole(Role.SOCIO);
+
+        service.updateUser(user, request, currentUser);
+
+        assertEquals(Role.SOCIO, user.getRole());
+    }
+
+    @Test
+    void should_throw_when_self_assigning_higher_role() {
+        User currentUser = UserFactory.validUser();
+        currentUser.setId("1");
+        currentUser.setRole(Role.SECRETARIO);
+
+        User user = UserFactory.validUser();
+        user.setId("1");
+        user.setRole(Role.SECRETARIO);
+
+        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+        request.setRole(Role.COORDINADOR);
+
+        assertThrows(RoleModificationNotAllowedException.class,
+                () -> service.updateUser(user, request, currentUser));
+
+        assertEquals(Role.SECRETARIO, user.getRole());
+    }
+
+    @Test
+    void should_allow_self_downgrade() throws Exception {
+        mockSaveUser();
+        User currentUser = UserFactory.validUser();
+        currentUser.setId("1");
+        currentUser.setRole(Role.SECRETARIO);
+
+        User user = UserFactory.validUser();
+        user.setId("1");
+        user.setRole(Role.SECRETARIO);
+
+        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+        request.setRole(Role.ENCARGADO);
+
+        service.updateUser(user, request, currentUser);
+
+        assertEquals(Role.ENCARGADO, user.getRole());
+    }
+
+    @Test
+    void should_throw_when_assigning_same_role_to_other_user() {
+        User currentUser = UserFactory.validUser();
+        currentUser.setId("1");
+        currentUser.setRole(Role.SECRETARIO);
+
+        User user = UserFactory.validUser2();
+        user.setId("2");
+        user.setRole(Role.COLABORADOR);
+
+        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+        request.setRole(Role.SECRETARIO);
+
+        assertThrows(RoleModificationNotAllowedException.class,
+                () -> service.updateUser(user, request, currentUser));
+
+        assertEquals(Role.COLABORADOR, user.getRole());
+    }
+
+    @Test
+    void should_throw_when_assigning_higher_role_to_other_user() {
+        User currentUser = UserFactory.validUser();
+        currentUser.setId("1");
+        currentUser.setRole(Role.SECRETARIO);
+
+        User user = UserFactory.validUser2();
+        user.setId("2");
+        user.setRole(Role.COLABORADOR);
+
+        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+        request.setRole(Role.COORDINADOR);
+
+        assertThrows(RoleModificationNotAllowedException.class,
+                () -> service.updateUser(user, request, currentUser));
+
+        assertEquals(Role.COLABORADOR, user.getRole());
     }
 
     // DELETE USER
@@ -506,11 +622,10 @@ class UserServiceTest {
         user2.setUsername("otherUser");
 
         PageRequest pageable = PageRequest.of(
-            1,
-            5,
-            Sort.by("createdAt").descending()
-        );
-        
+                1,
+                5,
+                Sort.by("createdAt").descending());
+
         when(userRepository.findAll(any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
 
@@ -562,8 +677,7 @@ class UserServiceTest {
                 "avatar",
                 "avatar.png",
                 "image/png",
-                "image-content".getBytes()
-        );
+                "image-content".getBytes());
         String newAvatarUrl = "https://cdn.example.com/avatar.png";
 
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
@@ -584,8 +698,7 @@ class UserServiceTest {
                 "avatar",
                 "avatar.png",
                 "image/png",
-                "image-content".getBytes()
-        );
+                "image-content".getBytes());
 
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
@@ -606,12 +719,11 @@ class UserServiceTest {
         mockAuthContext(false);
         when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
-
         UserResponse expectedResponse = userResponse;
-        
+
         // Espiamos el service para mockear updateAvatar (método interno)
         UserService spyService = spy(service);
-        doReturn(expectedResponse).when(spyService).updateAvatar(user,avatar);
+        doReturn(expectedResponse).when(spyService).updateAvatar(user, avatar);
 
         // Act
         UserResponse result = spyService.updateCurrentUserAvatar(avatar);

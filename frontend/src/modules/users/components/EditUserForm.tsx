@@ -15,6 +15,7 @@ import { useAuth } from "@/modules/core/context/useAuth";
 import { toaster } from "@/modules/core/components";
 
 import {
+  isLowerRole,
   mapUserToUserUpdateRequest,
   parsePaymentReceiptUrl,
   parseUrlFilename,
@@ -43,7 +44,8 @@ export function EditUserForm({ user }: { readonly user: User }) {
   // TODO: Ask confirmation before changing role
   const { username } = useParams();
   const { user: loggedUser, token } = useAuth();
-  const loggedUserRole: Role | undefined = loggedUser?.role;
+  const loggedUserRole: Role | undefined = loggedUser?.role ?? "SOCIO";
+  const userIsLowerRole = isLowerRole(user?.role, loggedUserRole);
 
   const updateUserMutation = useUpdateUser();
   const updateAvatarMutation = useUpdateUserAvatar();
@@ -110,6 +112,34 @@ export function EditUserForm({ user }: { readonly user: User }) {
 
   return (
     <VStack gap={4}>
+      {!userIsLowerRole && (<>
+      
+      <HStack gap={4}>
+        <CustomAvatar
+          src={user?.avatar}
+          name={form?.name || "User"}
+          loading={updateAvatarMutation.isPending}
+          w="100px"
+          h="100px"
+        />
+        <VStack gap={1} align="start">
+        <Text fontWeight="bold">{form?.name} {form?.surname}</Text>
+        <Text>@{form?.username}</Text>
+        <Text>{form?.email}</Text>
+        </VStack>
+      </HStack>
+      <Text color="red.500" fontWeight="bold">
+        No tienes permisos para editar este usuario.
+      </Text>
+      <CustomButton
+        onClick={() => window.history.back()}
+      >
+        Volver atrás
+      </CustomButton>
+      </>
+    )}
+    {userIsLowerRole && (
+      <>
       <HStack gap={4}>
         <CustomAvatar
           src={user?.avatar}
@@ -231,10 +261,11 @@ export function EditUserForm({ user }: { readonly user: User }) {
       <CustomButton
         onClick={() => handleSubmit()}
         loading={updateUserMutation.isPending}
-        disabled={updateUserMutation.isPending}
+        disabled={updateUserMutation.isPending || !userIsLowerRole}
       >
         Guardar cambios
       </CustomButton>
+      </>)}
     </VStack>
   );
 }

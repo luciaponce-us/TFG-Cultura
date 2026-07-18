@@ -79,6 +79,25 @@ export const roleOptions = (
   }
 };
 
+/**
+ * Compara dos roles y determina si el primer rol es de menor jerarquía que el segundo.
+ * @param roleA 
+ * @param roleB 
+ * @returns 
+ */
+export function isLowerRole(roleA: Role, roleB: Role): boolean {
+  if (!roleA) return false;
+  const roleHierarchy: Record<Role, number> = {
+    COORDINADOR: 4,
+    SECRETARIO: 3,
+    ENCARGADO: 2,
+    COLABORADOR: 1,
+    SOCIO: 0,
+  };
+
+  return roleHierarchy[roleA] < roleHierarchy[roleB];
+}
+
 export const activeOptions = [
   { value: "true", label: "Activo" },
   { value: "false", label: "Inactivo" },
