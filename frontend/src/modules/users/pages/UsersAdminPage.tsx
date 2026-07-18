@@ -22,7 +22,7 @@ import type { FiltersGetAllUsers as Filters, Role } from "../types";
 export function UsersAdminPage() {
   const isMobile = useIsMobile();
   const { token, user } = useAuth();
-  const currentUserRole : Role | undefined = user?.role;
+  const currentUserRole: Role | undefined = user?.role;
 
   const [page, setPage] = useState<number>(0);
 

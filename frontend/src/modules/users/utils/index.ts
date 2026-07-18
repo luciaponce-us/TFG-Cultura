@@ -81,9 +81,9 @@ export const roleOptions = (
 
 /**
  * Compara dos roles y determina si el primer rol es de menor jerarquía que el segundo.
- * @param roleA 
- * @param roleB 
- * @returns 
+ * @param roleA
+ * @param roleB
+ * @returns
  */
 export function isLowerRole(roleA: Role, roleB: Role): boolean {
   if (!roleA) return false;
