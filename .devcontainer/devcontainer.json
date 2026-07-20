@@ -23,7 +23,7 @@
         "vscjava.vscode-java-pack",
         "redhat.vscode-yaml",
         "github.copilot",
-        "sonarsource.sonarlint-vscode",
+        // "sonarsource.sonarlint-vscode", Reduce demasiado el rendimiento
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         "usernamehw.errorlens",

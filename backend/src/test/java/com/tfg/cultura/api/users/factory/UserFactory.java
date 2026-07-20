@@ -82,8 +82,16 @@ public class UserFactory {
                 .build();
     }
 
+    public static User validCurrentUserWithRole(Role role) {
+        User user = validUser();
+        user.setId("currentUserId");
+        user.setRole(role);
+        return user;
+    }
+
     public static CustomUserDetails mockAuthContext() {
         User user = validUser();
+        user.setId("currentUserId");
 
         SecurityContext context = mock(SecurityContext.class);
 
@@ -93,6 +101,7 @@ public class UserFactory {
 
     public static CustomUserDetails mockAuthContextAdmin() {
         User user = validUser();
+        user.setId("currentUserId");
         user.setRole(Role.COORDINADOR);
 
         SecurityContext context = mock(SecurityContext.class);

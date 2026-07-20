@@ -44,10 +44,59 @@ export function parseRole(role: Role): string {
   return role.charAt(0) + role.slice(1).toLowerCase();
 }
 
-export const roleOptions = ROLES.map((role) => ({
-  value: role,
-  label: parseRole(role),
-}));
+export const roleOptions = (
+  loggedUserRole: Role | undefined,
+): { label: string; value: string }[] => {
+  console.log("roleOptions called with loggedUserRole:", loggedUserRole);
+  switch (loggedUserRole) {
+    case "COORDINADOR":
+      return ROLES.map((role) => ({
+        value: role,
+        label: parseRole(role),
+      }));
+    case "SECRETARIO":
+      return ROLES.filter(
+        (role) =>
+          role === "ENCARGADO" || role === "COLABORADOR" || role === "SOCIO",
+      ).map((role) => ({
+        value: role,
+        label: parseRole(role),
+      }));
+    case "ENCARGADO":
+      return ROLES.filter(
+        (role) => role === "COLABORADOR" || role === "SOCIO",
+      ).map((role) => ({
+        value: role,
+        label: parseRole(role),
+      }));
+    case "COLABORADOR":
+      return ROLES.filter((role) => role === "SOCIO").map((role) => ({
+        value: role,
+        label: parseRole(role),
+      }));
+    default:
+      return [];
+  }
+};
+
+/**
+ * Compara dos roles y determina si el primer rol es de menor jerarquía que el segundo.
+ * @param roleA
+ * @param roleB
+ * @returns
+ */
+export function isLowerRole(roleA: Role, roleB: Role): boolean {
+  if (!roleA) return false;
+  const roleHierarchy: Record<Role, number> = {
+    COORDINADOR: 4,
+    SECRETARIO: 3,
+    ENCARGADO: 2,
+    COLABORADOR: 1,
+    SOCIO: 0,
+  };
+
+  return roleHierarchy[roleA] < roleHierarchy[roleB];
+}
 
 export const activeOptions = [
   { value: "true", label: "Activo" },

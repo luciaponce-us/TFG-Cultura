@@ -67,4 +67,13 @@ public class UsersExceptionHandler {
             usersLogger);
     }
 
+    @ExceptionHandler(RoleModificationNotAllowedException.class)
+    public ResponseEntity<ApiError> handleRoleModificationNotAllowedException(RoleModificationNotAllowedException ex) {
+        return apiErrorBuilder.build(
+            ex,
+            HttpStatus.FORBIDDEN,
+            "Role Modification Not Allowed",
+            usersLogger);
+        }
+
 }
