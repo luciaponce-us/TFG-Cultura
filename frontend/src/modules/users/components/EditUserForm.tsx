@@ -6,6 +6,7 @@ import {
   UploadBox,
   CustomAvatar,
   CustomSelect,
+  ConfirmDialog,
 } from "@/modules/core/components";
 import { IconEye, IconFileDollar } from "@tabler/icons-react";
 import { useParams } from "react-router-dom";
@@ -49,6 +50,8 @@ export function EditUserForm({ user }: { readonly user: User }) {
 
   const updateUserMutation = useUpdateUser();
   const updateAvatarMutation = useUpdateUserAvatar();
+  const [updateRoleConfirmationOpen, setUpdateRoleConfirmationOpen] =
+    useState(false);
 
   const [form, setForm] = useState<UserUpdateRequest>(() =>
     mapUserToUserUpdateRequest(user),
@@ -261,7 +264,13 @@ export function EditUserForm({ user }: { readonly user: User }) {
             </CustomButton>
           </HStack>
           <CustomButton
-            onClick={() => handleSubmit()}
+            onClick={() => {
+              if (form.role !== user.role) {
+                setUpdateRoleConfirmationOpen(true);
+              } else {
+                handleSubmit();
+              }
+            }}
             loading={updateUserMutation.isPending}
             disabled={updateUserMutation.isPending || !userIsLowerRole}
           >
@@ -269,6 +278,14 @@ export function EditUserForm({ user }: { readonly user: User }) {
           </CustomButton>
         </>
       )}
+
+      <ConfirmDialog
+        isOpen={updateRoleConfirmationOpen}
+        setIsOpen={setUpdateRoleConfirmationOpen}
+        handleAction={() => handleSubmit()}
+        title="Confirmar cambio de rol"
+        message={`¿Estás seguro de que deseas cambiar el rol del usuario? Esta acción puede afectar los permisos y el acceso del usuario. Al confirmar, cambiarás el rol de ${user.role} a ${form.role}.`}
+      />
     </VStack>
   );
 }
