@@ -73,6 +73,7 @@ class UserServiceTest {
     private UserService service;
 
     private User user;
+    private User currentUser;
     private UserResponse userResponse;
     private UserUpdateRequest updateRequest;
     private CustomUserDetails userDetails;
@@ -80,6 +81,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         user = UserFactory.validUser();
+        
         userResponse = UserFactory.validUserResponse();
         updateRequest = UserFactory.validUserUpdateRequest();
         userDetails = new CustomUserDetails(user);
@@ -95,13 +97,17 @@ class UserServiceTest {
     }
 
     private void mockAuthContext(boolean isAdmin) {
-        CustomUserDetails currentUser = isAdmin ? UserFactory.mockAuthContextAdmin() : UserFactory.mockAuthContext();
-        when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUser);
+        CustomUserDetails currentUserDetails = isAdmin ? UserFactory.mockAuthContextAdmin() : UserFactory.mockAuthContext();
+        when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUserDetails);
+    }
+
+    private void mockCurrentUser(boolean isAdmin) {
         if (isAdmin) {
-            user.setRole(Role.COORDINADOR);
+            currentUser = UserFactory.validCurrentUserWithRole(Role.COORDINADOR);
         } else {
-            user.setRole(Role.SOCIO);
+            currentUser = UserFactory.validCurrentUserWithRole(Role.SOCIO);
         }
+        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(currentUser));
     }
 
     private AppProperties createAppProperties() {
@@ -256,6 +262,7 @@ class UserServiceTest {
     @Test
     void should_update_user_dni_and_role_successfully_when_admin() {
         mockAuthContext(true);
+        mockCurrentUser(true);
         mockSaveUser();
 
         String newDni = "12345678A";
@@ -263,7 +270,6 @@ class UserServiceTest {
         updateRequest.setDni(newDni);
         updateRequest.setRole(newRole);
 
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
         when(userRepository.existsByDni(newDni)).thenReturn(false);
 
@@ -322,13 +328,14 @@ class UserServiceTest {
     @Test
     void should_throw_UserAlreadyExistsException_when_update_user_with_existing_dni() {
         mockAuthContext(true);
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        mockCurrentUser(true);
+
         String username = user.getUsername();
         String existingDni = "06323988T";
         updateRequest.setDni(existingDni);
         assertNotEquals(existingDni, user.getDni());
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(userRepository.existsByDni(existingDni)).thenReturn(true);
 
         UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
@@ -450,7 +457,9 @@ class UserServiceTest {
 
     @Test
     void should_delete_user_successfully() {
+        mockAuthContext(true);
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
         service.deleteUser(user.getUsername());
 
@@ -751,12 +760,19 @@ class UserServiceTest {
 
     @Test
     void should_return_user_response_when_toggle_activation_with_active_user() {
-        mockAuthContext(false);
+        mockAuthContext(true);
+        mockSaveUser();
+        User currentUser = UserFactory.validUser();
+        currentUser.setId("currentUserId");
+        currentUser.setRole(Role.COORDINADOR); // Usuario con rol superior
         user.setActive(true); // Usuario activo
         user.setId("otherId"); // Usuario distinto a sí mismo
+        user.setRole(Role.SOCIO); // Usuario con rol inferior
 
+        assertEquals(Role.COORDINADOR, currentUser.getRole());
+        assertEquals(Role.SOCIO, user.getRole());
+        when(userRepository.findById("currentUserId")).thenReturn(Optional.of(currentUser));
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UserResponse response = service.toggleUserActivation("testUser");
 
@@ -766,7 +782,8 @@ class UserServiceTest {
 
     @Test
     void should_return_user_response_when_toggle_activation_with_inactive_user() {
-        mockAuthContext(false);
+        mockAuthContext(true);
+        mockCurrentUser(true);
         user.setActive(false); // Usuario inactivo
         user.setId("otherId"); // Usuario distinto a sí mismo
 
@@ -782,7 +799,7 @@ class UserServiceTest {
 
     @Test
     void should_throw_exception_when_toggle_activation_unexisting_user() {
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+        mockAuthContext(true);
 
         UserNotFoundException ex = assertThrows(UserNotFoundException.class,
                 () -> service.toggleUserActivation("123"));
@@ -793,24 +810,23 @@ class UserServiceTest {
     @Test
     void should_throw_exception_when_user_toggles_activation_himself() {
         mockAuthContext(false);
-        user.setActive(true);
+        mockCurrentUser(false);
+        currentUser.setActive(true);
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(currentUser));
 
         assertThrows(SelfActivationNotAllowedException.class, () -> {
-            service.toggleUserActivation("123");
+            service.toggleUserActivation("currentUserId");
         });
     }
 
     @Test
     void should_throw_exception_when_toggling_activation_unathenticated() {
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-
         UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
             service.toggleUserActivation("123");
         });
 
-        assertTrue(ex.getMessage().contains("permiso"));
+        assertTrue(ex.getMessage().contains("autenticado"));
     }
 
     @Test
@@ -818,13 +834,11 @@ class UserServiceTest {
         SecurityContext context = mock(SecurityContext.class);
         SecurityContextHolder.setContext(context);
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-
         UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
             service.toggleUserActivation("123");
         });
 
-        assertTrue(ex.getMessage().contains("permiso"));
+        assertTrue(ex.getMessage().contains("autenticado"));
     }
 
 }
