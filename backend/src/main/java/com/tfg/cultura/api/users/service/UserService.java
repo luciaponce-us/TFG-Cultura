@@ -68,10 +68,6 @@ public class UserService {
 
     User getCurrentUser() throws UnathenticatedException, UserNotFoundException {
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        if (currentUser == null) {
-            logger.warn("Error al obtener el usuario actual: El usuario no está autenticado");
-            throw new UnathenticatedException("El usuario no está autenticado");
-        }
         return findUserById(currentUser.getId());
     }
 

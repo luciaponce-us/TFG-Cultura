@@ -861,15 +861,21 @@ class UserServiceTest {
 
     @Test
     void should_throw_exception_when_toggling_activation_unathenticated() {
+        when(userDetailsService.getCurrentUserDetails())
+        .thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
+
         UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
             service.toggleUserActivation("123");
         });
 
-        assertTrue(ex.getMessage().contains("autenticado"));
+        assertTrue(ex.getMessage().contains("autenticación"));
     }
 
     @Test
     void should_throw_exception_when_toggling_activation_and_no_user_details() {
+        when(userDetailsService.getCurrentUserDetails())
+        .thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
+
         SecurityContext context = mock(SecurityContext.class);
         SecurityContextHolder.setContext(context);
 
@@ -877,7 +883,7 @@ class UserServiceTest {
             service.toggleUserActivation("123");
         });
 
-        assertTrue(ex.getMessage().contains("autenticado"));
+        assertTrue(ex.getMessage().contains("autenticación"));
     }
 
     @Test
