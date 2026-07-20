@@ -17,10 +17,14 @@ import static org.mockito.Mockito.spy;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -81,7 +85,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         user = UserFactory.validUser();
-        
+
         userResponse = UserFactory.validUserResponse();
         updateRequest = UserFactory.validUserUpdateRequest();
         userDetails = new CustomUserDetails(user);
@@ -97,7 +101,8 @@ class UserServiceTest {
     }
 
     private void mockAuthContext(boolean isAdmin) {
-        CustomUserDetails currentUserDetails = isAdmin ? UserFactory.mockAuthContextAdmin() : UserFactory.mockAuthContext();
+        CustomUserDetails currentUserDetails = isAdmin ? UserFactory.mockAuthContextAdmin()
+                : UserFactory.mockAuthContext();
         when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUserDetails);
     }
 
@@ -356,6 +361,16 @@ class UserServiceTest {
         assertTrue(ex.getMessage().contains("No tienes permisos"));
     }
 
+    @Test
+    void saveUpdatedUser_when_user_is_null_should_throw_illegal_argument_exception() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.saveUpdatedUser(null));
+
+        assertEquals("El usuario no puede ser nulo", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
     // UPDATE ROLES
 
     @Test
@@ -474,6 +489,30 @@ class UserServiceTest {
                 () -> service.deleteUser("123"));
 
         assertTrue(ex.getMessage().contains("no existe"));
+    }
+
+    @Test
+    void deleteUser_when_target_user_has_same_or_higher_role_and_is_not_self_should_throw_unauthorized_exception()
+            throws Exception {
+
+        mockAuthContext(true);
+        mockCurrentUser(true);
+
+        currentUser.setRole(Role.SECRETARIO);
+
+        user.setId("otherUserId"); // No es el mismo usuario
+        user.setRole(Role.COORDINADOR); // Rol superior
+
+        when(userRepository.findByUsername(user.getUsername()))
+                .thenReturn(Optional.of(user));
+
+        UnauthorizedException exception = assertThrows(
+                UnauthorizedException.class,
+                () -> service.deleteUser(user.getUsername()));
+
+        assertEquals("No tienes permisos para eliminar este usuario.", exception.getMessage());
+
+        verify(userRepository, never()).delete(any());
     }
 
     // =================== PROFILE ===================
@@ -839,6 +878,75 @@ class UserServiceTest {
         });
 
         assertTrue(ex.getMessage().contains("autenticado"));
+    }
+
+    @Test
+    void toggleUserActivation_when_target_user_has_same_or_higher_role_should_throw_unauthorized_exception()
+            throws Exception {
+
+        mockAuthContext(true);
+        mockCurrentUser(true);
+
+        user.setId("otherId");
+        user.setRole(Role.COORDINADOR);
+
+        when(userRepository.findByUsername(currentUser.getUsername()))
+                .thenReturn(Optional.of(currentUser));
+        when(userRepository.findByUsername(user.getUsername()))
+                .thenReturn(Optional.of(user));
+
+        UnauthorizedException exception = assertThrows(
+                UnauthorizedException.class,
+                () -> service.toggleUserActivation(user.getUsername()));
+
+        assertEquals("No tienes permisos para actualizar este usuario.", exception.getMessage());
+
+        verify(userRepository, never()).save(any());
+    }
+
+    // IS SAME OR HIGHER ROLE
+
+    @ParameterizedTest
+    @MethodSource("sameOrHigherRoleProvider")
+    void isSameOrHigherRole_should_return_expected_result(Role role1, Role role2, boolean expected) {
+        assertEquals(expected, service.isSameOrHigherRole(role1, role2));
+    }
+
+    private static Stream<Arguments> sameOrHigherRoleProvider() {
+        return Stream.of(
+                // Same role
+                Arguments.of(Role.COORDINADOR, Role.COORDINADOR, true),
+                Arguments.of(Role.SECRETARIO, Role.SECRETARIO, true),
+                Arguments.of(Role.ENCARGADO, Role.ENCARGADO, true),
+                Arguments.of(Role.COLABORADOR, Role.COLABORADOR, true),
+                Arguments.of(Role.SOCIO, Role.SOCIO, true),
+
+                // Higher role
+                Arguments.of(Role.COORDINADOR, Role.SECRETARIO, true),
+                Arguments.of(Role.COORDINADOR, Role.ENCARGADO, true),
+                Arguments.of(Role.COORDINADOR, Role.COLABORADOR, true),
+                Arguments.of(Role.COORDINADOR, Role.SOCIO, true),
+
+                Arguments.of(Role.SECRETARIO, Role.ENCARGADO, true),
+                Arguments.of(Role.SECRETARIO, Role.COLABORADOR, true),
+                Arguments.of(Role.SECRETARIO, Role.SOCIO, true),
+
+                Arguments.of(Role.ENCARGADO, Role.COLABORADOR, true),
+                Arguments.of(Role.ENCARGADO, Role.SOCIO, true),
+
+                Arguments.of(Role.COLABORADOR, Role.SOCIO, true),
+
+                // Lower role
+                Arguments.of(Role.SECRETARIO, Role.COORDINADOR, false),
+                Arguments.of(Role.ENCARGADO, Role.COORDINADOR, false),
+                Arguments.of(Role.ENCARGADO, Role.SECRETARIO, false),
+                Arguments.of(Role.COLABORADOR, Role.COORDINADOR, false),
+                Arguments.of(Role.COLABORADOR, Role.SECRETARIO, false),
+                Arguments.of(Role.COLABORADOR, Role.ENCARGADO, false),
+                Arguments.of(Role.SOCIO, Role.COORDINADOR, false),
+                Arguments.of(Role.SOCIO, Role.SECRETARIO, false),
+                Arguments.of(Role.SOCIO, Role.ENCARGADO, false),
+                Arguments.of(Role.SOCIO, Role.COLABORADOR, false));
     }
 
 }
