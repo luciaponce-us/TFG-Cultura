@@ -236,13 +236,16 @@ boolean isSameOrHigherRole(Role role1, Role role2) {
 
     public UserResponse toggleUserActivation(String username) throws UserNotFoundException {
         User user = findUserByUsername(username);
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+        User currentUser = getCurrentUser();
 
-        if (currentUser == null) {
-            throw new UnathenticatedException("No tienes permisos para eliminar usuarios");
+
+        if(isSameOrHigherRole(user.getRole(),currentUser.getRole())) {
+            logger.warn("El usuario {} con rol {} ha intentado activar o desactivar un usuario con rol {}", currentUser.getUsername(), currentUser.getRole(), user.getRole());
+            throw new UnauthorizedException("No tienes permisos para actualizar este usuario.");
         }
 
-        if (user.getId().equals(currentUser.getId())) {
+        boolean isSelfActivation = user.getId().equals(currentUser.getId());
+        if (isSelfActivation) {
             throw new SelfActivationNotAllowedException(
                     String.format("El usuario %s con id %s ha intentado activar o desactivar su propio usuario", user.getUsername(),
                             user.getId()));
@@ -271,8 +274,16 @@ boolean isSameOrHigherRole(Role role1, Role role2) {
     }
 
     @Transactional
-    public void deleteUser(String username) throws UserNotFoundException {
+    public void deleteUser(String username) throws UserNotFoundException, UnathenticatedException, UnauthorizedException {
         User user = findUserByUsername(username);
+        User currentUser = getCurrentUser();
+
+        boolean isSelfDeletion = user.getId().equals(currentUser.getId());
+        if(isSameOrHigherRole(user.getRole(),currentUser.getRole()) && !isSelfDeletion) {
+            logger.warn("El usuario {} con rol {} ha intentado eliminar un usuario con rol {}", currentUser.getUsername(), currentUser.getRole(), user.getRole());
+            throw new UnauthorizedException("No tienes permisos para eliminar este usuario.");
+        }
+
         deleteUser(user);
     }
 
