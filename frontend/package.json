@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "standard-version": {
+    "infile": "../docs/CHANGELOG.md"
+  },
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
@@ -10,7 +13,7 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "release": "standard-version --skip.commit --skip.tag"
+    "release": "standard-version"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.35.0",
