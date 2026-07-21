@@ -12,11 +12,19 @@ export default function ProtectedRoute({
   children,
   allowedRoles,
 }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth();
-  console.log("Usuario actual:", user, "Cargando:", isLoading);
+  const { user, token } = useAuth();
+  console.log(
+    "ProtectedRoute - Accediendo a ruta protegida con el rol:",
+    user?.role,
+  );
+
+  // No autenticado
+  if (!token) {
+    return <Navigate to="/iniciar-sesion" />;
+  }
 
   // Mientras se carga el usuario
-  if (isLoading) {
+  if (!user) {
     return (
       <Flex
         bg="background"
@@ -32,11 +40,6 @@ export default function ProtectedRoute({
         <Spinner size="xl" borderWidth="4px" color="principal.800" />
       </Flex>
     );
-  }
-
-  // No autenticado
-  if (!user) {
-    return <Navigate to="/iniciar-sesion" />;
   }
 
   // No tiene rol suficiente

@@ -18,10 +18,6 @@ import com.tfg.cultura.api.suggestions.model.dto.SuggestionResponse;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.suggestions.service.SuggestionService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +26,11 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/suggestions")
 @Tag(name = "Suggestions", description = "Módulo de gestión de sugerencias")
-public class SuggestionController {
+public class SuggestionController implements SuggestionControllerInterface {
 
     private final SuggestionService service;
 
-    @Operation(summary = "Leer todas las sugerencias", description = "Como usuario, quiero poder leer todas las sugerencias realizadas por otros usuarios para conocer las necesidades y propuestas de la comunidad.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sugerencias obtenidas correctamente") })
+    @Override
     @GetMapping
     public ResponseEntity<Page<SuggestionResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
@@ -56,11 +50,7 @@ public class SuggestionController {
                 .body(response);
     }
 
-    @Operation(summary = "Leer sugerencia por ID", description = "Como usuario, quiero poder leer una sugerencia específica para conocer su contenido y los detalles de la misma.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sugerencia obtenida correctamente"),
-            @ApiResponse(responseCode = "404", description = "Sugerencia no encontrada")
-    })
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<SuggestionResponse> getById(@PathVariable String id) {
         SuggestionResponse response = service.getById(id);
@@ -69,13 +59,8 @@ public class SuggestionController {
                 .body(response);
     }
 
-    @Operation(summary = "RF-08: Realizar sugerencias", description = "Como usuario registrado, quiero poder escribir sugerencias para que la Delegación de Cultura tenga en cuenta mis necesidades a la hora de mejorar sus servicios.", security = @SecurityRequirement(name = "bearerAuth"))
+    @Override
     @PostMapping(value = "/create")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Sugerencia creada correctamente"),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
-            @ApiResponse(responseCode = "404", description = "Autor no encontrado")
-    })
     public ResponseEntity<SuggestionResponse> create(@Valid @RequestBody SuggestionCreateRequest request) {
         SuggestionResponse response = service.create(request);
         return ResponseEntity
@@ -83,45 +68,17 @@ public class SuggestionController {
                 .body(response);
     }
 
-    @Operation(summary = "RF-09: Apoyar sugerencias", description = "Como usuario registrado, quiero poder expresar que estoy de acuerdo con una sugerencia para que la sugerencia que apoyo sea tenida en cuenta con mayor prioridad.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sugerencia modificada correctamente"),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
-            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado"),
-            @ApiResponse(responseCode = "400", description = "No puedes apoyar esta sugerencia porque eres su autor (RN-06) o ya la apoyas")
-    })
-    @PutMapping("/{id}/support")
-    public ResponseEntity<SuggestionResponse> supportSuggestion(@PathVariable String id) {
-        SuggestionResponse response = service.supportSuggestion(id);
+    @Override
+    @PutMapping("/{id}/toggle-support")
+    public ResponseEntity<SuggestionResponse> toggleSupport(@PathVariable String id) {
+        SuggestionResponse response = service.toggleSupport(id);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
 
-    @Operation(summary = "Dejar de apoyar sugerencias", description = "Como usuario registrado, quiero poder expresar que ya no estoy de acuerdo con una sugerencia para cambiar de opinión.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sugerencia modificada correctamente"),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
-            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado"),
-            @ApiResponse(responseCode = "400", description = "Ya no apoyabas esta sugerencia")
-    })
-    @PutMapping("/{id}/support/stop")
-    public ResponseEntity<SuggestionResponse> stopSupportingSuggestion(@PathVariable String id) {
-        SuggestionResponse response = service.stopSupportingSuggestion(id);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
-    }
-
-    @Operation(summary = "Eliminar sugerencia", description = "Como usuario registrado, quiero poder eliminar una sugerencia que he realizado para retirar una propuesta que ya no considero relevante o adecuada.", security = @SecurityRequirement(name = "bearerAuth"))
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Sugerencia eliminada correctamente"),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
-            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado"),
-            @ApiResponse(responseCode = "401", description = "Usuario no autenticado")
-    })
+    @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         service.delete(id);

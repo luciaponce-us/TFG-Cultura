@@ -45,7 +45,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new CustomUserDetails(user);
     }
 
-    public CustomUserDetails getCurrentUserDetails() {
+    public CustomUserDetails getCurrentUserDetails() throws UnathenticatedException, UserNotFoundException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
             throw new UnathenticatedException("No se ha podido obtener la autenticación del usuario");

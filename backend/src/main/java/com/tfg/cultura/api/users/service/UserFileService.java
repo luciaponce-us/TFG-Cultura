@@ -23,6 +23,8 @@ public class UserFileService {
     public static final String PAYMENT_RECEIPT_PLACEHOLDER = "https://www.soundczech.cz/temp/lorem-ipsum.pdf";
     private static final String AVATAR_FOLDER = "cultura/avatars";
     private static final String PAYMENT_FOLDER = "cultura/payment_receipts";
+    private static final long MAX_AVATAR_SIZE_MB = 2;
+    private static final long MAX_PAYMENT_SIZE_MB = 2;
 
     String uploadAvatar(String userId, MultipartFile file) {
         try {
@@ -67,19 +69,13 @@ public class UserFileService {
     }
 
     void validateAvatar(MultipartFile avatar) {
-        if (avatar != null && !avatar.isEmpty()) {
+        if (avatar != null && !avatar.isEmpty()) { // El avatar es opcional
             String contentType = avatar.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
                 throw new IllegalArgumentException("El archivo de avatar debe ser una imagen");
             }
 
-            long maxMB = 2;
-            long maxSize = maxMB * 11048576;
-
-            if (avatar.getSize() > maxSize) {
-                throw new IllegalArgumentException("El archivo de avatar no puede superar los 2MB");
-            }
-
+            validateFileSize(avatar, MAX_AVATAR_SIZE_MB);
         }
     }
 
@@ -90,25 +86,23 @@ public class UserFileService {
         if (contentType == null || !contentType.equals("application/pdf")) {
             throw new IllegalArgumentException("El archivo de carta de pago debe ser un PDF");
         }
-        long maxMB = 2;
-        long maxSize = maxMB * 11048576;
-        if (pdf.getSize() > maxSize) {
-            throw new IllegalArgumentException("El archivo de carta de pago no puede superar los 2MB");
-        }
+        validateFileSize(pdf, MAX_PAYMENT_SIZE_MB);
     }
 
-    void deleteUserFiles(String avatarUrl, String paymentReceiptUrl) {
-        if (!avatarUrl.equals(AVATAR_PLACEHOLDER)) {
-            fileService.deleteFile(avatarUrl);
-        }
-        if(!paymentReceiptUrl.equals(PAYMENT_RECEIPT_PLACEHOLDER)) {
-            fileService.deleteFile(paymentReceiptUrl);
+    void validateFileSize(MultipartFile file, long maxMB) {
+        long maxSize = maxMB * 11048576;
+        if (file.getSize() > maxSize) {
+            throw new IllegalArgumentException(
+                    String.format("El archivo no puede superar los %dMB", maxMB));
         }
     }
 
     void deleteUserFile(String fileUrl) {
-        if (fileUrl != null && !fileUrl.isEmpty() && !fileUrl.equals(AVATAR_PLACEHOLDER)) {
-            fileService.deleteFile(fileUrl);
+        if(fileUrl != null && !fileUrl.isEmpty()) {
+            boolean isPlaceholder = fileUrl.equals(AVATAR_PLACEHOLDER) || fileUrl.equals(PAYMENT_RECEIPT_PLACEHOLDER);
+            if (!isPlaceholder) {
+                fileService.deleteFile(fileUrl);
+            }
         }
     }
 }

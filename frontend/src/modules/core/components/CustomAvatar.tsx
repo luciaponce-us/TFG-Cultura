@@ -20,7 +20,7 @@ export const CustomAvatar = ({
       </Avatar.Root>
     );
   }
-  console.log("CustomAvatar render with src:", src);
+
   return (
     <Avatar.Root {...props}>
       <Avatar.Fallback name={name} />

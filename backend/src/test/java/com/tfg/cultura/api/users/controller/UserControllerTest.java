@@ -39,9 +39,8 @@ class UserControllerTest extends BaseControllerTest {
 
     private static final String BASE_URL = "/api/users";
     private static final String USER_URL = BASE_URL + "/{username}";
-    private static final String ACTIVATE_URL = USER_URL + "/activate";
-        private static final String DEACTIVATE_URL = USER_URL + "/deactivate";
-        private static final String AVATAR_URL = USER_URL + "/avatar";
+    private static final String TOGGLE_ACTIVATION_URL = USER_URL + "/toggle-activation";
+    private static final String AVATAR_URL = USER_URL + "/avatar";
 
     private UserResponse userResponse;
     private UserUpdateRequest updateRequest;
@@ -92,8 +91,8 @@ class UserControllerTest extends BaseControllerTest {
                 .thenReturn(userResponse);
 
         mockMvc.perform(put(USER_URL, username)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(updateRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(updateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(username));
 
@@ -112,8 +111,8 @@ class UserControllerTest extends BaseControllerTest {
                 .thenThrow(new UserNotFoundException("Usuario no encontrado"));
 
         mockMvc.perform(put(USER_URL, username)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(request)))
                 .andExpect(status().isNotFound());
     }
 
@@ -129,8 +128,8 @@ class UserControllerTest extends BaseControllerTest {
                 .thenThrow(new UserAlreadyExistsException("Username en uso"));
 
         mockMvc.perform(put(USER_URL, username)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(request)))
                 .andExpect(status().isConflict());
     }
 
@@ -148,14 +147,14 @@ class UserControllerTest extends BaseControllerTest {
     @Test
     void should_return_404_when_delete_unexisting_user() throws Exception {
         doThrow(new UserNotFoundException("Usuario no encontrado"))
-            .when(userService).deleteUser(anyString());
+                .when(userService).deleteUser(anyString());
 
         mockMvc.perform(delete(USER_URL, "username"))
                 .andExpect(status().isNotFound());
-        
+
         verify(userService).deleteUser(anyString());
     }
-    
+
     // ================ GET ALL USERS ================
     @Test
     void should_return_paginated_users() throws Exception {
@@ -166,15 +165,14 @@ class UserControllerTest extends BaseControllerTest {
         Page<UserResponse> page = new PageImpl<>(
                 List.of(user1, user2),
                 PageRequest.of(0, 10),
-                2
-        );
+                2);
 
         when(userService.getAllUsers(0, 10, null, null, null)).thenReturn(page);
 
         mockMvc.perform(get(BASE_URL)
-                        .param("page", "0")
-                        .param("size", "10")
-                        .contentType(MediaType.APPLICATION_JSON))
+                .param("page", "0")
+                .param("size", "10")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content.length()").value(2))
@@ -192,19 +190,18 @@ class UserControllerTest extends BaseControllerTest {
         Page<UserResponse> page = new PageImpl<>(
                 List.of(user),
                 PageRequest.of(1, 5),
-                6
-        );
+                6);
 
         when(userService.getAllUsers(1, 5, Role.COLABORADOR, true, "Ana"))
                 .thenReturn(page);
 
         mockMvc.perform(get(BASE_URL)
-                        .param("page", "1")
-                        .param("size", "5")
-                        .param("role", "COLABORADOR")
-                        .param("active", "true")
-                        .param("name", "Ana")
-                        .contentType(MediaType.APPLICATION_JSON))
+                .param("page", "1")
+                .param("size", "5")
+                .param("role", "COLABORADOR")
+                .param("active", "true")
+                .param("name", "Ana")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content.length()").value(1))
@@ -215,73 +212,49 @@ class UserControllerTest extends BaseControllerTest {
         verify(userService).getAllUsers(1, 5, Role.COLABORADOR, true, "Ana");
     }
 
-    // ================ ACTIVATE USER ================
+    // ================ TOGGLE USER ACTIVATION ================
 
     @Test
-    void activate_user_sucess() throws Exception {
-        when(userService.activateUser(any())).thenReturn(userResponse);
+    void toggle_user_activation_success() throws Exception {
+        when(userService.toggleUserActivation(any())).thenReturn(userResponse);
 
-        mockMvc.perform(put(ACTIVATE_URL, "123"))
+        mockMvc.perform(put(TOGGLE_ACTIVATION_URL, "123"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
     }
 
     @Test
-    void activate_user_fail_unexisting_user() throws Exception {
+    void toggle_user_activation_fail_unexisting_user() throws Exception {
         String message = "El usuario con id 123 no existe";
         UserNotFoundException ex = new UserNotFoundException(message);
-        when(userService.activateUser(any())).thenThrow(ex);
+        when(userService.toggleUserActivation(any())).thenThrow(ex);
 
-        mockMvc.perform(put(ACTIVATE_URL, "123"))
+        mockMvc.perform(put(TOGGLE_ACTIVATION_URL, "123"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(message));
     }
 
     @Test
-    void activate_user_fail_self_activation() throws Exception {
+    void toggle_user_activation_fail_self_activation() throws Exception {
         String userId = "123";
         String message = String.format("El usuario %s con id %s ha intentado activar su propio usuario",
                 userResponse.getUsername(), userId);
         SelfActivationNotAllowedException ex = new SelfActivationNotAllowedException(message);
-        when(userService.activateUser(userId)).thenThrow(ex);
+        when(userService.toggleUserActivation(any())).thenThrow(ex);
 
-        mockMvc.perform(put(ACTIVATE_URL, userId))
+        mockMvc.perform(put(TOGGLE_ACTIVATION_URL, userId))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value(message));
     }
 
     @Test
-    void activate_user_fail_unathenticated() throws Exception {
+    void toggle_user_activation_fail_unauthenticated() throws Exception {
         String message = "No se ha podido obtener la autenticación del usuario";
         UnathenticatedException ex = new UnathenticatedException(message);
-        when(userService.activateUser(any())).thenThrow(ex);
+        when(userService.toggleUserActivation(any())).thenThrow(ex);
 
-        mockMvc.perform(put(ACTIVATE_URL, "123"))
+        mockMvc.perform(put(TOGGLE_ACTIVATION_URL, "123"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(message));
-    }
-
-    // ================ DEACTIVATE USER ================
-
-    @Test
-    void deactivate_user_success() throws Exception {
-        when(userService.deactivateUser(any())).thenReturn(userResponse);
-
-        mockMvc.perform(put(DEACTIVATE_URL, "123"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
-
-        verify(userService).deactivateUser(anyString());
-    }
-
-    @Test
-    void deactivate_user_fail_unexisting_user() throws Exception {
-        String message = "El usuario con id 123 no existe";
-        UserNotFoundException ex = new UserNotFoundException(message);
-        when(userService.deactivateUser(any())).thenThrow(ex);
-
-        mockMvc.perform(put(DEACTIVATE_URL, "123"))
-                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(message));
     }
 
@@ -293,19 +266,18 @@ class UserControllerTest extends BaseControllerTest {
                 "avatar",
                 "avatar.png",
                 MediaType.IMAGE_PNG_VALUE,
-                "image-content".getBytes()
-        );
+                "image-content".getBytes());
 
         when(userService.updateUserAvatar(anyString(), any()))
                 .thenReturn(userResponse);
 
         mockMvc.perform(multipart(AVATAR_URL, "username")
-                        .file(avatar)
-                        .with(request -> {
-                            request.setMethod("PUT");
-                            return request;
-                        })
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .file(avatar)
+                .with(request -> {
+                    request.setMethod("PUT");
+                    return request;
+                })
+                .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(userResponse.getUsername()));
 
@@ -318,20 +290,19 @@ class UserControllerTest extends BaseControllerTest {
                 "avatar",
                 "avatar.png",
                 MediaType.IMAGE_PNG_VALUE,
-                "image-content".getBytes()
-        );
+                "image-content".getBytes());
 
         String message = "Usuario no encontrado";
         when(userService.updateUserAvatar(anyString(), any()))
                 .thenThrow(new UserNotFoundException(message));
 
         mockMvc.perform(multipart(AVATAR_URL, "username")
-                        .file(avatar)
-                        .with(request -> {
-                            request.setMethod("PUT");
-                            return request;
-                        })
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .file(avatar)
+                .with(request -> {
+                    request.setMethod("PUT");
+                    return request;
+                })
+                .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(message));
     }

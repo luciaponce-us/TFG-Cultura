@@ -1,6 +1,8 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
-import type { ApiError } from "../types";
+import { ApiError } from "../types";
+import { useBreakpointValue } from "@chakra-ui/react/hooks";
+import { toaster } from "../components";
 
 export const jsonHeaders = { "Content-Type": "application/json" };
 export const authHeaders = (token: string) => ({
@@ -16,11 +18,11 @@ export async function handleResponse<T>(res: Response): Promise<T> {
 
     try {
       if (contentType.includes("application/json")) {
-        const data = await res.json();
+        const data: unknown = await res.json();
 
         if (typeof data === "object" && data !== null) {
           const d = data as Partial<ApiError>;
-          message = d.message || d.error || message;
+          message = d.message || message;
         }
       } else {
         const text = await res.text();
@@ -29,13 +31,7 @@ export async function handleResponse<T>(res: Response): Promise<T> {
     } catch {
       // ignore parsing errors
     }
-
-    const apiError: ApiError = {
-      timestamp: new Date().toISOString(),
-      status: res.status,
-      error: "Request failed",
-      message,
-    };
+    const apiError = new ApiError(message, res.status);
 
     throw apiError;
   }
@@ -63,16 +59,12 @@ export async function fetchWithTimeout(
     return await fetch(input, { ...init, signal: controller.signal });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      const apiError: ApiError = {
-        timestamp: new Date().toISOString(),
-        status: 500,
-        error: "Request failed",
-        message:
-          "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.",
-      };
-      throw apiError;
+      const message =
+        "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.";
+      throw new ApiError(message, 500);
+    } else {
+      throw error;
     }
-    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
@@ -88,6 +80,21 @@ export function isApiError(err: unknown): err is ApiError {
   );
 }
 
+export function isDeactivatedUserError(err: unknown): boolean {
+  if (!isApiError(err)) return false;
+  return err.status === 403 && err.message.includes("desactivado");
+}
+
+export function throwDeactivatedUserError(err: ApiError): void {
+  console.error("Error de autorización al eliminar sugerencia:", err.message);
+  toaster.create({
+    title: "No autorizado",
+    description:
+      "No tienes permiso para realizar esta acción. Tu usuario está desactivado.",
+    type: "error",
+  });
+}
+
 export const handleChange = <
   T extends object,
   E extends Partial<Record<keyof T, string>>,
@@ -101,7 +108,7 @@ export const handleChange = <
   setForm({
     ...form,
     [e.target.name]: e.target.value,
-  } as T);
+  });
 };
 
 export const handleSelectChange = <
@@ -118,5 +125,9 @@ export const handleSelectChange = <
   setForm({
     ...form,
     [name]: value[0],
-  } as T);
+  });
 };
+
+export function useIsMobile() {
+  return useBreakpointValue({ base: true, md: false });
+}

@@ -6,6 +6,7 @@ import {
   HStack,
   Checkbox,
   Link,
+  Field,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,89 +19,95 @@ import {
   TextSecondary,
   CustomInput,
   UploadBox,
+  toaster,
 } from "@/modules/core/components";
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from "@tabler/icons-react";
 import * as validation from "../validations/user.validations";
+import { MAX_LENGTH } from "../validations/user.validations";
 
 type RegistrationForm = UserRegisterRequest & {
   confirmPassword: string;
 };
 
-export default function RegistrationPage() {
+const defaultForm: RegistrationForm = {
+  username: "",
+  password: "",
+  name: "",
+  surname: "",
+  dni: "",
+  phone: "",
+  email: "",
+  confirmPassword: "",
+};
+
+const defaultErrors: Record<string, string> = {
+  username: "",
+  password: "",
+  name: "",
+  surname: "",
+  dni: "",
+  phone: "",
+  email: "",
+  general: "",
+  termsAccepted: "",
+  rulesAccepted: "",
+};
+
+export function RegistrationPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState<RegistrationForm>({
-    username: "",
-    password: "",
-    name: "",
-    surname: "",
-    dni: "",
-    phone: "",
-    email: "",
-    confirmPassword: "",
-  });
+
+  const [form, setForm] = useState<RegistrationForm>(defaultForm);
+  const [errors, setErrors] = useState<Record<string, string>>(defaultErrors);
   const [avatar, setAvatar] = useState<File | null>(null);
   const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [rulesAccepted, setRulesAccepted] = useState(false);
 
-  const [errors, setErrors] = useState<Record<string, string>>({
-    username: "",
-    password: "",
-    name: "",
-    surname: "",
-    dni: "",
-    phone: "",
-    email: "",
-    general: "",
-    termsAccepted: "",
-    rulesAccepted: "",
-  });
-
   const [step, setStep] = useState(1);
   const [loadingRegister, setLoadingRegister] = useState(false);
 
-  const handleSubmit = async () => {
-    setErrors({
-      username: "",
-      password: "",
-      name: "",
-      surname: "",
-      dni: "",
-      phone: "",
-      email: "",
-      general: paymentReceipt ? "" : "La carta de pago es obligatoria",
-      termsAccepted: termsAccepted
-        ? ""
-        : "Debes aceptar los términos y condiciones",
-      rulesAccepted: rulesAccepted ? "" : "Debes aceptar las normas de uso",
-    });
+  async function handleSubmit() {
+    setErrors(defaultErrors);
 
-    const isValid = validateStep2(form);
-    if (!isValid || !paymentReceipt) return;
+    const isValidStep1 = validateStep1(form) && paymentReceipt;
+    const isValidStep2 = validateStep2(form);
+    const isValid = isValidStep1 && isValidStep2;
+    if (!isValid) {
+      toaster.create({
+        title: "Error",
+        description: "Por favor corrige los errores en el formulario.",
+        type: "error",
+      });
+      return;
+    }
     try {
       setLoadingRegister(true);
       await registerUser(form, paymentReceipt, avatar || undefined);
       setStep(3);
-      setForm({
-        username: "",
-        password: "",
-        name: "",
-        surname: "",
-        dni: "",
-        phone: "",
-        email: "",
-        confirmPassword: "",
-      });
+      setForm(defaultForm);
     } catch (err) {
       console.error("Error al registrar usuario:", err);
-      if (isApiError(err))
-        setErrors({ ...errors, general: "Error: " + err.message });
+      if (isApiError(err)) {
+        if (err.message.includes("DNI")) {
+          setErrors({
+            ...errors,
+            dni: "El DNI ya está registrado",
+            general: "El DNI ya está registrado. Vuelve atrás para corregirlo.",
+          });
+        } else {
+          setErrors({
+            ...errors,
+            general:
+              "Ha ocurrido un error durante el registro. Inténtalo de nuevo más tarde.",
+          });
+        }
+      }
     } finally {
       setLoadingRegister(false);
     }
-  };
+  }
 
-  const validateStep1 = (form: RegistrationForm): boolean => {
+  function validateStep1(form: RegistrationForm): boolean {
     const newErrors = {
       name: validation.validateName(form.name),
       surname: validation.validateSurname(form.surname),
@@ -113,10 +120,18 @@ export default function RegistrationPage() {
     };
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
-    return !Object.values(newErrors).some((error) => error !== "");
-  };
+    const isValid = !Object.values(newErrors).some((error) => error !== "");
+    if (!isValid) {
+      toaster.create({
+        title: "Error",
+        description: "Por favor corrige los errores en el formulario.",
+        type: "error",
+      });
+    }
+    return isValid;
+  }
 
-  const validateStep2 = (form: RegistrationForm): boolean => {
+  function validateStep2(form: RegistrationForm): boolean {
     const newErrors = {
       username: validation.validateUsername(form.username),
       password: validation.validatePassword(
@@ -131,7 +146,7 @@ export default function RegistrationPage() {
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
     return !Object.values(newErrors).some((error) => error !== "");
-  };
+  }
 
   return (
     <Flex
@@ -162,6 +177,7 @@ export default function RegistrationPage() {
           </>
         )}
 
+        {/* ====== Paso 1 ====== */}
         {step === 1 && (
           <>
             <CustomInput
@@ -172,6 +188,7 @@ export default function RegistrationPage() {
               error={errors.name}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.name}
+              maxLength={MAX_LENGTH.NAME}
             />
             <CustomInput
               label="Apellidos"
@@ -181,6 +198,7 @@ export default function RegistrationPage() {
               error={errors.surname}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.surname}
+              maxLength={MAX_LENGTH.SURNAME}
             />
             <CustomInput
               label="DNI"
@@ -190,6 +208,8 @@ export default function RegistrationPage() {
               error={errors.dni}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.dni}
+              maxLength={MAX_LENGTH.DNI}
+              showMaxLength={false}
             />
 
             <UploadBox
@@ -200,62 +220,74 @@ export default function RegistrationPage() {
               }
               secondaryText="PDF, tamaño no superior a 2MB"
               fileType="application/pdf"
-              onFileChange={setPaymentReceipt}
+              onFileChange={(file) => {
+                setErrors((prev) => ({ ...prev, general: "" }));
+                setPaymentReceipt(file);
+              }}
+              disabled={loadingRegister}
             />
-            {paymentReceipt?.name && (
-              <Text fontSize="sm">Archivo subido: {paymentReceipt.name}</Text>
-            )}
-            <Checkbox.Root
-              required
-              checked={termsAccepted}
-              onCheckedChange={(e) => setTermsAccepted(!!e.checked)}
-              invalid={!!errors.termsAccepted}
-            >
-              <Checkbox.HiddenInput />
-              <Checkbox.Control />
-              <Checkbox.Label>
-                He leído y acepto los{" "}
-                <Link
-                  href="/terminos-de-uso"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="principal.500"
-                >
-                  Términos de Uso
-                </Link>{" "}
-                y la{" "}
-                <Link
-                  href="/politica-de-privacidad"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="principal.500"
-                >
-                  Política de Privacidad
-                </Link>
-                .
-              </Checkbox.Label>
-            </Checkbox.Root>
-            <Checkbox.Root
-              required
-              checked={rulesAccepted}
-              onCheckedChange={(e) => setRulesAccepted(!!e.checked)}
-              invalid={!!errors.rulesAccepted}
-            >
-              <Checkbox.HiddenInput />
-              <Checkbox.Control />
-              <Checkbox.Label>
-                He leído y acepto las{" "}
-                <Link
-                  href="/normas"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="principal.500"
-                >
-                  Normas de Uso
-                </Link>
-                .
-              </Checkbox.Label>
-            </Checkbox.Root>
+
+            <Field.Root invalid={!!errors.termsAccepted} required>
+              <Checkbox.Root
+                checked={termsAccepted}
+                onCheckedChange={(e) => {
+                  setErrors((prev) => ({ ...prev, termsAccepted: "" }));
+                  setTermsAccepted(!!e.checked);
+                }}
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label>
+                  He leído y acepto los{" "}
+                  <Link
+                    href="/terminos-de-uso"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="principal.500"
+                  >
+                    Términos de Uso
+                  </Link>{" "}
+                  y la{" "}
+                  <Link
+                    href="/politica-de-privacidad"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="principal.500"
+                  >
+                    Política de Privacidad
+                  </Link>
+                  .
+                </Checkbox.Label>
+              </Checkbox.Root>
+
+              <Field.ErrorText>{errors.termsAccepted}</Field.ErrorText>
+            </Field.Root>
+            <Field.Root invalid={!!errors.rulesAccepted} required>
+              <Checkbox.Root
+                checked={rulesAccepted}
+                onCheckedChange={(e) => {
+                  setErrors((prev) => ({ ...prev, rulesAccepted: "" }));
+                  setRulesAccepted(!!e.checked);
+                }}
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label>
+                  He leído y acepto las{" "}
+                  <Link
+                    href="/normas"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="principal.500"
+                  >
+                    Normas de Uso
+                  </Link>
+                  .
+                </Checkbox.Label>
+              </Checkbox.Root>
+
+              <Field.ErrorText>{errors.rulesAccepted}</Field.ErrorText>
+            </Field.Root>
             <CustomButton
               onClick={() => {
                 const isValid = validateStep1(form);
@@ -268,6 +300,8 @@ export default function RegistrationPage() {
             </CustomButton>
           </>
         )}
+
+        {/* ====== Paso 2 ====== */}
         {step == 2 && (
           <>
             <CustomInput
@@ -278,6 +312,7 @@ export default function RegistrationPage() {
               error={errors.username}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.username}
+              maxLength={MAX_LENGTH.USERNAME}
             />
             <CustomInput
               label="Contraseña"
@@ -287,6 +322,7 @@ export default function RegistrationPage() {
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               password={true}
               defaultValue={form.password}
+              maxLength={MAX_LENGTH.PASSWORD}
             />
             <CustomInput
               label="Confirma tu contraseña"
@@ -295,6 +331,7 @@ export default function RegistrationPage() {
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               password={true}
               defaultValue={form.confirmPassword}
+              maxLength={MAX_LENGTH.PASSWORD}
             />
             <CustomInput
               label="Correo electrónico"
@@ -303,6 +340,7 @@ export default function RegistrationPage() {
               error={errors.email}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.email}
+              maxLength={MAX_LENGTH.EMAIL}
             />
             <CustomInput
               label="Teléfono"
@@ -311,6 +349,7 @@ export default function RegistrationPage() {
               error={errors.phone}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               defaultValue={form.phone}
+              maxLength={MAX_LENGTH.PHONE}
             />
 
             <UploadBox
@@ -336,7 +375,10 @@ export default function RegistrationPage() {
               >
                 <IconArrowNarrowLeft stroke={2} /> Volver atrás
               </CustomButton>
-              <CustomButton onClick={handleSubmit} loading={loadingRegister}>
+              <CustomButton
+                onClick={() => void handleSubmit()}
+                loading={loadingRegister}
+              >
                 Registrarse
               </CustomButton>
             </HStack>
@@ -348,6 +390,8 @@ export default function RegistrationPage() {
             </TextSecondary>
           </>
         )}
+
+        {/* ====== Paso 3 ====== */}
         {step == 3 && (
           <>
             <CustomAlert
@@ -361,10 +405,10 @@ export default function RegistrationPage() {
               registro. <br />
               Muchas gracias por tu paciencia.
             </Text>
-            <CustomButton onClick={() => navigate("/iniciar-sesion")}>
+            <CustomButton onClick={() => void navigate("/iniciar-sesion")}>
               Intentar iniciar sesión ahora
             </CustomButton>
-            <CustomButton onClick={() => navigate("/")}>
+            <CustomButton onClick={() => void navigate("/")}>
               Volver al inicio
             </CustomButton>
           </>

@@ -1,10 +1,10 @@
-import type { User } from "@/modules/users/types";
 import { createContext } from "react";
+
+import type { User } from "@/modules/users/types";
 
 export interface AuthContextType {
   token: string | null;
-  user: User | null;
-  isLoading: boolean;
+  user: User | undefined;
   login: (jwt: string) => void;
   logout: () => void;
   setUser: (user: User | null) => void;

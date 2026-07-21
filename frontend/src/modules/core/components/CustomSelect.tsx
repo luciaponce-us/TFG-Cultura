@@ -17,6 +17,7 @@ export const CustomSelect = ({
   error,
   ...props
 }: CustomSelectProps) => {
+  console.log("CustomSelect options:", options); // Log the options to verify their structure
   const optionsList = createListCollection({ items: options });
 
   return (

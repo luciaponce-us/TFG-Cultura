@@ -1,0 +1,9 @@
+spring:
+  devtools:
+    restart:
+      enabled: true
+      # Solo recarga cuando guarda archivos (no por polling continuo)
+      poll-interval: 3000
+      quiet-period: 1000
+      # Excluye archivos que no requieren restart
+      exclude: static/**,public/**,templates/**

@@ -2,6 +2,72 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/luciaponce-us/TFG-Cultura/compare/v1.0.0...v1.1.0) (2026-07-21)
+
+
+### Features
+
+* :sparkles: add invalid role modifications ([9343fd2](https://github.com/luciaponce-us/TFG-Cultura/commit/9343fd2041c0cc5277f45a156ed51b3657578495)), closes [#82](https://github.com/luciaponce-us/TFG-Cultura/issues/82)
+* **backend:** :heavy_plus_sign: add React Query ([e9befd9](https://github.com/luciaponce-us/TFG-Cultura/commit/e9befd985d98d3cc6e90c53c889cf27cf01c0565))
+* **backend:** :memo: add SuggestionControllerInterface to split documentation and logic ([32a4aff](https://github.com/luciaponce-us/TFG-Cultura/commit/32a4aff980a5150d3b290cc0b985095c20f498e9))
+* **backend:** :sparkles: add csv file to users seeder ([d19224b](https://github.com/luciaponce-us/TFG-Cultura/commit/d19224b3208ddc9be3739f88106e82a7aeb2049c))
+* **backend:** :wrench: add configuration properties and change config to yml ([5c5b2c1](https://github.com/luciaponce-us/TFG-Cultura/commit/5c5b2c193204fdf7a215241a7a0e847e4216d272))
+* **frontend:** :children_crossing: make icons clickable at admin panel ([252152a](https://github.com/luciaponce-us/TFG-Cultura/commit/252152ae5f763e740d0674c731687b990ce07d5b))
+* **frontend:** :sparkles: add confirm dialog when deleting an user from the admin panel ([af7c979](https://github.com/luciaponce-us/TFG-Cultura/commit/af7c979a98e9d65d9671943d8a0e192695970a97))
+* **frontend:** :sparkles: add confirmation before changing a user's role ([95932dd](https://github.com/luciaponce-us/TFG-Cultura/commit/95932ddd6439e8a86d7b96208283c243c608ac16)), closes [#82](https://github.com/luciaponce-us/TFG-Cultura/issues/82)
+* **frontend:** :sparkles: add mobile menus and refactor Header ([5b50eeb](https://github.com/luciaponce-us/TFG-Cultura/commit/5b50eebfe8c9211fde80f939d3065fa1fea59963))
+* **frontend:** :sparkles: add pointer and hover effect to avatar menu ([26a119f](https://github.com/luciaponce-us/TFG-Cultura/commit/26a119f4578f9322979f8e44b1a4e63ddd635982))
+* **frontend:** :sparkles: add roles enum ([8d16c19](https://github.com/luciaponce-us/TFG-Cultura/commit/8d16c19fe4a5af1a32e3f58d2d6554c15a081f49))
+* **frontend:** :sparkles: add scroll up and log in with enter key to login screen ([1777277](https://github.com/luciaponce-us/TFG-Cultura/commit/1777277f395d14942542658c0c3d0f535e7c15bb)), closes [#27](https://github.com/luciaponce-us/TFG-Cultura/issues/27)
+* **frontend:** :sparkles: add timeout to dummy calls ([f04a2b4](https://github.com/luciaponce-us/TFG-Cultura/commit/f04a2b4e8059d0ab3e5867de561428601f7c1282))
+* **frontend:** :sparkles: change ApiError from interface to class ([8c5e5e9](https://github.com/luciaponce-us/TFG-Cultura/commit/8c5e5e96185d107d4a00efe21453b90805085977))
+* **frontend:** :sparkles: change html tags at create dialog to indicate that is a form ([e00c917](https://github.com/luciaponce-us/TFG-Cultura/commit/e00c917e109a60e7d4c747fb80affe3dbb9fd3e8))
+* **users:** :sparkles: prevent privilege escalation during user updates ([d7c92fe](https://github.com/luciaponce-us/TFG-Cultura/commit/d7c92fe394a1368617d6beee2b545c844fd8a5e8)), closes [#82](https://github.com/luciaponce-us/TFG-Cultura/issues/82)
+
+
+### Bug Fixes
+
+* :ambulance: return 403 when a deactivated user tries to access a protected route ([f475505](https://github.com/luciaponce-us/TFG-Cultura/commit/f475505f4b259d0abaafa14acb8ff5e2595e443e)), closes [#81](https://github.com/luciaponce-us/TFG-Cultura/issues/81)
+* :memo: fix changelog version ([49219da](https://github.com/luciaponce-us/TFG-Cultura/commit/49219dab9589caac483db308f140a880025a4970))
+* **backend:** :ambulance: fix pagination total elements when getting all suggestions with filters ([0c83786](https://github.com/luciaponce-us/TFG-Cultura/commit/0c83786c817263a367d5f595bf9d217555991023)), closes [#13](https://github.com/luciaponce-us/TFG-Cultura/issues/13)
+* **backend:** :bug: avoid serialization warnings at CustomUserDetails ([17ea7db](https://github.com/luciaponce-us/TFG-Cultura/commit/17ea7db1d4147ded8f3301ed20d94663a350a206))
+* **backend:** :bug: fix may expose internal representation by storing an externally mutable object ([fe5c503](https://github.com/luciaponce-us/TFG-Cultura/commit/fe5c5039dce5547f4cf9750f5bfecde0c35785f0))
+* **backend:** :bug: fix redundant null check at UserService and expose internal representation of adminRoles ([d7ebdb1](https://github.com/luciaponce-us/TFG-Cultura/commit/d7ebdb1a96e1dbf1bd4e2b7336a595283441ac72))
+* **backend:** :bug: fix redundant nullcheck of currentUser ([a929179](https://github.com/luciaponce-us/TFG-Cultura/commit/a9291797f7d5920bb100787a41c22561b584fa67))
+* **backend:** :bug: fix SpotBugs warnings in UserCsvParser ([1e788d8](https://github.com/luciaponce-us/TFG-Cultura/commit/1e788d84649e001ee69570d51acf8d6ab682c730))
+* **backend:** :bug: forbid activating, deactivating or deleting users with equal or higher roles ([abaa90e](https://github.com/luciaponce-us/TFG-Cultura/commit/abaa90eabcc4c30c76f62b9425d9b1fa4490f14b)), closes [#82](https://github.com/luciaponce-us/TFG-Cultura/issues/82)
+* **backend:** :bug: ignore may expose internal representation warnings at Spring Boot injections ([85bfd1b](https://github.com/luciaponce-us/TFG-Cultura/commit/85bfd1b09e1aa5c01815c7cfcddc12c98de7a17a))
+* **backend:** :bug: remove unused imports at DatabaseSeeder ([3134ab2](https://github.com/luciaponce-us/TFG-Cultura/commit/3134ab2614611c87ed5c7d98e66e406083da27a8))
+* **backend:** :bug: specify time zone when creating timestamps ([f45c87a](https://github.com/luciaponce-us/TFG-Cultura/commit/f45c87a0c5ab685329adb773d01e0303fb00597b))
+* **backend:** :fire: remove unused imports ([c2b1f12](https://github.com/luciaponce-us/TFG-Cultura/commit/c2b1f12298351c3caa0e79697fc03afa762605f4))
+* **devcontainer:** :technologist: remove unused vs code extensions and update package-lock.json ([96a3719](https://github.com/luciaponce-us/TFG-Cultura/commit/96a37194fd7e26d269ba3c6b74edc1f97fd797bb))
+* **docs:** :wrench: fix standard-version config ([e3ca064](https://github.com/luciaponce-us/TFG-Cultura/commit/e3ca0641781b58c79112a030a4d04d599f2bb02f))
+* **frontend:** :ambulance: change onChange type for text area inputs ([b022c83](https://github.com/luciaponce-us/TFG-Cultura/commit/b022c839e712a970531544c744fc661934a8cbd6))
+* **frontend:** :ambulance: fix protected routes authorization ([0a43802](https://github.com/luciaponce-us/TFG-Cultura/commit/0a43802a62d51da6cab6764ef85c44ec003d7962))
+* **frontend:** :ambulance: fix registration form validation ([a02cda1](https://github.com/luciaponce-us/TFG-Cultura/commit/a02cda108cbd0e96bb409ce0f8839fb2fabb15cd))
+* **frontend:** :ambulance: update form changes handler at login and registration pages ([5353936](https://github.com/luciaponce-us/TFG-Cultura/commit/5353936256144455f8d979eee8e8ea2f8ef72bbe))
+* **frontend:** :bug: add await invalidating queries on hooks ([3f64181](https://github.com/luciaponce-us/TFG-Cultura/commit/3f6418184a601c0112a0c7ae381e1705f97cf76c))
+* **frontend:** :bug: fix admin panel layout on mobile ([4814e61](https://github.com/luciaponce-us/TFG-Cultura/commit/4814e61ce7ff5d7c54761a4dc798038a5f78f465))
+* **frontend:** :bug: fix async call when fetching users at admin user page ([643e235](https://github.com/luciaponce-us/TFG-Cultura/commit/643e2359d8ecd60e052d14f39c4f76f82d2c7215))
+* **frontend:** :bug: fix delete password at edit profile page when empty password ([fc97ba2](https://github.com/luciaponce-us/TFG-Cultura/commit/fc97ba25380b015993ae569b2cacbe14360dbfda))
+* **frontend:** :bug: fix edit profile page overflow ([87b733b](https://github.com/luciaponce-us/TFG-Cultura/commit/87b733b3d5d75f3822d557007649bb08cab136d3))
+* **frontend:** :bug: fix error message when there are no errors when uploading a file ([0e65b01](https://github.com/luciaponce-us/TFG-Cultura/commit/0e65b01f3c4e82d64d895404fa2ddb2ff2795b1a))
+* **frontend:** :bug: fix eslint errors at AvatarMenu ([26a12bd](https://github.com/luciaponce-us/TFG-Cultura/commit/26a12bd46109f38c4cef2948ed1d029139f68167))
+* **frontend:** :bug: fix get suggestions query ([0679f7b](https://github.com/luciaponce-us/TFG-Cultura/commit/0679f7bd71d3de2062cfff8ade19e3164548fa28))
+* **frontend:** :bug: fix suggestion fetch and page size changed to 3 ([88547c3](https://github.com/luciaponce-us/TFG-Cultura/commit/88547c3d4b86be2afa8cf628b87ed017b147d1b8)), closes [#30](https://github.com/luciaponce-us/TFG-Cultura/issues/30)
+* **frontend:** :bug: fix suggestion page useEffect ([deea9b2](https://github.com/luciaponce-us/TFG-Cultura/commit/deea9b256170aba48521b435ff8ebc32a8296cb8))
+* **frontend:** :bug: fix suggestions text overflow ([aad6d46](https://github.com/luciaponce-us/TFG-Cultura/commit/aad6d46397bada07c103549db9298d783d086045))
+* **frontend:** :bug: fix width of admin users table and refactor admin users page ([cb4bd7c](https://github.com/luciaponce-us/TFG-Cultura/commit/cb4bd7c7f7650ce6f68fbfdd91b97edfda6e7281))
+* **frontend:** :bug: hide explicit errors from the user regarding backend and mongodb connections ([0910a76](https://github.com/luciaponce-us/TFG-Cultura/commit/0910a76afcbba7ff9d5e1eaafa95ada25be9a207))
+* **frontend:** :bug: remove active from user edit page in obtained form data ([331fe02](https://github.com/luciaponce-us/TFG-Cultura/commit/331fe0275be4168b7cd0545e8b7c65a4be24e4d6))
+* **frontend:** :fire: remove incorrect dev-watch command ([4b18114](https://github.com/luciaponce-us/TFG-Cultura/commit/4b1811427c8feea4949f239179e68e846d513f2c))
+* **frontend:** :fire: remove unused App.css ([3234472](https://github.com/luciaponce-us/TFG-Cultura/commit/32344721e868f6f7a774b44b43017ab1efa132ae))
+* **frontend:** :sparkles: control max length of inputs ([dd3df50](https://github.com/luciaponce-us/TFG-Cultura/commit/dd3df50f42f67fc240860c806fb36bf98a7e5578))
+* **frontend:** :zap: make backend and mongodb connection tests execute in parallel at home page ([c2be5bd](https://github.com/luciaponce-us/TFG-Cultura/commit/c2be5bd5169945462f640b897afebe41b6f18ba3))
+* **test:** :bug: use static Mockito imports ([38e49de](https://github.com/luciaponce-us/TFG-Cultura/commit/38e49de61f7250c9ccbc96c03d18eb41ce3b2a3e))
+* **test:** :white_check_mark: fix suggestion and user services tests ([b7e5549](https://github.com/luciaponce-us/TFG-Cultura/commit/b7e5549e9c99a84714f1cebf63b52c8955bb170e))
+* **workflows:** :ambulance: add compile project to SpotBugs CI ([858c2a9](https://github.com/luciaponce-us/TFG-Cultura/commit/858c2a96f30d8c7f6f991a6d6467d26f3511b1c6))
+
 ### 1.0.0 (2026-06-08)
 
 

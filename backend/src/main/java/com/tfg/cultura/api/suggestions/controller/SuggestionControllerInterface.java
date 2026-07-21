@@ -1,0 +1,63 @@
+package com.tfg.cultura.api.suggestions.controller;
+
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+
+import com.tfg.cultura.api.suggestions.model.dto.SuggestionCreateRequest;
+import com.tfg.cultura.api.suggestions.model.dto.SuggestionResponse;
+import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
+
+public interface SuggestionControllerInterface {
+
+    @Operation(summary = "Leer todas las sugerencias", description = "Como usuario, quiero poder leer todas las sugerencias realizadas por otros usuarios para conocer las necesidades y propuestas de la comunidad.")
+    @ApiResponse(responseCode = "200", description = "Sugerencias obtenidas correctamente")
+    public ResponseEntity<Page<SuggestionResponse>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) SuggestionType type,
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false, defaultValue = "false") Boolean orderByCreationDate,
+            @RequestParam(required = false) Boolean supportedByAdmins,
+            @RequestParam(required = false, defaultValue = "false") Boolean mySuggestions);
+
+    @Operation(summary = "Leer sugerencia por ID", description = "Como usuario, quiero poder leer una sugerencia específica para conocer su contenido y los detalles de la misma.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sugerencia obtenida correctamente"),
+            @ApiResponse(responseCode = "404", description = "Sugerencia no encontrada")
+    })
+    public ResponseEntity<SuggestionResponse> getById(@PathVariable String id);
+
+    @Operation(summary = "RF-08: Realizar sugerencias", description = "Como usuario registrado, quiero poder escribir sugerencias para que la Delegación de Cultura tenga en cuenta mis necesidades a la hora de mejorar sus servicios.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Sugerencia creada correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "404", description = "Autor no encontrado")
+    })
+    public ResponseEntity<SuggestionResponse> create(@Valid @RequestBody SuggestionCreateRequest request);
+
+    @Operation(summary = "RF-09: Apoyar o dejar de apoyar sugerencias", description = "Como usuario registrado, quiero poder expresar que estoy de acuerdo o que ya no estoy de acuerdo con una sugerencia, para que la sugerencia que apoyo sea tenida en cuenta con mayor prioridad.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sugerencia modificada correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado")
+    })
+    public ResponseEntity<SuggestionResponse> toggleSupport(@PathVariable String id);
+
+    @Operation(summary = "Eliminar sugerencia", description = "Como usuario registrado, quiero poder eliminar una sugerencia que he realizado para retirar una propuesta que ya no considero relevante o adecuada.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Sugerencia eliminada correctamente"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "404", description = "Sugerencia o autor no encontrado"),
+            @ApiResponse(responseCode = "401", description = "Usuario no autenticado")
+    })
+    public ResponseEntity<Void> delete(@PathVariable String id);
+}

@@ -1,0 +1,16 @@
+username,password,name,surname,dni,phone,email,role,paymentReceipt,active
+coordinador,cultura123,Álvaro,Coordinador,79840866T,+34600123456,coordinador@cultura.es,COORDINADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+secretario,cultura123,Aurora,Secretaria,02151955Y,+34600123457,secretario@cultura.es,SECRETARIO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+encargado,cultura123,Luis,Encargado,57132435K,+34600123458,encargado@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+colaborador,cultura123,Atenea,Colaboradora,50676378H,+34600123459,colaborador@cultura.es,COLABORADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+socio,cultura123,Lucía,Socia,42175814R,+34600123460,socio@cultura.es,SOCIO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+administrador,cultura123,Marcos,Reyes,23193146S,+34600123461,administrador@cultura.es,COORDINADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+tesorero,cultura123,Elena,Martín,72964086J,+34600123462,tesorero@cultura.es,SECRETARIO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+gestor,cultura123,David,Santos,83308407S,+34600123463,gestor@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+monitor,cultura123,Clara,Navarro,73918264J,+34600123464,monitor@cultura.es,COLABORADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+miembro,cultura123,Pedro,López,35629533A,+34600123465,miembro@cultura.es,SOCIO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+usuario1,cultura123,Sara,García,74754934N,+34600123466,usuario1@cultura.es,SOCIO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+usuario2,cultura123,Adrián,Romero,44208824H,+34600123467,usuario2@cultura.es,COLABORADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+usuario3,cultura123,Paula,Fernández,27552972F,+34600123468,usuario3@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+usuario4,cultura123,Iván,Ruiz,28021824G,+34600123469,usuario4@cultura.es,SECRETARIO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+usuario5,cultura123,Laura,Díaz,36822784Z,+34600123470,usuario5@cultura.es,SOCIO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true

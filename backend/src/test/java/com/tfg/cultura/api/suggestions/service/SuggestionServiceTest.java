@@ -1,9 +1,14 @@
 package com.tfg.cultura.api.suggestions.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -24,6 +29,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.suggestions.exception.*;
@@ -39,6 +45,7 @@ import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,47 +60,75 @@ class SuggestionServiceTest {
     @Mock
     private CustomUserDetailsService userDetailsService;
 
+    @Mock
+    private AppProperties appProperties;
+
     @InjectMocks
     private SuggestionService service;
 
     private SuggestionCreateRequest request;
     private Suggestion suggestion;
     private User user;
+    private User currentUser;
 
     @BeforeEach
     void setUp() {
         user = UserFactory.validUser();
+        currentUser = UserFactory.validCurrentUserWithRole(Role.SOCIO);
         suggestion = SuggestionFactory.validSuggestion();
         request = SuggestionFactory.validSuggestionCreateRequest();
     }
 
-    private void mockCurrentUser() {
-        CustomUserDetails currentUser = UserFactory.mockAuthContext();
-        when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUser);
+    private void mockAuthContext() {
+        CustomUserDetails currentUserDetails = UserFactory.mockAuthContext();
+        when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUserDetails);
+    }
+
+    private void mockSuggestionById(boolean empty){
+        when(repository.findById(anyString())).thenReturn(empty ? Optional.empty() : Optional.of(suggestion));
+    }
+
+    private void assertSuggestionResponse(SuggestionResponse response) {
+        assertNotNull(response);
+        assertEquals(suggestion.getTitle(), response.getTitle());
+        assertEquals(suggestion.getDescription(), response.getDescription());
+        assertEquals(suggestion.getType(), response.getType());
+        assertEquals(suggestion.getTotalSupporters(), response.getTotalSupporters());
     }
 
     // CREATE SUGGESTION
 
     @Test
     void should_return_suggestion_response_when_create_suggestion() {
-        mockCurrentUser();
+        mockAuthContext();
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(repository.save(any())).thenReturn(suggestion);
 
         SuggestionResponse response = service.create(request);
 
-        assertNotNull(response);
-        assertEquals(suggestion.getTitle(), response.getTitle());
-        assertEquals(suggestion.getTotalSupporters(), response.getTotalSupporters());
+        assertSuggestionResponse(response);
     }
 
     // GET ALL SUGGESTIONS WITH FILTERS
 
+    private Page<Suggestion> suggestionPage(int page, int size) {
+        return new PageImpl<>(
+                List.of(suggestion),
+                PageRequest.of(page, size),
+                1);
+    }
+
+    private Page<Suggestion> emptySuggestionPage(int page, int size) {
+        return new PageImpl<>(
+                List.of(),
+                PageRequest.of(page, size),
+                0);
+    }
+
     @Test
     void getAllWithFilters_should_return_page_when_no_filters() throws UserNotFoundException {
-        PageRequest pageable = PageRequest.of(0, 10);
-        Page<Suggestion> suggestions = new PageImpl<>(List.of(suggestion), pageable, 1);
-        when(repository.findAll(any(Pageable.class))).thenReturn(suggestions);
+        when(repository.findAll(any(Pageable.class)))
+                .thenReturn(suggestionPage(0, 10));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         Page<SuggestionResponse> responses = service.getAllWithFilters(null, null, false, null, null, 0, 10);
@@ -101,15 +136,13 @@ class SuggestionServiceTest {
         assertNotNull(responses);
         assertEquals(1, responses.getTotalElements());
         assertEquals(1, responses.getContent().size());
-        assertEquals(suggestion.getTitle(), responses.getContent().get(0).getTitle());
-        assertEquals(suggestion.getTotalSupporters(), responses.getContent().get(0).getTotalSupporters());
+        assertSuggestionResponse(responses.getContent().get(0));
     }
 
     @Test
     void getAllWithFilters_should_return_empty_page_if_no_suggestions() {
-        PageRequest pageable = PageRequest.of(0, 10);
-        Page<Suggestion> suggestions = new PageImpl<>(List.of(), pageable, 0);
-        when(repository.findAll(any(Pageable.class))).thenReturn(suggestions);
+        when(repository.findAll(any(Pageable.class)))
+                .thenReturn(emptySuggestionPage(0, 10));
 
         Page<SuggestionResponse> responses = service.getAllWithFilters(null, null, false, null, null, 0, 10);
 
@@ -120,9 +153,8 @@ class SuggestionServiceTest {
 
     @Test
     void getAllWithFilters_should_use_repository_filters() throws UserNotFoundException {
-        PageRequest pageable = PageRequest.of(0, 5);
-        Page<Suggestion> suggestions = new PageImpl<>(List.of(suggestion), pageable, 1);
-        when(repository.findAllWithFilters(any(), any(), any(), any(), any(Pageable.class))).thenReturn(suggestions);
+        when(repository.findAllWithFilters(any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(suggestionPage(0, 5));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         Page<SuggestionResponse> responses = service.getAllWithFilters(
@@ -137,7 +169,7 @@ class SuggestionServiceTest {
         assertNotNull(responses);
         assertEquals(1, responses.getTotalElements());
         assertEquals(1, responses.getContent().size());
-        assertEquals(suggestion.getTitle(), responses.getContent().get(0).getTitle());
+        assertSuggestionResponse(responses.getContent().get(0));
     }
 
     @Test
@@ -147,158 +179,110 @@ class SuggestionServiceTest {
         when(repository.findAll(any(Pageable.class))).thenReturn(suggestions);
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-        try {
-            service.getAllWithFilters(null, null, false, null, null, 0, 10);
-        } catch (Exception e) {
-            assertEquals(e.getClass(), UserNotFoundException.class);
-        }
+        assertThrows(
+                UserNotFoundException.class,
+                () -> service.getAllWithFilters(null, null, false, null, null, 0, 10));
     }
 
     // GET SUGGESTION BY ID
 
     @Test
     void getById_should_return_suggestion_response() throws SuggestionNotFoundException {
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         SuggestionResponse response = service.getById(suggestion.getId());
-        assertNotNull(response);
-        assertEquals(suggestion.getTitle(), response.getTitle());
-        assertEquals(suggestion.getDescription(), response.getDescription());
-        assertEquals(suggestion.getType(), response.getType());
+        assertSuggestionResponse(response);
     }
 
     @Test
     void getById_should_throw_SuggestionNotFoundException_if_suggestion_does_not_exists() {
-        when(repository.findById(any())).thenReturn(Optional.empty());
-        try {
-            service.getById(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SuggestionNotFoundException.class);
-        }
+        mockSuggestionById(true);
+        assertThrows(
+                SuggestionNotFoundException.class,
+                () -> service.getById("someSuggestionId"));
     }
 
     // SUPPORT SUGGESTIONS
 
     @Test
-    void supportSuggestion_success() throws Exception {
-        mockCurrentUser();
+    void toggleSupport_when_sugestion_not_supported_success() throws Exception {
+        mockAuthContext();
         suggestion.setAuthorId("otherAuthorId");
         suggestion.setSupportersId(new ArrayList<>());
+        suggestion.setTotalSupporters(0);
 
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
+        when(userRepository.findAllById(anyList()))
+                .thenReturn(List.of(currentUser));
         when(repository.save(any())).thenReturn(suggestion);
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-        when(userRepository.findAllById(any())).thenReturn(List.of(user));
+        when(userRepository.findById("otherAuthorId"))
+                .thenReturn(Optional.of(user));
+        assertEquals(0, suggestion.getTotalSupporters());
 
-        SuggestionResponse response = service.supportSuggestion(suggestion.getId());
-        List<String> supportersUsernames = response.getSupporters().stream().map(UserResponse::getUsername).toList();
+        SuggestionResponse response = service.toggleSupport(suggestion.getId());
 
         assertNotNull(response);
         assertEquals(1, response.getTotalSupporters());
-        assertTrue(supportersUsernames.contains(user.getUsername()));
+        assertEquals(1, response.getSupporters().size());
         verify(repository).save(suggestion);
-        assertTrue(suggestion.getSupportersId().contains(user.getId()));
+        assertTrue(suggestion.getSupportersId().contains(currentUser.getId()));
     }
 
     @Test
-    void supportSuggestion_alreadySupported() {
-        mockCurrentUser();
-        suggestion.getSupportersId().add(user.getId());
+    void toggleSupport_when_sugestion_supported_success() throws Exception {
+        mockAuthContext();
+        suggestion.setAuthorId("otherAuthorId");
+        assertNotEquals(suggestion.getAuthorId(), currentUser.getId());
+        suggestion.setSupportersId(new ArrayList<>(List.of(currentUser.getId())));
 
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        when(userRepository.findById("otherAuthorId")).thenReturn(Optional.of(user));
 
-        try {
-            service.supportSuggestion(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SuggestionAlreadySupportedException.class);
-            verify(repository, never()).save(any());
-        }
-    }
+        mockSuggestionById(false);
 
-    @Test
-    void supportSuggestion_selfSupport() {
-        mockCurrentUser();
-        // El autor de suggestion ya es currentUser
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        when(repository.save(any(Suggestion.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        try {
-            service.supportSuggestion(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SelfSupportSuggestionException.class);
-            verify(repository, never()).save(any());
-        }
-    }
+        SuggestionResponse response = service.toggleSupport(suggestion.getId());
+        List<UserResponse> supporters = response.getSupporters();
 
-    @Test
-    void supportSuggestion_notFound() {
-        mockCurrentUser();
-
-        when(repository.findById(any())).thenReturn(Optional.empty());
-
-        try {
-            service.supportSuggestion(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SuggestionNotFoundException.class);
-            verify(repository, never()).save(any());
-        }
-    }
-
-    // STOP SUPPORTING SUGGESTIONS
-
-    @Test
-    void stopSupportingSuggestion_success() {
-        mockCurrentUser();
-        List<String> supportersId = new ArrayList<>(List.of(user.getId()));
-        suggestion.setSupportersId(supportersId);
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
-        when(repository.save(any())).thenReturn(suggestion);
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-        when(userRepository.findAllById(any())).thenReturn(List.of());
-
-        SuggestionResponse response = service.stopSupportingSuggestion(suggestion.getId());
-
-        verify(repository).save(suggestion);
         assertNotNull(response);
         assertEquals(0, response.getTotalSupporters());
-        assertEquals(List.of(), response.getSupporters());
+        assertFalse(supporters.stream().map(UserResponse::getUsername).toList().contains(currentUser.getUsername()));
+        verify(repository).save(suggestion);
+        assertFalse(suggestion.getSupportersId().contains(currentUser.getId()));
     }
 
     @Test
-    void stopSupportingSuggestion_notFound() {
-        mockCurrentUser();
+    void toggleSupport_selfSupport() {
+        mockAuthContext();
+        suggestion.setAuthorId(currentUser.getId());
+        mockSuggestionById(false);
 
-        when(repository.findById(any())).thenReturn(Optional.empty());
-
-        try {
-            service.stopSupportingSuggestion(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SuggestionNotFoundException.class);
-            verify(repository, never()).save(any());
-        }
+        assertThrows(
+                SelfSupportSuggestionException.class,
+                () -> service.toggleSupport("someSuggestionId"));
+        verify(repository, never()).save(any());
     }
 
     @Test
-    void stopSupportingSuggestion_suggestionNotSupported() {
-        mockCurrentUser();
+    void toggleSupport_notFound() {
+        mockAuthContext();
+        mockSuggestionById(true);
 
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        assertThrows(
+                SuggestionNotFoundException.class,
+                () -> service.toggleSupport("someSuggestionId"));
 
-        try {
-            service.stopSupportingSuggestion(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SuggestionNotSupportedException.class);
-            verify(repository, never()).save(any());
-        }
+        verify(repository, never()).save(any());
     }
 
     // DELETE SUGGESTION
 
     @Test
     void deleteSuggestion_success() throws Exception {
-        mockCurrentUser();
-        suggestion.setAuthorId(user.getId());
+        mockAuthContext();
+        suggestion.setAuthorId(currentUser.getId());
 
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
         doNothing().when(repository).delete(any());
 
         service.delete(suggestion.getId());
@@ -306,43 +290,40 @@ class SuggestionServiceTest {
     }
 
     @Test
-    void deleteSuggestion_unauthorized() throws Exception {
-        mockCurrentUser();
+    void deleteSuggestion_unauthorized() {
+        mockAuthContext();
         suggestion.setAuthorId("otherAuthorId");
 
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
 
-        try {
-            service.delete(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), UnauthorizedException.class);
-            verify(repository, never()).delete(any());
-        }
+        assertThrows(
+                UnauthorizedException.class,
+                () -> service.delete("someSuggestionId"));
+        verify(repository, never()).delete(any());
     }
 
     @Test
-    void deleteSuggestion_notFound() throws Exception {
-        mockCurrentUser();
-        when(repository.findById(any())).thenReturn(Optional.empty());
+    void deleteSuggestion_notFound() {
+        mockAuthContext();
+        mockSuggestionById(true);
 
-        try {
-            service.delete(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), SuggestionNotFoundException.class);
-            verify(repository, never()).delete(any());
-        }
+        assertThrows(
+                SuggestionNotFoundException.class,
+                () -> service.delete("someSuggestionId"));
+
+        verify(repository, never()).delete(any());
     }
 
     @Test
     void deleteSuggestion_unauthenticated() throws Exception {
         when(userDetailsService.getCurrentUserDetails())
                 .thenThrow(new UnathenticatedException("User not authenticated"));
-        try {
-            service.delete(suggestion.getId());
-        } catch (Exception e) {
-            assertEquals(e.getClass(), UnathenticatedException.class);
-            verify(repository, never()).delete(any());
-        }
+
+        assertThrows(
+                UnathenticatedException.class,
+                () -> service.delete("someSuggestionId"));
+
+        verify(repository, never()).delete(any());
     }
 
 }

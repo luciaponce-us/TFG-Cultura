@@ -42,7 +42,5 @@ public class UserUpdateRequest {
     @Email(message = "El email no es válido")
     private String email;
 
-    private boolean active;
-
     private Role role;
 }
