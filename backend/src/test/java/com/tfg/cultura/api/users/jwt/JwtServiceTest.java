@@ -28,7 +28,7 @@ class JwtServiceTest {
     private String id;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         AppProperties appProperties = createAppProperties(SECRET, EXPIRATION);
 
         jwtService = new JwtService(appProperties);
@@ -82,15 +82,15 @@ class JwtServiceTest {
     }
 
     @Test
-    void should_detect_expired_token() throws Exception {
-        AppProperties appProperties = createAppProperties(SECRET, -1000L);
+    void should_detect_expired_token() {
+        AppProperties appPropertiesExpiredToken = createAppProperties(SECRET, -1000L);
 
-        JwtService jwtService = new JwtService(appProperties);
-        jwtService.init();
+        JwtService jwtServiceExpired = new JwtService(appPropertiesExpiredToken);
+        jwtServiceExpired.init();
 
-        String token = jwtService.generateToken(username, role, id);
+        String token = jwtServiceExpired.generateToken(username, role, id);
 
-        assertTrue(jwtService.isTokenExpired(token));
+        assertTrue(jwtServiceExpired.isTokenExpired(token));
     }
 
     @Test

@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
+import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.RoleModificationNotAllowedException;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
@@ -127,23 +128,15 @@ public class UserService {
             throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException,
             RoleModificationNotAllowedException, UnauthorizedException {
 
-        boolean isAdmin = appProperties.adminRoles().contains(currentUser.getRole());
-
-        boolean isSelfUpdate = currentUser.getId().equals(user.getId());
-        if (isSameOrHigherRole(user.getRole(), currentUser.getRole()) && !isSelfUpdate) {
-            logger.warn("El usuario {} con rol {} ha intentado actualizar un usuario con rol {}",
-                    currentUser.getUsername(), currentUser.getRole(), user.getRole());
-            throw new UnauthorizedException("No tienes permisos para actualizar este usuario.");
-        }
-
         logger.info("Se va a actualizar el usuario con username {}", user.getUsername());
 
         if (isChanged(request.getUsername(), user.getUsername())) {
             if (userRepository.existsByUsername(request.getUsername()))
                 throw new UserAlreadyExistsException("El username ya está en uso");
 
+            String newUsername = LoggerSanitizer.sanitize(request.getUsername());
+            logger.info("Se va a cambiar el username del usuario {} a {}", user.getUsername(), newUsername);
             user.setUsername(request.getUsername());
-            logger.info("Se ha cambiado el username del usuario a {}", user.getUsername());
         }
 
         if (isChanged(request.getName(), user.getName())) {
@@ -166,6 +159,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
+        boolean isAdmin = appProperties.adminRoles().contains(currentUser.getRole());
         if (isAdmin) {
             if (isChanged(request.getDni(), user.getDni())) {
                 if (userRepository.existsByDni(request.getDni()))
@@ -174,37 +168,61 @@ public class UserService {
                 user.setDni(request.getDni());
             }
 
-            boolean isRoleChanged = request.getRole() != null && request.getRole() != user.getRole();
-            if (isRoleChanged) {
-                if (currentUser.getRole() != Role.COORDINADOR) {
-
-                    boolean isSameRole = request.getRole() == currentUser.getRole();
-                    boolean isHigherRole = isSameOrHigherRole(request.getRole(), currentUser.getRole()) && !isSameRole;
-                    if (isSelfUpdate && isHigherRole) {
-                        logger.warn("El usuario {} con rol {} ha intentado actualizar su propio rol a {}",
-                                currentUser.getUsername(), currentUser.getRole(), request.getRole());
-                        throw new RoleModificationNotAllowedException("No puedes asignarte un rol superior al tuyo");
-                    }
-
-                    if (!isSelfUpdate && isSameOrHigherRole(request.getRole(), currentUser.getRole())) {
-                        logger.warn("El usuario {} con rol {} ha intentado actualizar el rol de otro usuario a {}",
-                                currentUser.getUsername(), currentUser.getRole(), request.getRole());
-                        throw new RoleModificationNotAllowedException(
-                                "No puedes asignar un rol igual o superior al tuyo");
-                    }
-                }
-
-                user.setRole(request.getRole());
-            }
+            updateUserRole(user, request.getRole(), currentUser);
         }
 
         return saveUpdatedUser(user);
+    }
+
+    void updateUserRole(User user, Role newRole, User currentUser)
+            throws RoleModificationNotAllowedException {
+
+        if (newRole == null || newRole == user.getRole()) {
+            return;
+        }
+
+        validateRoleUpdate(user, newRole, currentUser);
+        user.setRole(newRole);
+    }
+
+    private void validateRoleUpdate(User user, Role newRole, User currentUser)
+            throws RoleModificationNotAllowedException {
+
+        if (currentUser.getRole() == Role.COORDINADOR) {
+            return;
+        }
+
+        boolean isSelfUpdate = currentUser.getId().equals(user.getId());
+        boolean isSameOrHigherRole = isSameOrHigherRole(newRole, currentUser.getRole());
+        boolean isHigherRole = isSameOrHigherRole && newRole != currentUser.getRole();
+
+        if (isSelfUpdate && isHigherRole) {
+            logger.warn("El usuario {} con rol {} ha intentado actualizar su propio rol a {}",
+                    currentUser.getUsername(), currentUser.getRole(), newRole);
+            throw new RoleModificationNotAllowedException(
+                    "No puedes asignarte un rol superior al tuyo");
+        }
+
+        if (!isSelfUpdate && isSameOrHigherRole) {
+            logger.warn("El usuario {} con rol {} ha intentado actualizar el rol de otro usuario a {}",
+                    currentUser.getUsername(), currentUser.getRole(), newRole);
+            throw new RoleModificationNotAllowedException(
+                    "No puedes asignar un rol igual o superior al tuyo");
+        }
     }
 
     public UserResponse updateUser(String username, UserUpdateRequest request)
             throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
         User user = findUserByUsername(username);
         User currentUser = getCurrentUser();
+
+        boolean isSelfUpdate = currentUser.getId().equals(user.getId());
+        if (isSameOrHigherRole(user.getRole(), currentUser.getRole()) && !isSelfUpdate) {
+            logger.warn("El usuario {} con rol {} ha intentado actualizar un usuario con rol {}",
+                    currentUser.getUsername(), currentUser.getRole(), user.getRole());
+            throw new UnauthorizedException("No tienes permisos para actualizar este usuario.");
+        }
+
         return updateUser(user, request, currentUser);
     }
 
@@ -220,7 +238,8 @@ public class UserService {
             throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
         User savedUser = userRepository.save(user);
-        logger.info("Usuario con username {} actualizado correctamente", user.getUsername());
+        String username = LoggerSanitizer.sanitize(user.getUsername());
+        logger.info("Usuario con username {} actualizado correctamente", username);
         return new UserResponse(savedUser);
     }
 
@@ -246,7 +265,7 @@ public class UserService {
     public UserResponse toggleUserActivation(String username) throws UserNotFoundException, UnathenticatedException {
         User currentUser = getCurrentUser();
         User user = findUserByUsername(username);
-        
+
         boolean isSelfActivation = user.getId().equals(currentUser.getId());
         if (isSelfActivation) {
             throw new SelfActivationNotAllowedException(
@@ -261,11 +280,7 @@ public class UserService {
             throw new UnauthorizedException("No tienes permisos para actualizar este usuario.");
         }
 
-        if (user.isActive()) {
-            user.setActive(false);
-        } else {
-            user.setActive(true);
-        }
+        user.setActive(!user.isActive());
 
         logger.info("Se ha cambiado el estado de activación del usuario {} con id {} a {}", user.getUsername(),
                 user.getId(), user.isActive());
@@ -275,8 +290,9 @@ public class UserService {
 
     // DELETE
 
-    @Transactional
     void deleteUser(User user) {
+        // No es necesario que sea transaccional, ya que se llama desde métodos
+        // transaccionales
         userFileService.deleteUserFile(user.getAvatar());
         userFileService.deleteUserFile(user.getPaymentReceipt());
         suggestionRepository.deleteByAuthorId(user.getId());

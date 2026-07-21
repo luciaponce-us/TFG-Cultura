@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -81,6 +82,10 @@ class SuggestionServiceTest {
     private void mockAuthContext() {
         CustomUserDetails currentUserDetails = UserFactory.mockAuthContext();
         when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUserDetails);
+    }
+
+    private void mockSuggestionById(boolean empty){
+        when(repository.findById(anyString())).thenReturn(empty ? Optional.empty() : Optional.of(suggestion));
     }
 
     private void assertSuggestionResponse(SuggestionResponse response) {
@@ -183,7 +188,7 @@ class SuggestionServiceTest {
 
     @Test
     void getById_should_return_suggestion_response() throws SuggestionNotFoundException {
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         SuggestionResponse response = service.getById(suggestion.getId());
         assertSuggestionResponse(response);
@@ -191,10 +196,10 @@ class SuggestionServiceTest {
 
     @Test
     void getById_should_throw_SuggestionNotFoundException_if_suggestion_does_not_exists() {
-        when(repository.findById(any())).thenReturn(Optional.empty());
+        mockSuggestionById(true);
         assertThrows(
                 SuggestionNotFoundException.class,
-                () -> service.getById(suggestion.getId()));
+                () -> service.getById("someSuggestionId"));
     }
 
     // SUPPORT SUGGESTIONS
@@ -206,7 +211,7 @@ class SuggestionServiceTest {
         suggestion.setSupportersId(new ArrayList<>());
         suggestion.setTotalSupporters(0);
 
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
         when(userRepository.findAllById(anyList()))
                 .thenReturn(List.of(currentUser));
         when(repository.save(any())).thenReturn(suggestion);
@@ -232,7 +237,7 @@ class SuggestionServiceTest {
 
         when(userRepository.findById("otherAuthorId")).thenReturn(Optional.of(user));
 
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
 
         when(repository.save(any(Suggestion.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -250,23 +255,22 @@ class SuggestionServiceTest {
     void toggleSupport_selfSupport() {
         mockAuthContext();
         suggestion.setAuthorId(currentUser.getId());
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
 
         assertThrows(
                 SelfSupportSuggestionException.class,
-                () -> service.toggleSupport(suggestion.getId()));
+                () -> service.toggleSupport("someSuggestionId"));
         verify(repository, never()).save(any());
     }
 
     @Test
     void toggleSupport_notFound() {
         mockAuthContext();
-
-        when(repository.findById(any())).thenReturn(Optional.empty());
+        mockSuggestionById(true);
 
         assertThrows(
                 SuggestionNotFoundException.class,
-                () -> service.toggleSupport(suggestion.getId()));
+                () -> service.toggleSupport("someSuggestionId"));
 
         verify(repository, never()).save(any());
     }
@@ -278,7 +282,7 @@ class SuggestionServiceTest {
         mockAuthContext();
         suggestion.setAuthorId(currentUser.getId());
 
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
         doNothing().when(repository).delete(any());
 
         service.delete(suggestion.getId());
@@ -286,26 +290,27 @@ class SuggestionServiceTest {
     }
 
     @Test
-    void deleteSuggestion_unauthorized() throws Exception {
+    void deleteSuggestion_unauthorized() {
         mockAuthContext();
         suggestion.setAuthorId("otherAuthorId");
 
-        when(repository.findById(any())).thenReturn(Optional.of(suggestion));
+        mockSuggestionById(false);
 
         assertThrows(
                 UnauthorizedException.class,
-                () -> service.delete(suggestion.getId()));
+                () -> service.delete("someSuggestionId"));
         verify(repository, never()).delete(any());
     }
 
     @Test
-    void deleteSuggestion_notFound() throws Exception {
+    void deleteSuggestion_notFound() {
         mockAuthContext();
-        when(repository.findById(any())).thenReturn(Optional.empty());
+        mockSuggestionById(true);
 
         assertThrows(
                 SuggestionNotFoundException.class,
-                () -> service.delete(suggestion.getId()));
+                () -> service.delete("someSuggestionId"));
+
         verify(repository, never()).delete(any());
     }
 
@@ -313,9 +318,10 @@ class SuggestionServiceTest {
     void deleteSuggestion_unauthenticated() throws Exception {
         when(userDetailsService.getCurrentUserDetails())
                 .thenThrow(new UnathenticatedException("User not authenticated"));
+
         assertThrows(
                 UnathenticatedException.class,
-                () -> service.delete(suggestion.getId()));
+                () -> service.delete("someSuggestionId"));
 
         verify(repository, never()).delete(any());
     }

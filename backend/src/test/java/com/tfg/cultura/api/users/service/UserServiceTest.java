@@ -156,21 +156,21 @@ class UserServiceTest {
     @Test
     void should_return_current_user_successfully() throws Exception {
         mockAuthContext(false);
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(user));
+        CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
+        when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.of(user));
 
         User result = service.getCurrentUser();
 
         assertEquals(user, result);
-        verify(userRepository).findById(currentUser.getId());
+        verify(userRepository).findById(currentUserDetails.getId());
     }
 
     @Test
     void should_throw_exception_when_user_not_found_in_get_current_user() {
         mockAuthContext(false);
 
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.empty());
+        CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
+        when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class,
                 () -> service.getCurrentUser());
@@ -351,12 +351,15 @@ class UserServiceTest {
 
     @Test
     void should_throw_UnauthorizedException_when_update_user_with_higher_role() {
-        User currentUser = UserFactory.validUser2();
-        currentUser.setRole(Role.SOCIO); // Rol inferior al del usuario a actualizar
-        updateRequest.setRole(Role.COORDINADOR); // Rol superior al del usuario actual
+        mockAuthContext(false);
+        mockCurrentUser(false);
+        currentUser = UserFactory.validCurrentUserWithRole(Role.COLABORADOR);
+        user.setRole(Role.ENCARGADO); // Rol superior al del usuario actual
+        String username = user.getUsername();
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
         UnauthorizedException ex = assertThrows(UnauthorizedException.class,
-                () -> service.updateUser(user, updateRequest, currentUser));
+                () -> service.updateUser(username, updateRequest));
 
         assertTrue(ex.getMessage().contains("No tienes permisos"));
     }
@@ -376,69 +379,52 @@ class UserServiceTest {
     @Test
     void should_update_other_user_to_inferior_role() throws Exception {
         mockSaveUser();
-        User currentUser = UserFactory.validUser();
-        currentUser.setId("1");
-        currentUser.setRole(Role.SECRETARIO);
-
-        User user = UserFactory.validUser2();
-        user.setId("2");
-        user.setRole(Role.COLABORADOR);
+        currentUser = UserFactory.validCurrentUserWithRole(Role.COORDINADOR);
+        Role oldRole = Role.COLABORADOR;
+        user.setRole(oldRole);
+        Role requestedRole = Role.SOCIO;
 
         UserUpdateRequest request = UserFactory.validUserUpdateRequest();
-        request.setRole(Role.SOCIO);
+        request.setRole(requestedRole);
 
         service.updateUser(user, request, currentUser);
 
-        assertEquals(Role.SOCIO, user.getRole());
+        assertEquals(requestedRole, user.getRole());
     }
 
     @Test
     void should_throw_when_self_assigning_higher_role() {
-        User currentUser = UserFactory.validUser();
-        currentUser.setId("1");
-        currentUser.setRole(Role.SECRETARIO);
-
-        User user = UserFactory.validUser();
-        user.setId("1");
-        user.setRole(Role.SECRETARIO);
+        Role oldRole = Role.SECRETARIO;
+        currentUser = UserFactory.validCurrentUserWithRole(oldRole);
+        Role requestedRole = Role.COORDINADOR;
 
         UserUpdateRequest request = UserFactory.validUserUpdateRequest();
-        request.setRole(Role.COORDINADOR);
+        request.setRole(requestedRole);
 
         assertThrows(RoleModificationNotAllowedException.class,
-                () -> service.updateUser(user, request, currentUser));
+                () -> service.updateUser(currentUser, request, currentUser));
 
-        assertEquals(Role.SECRETARIO, user.getRole());
+        assertEquals(oldRole, currentUser.getRole());
     }
 
     @Test
     void should_allow_self_downgrade() throws Exception {
         mockSaveUser();
-        User currentUser = UserFactory.validUser();
-        currentUser.setId("1");
-        currentUser.setRole(Role.SECRETARIO);
-
-        User user = UserFactory.validUser();
-        user.setId("1");
-        user.setRole(Role.SECRETARIO);
+        currentUser = UserFactory.validCurrentUserWithRole(Role.COORDINADOR);
+        Role requestedRole = Role.SOCIO;
 
         UserUpdateRequest request = UserFactory.validUserUpdateRequest();
-        request.setRole(Role.ENCARGADO);
+        request.setRole(requestedRole);
 
-        service.updateUser(user, request, currentUser);
+        service.updateUser(currentUser, request, currentUser);
 
-        assertEquals(Role.ENCARGADO, user.getRole());
+        assertEquals(requestedRole, currentUser.getRole());
     }
 
     @Test
     void should_throw_when_assigning_same_role_to_other_user() {
-        User currentUser = UserFactory.validUser();
-        currentUser.setId("1");
-        currentUser.setRole(Role.SECRETARIO);
-
-        User user = UserFactory.validUser2();
-        user.setId("2");
-        user.setRole(Role.COLABORADOR);
+        currentUser = UserFactory.validCurrentUserWithRole(Role.SECRETARIO);
+        Role oldRole = user.getRole();
 
         UserUpdateRequest request = UserFactory.validUserUpdateRequest();
         request.setRole(Role.SECRETARIO);
@@ -446,18 +432,14 @@ class UserServiceTest {
         assertThrows(RoleModificationNotAllowedException.class,
                 () -> service.updateUser(user, request, currentUser));
 
-        assertEquals(Role.COLABORADOR, user.getRole());
+        Role newRole = user.getRole();
+        assertEquals(oldRole, newRole);
     }
 
     @Test
     void should_throw_when_assigning_higher_role_to_other_user() {
-        User currentUser = UserFactory.validUser();
-        currentUser.setId("1");
-        currentUser.setRole(Role.SECRETARIO);
-
-        User user = UserFactory.validUser2();
-        user.setId("2");
-        user.setRole(Role.COLABORADOR);
+        currentUser = UserFactory.validCurrentUserWithRole(Role.SECRETARIO);
+        Role oldRole = user.getRole();
 
         UserUpdateRequest request = UserFactory.validUserUpdateRequest();
         request.setRole(Role.COORDINADOR);
@@ -465,7 +447,8 @@ class UserServiceTest {
         assertThrows(RoleModificationNotAllowedException.class,
                 () -> service.updateUser(user, request, currentUser));
 
-        assertEquals(Role.COLABORADOR, user.getRole());
+        Role newRole = user.getRole();
+        assertEquals(oldRole, newRole);
     }
 
     // DELETE USER
@@ -492,8 +475,7 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteUser_when_target_user_has_same_or_higher_role_and_is_not_self_should_throw_unauthorized_exception()
-            throws Exception {
+    void deleteUser_when_target_user_has_same_or_higher_role_and_is_not_self_should_throw_unauthorized_exception() {
 
         mockAuthContext(true);
         mockCurrentUser(true);
@@ -506,9 +488,11 @@ class UserServiceTest {
         when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(Optional.of(user));
 
+        String username = user.getUsername();
+
         UnauthorizedException exception = assertThrows(
                 UnauthorizedException.class,
-                () -> service.deleteUser(user.getUsername()));
+                () -> service.deleteUser(username));
 
         assertEquals("No tienes permisos para eliminar este usuario.", exception.getMessage());
 
@@ -787,8 +771,8 @@ class UserServiceTest {
         MultipartFile avatar = mock(MultipartFile.class);
         mockAuthContext(false);
 
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.empty());
+        CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
+        when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UserNotFoundException.class,
@@ -800,16 +784,13 @@ class UserServiceTest {
     @Test
     void should_return_user_response_when_toggle_activation_with_active_user() {
         mockAuthContext(true);
+        mockCurrentUser(true); // Rol COORDINADOR
         mockSaveUser();
-        User currentUser = UserFactory.validUser();
-        currentUser.setId("currentUserId");
-        currentUser.setRole(Role.COORDINADOR); // Usuario con rol superior
-        user.setActive(true); // Usuario activo
-        user.setId("otherId"); // Usuario distinto a sí mismo
-        user.setRole(Role.SOCIO); // Usuario con rol inferior
 
         assertEquals(Role.COORDINADOR, currentUser.getRole());
         assertEquals(Role.SOCIO, user.getRole());
+        assertTrue(user.isActive());
+        assertNotEquals(currentUser.getId(), user.getId()); // Asegurarse de que no es el mismo usuario
         when(userRepository.findById("currentUserId")).thenReturn(Optional.of(currentUser));
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
 
@@ -862,7 +843,7 @@ class UserServiceTest {
     @Test
     void should_throw_exception_when_toggling_activation_unathenticated() {
         when(userDetailsService.getCurrentUserDetails())
-        .thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
+                .thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
 
         UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
             service.toggleUserActivation("123");
@@ -874,7 +855,7 @@ class UserServiceTest {
     @Test
     void should_throw_exception_when_toggling_activation_and_no_user_details() {
         when(userDetailsService.getCurrentUserDetails())
-        .thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
+                .thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
 
         SecurityContext context = mock(SecurityContext.class);
         SecurityContextHolder.setContext(context);
@@ -887,8 +868,7 @@ class UserServiceTest {
     }
 
     @Test
-    void toggleUserActivation_when_target_user_has_same_or_higher_role_should_throw_unauthorized_exception()
-            throws Exception {
+    void toggleUserActivation_when_target_user_has_same_or_higher_role_should_throw_unauthorized_exception() {
 
         mockAuthContext(true);
         mockCurrentUser(true);
@@ -901,9 +881,11 @@ class UserServiceTest {
         when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(Optional.of(user));
 
+        String username = user.getUsername();
+
         UnauthorizedException exception = assertThrows(
                 UnauthorizedException.class,
-                () -> service.toggleUserActivation(user.getUsername()));
+                () -> service.toggleUserActivation(username));
 
         assertEquals("No tienes permisos para actualizar este usuario.", exception.getMessage());
 

@@ -37,13 +37,11 @@ public class UserCsvParser {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is, StandardCharsets.UTF_8));) {
 
-            List<User> users = reader.lines()
+            return reader.lines()
                     .skip(1) // header
                     .map(this::mapLineToUser)
                     .map(this::toUser)
                     .toList();
-
-            return users;
 
         } catch (IOException e) {
             throw new IllegalStateException("Error leyendo users.csv", e);
@@ -53,7 +51,7 @@ public class UserCsvParser {
     private UserCsvRow mapLineToUser(String line) {
         String[] parts = line.split(",");
 
-        UserCsvRow u = UserCsvRow.builder()
+        return UserCsvRow.builder()
                 .username(parts[0])
                 .password(parts[1])
                 .name(parts[2])
@@ -65,8 +63,6 @@ public class UserCsvParser {
                 .paymentReceipt(parts[8])
                 .active(Boolean.parseBoolean(parts[9]))
                 .build();
-
-        return u;
     }
 
     private User toUser(UserCsvRow row) {
