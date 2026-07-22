@@ -11,23 +11,28 @@ import com.tfg.cultura.api.users.model.enumerators.Role;
 public class SectionFactory {
 
     public static Section validSection() {
-        return Section.builder()
-                .id("section_id")
-                .name("Test Section")
-                .build();
-    }
-
-    public static SectionCreateRequest validSectionCreateRequest() {
         User manager = UserFactory.validUser();
         manager.setRole(Role.ENCARGADO);
 
         User collaborator = UserFactory.validUser2();
         collaborator.setRole(Role.COLABORADOR);
 
-        return SectionCreateRequest.builder()
+        return Section.builder()
+                .id("section_id")
                 .name("Test Section")
-                .managersUsernames(List.of(manager.getUsername()))
-                .collaboratorsUsernames(List.of(collaborator.getUsername()))
+                .managers(List.of(manager))
+                .collaborators(List.of(collaborator))
+                .build();
+    }
+
+    public static SectionCreateRequest validSectionCreateRequest(Section section) {
+        String managerUsername = section.getManagers().getFirst().getUsername();
+        String collaboratorUsername = section.getCollaborators().getFirst().getUsername();
+
+        return SectionCreateRequest.builder()
+                .name(section.getName())
+                .managersUsernames(List.of(managerUsername))
+                .collaboratorsUsernames(List.of(collaboratorUsername))
                 .build();
     }
     

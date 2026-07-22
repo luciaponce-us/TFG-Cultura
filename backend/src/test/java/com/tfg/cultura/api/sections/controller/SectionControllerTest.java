@@ -46,11 +46,11 @@ public class SectionControllerTest extends BaseControllerTest {
 
     void initTestData() {
         section = SectionFactory.validSection();
-        sectionCreateRequest = SectionFactory.validSectionCreateRequest();
+        sectionCreateRequest = SectionFactory.validSectionCreateRequest(section);
         sectionResponse = new SectionResponse(section);
     }
 
-    // ==================================== CREATION ====================================
+    // ====================== CREATION ======================
 
     // ✅​ 201 - Created
     @Test
