@@ -63,6 +63,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/users", "/api/users/**").hasAnyRole(adminRoles)
                 // Suggestions
                 .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
+                // Sections
+                .requestMatchers(HttpMethod.GET, "/api/sections").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/sections").permitAll() // TODO: Cambiar a hasAnyRole(adminRoles) cuando se implemente la creación de secciones
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

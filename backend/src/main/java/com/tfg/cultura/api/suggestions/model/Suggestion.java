@@ -45,7 +45,7 @@ public class Suggestion {
 
     @Builder.Default
     @NotNull
-    private List<String> supportersId = new ArrayList<>();
+    private List<String> supportersId = new ArrayList<>(); // TODO: Cambiar a @DocumentReference
 
     @Builder.Default
     @NotNull

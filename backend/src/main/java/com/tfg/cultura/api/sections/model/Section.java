@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import com.tfg.cultura.api.users.model.User;
 
@@ -35,10 +36,12 @@ public class Section {
 
     @Builder.Default
     @NotNull
+    @DocumentReference
     private List<User> managers = new ArrayList<>(); // Encargados de la sección
 
     @Builder.Default
     @NotNull
+    @DocumentReference
     private List<User> collaborators = new ArrayList<>(); // Colaboradores de la sección
 
     @CreatedDate

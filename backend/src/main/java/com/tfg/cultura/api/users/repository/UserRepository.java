@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.users.repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -13,6 +15,7 @@ public interface UserRepository extends MongoRepository<User, String>, UserRepos
     boolean existsByDni(String dni);
 
     Optional<User> findByUsername(String username);
+    List<User> findByUsernameIn(Collection<String> usernames);
     
     Page<User> findAll(Pageable pageable);
 }
