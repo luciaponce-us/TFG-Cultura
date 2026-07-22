@@ -1,12 +1,17 @@
 package com.tfg.cultura.api.users.service;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,6 +125,25 @@ public class UserService {
     public UserResponse getProfile() throws UserNotFoundException, UnathenticatedException {
         User currentUser = getCurrentUser();
         return new UserResponse(currentUser);
+    }
+
+    public Map<String, User> getUsersByUsernames(Collection<String> usernames) {
+        List<User> users = userRepository.findByUsernameIn(usernames);
+
+        Map<String, User> usersByUsername = users.stream()
+                .collect(Collectors.toMap(User::getUsername, Function.identity()));
+
+        List<String> missingUsernames = usernames.stream()
+                .filter(username -> !usersByUsername.containsKey(username))
+                .toList();
+
+        if (!missingUsernames.isEmpty()) {
+            logger.error("Los siguientes usuarios no existen: {}", missingUsernames);
+            throw new UserNotFoundException(
+                    "Los siguientes usuarios no existen: " + missingUsernames);
+        }
+
+        return usersByUsername;
     }
 
     // UPDATE

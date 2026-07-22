@@ -26,7 +26,9 @@ public class SectionController {
     @PostMapping
     public ResponseEntity<SectionResponse> createSection(@Valid @RequestBody SectionCreateRequest request) {
         SectionResponse response = sectionService.createSection(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
-    
+
 }
