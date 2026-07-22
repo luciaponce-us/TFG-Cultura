@@ -14,3 +14,15 @@ usuario2,cultura123,Adrián,Romero,44208824H,+34600123467,usuario2@cultura.es,CO
 usuario3,cultura123,Paula,Fernández,27552972F,+34600123468,usuario3@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
 usuario4,cultura123,Iván,Ruiz,28021824G,+34600123469,usuario4@cultura.es,SECRETARIO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
 usuario5,cultura123,Laura,Díaz,36822784Z,+34600123470,usuario5@cultura.es,SOCIO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+encargado_arte,cultura123,Encargado,Arte,79840866T,+34600123456,encargado.arte@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+encargado_informatica,cultura123,Encargado,Informática,79840866T,+34600123456,encargado.informatica@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+encargado_juegos,cultura123,Encargado,Juegos de mesa,79840866T,+34600123456,encargado.juegos@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+encargado_libros,cultura123,Encargado,Libros,79840866T,+34600123456,encargado.libros@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+encargado_mangas,cultura123,Encargado,Mangas y cómics,79840866T,+34600123456,encargado.mangas@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+encargado_rol,cultura123,Encargado,Rol,79840866T,+34600123456,encargado.rol@cultura.es,ENCARGADO,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+colaborador_arte,cultura123,Colaborador,Arte,50676378H,+34600123459,colaborador.arte@cultura.es,COLABORADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+colaborador_informatica,cultura123,Colaborador,Informática,50676378H,+34600123459,colaborador.informatica@cultura.es,COLABORADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+colaborador_juegos,cultura123,Colaborador,Juegos de mesa,50676378H,+34600123459,colaborador.juegos@cultura.es,COLABORADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+colaborador_libros,cultura123,Colaborador,Libros,50676378H,+34600123459,colaborador.libros@cultura.es,COLABORADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+colaborador_mangas,cultura123,Colaborador,Mangas y cómics,50676378H,+34600123459,colaborador.mangas@cultura.es,COLABORADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true
+colaborador_rol,cultura123,Colaborador,Rol,50676378H,+34600123459,colaborador.rol@cultura.es,COLABORADOR,https://www.soundczech.cz/temp/lorem-ipsum.pdf,true

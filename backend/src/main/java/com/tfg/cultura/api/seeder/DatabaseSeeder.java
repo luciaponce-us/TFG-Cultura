@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.tfg.cultura.api.sections.model.Section;
+import com.tfg.cultura.api.seeder.parser.SectionsCsvParser;
 import com.tfg.cultura.api.seeder.parser.UserCsvParser;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
@@ -15,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +52,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         List<User> usuarios = seedUsuarios();
         seedSugerencias(usuarios);
+        seedSections(usuarios);
 
         logger.info("💾 Todos los datos se han guardado correctamente");
     }
@@ -67,7 +73,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         List<User> usersFromCsv = new UserCsvParser(passwordEncoder).loadUsersFromCsv();
 
         Collection<User> users = mongoTemplate.insertAll(usersFromCsv);
-        
+
         logger.info("✅👥 Insertados {} usuarios", users.size());
         return users.stream().toList();
     }
@@ -131,4 +137,17 @@ public class DatabaseSeeder implements CommandLineRunner {
         logger.info("✅💡 Insertadas {} sugerencias", sugerencias.size());
     }
 
+    private void seedSections(List<User> usuarios) {
+        logger.info("📚 Creando colección: sections");
+
+        Map<String, User> usersByUsername = usuarios.stream()
+                .collect(Collectors.toMap(
+                        User::getUsername,
+                        Function.identity()));
+
+        List<Section> sectionsFromCsv = new SectionsCsvParser().loadSectionsFromCsv(usersByUsername);
+
+        Collection<Section> sections = mongoTemplate.insertAll(sectionsFromCsv);
+        logger.info("✅📚 Insertadas {} secciones", sections.size());
+    }
 }
