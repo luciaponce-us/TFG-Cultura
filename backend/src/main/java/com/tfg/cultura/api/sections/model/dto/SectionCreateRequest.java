@@ -1,7 +1,7 @@
 package com.tfg.cultura.api.sections.model.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,10 +25,10 @@ public class SectionCreateRequest {
 
     @NotNull
     @Size(min = 1, message = "La sección debe tener al menos un encargado")
-    private List<String> managersUsernames; // Encargados de la sección
+    private Set<String> managersUsernames; // Encargados de la sección
 
     @Builder.Default
     @NotNull
-    private List<String> collaboratorsUsernames = new ArrayList<>(); // Colaboradores de la sección
-    
+    private Set<String> collaboratorsUsernames = new HashSet<>(); // Colaboradores de la sección
+
 }

@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -73,7 +75,7 @@ public class SectionsCsvParser {
                 .build();
     }
 
-    private List<User> getUsers(
+    private Set<User> getUsers(
             List<String> usernames,
             Map<String, User> usersByUsername) {
 
@@ -88,6 +90,6 @@ public class SectionsCsvParser {
 
                     return user;
                 })
-                .toList();
+                .collect(Collectors.toSet());
     }
 }

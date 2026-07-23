@@ -93,7 +93,8 @@ public class SectionControllerTest extends BaseControllerTest {
 	void should_return_bad_request_when_manager_role_is_invalid() throws Exception {
 		when(sectionService.createSection(any()))
 				.thenThrow(new InvalidManagerRoleException(
-						sectionCreateRequest.getManagersUsernames().getFirst()));
+						sectionCreateRequest.getManagersUsernames().stream()
+								.findFirst().get()));
 
 		mockMvc.perform(post(BASE_URL)
 				.contentType(MediaType.APPLICATION_JSON)
@@ -109,7 +110,8 @@ public class SectionControllerTest extends BaseControllerTest {
 	void should_return_bad_request_when_collaborator_role_is_invalid() throws Exception {
 		when(sectionService.createSection(any()))
 				.thenThrow(new InvalidCollaboratorRoleException(
-						sectionCreateRequest.getCollaboratorsUsernames().getFirst()));
+						sectionCreateRequest.getCollaboratorsUsernames().stream()
+								.findFirst().get()));
 
 		mockMvc.perform(post(BASE_URL)
 				.contentType(MediaType.APPLICATION_JSON)
@@ -125,7 +127,8 @@ public class SectionControllerTest extends BaseControllerTest {
 	void should_return_conflict_when_manager_already_assigned() throws Exception {
 		when(sectionService.createSection(any()))
 				.thenThrow(new ManagerAlreadyAssignedException(
-						sectionCreateRequest.getManagersUsernames().getFirst()));
+						sectionCreateRequest.getManagersUsernames().stream()
+								.findFirst().get()));
 
 		mockMvc.perform(post(BASE_URL)
 				.contentType(MediaType.APPLICATION_JSON)
@@ -142,7 +145,8 @@ public class SectionControllerTest extends BaseControllerTest {
 	void should_return_conflict_when_collaborator_already_assigned() throws Exception {
 		when(sectionService.createSection(any()))
 				.thenThrow(new CollaboratorAlreadyAssignedException(
-						sectionCreateRequest.getCollaboratorsUsernames().getFirst()));
+						sectionCreateRequest.getCollaboratorsUsernames().stream()
+								.findFirst().get()));
 
 		mockMvc.perform(post(BASE_URL)
 				.contentType(MediaType.APPLICATION_JSON)

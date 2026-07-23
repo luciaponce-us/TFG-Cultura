@@ -7,13 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -70,20 +70,14 @@ public class SectionServiceTest {
 	// ====================== HELPERS ======================
 
 	void mockExistingUsersWithRoles(Role managerRole, Role collaboratorRole) {
-		User manager = section.getManagers().getFirst();
+		User manager = section.getManagers().stream()
+				.findFirst().get();
 		manager.setRole(managerRole);
-		section.setManagers(List.of(manager));
-		User collaborator = section.getCollaborators().getFirst();
+		section.setManagers(Set.of(manager));
+		User collaborator = section.getCollaborators().stream()
+				.findFirst().get();
 		collaborator.setRole(collaboratorRole);
-		section.setCollaborators(List.of(collaborator));
-		String managerUsername = manager.getUsername();
-		String collaboratorUsername = collaborator.getUsername();
-		Set<String> usernames = Set.of(managerUsername, collaboratorUsername);
-
-		when(userService.getUsersByUsernames(usernames)).thenReturn(
-				Map.of(
-						managerUsername, manager,
-						collaboratorUsername, collaborator));
+		section.setCollaborators(Set.of(collaborator));
 	}
 
 	// ====================== CREATION ======================
@@ -92,28 +86,38 @@ public class SectionServiceTest {
 	@Test
 	void shouldCreateSectionSuccessfully() {
 		// Arrange
-		User manager = section.getManagers().getFirst();
-		User collaborator = section.getCollaborators().getFirst();
+		Set<User> managers = section.getManagers();
+		User manager = managers.stream()
+				.findFirst().get();
+		Set<User> collaborators = section.getCollaborators();
+		User collaborator = collaborators.stream()
+				.findFirst().get();
+
 		mockExistingUsersWithRoles(Role.ENCARGADO, Role.COLABORADOR);
+		when(userService.findUsersByUsernames(Set.of(manager.getUsername())))
+				.thenReturn(Set.of(manager));
+		when(userService.findUsersByUsernames(Set.of(collaborator.getUsername())))
+				.thenReturn(Set.of(collaborator));
 		when(sectionRepository.save(any(Section.class))).thenReturn(section);
+		assertEquals(1, sectionCreateRequest.getManagersUsernames().size());
 
 		// Act
 		SectionResponse response = sectionService.createSection(sectionCreateRequest);
 
 		// Assert
 		assertEquals(sectionCreateRequest.getName(), response.getName());
-		assertEquals(section.getManagers().size(), response.getManagers().size());
-		assertEquals(section.getCollaborators().size(), response.getCollaborators().size());
+		assertEquals(managers.size(), response.getManagers().size());
+		assertEquals(collaborators.size(), response.getCollaborators().size());
 		assertTrue(response.getManagers().stream()
 				.anyMatch(m -> m.getUsername().equals(manager.getUsername())));
 		assertTrue(response.getCollaborators().stream()
 				.anyMatch(c -> c.getUsername().equals(collaborator.getUsername())));
 
 		verify(uniqueSectionNameSpecification).validate(sectionCreateRequest.getName());
-		verify(managersMustBeEncargadosSpecification).validate(Set.of(manager));
-		verify(singleSectionManagerSpecification).validate(Set.of(manager));
-		verify(collaboratorsMustBeColaboradoresSpecification).validate(Set.of(collaborator));
-		verify(singleSectionCollaboratorSpecification).validate(Set.of(collaborator));
+		verify(managersMustBeEncargadosSpecification).validate(managers);
+		verify(singleSectionManagerSpecification).validate(managers, null);
+		verify(collaboratorsMustBeColaboradoresSpecification).validate(collaborators);
+		verify(singleSectionCollaboratorSpecification).validate(collaborators, null);
 
 		verify(sectionRepository).save(any(Section.class));
 	}
@@ -151,11 +155,9 @@ public class SectionServiceTest {
 	// ❌​ 409 - Conflict - Manager Already Assigned
 	@Test
 	void should_throw_when_manager_is_already_assigned() {
-		mockExistingUsersWithRoles(Role.ENCARGADO, Role.COLABORADOR);
-
 		doThrow(new ManagerAlreadyAssignedException("error"))
 				.when(singleSectionManagerSpecification)
-				.validate(anySet());
+				.validate(anySet(), isNull());
 
 		assertThrows(
 				ManagerAlreadyAssignedException.class,
@@ -187,7 +189,7 @@ public class SectionServiceTest {
 
 		doThrow(new CollaboratorAlreadyAssignedException("error"))
 				.when(singleSectionCollaboratorSpecification)
-				.validate(anySet());
+				.validate(anySet(), isNull());
 
 		assertThrows(
 				CollaboratorAlreadyAssignedException.class,

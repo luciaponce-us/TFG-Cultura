@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -59,6 +60,32 @@ public class UserService {
         }
 
         return user.get();
+    }
+
+    public Map<String, User> getUsersByUsernames(Collection<String> usernames) {
+        List<User> users = userRepository.findByUsernameIn(usernames);
+
+        Map<String, User> usersByUsername = users.stream()
+                .collect(Collectors.toMap(User::getUsername, Function.identity()));
+
+        List<String> missingUsernames = usernames.stream()
+                .filter(username -> !usersByUsername.containsKey(username))
+                .toList();
+
+        if (!missingUsernames.isEmpty()) {
+            logger.error("Los siguientes usuarios no existen: {}", missingUsernames);
+            throw new UserNotFoundException(
+                    "Los siguientes usuarios no existen: " + missingUsernames);
+        }
+
+        return usersByUsername;
+    }
+
+    public Set<User> findUsersByUsernames(Collection<String> usernames) {
+        Map<String, User> usersByUsername = getUsersByUsernames(usernames);
+        Set<User> users = usersByUsername.values().stream().collect(Collectors.toSet());
+
+        return users;
     }
 
     public User findUserById(String id) throws UserNotFoundException {
@@ -125,25 +152,6 @@ public class UserService {
     public UserResponse getProfile() throws UserNotFoundException, UnathenticatedException {
         User currentUser = getCurrentUser();
         return new UserResponse(currentUser);
-    }
-
-    public Map<String, User> getUsersByUsernames(Collection<String> usernames) {
-        List<User> users = userRepository.findByUsernameIn(usernames);
-
-        Map<String, User> usersByUsername = users.stream()
-                .collect(Collectors.toMap(User::getUsername, Function.identity()));
-
-        List<String> missingUsernames = usernames.stream()
-                .filter(username -> !usersByUsername.containsKey(username))
-                .toList();
-
-        if (!missingUsernames.isEmpty()) {
-            logger.error("Los siguientes usuarios no existen: {}", missingUsernames);
-            throw new UserNotFoundException(
-                    "Los siguientes usuarios no existen: " + missingUsernames);
-        }
-
-        return usersByUsername;
     }
 
     // UPDATE

@@ -1,8 +1,8 @@
 package com.tfg.cultura.api.sections.model;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -37,12 +37,12 @@ public class Section {
     @Builder.Default
     @NotNull
     @DocumentReference
-    private List<User> managers = new ArrayList<>(); // Encargados de la sección
+    private Set<User> managers = new HashSet<>(); // Encargados de la sección
 
     @Builder.Default
     @NotNull
     @DocumentReference
-    private List<User> collaborators = new ArrayList<>(); // Colaboradores de la sección
+    private Set<User> collaborators = new HashSet<>(); // Colaboradores de la sección
 
     @CreatedDate
     private LocalDateTime createdAt;

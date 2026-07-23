@@ -1,6 +1,6 @@
 package com.tfg.cultura.api.sections.factory;
 
-import java.util.List;
+import java.util.Set;
 
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
@@ -20,20 +20,20 @@ public class SectionFactory {
         return Section.builder()
                 .id("section_id")
                 .name("Test Section")
-                .managers(List.of(manager))
-                .collaborators(List.of(collaborator))
+                .managers(Set.of(manager))
+                .collaborators(Set.of(collaborator))
                 .build();
     }
 
     public static SectionCreateRequest validSectionCreateRequest(Section section) {
-        String managerUsername = section.getManagers().getFirst().getUsername();
-        String collaboratorUsername = section.getCollaborators().getFirst().getUsername();
+        String managerUsername = section.getManagers().stream().findFirst().get().getUsername();
+        String collaboratorUsername = section.getCollaborators().stream().findFirst().get().getUsername();
 
         return SectionCreateRequest.builder()
                 .name(section.getName())
-                .managersUsernames(List.of(managerUsername))
-                .collaboratorsUsernames(List.of(collaboratorUsername))
+                .managersUsernames(Set.of(managerUsername))
+                .collaboratorsUsernames(Set.of(collaboratorUsername))
                 .build();
     }
-    
+
 }
