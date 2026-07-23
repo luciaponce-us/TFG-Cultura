@@ -1,6 +1,7 @@
 package com.tfg.cultura.api.sections.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -254,6 +256,45 @@ public class SectionServiceTest {
 
 		verify(sectionRepository).findAllByNameContainingIgnoreCase("video");
 		verify(sectionRepository, never()).findAll();
+	}
+
+	// ====================== GET BY ID ======================
+
+	// ✅​ 200 - OK
+	@Test
+	void should_return_section_when_section_exists() throws SectionNotFoundException {
+		// Arrange
+		when(sectionRepository.findById(section.getId()))
+				.thenReturn(Optional.of(section));
+
+		// Act
+		SectionResponse response = sectionService.getSectionById(section.getId());
+
+		// Assert
+		assertNotNull(response);
+		assertEquals(section.getId(), response.getId());
+		assertEquals(section.getName(), response.getName());
+
+		verify(sectionRepository).findById(section.getId());
+	}
+
+	// ❌​ 404 - Not Found
+	@Test
+	void should_throw_exception_when_section_does_not_exist() {
+		// Arrange
+		String id = "non-existent-id";
+
+		when(sectionRepository.findById(id))
+				.thenReturn(Optional.empty());
+
+		// Act & Assert
+		SectionNotFoundException exception = assertThrows(
+				SectionNotFoundException.class,
+				() -> sectionService.getSectionById(id));
+
+		assertEquals("Sección no encontrada con ID: " + id, exception.getMessage());
+
+		verify(sectionRepository).findById(id);
 	}
 
 }
