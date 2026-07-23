@@ -79,4 +79,16 @@ public class SectionService {
         return new SectionResponse(savedSection);
     }
 
+    // GET
+
+    public List<SectionResponse> getAllSections(String nameFilter) {
+        List<Section> sections;
+        if (nameFilter == null || nameFilter.isEmpty()) {
+            sections = sectionRepository.findAll();
+        } else {
+            sections = sectionRepository.findAllByNameContainingIgnoreCase(nameFilter);
+        }
+        return sections.stream().map(SectionResponse::new).toList();
+    }
+
 }

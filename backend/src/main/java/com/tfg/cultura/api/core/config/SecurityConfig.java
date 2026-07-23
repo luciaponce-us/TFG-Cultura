@@ -33,6 +33,8 @@ public class SecurityConfig {
         String[] adminRoles = appProperties.adminRoles().stream()
             .map(Role::name)
             .toArray(String[]::new);
+        
+        String[] superAdminRoles = List.of(Role.COORDINADOR.name(),Role.SECRETARIO.name()).toArray(new String[0]);
 
         http
             .cors(Customizer.withDefaults())
@@ -64,8 +66,10 @@ public class SecurityConfig {
                 // Suggestions
                 .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
                 // Sections
-                .requestMatchers(HttpMethod.GET, "/api/sections").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/sections").permitAll() // TODO: Cambiar a hasAnyRole(adminRoles) cuando se implemente la creación de secciones
+                .requestMatchers(HttpMethod.GET, "/api/sections", "/api/sections/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/sections").hasAnyRole(superAdminRoles) // RN-11: Solo Coordinador y Secretario pueden crear secciones
+                .requestMatchers(HttpMethod.PUT, "/api/sections/**").hasAnyRole(superAdminRoles) // RN-11: Solo Coordinador y Secretario pueden editar secciones
+                .requestMatchers(HttpMethod.DELETE, "/api/sections/**").hasAnyRole(superAdminRoles) // RN-11: Solo Coordinador y Secretario pueden eliminar secciones
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
