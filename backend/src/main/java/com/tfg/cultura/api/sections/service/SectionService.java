@@ -2,6 +2,7 @@ package com.tfg.cultura.api.sections.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 import com.tfg.cultura.api.sections.exception.*;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
@@ -89,6 +91,16 @@ public class SectionService {
             sections = sectionRepository.findAllByNameContainingIgnoreCase(nameFilter);
         }
         return sections.stream().map(SectionResponse::new).toList();
+    }
+
+    public SectionResponse getSectionById(String id) throws SectionNotFoundException {
+        Optional<Section> section = sectionRepository.findById(id);
+        if (section.isEmpty()) {
+            String sanitizedId = LoggerSanitizer.sanitize(id);
+            logger.error("Sección no encontrada con ID: {}", sanitizedId);
+            throw new SectionNotFoundException("Sección no encontrada con ID: " + sanitizedId);
+        }
+        return new SectionResponse(section.get());
     }
 
 }

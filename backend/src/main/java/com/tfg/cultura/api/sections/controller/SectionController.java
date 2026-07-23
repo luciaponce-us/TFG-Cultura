@@ -43,4 +43,12 @@ public class SectionController {
                 .body(response);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<SectionResponse> getSectionById(@RequestParam String id) {
+        SectionResponse response = sectionService.getSectionById(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
 }

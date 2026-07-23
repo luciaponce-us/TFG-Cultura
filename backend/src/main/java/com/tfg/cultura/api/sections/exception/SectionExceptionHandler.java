@@ -65,4 +65,13 @@ public class SectionExceptionHandler {
                 logger);
     }
 
+    @ExceptionHandler(SectionNotFoundException.class)
+    public ResponseEntity<ApiError> handleSectionNotFoundException(SectionNotFoundException ex) {
+        return apiErrorBuilder.build(
+                ex,
+                HttpStatus.NOT_FOUND,
+                "Section Not Found",
+                logger);
+    }
+
 }

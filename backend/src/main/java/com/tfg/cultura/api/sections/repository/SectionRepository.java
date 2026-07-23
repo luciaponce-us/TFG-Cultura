@@ -9,6 +9,7 @@ import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.users.model.User;
 
 public interface SectionRepository extends MongoRepository<Section, String> {
+    Optional<Section> findById(String id);
     Optional<Section> findByName(String name);
     List<Section> findAll();
     List<Section> findAllByNameContainingIgnoreCase(String name);
