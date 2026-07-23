@@ -10,8 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -86,7 +91,8 @@ public class SectionControllerTest extends BaseControllerTest {
     @Test
     void should_return_bad_request_when_manager_role_is_invalid() throws Exception {
         when(sectionService.createSection(any()))
-                .thenThrow(new InvalidManagerRoleException(sectionCreateRequest.getManagersUsernames().getFirst()));
+                .thenThrow(new InvalidManagerRoleException(
+                        sectionCreateRequest.getManagersUsernames().getFirst()));
 
         mockMvc.perform(post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -117,7 +123,8 @@ public class SectionControllerTest extends BaseControllerTest {
     @Test
     void should_return_conflict_when_manager_already_assigned() throws Exception {
         when(sectionService.createSection(any()))
-                .thenThrow(new ManagerAlreadyAssignedException(sectionCreateRequest.getManagersUsernames().getFirst()));
+                .thenThrow(new ManagerAlreadyAssignedException(
+                        sectionCreateRequest.getManagersUsernames().getFirst()));
 
         mockMvc.perform(post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -140,7 +147,8 @@ public class SectionControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(sectionCreateRequest)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Collaborator Already Assigned to Another Section"));
+                .andExpect(jsonPath("$.error")
+                        .value("Collaborator Already Assigned to Another Section"));
 
         verify(sectionService).createSection(any());
     }
@@ -156,6 +164,56 @@ public class SectionControllerTest extends BaseControllerTest {
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(sectionService);
+    }
+
+    // ====================== GET ALL ======================
+
+    // ✅​ 200 - OK - Get all sections without name filter
+    @Test
+    void should_get_all_sections_when_name_filter_is_not_provided() throws Exception {
+        // Arrange
+        when(sectionService.getAllSections(null))
+                .thenReturn(List.of(sectionResponse));
+
+        // Act & Assert
+        mockMvc.perform(get(BASE_URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value(section.getName()));
+
+        verify(sectionService).getAllSections(null);
+    }
+
+    // ✅​ 200 - OK - Get filtered sections when name filter is provided
+    @Test
+    void should_get_filtered_sections_when_name_filter_is_provided() throws Exception {
+        // Arrange
+        when(sectionService.getAllSections("manga"))
+                .thenReturn(List.of(sectionResponse));
+
+        // Act & Assert
+        mockMvc.perform(get(BASE_URL)
+                .param("nameFilter", "manga"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value(section.getName()));
+
+        verify(sectionService).getAllSections("manga");
+    }
+
+    // ✅​ 200 - OK - Get all sections when no sections are found
+    @Test
+    void should_return_empty_list_when_no_sections_are_found() throws Exception {
+        // Arrange
+        when(sectionService.getAllSections(null))
+                .thenReturn(Collections.emptyList());
+
+        // Act & Assert
+        mockMvc.perform(get(BASE_URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(sectionService).getAllSections(null);
     }
 
 }
