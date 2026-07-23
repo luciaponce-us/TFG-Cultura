@@ -30,190 +30,224 @@ import com.tfg.cultura.api.utils.BaseControllerTest;
 
 public class SectionControllerTest extends BaseControllerTest {
 
-    @Mock
-    private SectionService sectionService;
+	@Mock
+	private SectionService sectionService;
 
-    private static final String BASE_URL = "/api/sections";
+	private static final String BASE_URL = "/api/sections";
+	private static final String SECTION_URL = BASE_URL + "/{id}";
 
-    private Section section;
-    private SectionCreateRequest sectionCreateRequest;
-    private SectionResponse sectionResponse;
-    private ObjectMapper objectMapper = new ObjectMapper();
+	private Section section;
+	private SectionCreateRequest sectionCreateRequest;
+	private SectionResponse sectionResponse;
+	private ObjectMapper objectMapper = new ObjectMapper();
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
-        SectionController controller = new SectionController(sectionService);
-        mockMvc = buildMockMvc(controller, SectionExceptionHandler.class);
+	@BeforeEach
+	void setup() {
+		MockitoAnnotations.openMocks(this);
+		SectionController controller = new SectionController(sectionService);
+		mockMvc = buildMockMvc(controller, SectionExceptionHandler.class);
 
-        initTestData();
-    }
+		initTestData();
+	}
 
-    void initTestData() {
-        section = SectionFactory.validSection();
-        sectionCreateRequest = SectionFactory.validSectionCreateRequest(section);
-        sectionResponse = new SectionResponse(section);
-    }
+	void initTestData() {
+		section = SectionFactory.validSection();
+		sectionCreateRequest = SectionFactory.validSectionCreateRequest(section);
+		sectionResponse = new SectionResponse(section);
+	}
 
-    // ====================== CREATION ======================
+	// ====================== CREATION ======================
 
-    // ✅​ 201 - Created
-    @Test
-    void should_create_section() throws Exception {
-        when(sectionService.createSection(any(SectionCreateRequest.class)))
-                .thenReturn(sectionResponse);
+	// ✅​ 201 - Created
+	@Test
+	void should_create_section() throws Exception {
+		when(sectionService.createSection(any(SectionCreateRequest.class)))
+				.thenReturn(sectionResponse);
 
-        mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sectionCreateRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value(sectionCreateRequest.getName()));
+		mockMvc.perform(post(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.name").value(sectionCreateRequest.getName()));
 
-        verify(sectionService).createSection(any(SectionCreateRequest.class));
-    }
+		verify(sectionService).createSection(any(SectionCreateRequest.class));
+	}
 
-    // ❌​ 409 - Conflict
-    @Test
-    void should_return_conflict_when_section_already_exists() throws Exception {
-        when(sectionService.createSection(any(SectionCreateRequest.class)))
-                .thenThrow(new SectionAlreadyExistsException(sectionCreateRequest.getName()));
+	// ❌​ 409 - Conflict
+	@Test
+	void should_return_conflict_when_section_already_exists() throws Exception {
+		when(sectionService.createSection(any(SectionCreateRequest.class)))
+				.thenThrow(new SectionAlreadyExistsException(sectionCreateRequest.getName()));
 
-        mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sectionCreateRequest)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Section Already Exists"));
+		mockMvc.perform(post(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.error").value("Section Already Exists"));
 
-        verify(sectionService).createSection(any(SectionCreateRequest.class));
-    }
+		verify(sectionService).createSection(any(SectionCreateRequest.class));
+	}
 
-    // ❌​ 400 - Bad Request - Invalid Manager Role
-    @Test
-    void should_return_bad_request_when_manager_role_is_invalid() throws Exception {
-        when(sectionService.createSection(any()))
-                .thenThrow(new InvalidManagerRoleException(
-                        sectionCreateRequest.getManagersUsernames().getFirst()));
+	// ❌​ 400 - Bad Request - Invalid Manager Role
+	@Test
+	void should_return_bad_request_when_manager_role_is_invalid() throws Exception {
+		when(sectionService.createSection(any()))
+				.thenThrow(new InvalidManagerRoleException(
+						sectionCreateRequest.getManagersUsernames().getFirst()));
 
-        mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sectionCreateRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Invalid Manager Role"));
+		mockMvc.perform(post(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").value("Invalid Manager Role"));
 
-        verify(sectionService).createSection(any());
-    }
+		verify(sectionService).createSection(any());
+	}
 
-    // ❌​ 400 - Bad Request - Invalid Collaborator Role
-    @Test
-    void should_return_bad_request_when_collaborator_role_is_invalid() throws Exception {
-        when(sectionService.createSection(any()))
-                .thenThrow(new InvalidCollaboratorRoleException(
-                        sectionCreateRequest.getCollaboratorsUsernames().getFirst()));
+	// ❌​ 400 - Bad Request - Invalid Collaborator Role
+	@Test
+	void should_return_bad_request_when_collaborator_role_is_invalid() throws Exception {
+		when(sectionService.createSection(any()))
+				.thenThrow(new InvalidCollaboratorRoleException(
+						sectionCreateRequest.getCollaboratorsUsernames().getFirst()));
 
-        mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sectionCreateRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Invalid Collaborator Role"));
+		mockMvc.perform(post(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").value("Invalid Collaborator Role"));
 
-        verify(sectionService).createSection(any());
-    }
+		verify(sectionService).createSection(any());
+	}
 
-    // ❌​ 409 - Conflict - Manager Already Assigned
-    @Test
-    void should_return_conflict_when_manager_already_assigned() throws Exception {
-        when(sectionService.createSection(any()))
-                .thenThrow(new ManagerAlreadyAssignedException(
-                        sectionCreateRequest.getManagersUsernames().getFirst()));
+	// ❌​ 409 - Conflict - Manager Already Assigned
+	@Test
+	void should_return_conflict_when_manager_already_assigned() throws Exception {
+		when(sectionService.createSection(any()))
+				.thenThrow(new ManagerAlreadyAssignedException(
+						sectionCreateRequest.getManagersUsernames().getFirst()));
 
-        mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sectionCreateRequest)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error")
-                        .value("Manager Already Assigned to Another Section"));
+		mockMvc.perform(post(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.error")
+						.value("Manager Already Assigned to Another Section"));
 
-        verify(sectionService).createSection(any());
-    }
+		verify(sectionService).createSection(any());
+	}
 
-    // ❌​ 409 - Conflict - Collaborator Already Assigned
-    @Test
-    void should_return_conflict_when_collaborator_already_assigned() throws Exception {
-        when(sectionService.createSection(any()))
-                .thenThrow(new CollaboratorAlreadyAssignedException(
-                        sectionCreateRequest.getCollaboratorsUsernames().getFirst()));
+	// ❌​ 409 - Conflict - Collaborator Already Assigned
+	@Test
+	void should_return_conflict_when_collaborator_already_assigned() throws Exception {
+		when(sectionService.createSection(any()))
+				.thenThrow(new CollaboratorAlreadyAssignedException(
+						sectionCreateRequest.getCollaboratorsUsernames().getFirst()));
 
-        mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sectionCreateRequest)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error")
-                        .value("Collaborator Already Assigned to Another Section"));
+		mockMvc.perform(post(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.error")
+						.value("Collaborator Already Assigned to Another Section"));
 
-        verify(sectionService).createSection(any());
-    }
+		verify(sectionService).createSection(any());
+	}
 
-    // ❌​ 400 - Bad Request - Invalid Request Body
-    @Test
-    void should_return_bad_request_when_request_is_invalid() throws Exception {
-        sectionCreateRequest.setName(""); // Invalid name
+	// ❌​ 400 - Bad Request - Invalid Request Body
+	@Test
+	void should_return_bad_request_when_request_is_invalid() throws Exception {
+		sectionCreateRequest.setName(""); // Invalid name
 
-        mockMvc.perform(post(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sectionCreateRequest)))
-                .andExpect(status().isBadRequest());
+		mockMvc.perform(post(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isBadRequest());
 
-        verifyNoInteractions(sectionService);
-    }
+		verifyNoInteractions(sectionService);
+	}
 
-    // ====================== GET ALL ======================
+	// ====================== GET ALL ======================
 
-    // ✅​ 200 - OK - Get all sections without name filter
-    @Test
-    void should_get_all_sections_when_name_filter_is_not_provided() throws Exception {
-        // Arrange
-        when(sectionService.getAllSections(null))
-                .thenReturn(List.of(sectionResponse));
+	// ✅​ 200 - OK - Get all sections without name filter
+	@Test
+	void should_get_all_sections_when_name_filter_is_not_provided() throws Exception {
+		// Arrange
+		when(sectionService.getAllSections(null))
+				.thenReturn(List.of(sectionResponse));
 
-        // Act & Assert
-        mockMvc.perform(get(BASE_URL))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name").value(section.getName()));
+		// Act & Assert
+		mockMvc.perform(get(BASE_URL))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].name").value(section.getName()));
 
-        verify(sectionService).getAllSections(null);
-    }
+		verify(sectionService).getAllSections(null);
+	}
 
-    // ✅​ 200 - OK - Get filtered sections when name filter is provided
-    @Test
-    void should_get_filtered_sections_when_name_filter_is_provided() throws Exception {
-        // Arrange
-        when(sectionService.getAllSections("manga"))
-                .thenReturn(List.of(sectionResponse));
+	// ✅​ 200 - OK - Get filtered sections when name filter is provided
+	@Test
+	void should_get_filtered_sections_when_name_filter_is_provided() throws Exception {
+		// Arrange
+		when(sectionService.getAllSections("manga"))
+				.thenReturn(List.of(sectionResponse));
 
-        // Act & Assert
-        mockMvc.perform(get(BASE_URL)
-                .param("nameFilter", "manga"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name").value(section.getName()));
+		// Act & Assert
+		mockMvc.perform(get(BASE_URL)
+				.param("nameFilter", "manga"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].name").value(section.getName()));
 
-        verify(sectionService).getAllSections("manga");
-    }
+		verify(sectionService).getAllSections("manga");
+	}
 
-    // ✅​ 200 - OK - Get all sections when no sections are found
-    @Test
-    void should_return_empty_list_when_no_sections_are_found() throws Exception {
-        // Arrange
-        when(sectionService.getAllSections(null))
-                .thenReturn(Collections.emptyList());
+	// ✅​ 200 - OK - Get all sections when no sections are found
+	@Test
+	void should_return_empty_list_when_no_sections_are_found() throws Exception {
+		// Arrange
+		when(sectionService.getAllSections(null))
+				.thenReturn(Collections.emptyList());
 
-        // Act & Assert
-        mockMvc.perform(get(BASE_URL))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+		// Act & Assert
+		mockMvc.perform(get(BASE_URL))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(0));
 
-        verify(sectionService).getAllSections(null);
-    }
+		verify(sectionService).getAllSections(null);
+	}
+
+	// ====================== GET BY ID ======================
+
+	// ✅​ 200 - OK - Get section by ID when section exists
+	@Test
+	void should_return_section_when_get_section_by_id() throws Exception {
+		// Arrange
+		when(sectionService.getSectionById(section.getId()))
+				.thenReturn(sectionResponse);
+
+		// Act & Assert
+		mockMvc.perform(get(SECTION_URL, section.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(section.getId()))
+				.andExpect(jsonPath("$.name").value(section.getName()));
+
+		verify(sectionService).getSectionById(section.getId());
+	}
+
+	// ❌​ 404 - Not Found - Get section by ID when section does not exist
+	@Test
+	void should_return_not_found_when_section_does_not_exist() throws Exception {
+		// Arrange
+		when(sectionService.getSectionById(section.getId()))
+				.thenThrow(new SectionNotFoundException(
+						"Sección no encontrada con ID: " + section.getId()));
+
+		// Act & Assert
+		mockMvc.perform(get(SECTION_URL, section.getId()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionService).getSectionById(section.getId());
+	}
 
 }
