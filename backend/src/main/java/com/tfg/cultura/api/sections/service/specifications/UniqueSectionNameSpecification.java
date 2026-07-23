@@ -28,5 +28,14 @@ public class UniqueSectionNameSpecification implements BusinessSpecification<Str
             throw new SectionAlreadyExistsException("La sección con nombre '" + existingSectionName + "' ya existe");
         }
     }
+
+    public void validateForUpdate(String name, String currentSectionId) throws SectionAlreadyExistsException {
+        Optional<Section> existingSection = sectionRepository.findByName(name);
+        if (existingSection.isPresent() && !existingSection.get().getId().equals(currentSectionId)) {
+            String existingSectionName = existingSection.get().getName();
+            logger.error("La sección con nombre '{}' ya existe", existingSectionName);
+            throw new SectionAlreadyExistsException("La sección con nombre '" + existingSectionName + "' ya existe");
+        }
+    }
     
 }

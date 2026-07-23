@@ -45,5 +45,22 @@ public class SingleSectionCollaboratorSpecification implements BusinessSpecifica
                     "Los siguientes usuarios ya están asignados como colaboradores de otras secciones: " + alreadyAssignedCollaborators);
         }
     }
+
+    public void validateForUpdate(Set<User> collaboratorsSet, String id) {
+        List<String> alreadyAssignedCollaborators = new ArrayList<>();
+
+        for (User collaborator : collaboratorsSet) {
+            Optional<Section> sectionWithCollaborator = sectionRepository.findByCollaboratorsContaining(collaborator);
+            if (sectionWithCollaborator.isPresent() && !sectionWithCollaborator.get().getId().equals(id)) {
+                alreadyAssignedCollaborators.add(collaborator.getUsername());
+            }
+        }
+
+        if (!alreadyAssignedCollaborators.isEmpty()) {
+            logger.error("Los siguientes usuarios ya están asignados como colaboradores de otras secciones: {}", alreadyAssignedCollaborators);
+            throw new CollaboratorAlreadyAssignedException(
+                    "Los siguientes usuarios ya están asignados como colaboradores de otras secciones: " + alreadyAssignedCollaborators);
+        }
+    }
     
 }

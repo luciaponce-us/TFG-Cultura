@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,5 +52,47 @@ public class SectionController {
                 .status(HttpStatus.OK)
                 .body(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SectionResponse> updateSection(@PathVariable String id, @Valid @RequestBody SectionCreateRequest request) {
+        SectionResponse response = sectionService.updateSection(id, request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @PutMapping("/{sectionId}/managers/{managerUsername}/remove")
+    public ResponseEntity<SectionResponse> removeManagerFromSection(@PathVariable String sectionId, @PathVariable String managerUsername) {
+        SectionResponse response = sectionService.removeManagerFromSection(sectionId, managerUsername);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @PutMapping("/{sectionId}/collaborators/{collaboratorUsername}/remove")
+    public ResponseEntity<SectionResponse> removeCollaboratorFromSection(@PathVariable String sectionId, @PathVariable String collaboratorUsername) {
+        SectionResponse response = sectionService.removeCollaboratorFromSection(sectionId, collaboratorUsername);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @PutMapping("/{sectionId}/managers/{managerUsername}/add")
+    public ResponseEntity<SectionResponse> addManagerToSection(@PathVariable String sectionId, @PathVariable String managerUsername) {
+        SectionResponse response = sectionService.addManagerToSection(sectionId, managerUsername);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @PutMapping("/{sectionId}/collaborators/{collaboratorUsername}/add")
+    public ResponseEntity<SectionResponse> addCollaboratorToSection(@PathVariable String sectionId, @PathVariable String collaboratorUsername) {
+        SectionResponse response = sectionService.addCollaboratorToSection(sectionId, collaboratorUsername);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    
 
 }

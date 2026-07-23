@@ -50,7 +50,7 @@ public class UserService {
 
     // HELPERS
 
-    User findUserByUsername(String username) throws UserNotFoundException {
+    public User findUserByUsername(String username) throws UserNotFoundException {
         Optional<User> user = userRepository.findByUsername(username);
 
         if (user.isEmpty()) {
@@ -61,7 +61,7 @@ public class UserService {
         return user.get();
     }
 
-    User findUserById(String id) throws UserNotFoundException {
+    public User findUserById(String id) throws UserNotFoundException {
         Optional<User> user = userRepository.findById(id);
 
         if (user.isEmpty()) {

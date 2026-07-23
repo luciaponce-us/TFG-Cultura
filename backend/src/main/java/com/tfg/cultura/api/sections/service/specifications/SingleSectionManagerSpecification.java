@@ -45,5 +45,22 @@ public class SingleSectionManagerSpecification implements BusinessSpecification<
                     "Los siguientes usuarios ya están asignados como gestores: " + alreadyAssignedManagers);
         }
     }
+
+    public void validateForUpdate(Set<User> managers, String currentSectionId) throws ManagerAlreadyAssignedException {
+        List<String> alreadyAssignedManagers = new ArrayList<>();
+
+        for (User manager : managers) {
+            Optional<Section> sectionWithManager = sectionRepository.findByManagersContaining(manager);
+            if (sectionWithManager.isPresent() && !sectionWithManager.get().getId().equals(currentSectionId)) {
+                alreadyAssignedManagers.add(manager.getUsername());
+            }
+        }
+
+        if (!alreadyAssignedManagers.isEmpty()) {
+            logger.error("Los siguientes usuarios ya están asignados como gestores en otra sección: {}", alreadyAssignedManagers);
+            throw new ManagerAlreadyAssignedException(
+                    "Los siguientes usuarios ya están asignados como gestores en otra sección: " + alreadyAssignedManagers);
+        }
+    }
     
 }
