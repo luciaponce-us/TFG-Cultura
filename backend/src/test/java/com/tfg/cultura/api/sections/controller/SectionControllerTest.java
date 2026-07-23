@@ -26,12 +26,16 @@ import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
 import com.tfg.cultura.api.sections.model.dto.SectionResponse;
 import com.tfg.cultura.api.sections.service.SectionService;
+import com.tfg.cultura.api.sections.service.SectionUpdateService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
 public class SectionControllerTest extends BaseControllerTest {
 
 	@Mock
 	private SectionService sectionService;
+
+	@Mock
+	private SectionUpdateService sectionUpdateService;
 
 	private static final String BASE_URL = "/api/sections";
 	private static final String SECTION_URL = BASE_URL + "/{id}";
@@ -44,7 +48,7 @@ public class SectionControllerTest extends BaseControllerTest {
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.openMocks(this);
-		SectionController controller = new SectionController(sectionService);
+		SectionController controller = new SectionController(sectionService, sectionUpdateService);
 		mockMvc = buildMockMvc(controller, SectionExceptionHandler.class);
 
 		initTestData();

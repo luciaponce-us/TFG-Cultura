@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.sections.factory;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.tfg.cultura.api.sections.model.Section;
@@ -20,8 +21,8 @@ public class SectionFactory {
         return Section.builder()
                 .id("section_id")
                 .name("Test Section")
-                .managers(Set.of(manager))
-                .collaborators(Set.of(collaborator))
+                .managers(new HashSet<>(Set.of(manager)))
+                .collaborators(new HashSet<>(Set.of(collaborator)))
                 .build();
     }
 
@@ -31,8 +32,8 @@ public class SectionFactory {
 
         return SectionCreateRequest.builder()
                 .name(section.getName())
-                .managersUsernames(Set.of(managerUsername))
-                .collaboratorsUsernames(Set.of(collaboratorUsername))
+                .managersUsernames(new HashSet<>(Set.of(managerUsername)))
+                .collaboratorsUsernames(new HashSet<>(Set.of(collaboratorUsername)))
                 .build();
     }
 
