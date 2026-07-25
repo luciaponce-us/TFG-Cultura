@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +68,6 @@ public class SectionUpdateServiceTest {
 	private Section section;
 	private SectionCreateRequest sectionCreateRequest;
 	private Set<String> managerUsernames;
-	private Set<String> collaboratorUsernames;
 	private Set<User> managers;
 	private Set<User> collaborators;
 	private User manager;
@@ -81,7 +79,6 @@ public class SectionUpdateServiceTest {
 		section = SectionFactory.validSection();
 		sectionCreateRequest = SectionFactory.validSectionCreateRequest(section);
 		managerUsernames = sectionCreateRequest.getManagersUsernames();
-		collaboratorUsernames = sectionCreateRequest.getCollaboratorsUsernames();
 		managers = section.getManagers();
 		collaborators = section.getCollaborators();
 		manager = managers.stream().findFirst().get();

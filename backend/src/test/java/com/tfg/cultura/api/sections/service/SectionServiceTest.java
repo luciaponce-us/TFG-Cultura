@@ -1,7 +1,6 @@
 package com.tfg.cultura.api.sections.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,7 +13,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,7 +31,6 @@ import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
 import com.tfg.cultura.api.sections.model.dto.SectionResponse;
 import com.tfg.cultura.api.sections.repository.SectionRepository;
 import com.tfg.cultura.api.sections.service.specifications.*;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.service.UserService;
@@ -64,24 +61,16 @@ public class SectionServiceTest {
 	private Section section;
 	private SectionCreateRequest sectionCreateRequest;
 	private Set<String> managerUsernames;
-	private Set<String> collaboratorUsernames;
 	private Set<User> managers;
-	private Set<User> collaborators;
 	private User manager;
-	private User collaborator;
-	private String sectionId;
 
 	@BeforeEach
 	void setup() {
 		section = SectionFactory.validSection();
 		sectionCreateRequest = SectionFactory.validSectionCreateRequest(section);
 		managerUsernames = sectionCreateRequest.getManagersUsernames();
-		collaboratorUsernames = sectionCreateRequest.getCollaboratorsUsernames();
 		managers = section.getManagers();
-		collaborators = section.getCollaborators();
 		manager = managers.stream().findFirst().get();
-		collaborator = collaborators.stream().findFirst().get();
-		sectionId = section.getId();
 	}
 
 	// ====================== HELPERS ======================
