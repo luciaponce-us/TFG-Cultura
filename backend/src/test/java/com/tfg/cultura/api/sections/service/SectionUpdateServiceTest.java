@@ -34,7 +34,7 @@ import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
-public class SectionUpdateServiceTest {
+class SectionUpdateServiceTest {
 
 	@Mock
 	private SectionRepository sectionRepository;
@@ -528,6 +528,7 @@ public class SectionUpdateServiceTest {
 	// ❌ 409 - Collaborator Already Assigned
 	@Test
 	void should_throw_when_collaborator_already_assigned_to_other_section() {
+		String collaboratorUsername = collaborator.getUsername();
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
@@ -542,7 +543,7 @@ public class SectionUpdateServiceTest {
 				CollaboratorAlreadyAssignedException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(
 						sectionId,
-						collaborator.getUsername()));
+						collaboratorUsername));
 
 		verify(sectionRepository, never()).save(any());
 	}

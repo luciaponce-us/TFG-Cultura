@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,9 +84,9 @@ public class UserService {
 
     public Set<User> findUsersByUsernames(Collection<String> usernames) {
         Map<String, User> usersByUsername = getUsersByUsernames(usernames);
-        Set<User> users = usersByUsername.values().stream().collect(Collectors.toSet());
+        Stream<User> usersStream = usersByUsername.values().stream();
 
-        return users;
+        return usersStream.collect(Collectors.toSet());
     }
 
     public User findUserById(String id) throws UserNotFoundException {

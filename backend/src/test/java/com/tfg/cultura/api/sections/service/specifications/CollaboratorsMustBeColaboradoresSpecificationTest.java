@@ -6,21 +6,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tfg.cultura.api.sections.exception.InvalidCollaboratorRoleException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 
-public class CollaboratorsMustBeColaboradoresSpecificationTest {
-    private CollaboratorsMustBeColaboradoresSpecification specification;
+@ExtendWith(MockitoExtension.class)
+class CollaboratorsMustBeColaboradoresSpecificationTest {
 
-    @BeforeEach
-    void setUp() {
-        specification = new CollaboratorsMustBeColaboradoresSpecification();
-    }
+    @InjectMocks
+    private CollaboratorsMustBeColaboradoresSpecification specification;
 
     @Test
     void should_not_throw_when_all_users_are_colaboradores() {

@@ -38,7 +38,7 @@ import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
-public class SectionControllerTest extends BaseControllerTest {
+class SectionControllerTest extends BaseControllerTest {
 
 	@Mock
 	private SectionService sectionService;

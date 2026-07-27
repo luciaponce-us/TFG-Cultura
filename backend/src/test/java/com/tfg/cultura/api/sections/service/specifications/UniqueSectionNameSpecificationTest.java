@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -26,12 +26,8 @@ class UniqueSectionNameSpecificationTest {
     @Mock
     private SectionRepository sectionRepository;
 
+    @InjectMocks
     private UniqueSectionNameSpecification specification;
-
-    @BeforeEach
-    void setUp() {
-        specification = new UniqueSectionNameSpecification(sectionRepository);
-    }
 
     @Test
     void should_not_throw_when_section_name_does_not_exist() {

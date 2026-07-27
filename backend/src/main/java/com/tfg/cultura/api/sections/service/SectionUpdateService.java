@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 import com.tfg.cultura.api.sections.exception.*;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
@@ -59,9 +60,10 @@ public class SectionUpdateService {
                 .map(User::getUsername)
                 .collect(Collectors.toSet());
         if (!managerUsernames.contains(manager.getUsername())) {
+                String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
             logger.error("El usuario '{}' no es un encargado de la sección '{}'. Encargados actuales: {}",
-                    managerUsername, section.getName(), managerUsernames);
-            throw new UserNotFoundException("El usuario '" + managerUsername + "' no es un encargado de la sección '"
+                    sanitizedManagerUsername, section.getName(), managerUsernames);
+            throw new UserNotFoundException("El usuario '" + sanitizedManagerUsername + "' no es un encargado de la sección '"
                     + section.getName() + "'. Encargados actuales: " + managerUsernames);
         }
 
@@ -70,7 +72,8 @@ public class SectionUpdateService {
                 .findFirst().get();
         section.getManagers().remove(foundManager);
         Section updatedSection = sectionRepository.save(section);
-        logger.info("Encargado '{}' eliminado de la sección '{}'", managerUsername, updatedSection.getName());
+        String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
+        logger.info("Encargado '{}' eliminado de la sección '{}'", sanitizedManagerUsername, updatedSection.getName());
 
         return new SectionResponse(updatedSection);
     }
@@ -79,15 +82,17 @@ public class SectionUpdateService {
             throws SectionNotFoundException, UserNotFoundException {
         Section section = sectionService.findSectionById(sectionId);
         User collaborator = userService.findUserByUsername(collaboratorUsername);
+        String sanitizedCollaboratorUsername = LoggerSanitizer.sanitize(collaboratorUsername);
 
         Set<String> collaboratorUsernames = section.getCollaborators().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toSet());
         if (!collaboratorUsernames.contains(collaborator.getUsername())) {
+                
             logger.error("El usuario '{}' no es un colaborador de la sección '{}'. Colaboradores actuales: {}",
-                    collaboratorUsername, section.getName(), collaboratorUsernames);
+                    sanitizedCollaboratorUsername, section.getName(), collaboratorUsernames);
             throw new UserNotFoundException(
-                    "El usuario '" + collaboratorUsername + "' no es un colaborador de la sección '" + section.getName()
+                    "El usuario '" + sanitizedCollaboratorUsername + "' no es un colaborador de la sección '" + section.getName()
                             + "'. Colaboradores actuales: " + collaboratorUsernames);
         }
 
@@ -96,7 +101,7 @@ public class SectionUpdateService {
                 .findFirst().get();
         section.getCollaborators().remove(foundCollaborator);
         Section updatedSection = sectionRepository.save(section);
-        logger.info("Colaborador '{}' eliminado de la sección '{}'", collaboratorUsername, updatedSection.getName());
+        logger.info("Colaborador '{}' eliminado de la sección '{}'", sanitizedCollaboratorUsername, updatedSection.getName());
 
         return new SectionResponse(updatedSection);
     }
@@ -112,7 +117,8 @@ public class SectionUpdateService {
 
         section.getManagers().add(manager);
         Section updatedSection = sectionRepository.save(section);
-        logger.info("Encargado '{}' añadido a la sección '{}'", managerUsername, updatedSection.getName());
+        String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
+        logger.info("Encargado '{}' añadido a la sección '{}'", sanitizedManagerUsername, updatedSection.getName());
 
         return new SectionResponse(updatedSection);
     }
@@ -128,7 +134,8 @@ public class SectionUpdateService {
 
         section.getCollaborators().add(collaborator);
         Section updatedSection = sectionRepository.save(section);
-        logger.info("Colaborador '{}' añadido a la sección '{}'", collaboratorUsername, updatedSection.getName());
+        String sanitizedCollaboratorUsername = LoggerSanitizer.sanitize(collaboratorUsername);
+        logger.info("Colaborador '{}' añadido a la sección '{}'", sanitizedCollaboratorUsername, updatedSection.getName());
 
         return new SectionResponse(updatedSection);
     }

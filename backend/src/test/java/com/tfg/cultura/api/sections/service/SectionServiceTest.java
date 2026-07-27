@@ -38,7 +38,7 @@ import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
-public class SectionServiceTest {
+class SectionServiceTest {
 	@Mock
 	private SectionRepository sectionRepository;
 

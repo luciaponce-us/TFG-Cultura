@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -28,12 +28,8 @@ class SingleSectionManagerSpecificationTest {
     @Mock
     private SectionRepository sectionRepository;
 
+    @InjectMocks
     private SingleSectionManagerSpecification specification;
-
-    @BeforeEach
-    void setUp() {
-        specification = new SingleSectionManagerSpecification(sectionRepository);
-    }
 
     @Test
     void should_not_throw_when_no_manager_is_assigned_to_another_section() {

@@ -67,9 +67,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
                 // Sections
                 .requestMatchers(HttpMethod.GET, "/api/sections", "/api/sections/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/sections").hasAnyRole(superAdminRoles) // RN-11: Solo Coordinador y Secretario pueden crear secciones
-                .requestMatchers(HttpMethod.PUT, "/api/sections/**").hasAnyRole(superAdminRoles) // RN-11: Solo Coordinador y Secretario pueden editar secciones
-                .requestMatchers(HttpMethod.DELETE, "/api/sections/**").hasAnyRole(superAdminRoles) // RN-11: Solo Coordinador y Secretario pueden eliminar secciones
+                .requestMatchers("/api/sections", "/api/sections/**").hasAnyRole(superAdminRoles) // RN-11: Solo Coordinador y Secretario pueden crear, editar y eliminar secciones
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
