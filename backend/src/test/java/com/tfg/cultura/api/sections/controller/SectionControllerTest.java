@@ -1,6 +1,7 @@
 package com.tfg.cultura.api.sections.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -11,11 +12,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.MediaType;
 
@@ -27,6 +30,9 @@ import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
 import com.tfg.cultura.api.sections.model.dto.SectionResponse;
 import com.tfg.cultura.api.sections.service.SectionService;
 import com.tfg.cultura.api.sections.service.SectionUpdateService;
+import com.tfg.cultura.api.users.exception.UserNotFoundException;
+import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
+import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
 public class SectionControllerTest extends BaseControllerTest {
@@ -39,8 +45,18 @@ public class SectionControllerTest extends BaseControllerTest {
 
 	private static final String BASE_URL = "/api/sections";
 	private static final String SECTION_URL = BASE_URL + "/{id}";
+	private static final String SECTION_REMOVE_MANAGER_URL = BASE_URL +
+			"/{id}/managers/{managerUsername}/remove";
+	private static final String SECTION_REMOVE_COLLABORATOR_URL = BASE_URL +
+			"/{id}/collaborators/{collaboratorUsername}/remove";
+	private static final String SECTION_ADD_MANAGER_URL = BASE_URL +
+			"/{id}/managers/{managerUsername}/add";
+	private static final String SECTION_ADD_COLLABORATOR_URL = BASE_URL +
+			"/{id}/collaborators/{collaboratorUsername}/add";
 
 	private Section section;
+	private User manager;
+	private User collaborator;
 	private SectionCreateRequest sectionCreateRequest;
 	private SectionResponse sectionResponse;
 	private ObjectMapper objectMapper = new ObjectMapper();
@@ -49,13 +65,15 @@ public class SectionControllerTest extends BaseControllerTest {
 	void setup() {
 		MockitoAnnotations.openMocks(this);
 		SectionController controller = new SectionController(sectionService, sectionUpdateService);
-		mockMvc = buildMockMvc(controller, SectionExceptionHandler.class);
+		mockMvc = buildMockMvc(controller, SectionExceptionHandler.class, UsersExceptionHandler.class);
 
 		initTestData();
 	}
 
 	void initTestData() {
 		section = SectionFactory.validSection();
+		manager = section.getManagers().stream().findFirst().get();
+		collaborator = section.getCollaborators().stream().findFirst().get();
 		sectionCreateRequest = SectionFactory.validSectionCreateRequest(section);
 		sectionResponse = new SectionResponse(section);
 	}
@@ -256,6 +274,339 @@ public class SectionControllerTest extends BaseControllerTest {
 				.andExpect(status().isNotFound());
 
 		verify(sectionService).getSectionById(section.getId());
+	}
+
+	// ====================== UPDATE ======================
+
+	// ✅ 200 - OK
+	@Test
+	void should_update_section() throws Exception {
+		when(sectionUpdateService.updateSection(eq(section.getId()), any(SectionCreateRequest.class)))
+				.thenReturn(sectionResponse);
+
+		mockMvc.perform(put(SECTION_URL, section.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
+
+		verify(sectionUpdateService).updateSection(eq(section.getId()), any(SectionCreateRequest.class));
+	}
+
+	// ❌ 404 - Section Not Found
+	@Test
+	void should_return_not_found_when_updating_non_existing_section() throws Exception {
+		when(sectionUpdateService.updateSection(eq(section.getId()), any(SectionCreateRequest.class)))
+				.thenThrow(new SectionNotFoundException("Section not found"));
+
+		mockMvc.perform(put(SECTION_URL, section.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isNotFound());
+
+		verify(sectionUpdateService).updateSection(eq(section.getId()), any(SectionCreateRequest.class));
+	}
+
+	// ❌ 409 - Conflict
+	@Test
+	void should_return_conflict_when_section_name_already_exists() throws Exception {
+		when(sectionUpdateService.updateSection(eq(section.getId()), any(SectionCreateRequest.class)))
+				.thenThrow(new SectionAlreadyExistsException("Section already exists"));
+
+		mockMvc.perform(put(SECTION_URL, section.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
+				.andExpect(status().isConflict());
+
+		verify(sectionUpdateService).updateSection(eq(section.getId()), any(SectionCreateRequest.class));
+	}
+
+	// ❌ 400 - Bad Request
+	@Test
+	void should_return_bad_request_when_update_request_is_invalid() throws Exception {
+		SectionCreateRequest invalidRequest = new SectionCreateRequest(
+				"",
+				Set.of(),
+				Set.of());
+
+		mockMvc.perform(put(SECTION_URL, section.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalidRequest)))
+				.andExpect(status().isBadRequest());
+
+		verifyNoInteractions(sectionUpdateService);
+	}
+
+	// ====================== REMOVE MANAGER ======================
+
+	// ✅ 200 - OK
+	@Test
+	void should_remove_manager_from_section() throws Exception {
+		when(sectionUpdateService.removeManagerFromSection(section.getId(), manager.getUsername()))
+				.thenReturn(sectionResponse);
+
+		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL,
+				section.getId(),
+				manager.getUsername()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(sectionResponse.getId()))
+				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
+
+		verify(sectionUpdateService).removeManagerFromSection(
+				section.getId(),
+				manager.getUsername());
+	}
+
+	// ❌ 404 - Not Found - Section not found
+	@Test
+	void should_return_not_found_when_deleting_manager_from_non_existing_section() throws Exception {
+		when(sectionUpdateService.removeManagerFromSection(section.getId(), manager.getUsername()))
+				.thenThrow(new SectionNotFoundException("error"));
+
+		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL,
+				section.getId(),
+				manager.getUsername()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionUpdateService).removeManagerFromSection(
+				section.getId(),
+				manager.getUsername());
+	}
+
+	// ❌ 404 - Not Found - Manager not found in section
+	@Test
+	void should_return_not_found_when_manager_does_not_exist() throws Exception {
+		when(sectionUpdateService.removeManagerFromSection(section.getId(), manager.getUsername()))
+				.thenThrow(new UserNotFoundException("error"));
+
+		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL,
+				section.getId(),
+				manager.getUsername()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionUpdateService).removeManagerFromSection(
+				section.getId(),
+				manager.getUsername());
+	}
+
+	// ======================= REMOVE COLLABORATOR ======================
+
+	// ✅ 200 - OK
+	@Test
+	void should_remove_collaborator_from_section() throws Exception {
+		when(sectionUpdateService.removeCollaboratorFromSection(section.getId(), collaborator.getUsername()))
+				.thenReturn(sectionResponse);
+
+		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL,
+				section.getId(),
+				collaborator.getUsername()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(sectionResponse.getId()))
+				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
+
+		verify(sectionUpdateService).removeCollaboratorFromSection(
+				section.getId(),
+				collaborator.getUsername());
+	}
+
+	// ❌ 404 - Not Found - Section not found
+	@Test
+	void should_return_not_found_when_deleting_collaborator_from_non_existing_section() throws Exception {
+		when(sectionUpdateService.removeCollaboratorFromSection(section.getId(), collaborator.getUsername()))
+				.thenThrow(new SectionNotFoundException("error"));
+
+		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL,
+				section.getId(),
+				collaborator.getUsername()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionUpdateService).removeCollaboratorFromSection(
+				section.getId(),
+				collaborator.getUsername());
+	}
+
+	// ❌ 404 - Not Found - Collaborator not found in section
+	@Test
+	void should_return_not_found_when_collaborator_does_not_exist() throws Exception {
+		when(sectionUpdateService.removeCollaboratorFromSection(section.getId(), collaborator.getUsername()))
+				.thenThrow(new UserNotFoundException("error"));
+
+		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL,
+				section.getId(),
+				collaborator.getUsername()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionUpdateService).removeCollaboratorFromSection(
+				section.getId(),
+				collaborator.getUsername());
+	}
+
+	// ====================== ADD MANAGER ======================
+
+	// ✅ 200 - OK
+	@Test
+	void should_add_manager_to_section() throws Exception {
+		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
+				.thenReturn(sectionResponse);
+
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
+				section.getId(),
+				manager.getUsername()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(sectionResponse.getId()))
+				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
+
+		verify(sectionUpdateService).addManagerToSection(
+				section.getId(),
+				manager.getUsername());
+	}
+
+	// ❌ 404 - Not Found - Section not found
+	@Test
+	void should_return_not_found_when_adding_manager_to_non_existing_section() throws Exception {
+		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
+				.thenThrow(new SectionNotFoundException("error"));
+
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
+				section.getId(),
+				manager.getUsername()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionUpdateService).addManagerToSection(
+				section.getId(),
+				manager.getUsername());
+	}
+
+	// ❌ 404 - Not Found - User not found
+	@Test
+	void should_return_not_found_when_manager_to_add_does_not_exist() throws Exception {
+		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
+				.thenThrow(new UserNotFoundException("error"));
+
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
+				section.getId(),
+				manager.getUsername()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionUpdateService).addManagerToSection(
+				section.getId(),
+				manager.getUsername());
+	}
+
+	// ❌ 400 - Bad Request - Invalid manager role
+	@Test
+	void should_return_bad_request_when_manager_has_invalid_role() throws Exception {
+		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
+				.thenThrow(new InvalidManagerRoleException("error"));
+
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
+				section.getId(),
+				manager.getUsername()))
+				.andExpect(status().isBadRequest());
+
+		verify(sectionUpdateService).addManagerToSection(
+				section.getId(),
+				manager.getUsername());
+	}
+
+	// ❌ 409 - Conflict - Manager already assigned
+	@Test
+	void should_return_conflict_when_manager_is_already_assigned() throws Exception {
+		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
+				.thenThrow(new ManagerAlreadyAssignedException("error"));
+
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
+				section.getId(),
+				manager.getUsername()))
+				.andExpect(status().isConflict());
+
+		verify(sectionUpdateService).addManagerToSection(
+				section.getId(),
+				manager.getUsername());
+	}
+
+	// ====================== ADD COLLABORATOR ======================
+
+	// ✅ 200 - OK
+	@Test
+	void should_add_collaborator_to_section() throws Exception {
+		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
+				.thenReturn(sectionResponse);
+
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
+				section.getId(),
+				collaborator.getUsername()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(sectionResponse.getId()))
+				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
+
+		verify(sectionUpdateService).addCollaboratorToSection(
+				section.getId(),
+				collaborator.getUsername());
+	}
+
+	// ❌ 404 - Not Found - Section not found
+	@Test
+	void should_return_not_found_when_adding_collaborator_to_non_existing_section() throws Exception {
+		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
+				.thenThrow(new SectionNotFoundException("error"));
+
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
+				section.getId(),
+				collaborator.getUsername()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionUpdateService).addCollaboratorToSection(
+				section.getId(),
+				collaborator.getUsername());
+	}
+
+	// ❌ 404 - Not Found - User not found
+	@Test
+	void should_return_not_found_when_collaborator_to_add_does_not_exist() throws Exception {
+		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
+				.thenThrow(new UserNotFoundException("error"));
+
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
+				section.getId(),
+				collaborator.getUsername()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionUpdateService).addCollaboratorToSection(
+				section.getId(),
+				collaborator.getUsername());
+	}
+
+	// ❌ 400 - Bad Request - Invalid collaborator role
+	@Test
+	void should_return_bad_request_when_collaborator_has_invalid_role() throws Exception {
+		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
+				.thenThrow(new InvalidCollaboratorRoleException("error"));
+
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
+				section.getId(),
+				collaborator.getUsername()))
+				.andExpect(status().isBadRequest());
+
+		verify(sectionUpdateService).addCollaboratorToSection(
+				section.getId(),
+				collaborator.getUsername());
+	}
+
+	// ❌ 409 - Conflict - Collaborator already assigned
+	@Test
+	void should_return_conflict_when_collaborator_is_already_assigned() throws Exception {
+		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
+				.thenThrow(new CollaboratorAlreadyAssignedException("error"));
+
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
+				section.getId(),
+				collaborator.getUsername()))
+				.andExpect(status().isConflict());
+
+		verify(sectionUpdateService).addCollaboratorToSection(
+				section.getId(),
+				collaborator.getUsername());
 	}
 
 }
