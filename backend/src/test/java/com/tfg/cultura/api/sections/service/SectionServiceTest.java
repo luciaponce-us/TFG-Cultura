@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.sections.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -306,6 +308,38 @@ public class SectionServiceTest {
 		assertEquals("Sección no encontrada con ID: " + id, exception.getMessage());
 
 		verify(sectionRepository).findById(id);
+	}
+
+	// ====================== DELETE ======================
+
+	// ✅ 200 - OK
+	@Test
+	void should_delete_section() {
+		String sectionId = section.getId();
+		when(sectionRepository.findById(sectionId))
+				.thenReturn(Optional.of(section));
+
+		doNothing().when(sectionRepository).delete(section);
+
+		assertDoesNotThrow(() -> sectionService.deleteSection(sectionId));
+
+		verify(sectionRepository).findById(sectionId);
+		verify(sectionRepository).delete(section);
+	}
+
+	// ❌ 404 - Not Found
+	@Test
+	void should_throw_when_deleting_non_existing_section() {
+		String sectionId = "non-existing-id";
+		when(sectionRepository.findById(sectionId))
+				.thenReturn(Optional.empty());
+
+		assertThrows(
+				SectionNotFoundException.class,
+				() -> sectionService.deleteSection(sectionId));
+
+		verify(sectionRepository).findById(sectionId);
+		verify(sectionRepository, never()).delete(any());
 	}
 
 }

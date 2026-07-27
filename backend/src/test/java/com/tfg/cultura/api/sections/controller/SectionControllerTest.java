@@ -2,6 +2,8 @@ package com.tfg.cultura.api.sections.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -13,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -607,6 +610,32 @@ public class SectionControllerTest extends BaseControllerTest {
 		verify(sectionUpdateService).addCollaboratorToSection(
 				section.getId(),
 				collaborator.getUsername());
+	}
+
+	// ====================== DELETE ======================
+
+	// ✅ 204 - No Content
+	@Test
+	void should_delete_section() throws Exception {
+		doNothing().when(sectionService).deleteSection(section.getId());
+
+		mockMvc.perform(delete(SECTION_URL, section.getId()))
+				.andExpect(status().isNoContent());
+
+		verify(sectionService).deleteSection(section.getId());
+	}
+
+	// ❌ 404 - Not Found - Section not found
+	@Test
+	void should_return_not_found_when_deleting_non_existing_section() throws Exception {
+		doThrow(new SectionNotFoundException("error"))
+				.when(sectionService)
+				.deleteSection(section.getId());
+
+		mockMvc.perform(delete(SECTION_URL, section.getId()))
+				.andExpect(status().isNotFound());
+
+		verify(sectionService).deleteSection(section.getId());
 	}
 
 }
