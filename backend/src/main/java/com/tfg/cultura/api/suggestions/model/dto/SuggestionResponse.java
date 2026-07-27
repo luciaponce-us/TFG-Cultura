@@ -21,15 +21,25 @@ public class SuggestionResponse {
     private int totalSupporters;
     private LocalDateTime createdAt;
 
-    public SuggestionResponse(Suggestion suggestion, UserResponse author, List<UserResponse> supporters,
-            List<String> someSupportersAvatars) {
+    public SuggestionResponse(Suggestion suggestion) {
+        UserResponse authorResponse = new UserResponse(suggestion.getAuthor());
+
+        List<UserResponse> supporters = suggestion.getSupporters().stream()
+                .map(UserResponse::new)
+                .toList();
+
+        List<String> avatars = supporters.stream()
+                .limit(3)
+                .map(UserResponse::getAvatar)
+                .toList();
+
         this.id = suggestion.getId();
         this.title = suggestion.getTitle();
         this.description = suggestion.getDescription();
         this.type = suggestion.getType();
-        this.author = author;
+        this.author = authorResponse;
         this.supporters = List.copyOf(supporters);
-        this.someSupportersAvatars = List.copyOf(someSupportersAvatars);
+        this.someSupportersAvatars = List.copyOf(avatars);
         this.totalSupporters = suggestion.getTotalSupporters();
         this.createdAt = suggestion.getCreatedAt();
     }

@@ -7,8 +7,10 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
+import com.tfg.cultura.api.users.model.User;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -41,11 +43,13 @@ public class Suggestion {
     private SuggestionType type = SuggestionType.OTHER;
 
     @NotBlank(message = "El autor es obligatorio")
-    private String authorId;
+    @DocumentReference
+    private User author;
 
     @Builder.Default
     @NotNull
-    private List<String> supportersId = new ArrayList<>(); // TODO: Cambiar a @DocumentReference
+    @DocumentReference
+    private List<User> supporters = new ArrayList<User>();
 
     @Builder.Default
     @NotNull
