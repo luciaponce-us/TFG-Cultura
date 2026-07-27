@@ -105,4 +105,12 @@ public class SectionService {
         return new SectionResponse(section);
     }
 
+    // DELETE
+
+    public void deleteSection(String id) throws SectionNotFoundException {
+        Section section = findSectionById(id);
+        sectionRepository.delete(section);
+        logger.info("Sección eliminada con éxito: {}", section.getName());
+    }
+
 }
