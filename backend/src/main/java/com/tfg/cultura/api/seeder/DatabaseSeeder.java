@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.tfg.cultura.api.sections.model.Section;
+import com.tfg.cultura.api.seeder.parser.SectionsCsvParser;
 import com.tfg.cultura.api.seeder.parser.UserCsvParser;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
@@ -15,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +52,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         List<User> usuarios = seedUsuarios();
         seedSugerencias(usuarios);
+        seedSections(usuarios);
 
         logger.info("💾 Todos los datos se han guardado correctamente");
     }
@@ -67,7 +73,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         List<User> usersFromCsv = new UserCsvParser(passwordEncoder).loadUsersFromCsv();
 
         Collection<User> users = mongoTemplate.insertAll(usersFromCsv);
-        
+
         logger.info("✅👥 Insertados {} usuarios", users.size());
         return users.stream().toList();
     }
@@ -75,17 +81,17 @@ public class DatabaseSeeder implements CommandLineRunner {
     private void seedSugerencias(List<User> usuarios) {
         logger.info("💡 Creando colección: suggestions");
 
-        String idCoordinador = usuarios.get(0).getId();
-        String idSecretario = usuarios.get(1).getId();
-        String idEncargado = usuarios.get(2).getId();
-        String idColaborador = usuarios.get(3).getId();
-        String idSocio = usuarios.get(4).getId();
+        User usuario1 = usuarios.get(0);
+        User usuario2 = usuarios.get(1);
+        User usuario3 = usuarios.get(2);
+        User usuario4 = usuarios.get(3);
+        User usuario5 = usuarios.get(4);
 
         Suggestion s1 = Suggestion.builder()
                 .title("Añadir torneos de juegos de mesa")
                 .description("Organizar torneos mensuales de juegos como Catan, Carcassonne o Terraforming Mars.")
                 .type(SuggestionType.EVENT)
-                .authorId(idColaborador)
+                .author(usuario1)
                 .totalSupporters(0)
                 .build();
 
@@ -93,8 +99,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .title("Ampliar catálogo de mangas")
                 .description("Incluir colecciones populares actuales y completar series incompletas.")
                 .type(SuggestionType.CATALOG)
-                .authorId(idSocio)
-                .supportersId(List.of(idColaborador, idSecretario, idCoordinador, idEncargado))
+                .author(usuario5)
+                .supporters(List.of(usuario1, usuario2, usuario3, usuario4))
                 .totalSupporters(4)
                 .build();
 
@@ -103,8 +109,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .description(
                         "Crear talleres para aprender a jugar a rol, incluyendo partidas guiadas para principiantes.")
                 .type(SuggestionType.EVENT)
-                .authorId(idSocio)
-                .supportersId(List.of(idEncargado))
+                .author(usuario5)
+                .supporters(List.of(usuario3))
                 .totalSupporters(1)
                 .build();
 
@@ -112,7 +118,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .title("Ciclo de cine temático")
                 .description("Organizar ciclos de cine por temáticas (terror, ciencia ficción, anime, etc.).")
                 .type(SuggestionType.EVENT)
-                .authorId(idSocio)
+                .author(usuario5)
                 .totalSupporters(0)
                 .build();
 
@@ -121,8 +127,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .description(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sit amet ex quis velit blandit volutpat et sed mauris. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis finibus volutpat risus at dictum. Curabitur nunc tortor orci aliquam. ")
                 .type(SuggestionType.OTHER)
-                .authorId(idColaborador)
-                .supportersId(List.of(idSocio, idEncargado))
+                .author(usuario1)
+                .supporters(List.of(usuario2, usuario3))
                 .totalSupporters(2)
                 .build();
 
@@ -131,4 +137,17 @@ public class DatabaseSeeder implements CommandLineRunner {
         logger.info("✅💡 Insertadas {} sugerencias", sugerencias.size());
     }
 
+    private void seedSections(List<User> usuarios) {
+        logger.info("📚 Creando colección: sections");
+
+        Map<String, User> usersByUsername = usuarios.stream()
+                .collect(Collectors.toMap(
+                        User::getUsername,
+                        Function.identity()));
+
+        List<Section> sectionsFromCsv = new SectionsCsvParser().loadSectionsFromCsv(usersByUsername);
+
+        Collection<Section> sections = mongoTemplate.insertAll(sectionsFromCsv);
+        logger.info("✅📚 Insertadas {} secciones", sections.size());
+    }
 }

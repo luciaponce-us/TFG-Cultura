@@ -24,8 +24,7 @@ import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.dto.UserResponse;
-import com.tfg.cultura.api.users.repository.UserRepository;
+import com.tfg.cultura.api.users.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,8 +33,8 @@ import lombok.RequiredArgsConstructor;
 public class SuggestionService {
 
     private final SuggestionRepository repository;
-    private final UserRepository userRepository;
     private final CustomUserDetailsService userDetailsService;
+    private final UserService userService;
     private final AppProperties appProperties;
 
     private static final Logger logger = LoggerFactory.getLogger("suggestionsLogger");
@@ -44,21 +43,20 @@ public class SuggestionService {
             throws UnathenticatedException, UserNotFoundException {
 
         CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-
-        String authorId = currentUser.getId();
+        User author = userService.findUserById(currentUser.getId());
 
         Suggestion suggestion = Suggestion.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .type(request.getType())
-                .authorId(authorId)
+                .author(author)
                 .totalSupporters(0)
                 .build();
 
         Suggestion savedSuggestion = repository.save(suggestion);
-        logger.info("Sugerencia creada con ID {} por el usuario con ID {}", savedSuggestion.getId(), authorId);
+        logger.info("Sugerencia creada con ID {} por el usuario {}", savedSuggestion.getId(), author.getUsername());
 
-        return toResponse(savedSuggestion);
+        return new SuggestionResponse(savedSuggestion);
     }
 
     public Page<SuggestionResponse> getAllWithFilters(SuggestionType type, String text, Boolean orderByCreationDate,
@@ -79,38 +77,40 @@ public class SuggestionService {
             suggestionPage = repository.findAll(pageable);
         }
 
-        return suggestionPage.map(this::toResponse);
+        return suggestionPage.map(SuggestionResponse::new);
     }
 
     public SuggestionResponse getById(String id) throws SuggestionNotFoundException {
         Suggestion suggestion = findSuggestionById(id);
-        return toResponse(suggestion);
+        return new SuggestionResponse(suggestion);
     }
 
     public SuggestionResponse toggleSupport(String id) throws SuggestionNotFoundException,
             SelfSupportSuggestionException, UserNotFoundException, UnathenticatedException {
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+        CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
+        User currentUser = userService.findUserById(currentUserDetails.getId());
         Suggestion suggestion = findSuggestionById(id);
-        List<String> supporters = new ArrayList<>(suggestion.getSupportersId());
-        boolean isSupported = supporters.contains(currentUser.getId());
+        List<User> supporters = new ArrayList<>(suggestion.getSupporters());
+        boolean isSupported = supporters.stream().map(User::getId).toList().contains(currentUser.getId());
 
         if (isSupported) {
-            supporters.remove(currentUser.getId());
+            supporters.remove(currentUser);
         } else {
-            if (suggestion.getAuthorId().equals(currentUser.getId())) {
+            boolean isAuthor = suggestion.getAuthor().getId().equals(currentUser.getId());
+            if (isAuthor) {
                 logger.error(
                         "Error al apoyar la sugerencia: El usuario con ID {} ha intentado apoyar su propia sugerencia",
                         currentUser.getId());
                 throw new SelfSupportSuggestionException();
             }
 
-            supporters.add(currentUser.getId());
+            supporters.add(currentUser);
         }
 
-        suggestion.setSupportersId(supporters);
+        suggestion.setSupporters(supporters);
         suggestion.setTotalSupporters(supporters.size());
 
-        return toResponse(repository.save(suggestion));
+        return new SuggestionResponse(repository.save(suggestion));
     }
 
     public void delete(String id)
@@ -125,7 +125,8 @@ public class SuggestionService {
             return;
         }
 
-        if (!suggestion.getAuthorId().equals(currentUser.getId())) {
+        boolean isAuthor = suggestion.getAuthor().getId().equals(currentUser.getId());
+        if (!isAuthor) {
             logger.error(
                     "Error al eliminar la sugerencia: El usuario con ID {} ha intentado eliminar una sugerencia que no es suya",
                     currentUser.getId());
@@ -137,34 +138,6 @@ public class SuggestionService {
     }
 
     // Helpers
-
-    private User getAuthor(String id) throws UserNotFoundException {
-        Optional<User> optionalAuthor = userRepository.findById(id);
-
-        if (optionalAuthor.isEmpty()) {
-            logger.error("Error al convertir la sugerencia a respuesta: El autor de la sugerencia no existe");
-            throw new UserNotFoundException("El autor de la sugerencia no existe");
-        }
-
-        return optionalAuthor.get();
-    }
-
-    private SuggestionResponse toResponse(Suggestion suggestion) throws UserNotFoundException {
-        User author = getAuthor(suggestion.getAuthorId());
-
-        UserResponse authorResponse = new UserResponse(author);
-
-        List<UserResponse> supporters = userRepository.findAllById(suggestion.getSupportersId()).stream()
-                .map(UserResponse::new)
-                .toList();
-
-        List<String> avatars = supporters.stream()
-                .limit(3)
-                .map(UserResponse::getAvatar)
-                .toList();
-
-        return new SuggestionResponse(suggestion, authorResponse, supporters, avatars);
-    }
 
     Suggestion findSuggestionById(String id) throws SuggestionNotFoundException {
         Optional<Suggestion> optionalSuggestion = repository.findById(id);

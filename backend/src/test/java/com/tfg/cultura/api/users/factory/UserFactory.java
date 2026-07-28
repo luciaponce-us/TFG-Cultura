@@ -39,6 +39,13 @@ public class UserFactory {
         return new UserResponse(user);
     }
 
+    public static User validUserWithUsernameAndRole(String username, Role role) {
+        User user = validUser();
+        user.setUsername(username);
+        user.setRole(role);
+        return user;
+    }
+
     public static User validUser2() {
         return User.builder()
                 .id("user_id2")
