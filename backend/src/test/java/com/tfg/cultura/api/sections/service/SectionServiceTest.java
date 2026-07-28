@@ -65,6 +65,8 @@ class SectionServiceTest {
 	private Set<String> managerUsernames;
 	private Set<User> managers;
 	private User manager;
+	private Set<User> collaborators;
+	private User collaborator;
 
 	@BeforeEach
 	void setup() {
@@ -73,17 +75,15 @@ class SectionServiceTest {
 		managerUsernames = sectionCreateRequest.getManagersUsernames();
 		managers = section.getManagers();
 		manager = managers.stream().findFirst().get();
+		collaborators = section.getCollaborators();
+		collaborator = collaborators.stream().findFirst().get();
 	}
 
 	// ====================== HELPERS ======================
 
 	void mockExistingUsersWithRoles(Role managerRole, Role collaboratorRole) {
-		User manager = section.getManagers().stream()
-				.findFirst().get();
 		manager.setRole(managerRole);
 		section.setManagers(Set.of(manager));
-		User collaborator = section.getCollaborators().stream()
-				.findFirst().get();
 		collaborator.setRole(collaboratorRole);
 		section.setCollaborators(Set.of(collaborator));
 
@@ -99,13 +99,6 @@ class SectionServiceTest {
 	@Test
 	void shouldCreateSectionSuccessfully() {
 		// Arrange
-		Set<User> managers = section.getManagers();
-		User manager = managers.stream()
-				.findFirst().get();
-		Set<User> collaborators = section.getCollaborators();
-		User collaborator = collaborators.stream()
-				.findFirst().get();
-
 		mockExistingUsersWithRoles(Role.ENCARGADO, Role.COLABORADOR);
 
 		when(sectionRepository.save(any(Section.class))).thenReturn(section);

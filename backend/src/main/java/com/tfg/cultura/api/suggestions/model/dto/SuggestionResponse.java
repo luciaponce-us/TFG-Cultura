@@ -24,11 +24,11 @@ public class SuggestionResponse {
     public SuggestionResponse(Suggestion suggestion) {
         UserResponse authorResponse = new UserResponse(suggestion.getAuthor());
 
-        List<UserResponse> supporters = suggestion.getSupporters().stream()
+        List<UserResponse> supportersList = suggestion.getSupporters().stream()
                 .map(UserResponse::new)
                 .toList();
 
-        List<String> avatars = supporters.stream()
+        List<String> avatars = supportersList.stream()
                 .limit(3)
                 .map(UserResponse::getAvatar)
                 .toList();
@@ -38,7 +38,7 @@ public class SuggestionResponse {
         this.description = suggestion.getDescription();
         this.type = suggestion.getType();
         this.author = authorResponse;
-        this.supporters = List.copyOf(supporters);
+        this.supporters = List.copyOf(supportersList);
         this.someSupportersAvatars = List.copyOf(avatars);
         this.totalSupporters = suggestion.getTotalSupporters();
         this.createdAt = suggestion.getCreatedAt();

@@ -12,7 +12,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +65,9 @@ class SectionUpdateServiceTest {
 	private Set<User> managers;
 	private Set<User> collaborators;
 	private User manager;
+	private String managerUsername;
 	private User collaborator;
+	private String collaboratorUsername;
 	private String sectionId;
 
 	@BeforeEach
@@ -77,7 +78,9 @@ class SectionUpdateServiceTest {
 		managers = section.getManagers();
 		collaborators = section.getCollaborators();
 		manager = managers.stream().findFirst().get();
+		managerUsername = manager.getUsername();
 		collaborator = collaborators.stream().findFirst().get();
+		collaboratorUsername = collaborator.getUsername();
 		sectionId = section.getId();
 	}
 
@@ -173,13 +176,13 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(manager.getUsername()))
+		when(userService.findUserByUsername(managerUsername))
 				.thenReturn(manager);
 
 		when(sectionRepository.save(any()))
 				.thenAnswer(inv -> inv.getArgument(0));
 
-		SectionResponse response = sectionUpdateService.removeManagerFromSection(sectionId, manager.getUsername());
+		SectionResponse response = sectionUpdateService.removeManagerFromSection(sectionId, managerUsername);
 
 		assertFalse(section.getManagers().contains(manager));
 		assertEquals(section.getName(), response.getName());
@@ -196,7 +199,7 @@ class SectionUpdateServiceTest {
 
 		assertThrows(
 				SectionNotFoundException.class,
-				() -> sectionUpdateService.removeManagerFromSection(sectionId, manager.getUsername()));
+				() -> sectionUpdateService.removeManagerFromSection(sectionId, managerUsername));
 
 		verify(userService, never()).findUserByUsername(anyString());
 		verify(sectionRepository, never()).save(any());
@@ -208,12 +211,12 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(manager.getUsername()))
+		when(userService.findUserByUsername(managerUsername))
 				.thenThrow(new UserNotFoundException("error"));
 
 		assertThrows(
 				UserNotFoundException.class,
-				() -> sectionUpdateService.removeManagerFromSection(sectionId, manager.getUsername()));
+				() -> sectionUpdateService.removeManagerFromSection(sectionId, managerUsername));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -221,30 +224,19 @@ class SectionUpdateServiceTest {
 	// ❌​ 404 - Not Found - User Not Found (Manager not in section)
 	@Test
 	void should_throw_when_user_is_not_manager_of_section() throws Exception {
-		User managerInSection = User.builder()
-				.username("manager1")
-				.build();
-
 		User managerToRemove = User.builder()
-				.username("manager2")
-				.build();
-
-		Section section = Section.builder()
-				.id("section-id")
-				.name("Informática")
-				.managers(new HashSet<>(Set.of(managerInSection)))
+				.username("not-in-section")
 				.build();
 
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername("manager2"))
+		when(userService.findUserByUsername("not-in-section"))
 				.thenReturn(managerToRemove);
 
 		assertThrows(
 				UserNotFoundException.class,
-				() -> sectionUpdateService.removeManagerFromSection(sectionId, "manager2"));
-
+				() -> sectionUpdateService.removeManagerFromSection(sectionId, "not-in-section"));
 		verify(sectionRepository, never()).save(any());
 	}
 
@@ -256,7 +248,7 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(collaborator.getUsername()))
+		when(userService.findUserByUsername(collaboratorUsername))
 				.thenReturn(collaborator);
 
 		when(sectionRepository.save(any()))
@@ -264,7 +256,7 @@ class SectionUpdateServiceTest {
 
 		SectionResponse response = sectionUpdateService.removeCollaboratorFromSection(
 				sectionId,
-				collaborator.getUsername());
+				collaboratorUsername);
 
 		assertFalse(section.getCollaborators().contains(collaborator));
 		assertEquals(section.getName(), response.getName());
@@ -283,7 +275,7 @@ class SectionUpdateServiceTest {
 				SectionNotFoundException.class,
 				() -> sectionUpdateService.removeCollaboratorFromSection(
 						sectionId,
-						collaborator.getUsername()));
+						collaboratorUsername));
 
 		verify(userService, never()).findUserByUsername(anyString());
 		verify(sectionRepository, never()).save(any());
@@ -295,14 +287,14 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(collaborator.getUsername()))
+		when(userService.findUserByUsername(collaboratorUsername))
 				.thenThrow(new UserNotFoundException("error"));
 
 		assertThrows(
 				UserNotFoundException.class,
 				() -> sectionUpdateService.removeCollaboratorFromSection(
 						sectionId,
-						collaborator.getUsername()));
+						collaboratorUsername));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -337,7 +329,7 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(manager.getUsername()))
+		when(userService.findUserByUsername(managerUsername))
 				.thenReturn(manager);
 
 		when(sectionRepository.save(any()))
@@ -345,7 +337,7 @@ class SectionUpdateServiceTest {
 
 		SectionResponse response = sectionUpdateService.addManagerToSection(
 				sectionId,
-				manager.getUsername());
+				managerUsername);
 
 		assertTrue(section.getManagers().contains(manager));
 		assertEquals(section.getName(), response.getName());
@@ -368,7 +360,7 @@ class SectionUpdateServiceTest {
 				SectionNotFoundException.class,
 				() -> sectionUpdateService.addManagerToSection(
 						sectionId,
-						manager.getUsername()));
+						managerUsername));
 
 		verify(userService, never()).findUserByUsername(anyString());
 		verify(sectionRepository, never()).save(any());
@@ -380,14 +372,14 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(manager.getUsername()))
+		when(userService.findUserByUsername(managerUsername))
 				.thenThrow(new UserNotFoundException("error"));
 
 		assertThrows(
 				UserNotFoundException.class,
 				() -> sectionUpdateService.addManagerToSection(
 						sectionId,
-						manager.getUsername()));
+						managerUsername));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -398,7 +390,7 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(manager.getUsername()))
+		when(userService.findUserByUsername(managerUsername))
 				.thenReturn(manager);
 
 		doThrow(new InvalidManagerRoleException("error"))
@@ -409,7 +401,7 @@ class SectionUpdateServiceTest {
 				InvalidManagerRoleException.class,
 				() -> sectionUpdateService.addManagerToSection(
 						sectionId,
-						manager.getUsername()));
+						managerUsername));
 
 		verify(singleSectionManagerSpecification, never())
 				.validate(anySet(), anyString());
@@ -422,7 +414,7 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(manager.getUsername()))
+		when(userService.findUserByUsername(managerUsername))
 				.thenReturn(manager);
 
 		doThrow(new ManagerAlreadyAssignedException("error"))
@@ -433,7 +425,7 @@ class SectionUpdateServiceTest {
 				ManagerAlreadyAssignedException.class,
 				() -> sectionUpdateService.addManagerToSection(
 						sectionId,
-						manager.getUsername()));
+						managerUsername));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -446,7 +438,7 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(collaborator.getUsername()))
+		when(userService.findUserByUsername(collaboratorUsername))
 				.thenReturn(collaborator);
 
 		when(sectionRepository.save(any()))
@@ -454,7 +446,7 @@ class SectionUpdateServiceTest {
 
 		SectionResponse response = sectionUpdateService.addCollaboratorToSection(
 				sectionId,
-				collaborator.getUsername());
+				collaboratorUsername);
 
 		assertTrue(section.getCollaborators().contains(collaborator));
 		assertEquals(section.getName(), response.getName());
@@ -477,7 +469,7 @@ class SectionUpdateServiceTest {
 				SectionNotFoundException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(
 						sectionId,
-						collaborator.getUsername()));
+						collaboratorUsername));
 
 		verify(userService, never()).findUserByUsername(anyString());
 		verify(sectionRepository, never()).save(any());
@@ -489,14 +481,14 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(collaborator.getUsername()))
+		when(userService.findUserByUsername(collaboratorUsername))
 				.thenThrow(new UserNotFoundException("error"));
 
 		assertThrows(
 				UserNotFoundException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(
 						sectionId,
-						collaborator.getUsername()));
+						collaboratorUsername));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -507,7 +499,7 @@ class SectionUpdateServiceTest {
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(collaborator.getUsername()))
+		when(userService.findUserByUsername(collaboratorUsername))
 				.thenReturn(collaborator);
 
 		doThrow(new InvalidCollaboratorRoleException("error"))
@@ -518,7 +510,7 @@ class SectionUpdateServiceTest {
 				InvalidCollaboratorRoleException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(
 						sectionId,
-						collaborator.getUsername()));
+						collaboratorUsername));
 
 		verify(singleSectionCollaboratorSpecification, never())
 				.validate(anySet(), anyString());
@@ -528,11 +520,10 @@ class SectionUpdateServiceTest {
 	// ❌ 409 - Collaborator Already Assigned
 	@Test
 	void should_throw_when_collaborator_already_assigned_to_other_section() {
-		String collaboratorUsername = collaborator.getUsername();
 		when(sectionService.findSectionById(sectionId))
 				.thenReturn(section);
 
-		when(userService.findUserByUsername(collaborator.getUsername()))
+		when(userService.findUserByUsername(collaboratorUsername))
 				.thenReturn(collaborator);
 
 		doThrow(new CollaboratorAlreadyAssignedException("error"))

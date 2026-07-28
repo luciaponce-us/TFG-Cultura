@@ -41,8 +41,7 @@ class SingleSectionCollaboratorSpecificationTest {
         when(sectionRepository.findByCollaboratorsContaining(collaborator2))
                 .thenReturn(Optional.empty());
 
-        assertDoesNotThrow(() ->
-                specification.validate(Set.of(collaborator1, collaborator2)));
+        assertDoesNotThrow(() -> specification.validate(Set.of(collaborator1, collaborator2)));
 
         verify(sectionRepository).findByCollaboratorsContaining(collaborator1);
         verify(sectionRepository).findByCollaboratorsContaining(collaborator2);
@@ -58,10 +57,11 @@ class SingleSectionCollaboratorSpecificationTest {
         when(sectionRepository.findByCollaboratorsContaining(collaborator2))
                 .thenReturn(Optional.empty());
 
+        Set<User> collaborators = Set.of(collaborator1, collaborator2);
+
         CollaboratorAlreadyAssignedException exception = assertThrows(
                 CollaboratorAlreadyAssignedException.class,
-                () -> specification.validate(Set.of(collaborator1, collaborator2)));
-
+                () -> specification.validate(collaborators));
         assertTrue(exception.getMessage().contains("collaborator1"));
     }
 
@@ -75,10 +75,11 @@ class SingleSectionCollaboratorSpecificationTest {
         when(sectionRepository.findByCollaboratorsContaining(collaborator2))
                 .thenReturn(Optional.of(new Section()));
 
+        Set<User> collaborators = Set.of(collaborator1, collaborator2);
+
         CollaboratorAlreadyAssignedException exception = assertThrows(
                 CollaboratorAlreadyAssignedException.class,
-                () -> specification.validate(Set.of(collaborator1, collaborator2)));
-
+                () -> specification.validate(collaborators));
         assertTrue(exception.getMessage().contains("collaborator1"));
         assertTrue(exception.getMessage().contains("collaborator2"));
     }
