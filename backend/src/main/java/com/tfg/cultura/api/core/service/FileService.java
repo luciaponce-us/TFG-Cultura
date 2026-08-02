@@ -13,6 +13,8 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.tfg.cultura.api.core.exception.FileDeleteException;
 import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.exception.file.InvalidFileSizeException;
+import com.tfg.cultura.api.core.exception.file.InvalidFileTypeException;
 import com.tfg.cultura.api.core.model.CustomMultipartFile;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 
@@ -53,7 +55,8 @@ public class FileService {
         }
     }
 
-    public MultipartFile resizeImage(MultipartFile file, int width, int height) throws IOException {
+    public MultipartFile resizeImage(MultipartFile file, int width, int height) {
+        try{
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         Thumbnails.of(file.getInputStream())
@@ -73,6 +76,9 @@ public class FileService {
                 file.getName(),
                 newName,
                 "image/png");
+        } catch (IOException e) {
+            throw new FileUploadException("Error al redimensionar la imagen: " + e.getMessage());
+        }
     }
 
     public void deleteFile(String url) {
@@ -84,6 +90,27 @@ public class FileService {
         } catch (Exception e) {
             throw new FileDeleteException(e.getMessage());
         }
+    }
+
+    public void validateFileSize(MultipartFile file, long maxSizeMB) {
+        long maxSizeBytes = maxSizeMB * 1024 * 1024;
+        if (file.getSize() > maxSizeBytes) {
+            throw new InvalidFileSizeException(
+                    "El archivo excede el tamaño máximo permitido de " + maxSizeMB + " MB");
+        }
+    }
+
+    public void validateImage(MultipartFile file) {
+        String contentType = file.getContentType();
+
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new InvalidFileTypeException("El archivo debe ser una imagen.");
+        }
+    }
+
+    public void validateImageSize(MultipartFile file, long maxSizeMB) {
+        validateImage(file);
+        validateFileSize(file, maxSizeMB);
     }
 
     private String extractPublicId(String url) {
@@ -105,4 +132,5 @@ public class FileService {
             throw new FileDeleteException(e.getMessage());
         }
     }
+
 }
