@@ -5,6 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.tfg.cultura.api.core.exception.file.InvalidFileSizeException;
+import com.tfg.cultura.api.core.exception.file.InvalidFileTypeException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +51,19 @@ public class GlobalExceptionHandler {
         return apiErrorBuilder.build(ex, HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar el archivo", logger);
     }
 
-        @ExceptionHandler(UnauthorizedException.class)
+    @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException ex) {
         return apiErrorBuilder.build(ex, HttpStatus.FORBIDDEN, "No autorizado", logger);
+    }
+
+    @ExceptionHandler(InvalidFileSizeException.class)
+    public ResponseEntity<ApiError> handleInvalidFileSizeException(InvalidFileSizeException ex) {
+        return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "Tamaño de archivo inválido", logger);
+    }
+
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<ApiError> handleInvalidFileTypeException(InvalidFileTypeException ex) {
+        return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "Tipo de archivo inválido", logger);
     }
 
 }
