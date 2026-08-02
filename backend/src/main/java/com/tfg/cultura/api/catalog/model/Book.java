@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,8 @@ public class Book extends Item {
     private String isbn;
 
     private String saga;
+    
+    @Min(value = 1, message = "El número de libro en la saga debe ser mayor o igual a 1")
     private Integer number;
 
     @NotBlank(message = "El tipo es obligatorio")
