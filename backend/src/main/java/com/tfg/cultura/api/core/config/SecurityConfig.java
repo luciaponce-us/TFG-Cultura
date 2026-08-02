@@ -31,48 +31,51 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
         String[] adminRoles = appProperties.adminRoles().stream()
-            .map(Role::name)
-            .toArray(String[]::new);
-        
-        String[] superAdminRoles = List.of(Role.COORDINADOR.name(),Role.SECRETARIO.name()).toArray(new String[0]);
+                .map(Role::name)
+                .toArray(String[]::new);
+
+        String[] superAdminRoles = List.of(Role.COORDINADOR.name(), Role.SECRETARIO.name()).toArray(new String[0]);
 
         http
-            .cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf.disable()) // NOSONAR: CSRF deshabilitado porque la API es stateless y usa JWT en headers (no cookies)
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                // Rutas públicas
-                .requestMatchers("/", "/api", "/api/").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/dummy", "/api/dummy/**").permitAll()
-                .requestMatchers(
-                // Swagger and API docs
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/api/docs",
-                    "/docs/**",
-                    "/docs",
-                    "/api/docs/**",
-                    "/api/swagger-ui/**"
-                ).permitAll()
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable()) // NOSONAR: CSRF deshabilitado porque la API es stateless y usa JWT en
+                                              // headers (no cookies)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // Rutas públicas
+                        .requestMatchers("/", "/api", "/api/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dummy", "/api/dummy/**").permitAll()
+                        .requestMatchers(
+                                // Swagger and API docs
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/api/docs",
+                                "/docs/**",
+                                "/docs",
+                                "/api/docs/**",
+                                "/api/swagger-ui/**")
+                        .permitAll()
 
-                // Users - Auth
-                .requestMatchers(HttpMethod.POST, "/api/users/auth/**").permitAll()
-                // Users - Profile (requiere autenticación)
-                .requestMatchers("/api/users/profile", "/api/users/profile/**").authenticated()
-                // Users - Admin (requiere roles específicos)
-                .requestMatchers("/api/users/*/toggle-activation").hasAnyRole(adminRoles)
-                .requestMatchers("/api/users", "/api/users/**").hasAnyRole(adminRoles)
-                // Suggestions
-                .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
-                // Sections
-                .requestMatchers(HttpMethod.GET, "/api/sections", "/api/sections/**").permitAll()
-                .requestMatchers("/api/sections", "/api/sections/**").hasAnyRole(superAdminRoles) // RN-11: Solo Coordinador y Secretario pueden crear, editar y eliminar secciones
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            .httpBasic(basic -> basic.disable())
-            .formLogin(form -> form.disable());
+                        // Users - Auth
+                        .requestMatchers(HttpMethod.POST, "/api/users/auth/**").permitAll()
+                        // Users - Profile (requiere autenticación)
+                        .requestMatchers("/api/users/profile", "/api/users/profile/**").authenticated()
+                        // Users - Admin (requiere roles específicos)
+                        .requestMatchers("/api/users/*/toggle-activation").hasAnyRole(adminRoles)
+                        .requestMatchers("/api/users", "/api/users/**").hasAnyRole(adminRoles)
+                        // Suggestions
+                        .requestMatchers(HttpMethod.GET, "/api/suggestions").permitAll()
+                        // Sections
+                        .requestMatchers(HttpMethod.GET, "/api/sections", "/api/sections/**").permitAll()
+                        .requestMatchers("/api/sections", "/api/sections/**").hasAnyRole(superAdminRoles) // RN-11
+                        // Catalog
+                        .requestMatchers(HttpMethod.GET, "/api/catalog", "/api/catalog/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/catalog/**").hasAnyRole(adminRoles)
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(basic -> basic.disable())
+                .formLogin(form -> form.disable());
 
         return http.build();
     }

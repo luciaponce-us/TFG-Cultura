@@ -1,8 +1,6 @@
 package com.tfg.cultura.api.users.jwt;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tfg.cultura.api.core.exception.ApiError;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
+
+import io.jsonwebtoken.JwtException;
 
 import org.slf4j.LoggerFactory;
 
@@ -33,29 +33,9 @@ public class JwtFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
     private final ObjectMapper mapper = new ObjectMapper();
 
-
-    // URLs públicas que no requieren autenticación
-    private static final List<String> PUBLIC_URLS = Arrays.asList(
-            "/api/users/auth/register",
-            "/api/users/auth/login",
-            "/v3/api-docs",
-            "/swagger-ui",
-            "/swagger-ui.html",
-            "/api/docs",
-            "/docs",
-            "/api/dummy");
-
     public JwtFilter(JwtService jwtService, CustomUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
-    }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getRequestURI();
-        boolean isPublic = PUBLIC_URLS.stream().anyMatch(path::startsWith);
-        log.debug("[JWT] Accediendo a \"{}\" (ruta {})", path, isPublic? "pública" : "protegida");
-        return isPublic;
     }
 
     @Override
@@ -64,7 +44,7 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException, UserNotFoundException {
-                
+
         String authHeader = request.getHeader("Authorization");
         String path = request.getRequestURI();
 
@@ -117,12 +97,13 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     log.info("[JWT] Token válido para usuario: {} - Path: {}", userDetails.getUsername(), path);
                 } else {
-                    log.warn("[JWT] Token inválido o expirado para usuario: {} - Path: {}", userDetails.getUsername(), path);
+                    log.warn("[JWT] Token inválido o expirado para usuario: {} - Path: {}", userDetails.getUsername(),
+                            path);
                 }
             } else if (userId != null) {
                 log.debug("[JWT] Usuario con id {} ya tiene autenticación previa", userId);
             }
-        } catch (io.jsonwebtoken.JwtException e) {
+        } catch (JwtException e) {
             log.error("[JWT] Error procesando JWT para path {}: {}", path, e.getMessage(), e);
         } catch (UserNotFoundException e) {
             log.error("[JWT] Usuario no encontrado en JWT para path {}: {}", path, e.getMessage());

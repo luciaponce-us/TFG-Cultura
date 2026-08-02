@@ -55,28 +55,6 @@ class JwtFilterTest {
     }
 
     // -------------------------------
-    // shouldNotFilter
-    // -------------------------------
-
-    @Test
-    void should_not_filter_public_urls() throws Exception {
-        when(request.getRequestURI()).thenReturn("/api/users/auth/register");
-
-        boolean result = filter.shouldNotFilter(request);
-
-        assertTrue(result);
-    }
-
-    @Test
-    void should_filter_non_public_urls() throws Exception {
-        when(request.getRequestURI()).thenReturn("/api/private");
-
-        boolean result = filter.shouldNotFilter(request);
-
-        assertFalse(result);
-    }
-
-    // -------------------------------
     // doFilterInternal
     // -------------------------------
 
