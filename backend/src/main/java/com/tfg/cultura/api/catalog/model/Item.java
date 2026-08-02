@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.catalog.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -11,6 +12,8 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import com.tfg.cultura.api.catalog.model.enumerators.ItemCondition;
 import com.tfg.cultura.api.sections.model.Section;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +33,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Item {
 
-    private static final String DEFAULT_IMAGE_URL = "https://placehold.net/book-600x800.png";
+    private static final String DEFAULT_IMAGE_URL = "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/book_placeholder.jpg";
 
     @Id
     private String id;
@@ -63,7 +66,9 @@ public class Item {
 
     private LocalDate purchasedAt;
 
-    private Double price;
+    @DecimalMin(value = "0.00", inclusive = true, message = "El precio debe ser mayor o igual que 0")
+    @Digits(integer = 8, fraction = 2, message = "El precio debe tener como máximo 8 enteros y 2 decimales")
+    private BigDecimal price;
 
     @Min(1)
     @Builder.Default
