@@ -36,7 +36,7 @@ public class SectionService {
 
     // HELPER
 
-    Section findSectionById(String id) throws SectionNotFoundException {
+    public Section findSectionById(String id) throws SectionNotFoundException {
         return sectionRepository.findById(id)
                 .orElseThrow(() -> {
                     String sanitizedId = LoggerSanitizer.sanitize(id);

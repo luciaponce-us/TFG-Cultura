@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class CatalogExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
     private final ApiErrorBuilder apiErrorBuilder;
-    
+
     @ExceptionHandler(CategoryNotFoundException.class)
     public ResponseEntity<ApiError> handleCategoryNotFoundException(CategoryNotFoundException ex) {
         return apiErrorBuilder.build(
@@ -25,5 +25,14 @@ public class CatalogExceptionHandler {
                 HttpStatus.NOT_FOUND,
                 "Category Not Found",
                 logger);
-        }
+    }
+
+    @ExceptionHandler(BookNotFoundException.class)
+    public ResponseEntity<ApiError> handleBookNotFoundException(BookNotFoundException ex) {
+        return apiErrorBuilder.build(
+                ex,
+                HttpStatus.NOT_FOUND,
+                "Book Not Found",
+                logger);
+    }
 }
