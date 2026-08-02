@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -12,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import com.tfg.cultura.api.catalog.model.Book;
@@ -24,7 +28,7 @@ import com.tfg.cultura.api.seeder.dto.BookCsvRow;
 @Component
 public class BooksCsvParser {
 
-    private static final String CSV_FILE_PATH = "../data/books.csv";
+    private static final String CSV_FILE_PATH = "data/books.csv";
 
     public List<Book> loadBooksFromCsv(
             Map<String, Section> sectionsByName,
@@ -36,15 +40,11 @@ public class BooksCsvParser {
     }
 
     private List<BookCsvRow> loadBookCsvRowsFromCsv() {
+        Resource resource = new ClassPathResource(CSV_FILE_PATH);
 
-        InputStream is = BooksCsvParser.class.getResourceAsStream(CSV_FILE_PATH);
-
-        if (is == null) {
-            throw new IllegalStateException("No se encontró " + CSV_FILE_PATH);
-        }
-
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        try (InputStream is = resource.getInputStream();
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
             return reader.lines()
                     .skip(1)
@@ -101,7 +101,7 @@ public class BooksCsvParser {
                 .loanAvailable(Boolean.valueOf(parts[5]))
                 .publicated(Boolean.valueOf(parts[6]))
                 .purchasedAt(LocalDate.parse(parts[7]).toString())
-                .price(Double.valueOf(parts[8]))
+                .price(parts[8])
                 .copies(Integer.valueOf(parts[9]))
                 .availableCopies(Integer.valueOf(parts[10]))
                 .loanDays(Integer.valueOf(parts[11]))
@@ -126,6 +126,8 @@ public class BooksCsvParser {
                 ? LocalDate.parse(row.getPurchasedAt())
                 : null;
 
+        BigDecimal price = new BigDecimal(row.getPrice().trim())
+                .setScale(2, RoundingMode.HALF_UP);
         List<String> categoryNames = parseCategories(row.getCategories());
         Set<Category> categories = getCategories(categoryNames, categoriesByName);
 
@@ -138,7 +140,7 @@ public class BooksCsvParser {
                 .loanAvailable(row.getLoanAvailable())
                 .publicated(row.getPublicated())
                 .purchasedAt(purchasedAt)
-                .price(row.getPrice())
+                .price(price)
                 .copies(row.getCopies())
                 .availableCopies(row.getAvailableCopies())
                 .loanDays(row.getLoanDays())

@@ -14,7 +14,7 @@ public class ItemCsvRow {
     private Boolean loanAvailable;
     private Boolean publicated;
     private String purchasedAt;
-    private Double price;
+    private String price;
     private Integer copies;
     private Integer availableCopies;
     private Integer loanDays;

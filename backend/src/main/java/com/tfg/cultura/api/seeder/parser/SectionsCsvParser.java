@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.core.io.Resource;
 
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.seeder.dto.SectionCsvRow;
@@ -19,18 +21,14 @@ import com.tfg.cultura.api.users.model.User;
 
 @Component
 public class SectionsCsvParser {
-    private static final String CSV_FILE_PATH = "../data/sections.csv";
+    private static final String CSV_FILE_PATH = "data/sections.csv";
 
     public List<Section> loadSectionsFromCsv(Map<String, User> usersByUsername) {
+        Resource resource = new ClassPathResource(CSV_FILE_PATH);
 
-        InputStream is = SectionsCsvParser.class.getResourceAsStream(CSV_FILE_PATH);
-
-        if (is == null) {
-            throw new IllegalStateException("No se encontró " + CSV_FILE_PATH);
-        }
-
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        try (InputStream is = resource.getInputStream();
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
             return reader.lines()
                     .skip(1)

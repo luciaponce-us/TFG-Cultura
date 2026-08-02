@@ -10,8 +10,10 @@ import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.core.io.Resource;
 
 import com.tfg.cultura.api.seeder.dto.UserCsvRow;
 import com.tfg.cultura.api.users.model.User;
@@ -22,29 +24,24 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class UserCsvParser {
-    private static final String CSV_FILE_PATH = "../data/users.csv";
+    private static final String CSV_FILE_PATH = "data/users.csv";
     private final PasswordEncoder passwordEncoder;
 
     public List<User> loadUsersFromCsv() {
-        InputStream is = UserCsvParser.class.getResourceAsStream(CSV_FILE_PATH);
+        Resource resource = new ClassPathResource(CSV_FILE_PATH);
 
-        if (is == null) {
-            throw new IllegalStateException("No se encontró " + CSV_FILE_PATH);
-        }
-
-        // Try-with-resources para asegurar que el BufferedReader se cierre
-        // automáticamente
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, StandardCharsets.UTF_8));) {
+        try (InputStream is = resource.getInputStream();
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
             return reader.lines()
-                    .skip(1) // header
+                    .skip(1)
                     .map(this::mapLineToUser)
                     .map(this::toUser)
                     .toList();
 
         } catch (IOException e) {
-            throw new IllegalStateException("Error leyendo users.csv", e);
+            throw new IllegalStateException("Error leyendo " + CSV_FILE_PATH, e);
         }
     }
 
