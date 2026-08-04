@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    
+
     private static final Logger logger = LoggerFactory.getLogger("appLogger");
 
     private final ApiErrorBuilder apiErrorBuilder;
@@ -24,16 +24,16 @@ public class GlobalExceptionHandler {
     public GlobalExceptionHandler(ApiErrorBuilder apiErrorBuilder) {
         this.apiErrorBuilder = apiErrorBuilder;
     }
-    
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(error -> "Campo " + error.getField() + ": " + error.getDefaultMessage())
-            .collect(Collectors.joining(". "));
+                .getFieldErrors()
+                .stream()
+                .map(error -> "Campo " + error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(". "));
 
-        return apiErrorBuilder.build(ex,HttpStatus.BAD_REQUEST,"Errores de validación",logger,message);
+        return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "Errores de validación", logger, message);
     }
 
     @ExceptionHandler(FileUploadException.class)
@@ -64,6 +64,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidFileTypeException.class)
     public ResponseEntity<ApiError> handleInvalidFileTypeException(InvalidFileTypeException ex) {
         return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "Tipo de archivo inválido", logger);
+    }
+
+    @ExceptionHandler(DateMustBeAtThePastException.class)
+    public ResponseEntity<ApiError> handleDateMustBeAtThePastException(DateMustBeAtThePastException ex) {
+        return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "La fecha debe estar en el pasado", logger);
     }
 
 }

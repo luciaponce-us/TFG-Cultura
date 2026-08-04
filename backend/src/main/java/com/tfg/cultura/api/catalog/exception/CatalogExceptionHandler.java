@@ -15,24 +15,70 @@ import lombok.RequiredArgsConstructor;
 @RestControllerAdvice(basePackages = "com.tfg.cultura.api")
 @RequiredArgsConstructor
 public class CatalogExceptionHandler {
-    private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
-    private final ApiErrorBuilder apiErrorBuilder;
+	private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
+	private final ApiErrorBuilder apiErrorBuilder;
 
-    @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<ApiError> handleCategoryNotFoundException(CategoryNotFoundException ex) {
-        return apiErrorBuilder.build(
-                ex,
-                HttpStatus.NOT_FOUND,
-                "Category Not Found",
-                logger);
-    }
+	@ExceptionHandler(CategoryNotFoundException.class)
+	public ResponseEntity<ApiError> handleCategoryNotFoundException(CategoryNotFoundException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.NOT_FOUND,
+				"Category Not Found",
+				logger);
+	}
 
-    @ExceptionHandler(BookNotFoundException.class)
-    public ResponseEntity<ApiError> handleBookNotFoundException(BookNotFoundException ex) {
-        return apiErrorBuilder.build(
-                ex,
-                HttpStatus.NOT_FOUND,
-                "Book Not Found",
-                logger);
-    }
+	@ExceptionHandler(ItemNotFoundException.class)
+	public ResponseEntity<ApiError> handleBookNotFoundException(ItemNotFoundException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.NOT_FOUND,
+				"Item Not Found",
+				logger);
+	}
+
+	@ExceptionHandler(SamePrequelAndSequelException.class)
+	public ResponseEntity<ApiError> handleSamePrequelAndSequelException(SamePrequelAndSequelException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.BAD_REQUEST,
+				"Same Prequel and Sequel",
+				logger);
+	}
+
+	@ExceptionHandler(ItemCannotBeItsOwnSequelException.class)
+	public ResponseEntity<ApiError> handleItemCannotBeItsOwnSequelException(ItemCannotBeItsOwnSequelException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.BAD_REQUEST,
+				"Item Cannot Be Its Own Sequel",
+				logger);
+	}
+
+	@ExceptionHandler(ItemCannotBeItsOwnPrequelException.class)
+	public ResponseEntity<ApiError> handleItemCannotBeItsOwnPrequelException(ItemCannotBeItsOwnPrequelException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.BAD_REQUEST,
+				"Item Cannot Be Its Own Prequel",
+				logger);
+	}
+
+	@ExceptionHandler(ItemAlreadyExistsException.class)
+	public ResponseEntity<ApiError> handleItemAlreadyExistsException(ItemAlreadyExistsException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.CONFLICT,
+				"Item Already Exists",
+				logger);
+	}
+
+	@ExceptionHandler(DuplicateItemNumberInSagaException.class)
+	public ResponseEntity<ApiError> handleDuplicateItemNumberInSagaException(DuplicateItemNumberInSagaException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.CONFLICT,
+				"Duplicate Item Number in Saga",
+				logger);
+	}
+
 }
