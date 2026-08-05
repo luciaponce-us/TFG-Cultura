@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.validation.annotations.ValidIsbn;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

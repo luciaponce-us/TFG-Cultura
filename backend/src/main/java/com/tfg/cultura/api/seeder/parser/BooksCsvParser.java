@@ -174,15 +174,6 @@ public class BooksCsvParser {
         return value.equalsIgnoreCase("null") ? null : value;
     }
 
-    private Integer parseNullableInteger(String value) {
-
-        value = clean(value);
-
-        return value.equalsIgnoreCase("null")
-                ? null
-                : Integer.valueOf(value);
-    }
-
     private String clean(String value) {
         return value.trim().replace("\"", "");
     }
