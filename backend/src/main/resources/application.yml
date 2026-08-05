@@ -25,6 +25,8 @@ app:
 springdoc:
   swagger-ui:
     path: /api/docs
+    doc-expansion: none
+    default-models-expand-depth: -1
 
 sonar:
   coverage:
