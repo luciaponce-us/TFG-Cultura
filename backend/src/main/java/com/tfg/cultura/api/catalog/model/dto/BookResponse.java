@@ -9,7 +9,7 @@ import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.model.enumerators.ItemCondition;
-import com.tfg.cultura.api.sections.model.dto.SectionResponse;
+import com.tfg.cultura.api.sections.model.dto.SectionReference;
 
 import lombok.Getter;
 
@@ -29,7 +29,7 @@ public class BookResponse {
     private Integer copies;
     private Integer availableCopies;
     private Integer loanDays;
-    private SectionResponse section;
+    private SectionReference section;
     private Set<Category> categories;
     private LocalDateTime createdAt;
     // Book-specific fields
@@ -52,7 +52,7 @@ public class BookResponse {
         this.copies = book.getCopies();
         this.availableCopies = book.getAvailableCopies();
         this.loanDays = book.getLoanDays();
-        this.section = book.getSection() != null ? new SectionResponse(book.getSection()) : null;
+        this.section = book.getSection() != null ? new SectionReference(book.getSection()) : null;
         this.categories = book.getCategories();
         this.createdAt = book.getCreatedAt();
 
