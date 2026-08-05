@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
+    
     private final CategoryRepository categoryRepository;
-
 
     private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
 
