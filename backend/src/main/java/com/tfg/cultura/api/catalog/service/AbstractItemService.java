@@ -141,7 +141,8 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
         return mapper.apply(updatedItem);
     }
 
-    protected abstract void postUpdateActions(T oldItem, T updatedItem) throws ItemNotFoundException, IllegalArgumentException;
+    protected abstract void postUpdateActions(T oldItem, T updatedItem)
+            throws ItemNotFoundException, IllegalArgumentException;
 
     private void checkAvailableCopies(Integer availableCopies, Integer copies) throws IllegalArgumentException {
         if (availableCopies < 0) {
@@ -213,5 +214,13 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
         }
         String newImageUrl = uploadImage(item.getId(), image, folder, defaultImageUrl);
         item.setImageUrl(newImageUrl);
+    }
+
+    public void removeCategory(Category category) {
+        repository.findAllByCategoriesContaining(category)
+                .forEach(item -> {
+                    item.getCategories().remove(category);
+                    repository.save(item);
+                });
     }
 }

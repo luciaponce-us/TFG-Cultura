@@ -1,0 +1,62 @@
+package com.tfg.cultura.api.catalog.controller;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.tfg.cultura.api.catalog.model.Category;
+import com.tfg.cultura.api.catalog.service.CategoryDeletingService;
+import com.tfg.cultura.api.catalog.service.CategoryService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/catalog/categories")
+@RequiredArgsConstructor
+@Tag(name = "Catalog - Categories", description = "Gestión de categorías")
+public class CategoryController {
+
+    private final CategoryService categoryService;
+    private final CategoryDeletingService categoryDeletingService;
+
+    @PostMapping
+    public ResponseEntity<Category> createCategory(String name) {
+        Category category = categoryService.createCategory(name);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(category);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Category>> getAllCategories() {
+        List<Category> categories = categoryService.findAllCategories();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(categories);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Category> updateCategory(String id, String name) {
+        Category updatedCategory = categoryService.updateCategory(id, name);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(updatedCategory);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategory(String id) {
+        categoryDeletingService.deleteCategory(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
+}

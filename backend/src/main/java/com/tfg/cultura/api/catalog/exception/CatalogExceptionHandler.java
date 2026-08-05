@@ -7,11 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
-import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
-import com.tfg.cultura.api.catalog.exception.saga.SagaAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
+import com.tfg.cultura.api.catalog.exception.category.*;
+import com.tfg.cultura.api.catalog.exception.item.*;
+import com.tfg.cultura.api.catalog.exception.saga.*;
 import com.tfg.cultura.api.core.exception.ApiError;
 import com.tfg.cultura.api.core.exception.ApiErrorBuilder;
 
@@ -65,6 +63,15 @@ public class CatalogExceptionHandler {
 				ex,
 				HttpStatus.CONFLICT,
 				"Saga Already Exists",
+				logger);
+	}
+
+	@ExceptionHandler(CategoryAlreadyExistsException.class)
+	public ResponseEntity<ApiError> handleCategoryAlreadyExistsException(CategoryAlreadyExistsException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.CONFLICT,
+				"Category Already Exists",
 				logger);
 	}
 
