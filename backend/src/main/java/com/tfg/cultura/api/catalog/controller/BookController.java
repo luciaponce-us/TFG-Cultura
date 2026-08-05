@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/catalog/books")
 @RequiredArgsConstructor
-@Tag(name = "Books - CRUD", description = "Gestión de libros")
+@Tag(name = "Catalog - Books", description = "Gestión de libros")
 public class BookController {
 
 	private final BookService bookService;

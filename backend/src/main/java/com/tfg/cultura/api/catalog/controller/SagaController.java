@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/catalog/sagas")
 @RequiredArgsConstructor
-@Tag(name = "Sagas - CRUD", description = "Gestión de sagas")
+@Tag(name = "Catalog - Sagas", description = "Gestión de sagas")
 public class SagaController {
 
     private final SagaService sagaService;

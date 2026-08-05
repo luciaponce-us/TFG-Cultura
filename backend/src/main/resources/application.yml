@@ -27,6 +27,13 @@ springdoc:
     path: /api/docs
     doc-expansion: none
     default-models-expand-depth: -1
+    tags-sorter: alpha
+    persist-authorization: true
+    operations-sorter: method
+    filter: true
+    try-it-out-enabled: true
+    disable-swagger-default-url: true
+    display-request-duration: true
 
 sonar:
   coverage:
