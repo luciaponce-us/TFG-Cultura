@@ -1,4 +1,4 @@
-package com.tfg.cultura.api.catalog.exception;
+package com.tfg.cultura.api.catalog.exception.category;
 
 public class CategoryNotFoundException extends RuntimeException {
     public CategoryNotFoundException(String message) {

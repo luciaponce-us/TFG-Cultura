@@ -10,5 +10,5 @@ public interface BookRepository extends ItemRepository<Book> {
 
     boolean existsByIsbn(String isbn);
 
-    boolean existsBySagaAndNumber(String saga, Integer number);
+    Iterable<Book> findAllBySaga(String sagaId);
 }

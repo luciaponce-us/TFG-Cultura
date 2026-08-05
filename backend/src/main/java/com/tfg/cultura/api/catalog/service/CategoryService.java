@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.tfg.cultura.api.catalog.exception.CategoryNotFoundException;
+import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.repository.CategoryRepository;
 

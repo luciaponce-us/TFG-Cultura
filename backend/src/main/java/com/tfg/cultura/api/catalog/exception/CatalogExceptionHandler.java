@@ -7,6 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
+import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
+import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
+import com.tfg.cultura.api.catalog.exception.saga.SagaAlreadyExistsException;
+import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.core.exception.ApiError;
 import com.tfg.cultura.api.core.exception.ApiErrorBuilder;
 
@@ -36,30 +41,12 @@ public class CatalogExceptionHandler {
 				logger);
 	}
 
-	@ExceptionHandler(SamePrequelAndSequelException.class)
-	public ResponseEntity<ApiError> handleSamePrequelAndSequelException(SamePrequelAndSequelException ex) {
+	@ExceptionHandler(SagaNotFoundException.class)
+	public ResponseEntity<ApiError> handleSagaNotFoundException(SagaNotFoundException ex) {
 		return apiErrorBuilder.build(
 				ex,
-				HttpStatus.BAD_REQUEST,
-				"Same Prequel and Sequel",
-				logger);
-	}
-
-	@ExceptionHandler(ItemCannotBeItsOwnSequelException.class)
-	public ResponseEntity<ApiError> handleItemCannotBeItsOwnSequelException(ItemCannotBeItsOwnSequelException ex) {
-		return apiErrorBuilder.build(
-				ex,
-				HttpStatus.BAD_REQUEST,
-				"Item Cannot Be Its Own Sequel",
-				logger);
-	}
-
-	@ExceptionHandler(ItemCannotBeItsOwnPrequelException.class)
-	public ResponseEntity<ApiError> handleItemCannotBeItsOwnPrequelException(ItemCannotBeItsOwnPrequelException ex) {
-		return apiErrorBuilder.build(
-				ex,
-				HttpStatus.BAD_REQUEST,
-				"Item Cannot Be Its Own Prequel",
+				HttpStatus.NOT_FOUND,
+				"Saga Not Found",
 				logger);
 	}
 
@@ -72,12 +59,12 @@ public class CatalogExceptionHandler {
 				logger);
 	}
 
-	@ExceptionHandler(DuplicateItemNumberInSagaException.class)
-	public ResponseEntity<ApiError> handleDuplicateItemNumberInSagaException(DuplicateItemNumberInSagaException ex) {
+	@ExceptionHandler(SagaAlreadyExistsException.class)
+	public ResponseEntity<ApiError> handleSagaAlreadyExistsException(SagaAlreadyExistsException ex) {
 		return apiErrorBuilder.build(
 				ex,
 				HttpStatus.CONFLICT,
-				"Duplicate Item Number in Saga",
+				"Saga Already Exists",
 				logger);
 	}
 

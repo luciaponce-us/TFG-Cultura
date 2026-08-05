@@ -29,18 +29,10 @@ public class Book extends Item {
     @NotBlank(message = "El ISBN es obligatorio")
     private String isbn;
 
-    private String saga;
-
-    @Min(value = 1, message = "El número de libro en la saga debe ser mayor o igual a 1")
-    private Integer number;
-
     @NotBlank(message = "El tipo es obligatorio")
     private BookType type;
 
     @DocumentReference
-    private Book prequel;
-
-    @DocumentReference
-    private Book sequel;
+    private Saga saga;
 
 }

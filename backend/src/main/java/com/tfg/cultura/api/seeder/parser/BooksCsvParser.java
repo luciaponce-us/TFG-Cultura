@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
+import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.model.enumerators.ItemCondition;
 import com.tfg.cultura.api.sections.model.Section;
@@ -32,10 +33,11 @@ public class BooksCsvParser {
 
     public List<Book> loadBooksFromCsv(
             Map<String, Section> sectionsByName,
-            Map<String, Category> categoriesByName) {
+            Map<String, Category> categoriesByName,
+            Map<String, Saga> sagasByName) {
 
         return loadBookCsvRowsFromCsv().stream()
-                .map(row -> toBook(row, sectionsByName, categoriesByName))
+                .map(row -> toBook(row, sectionsByName, categoriesByName, sagasByName))
                 .toList();
     }
 
@@ -54,38 +56,6 @@ public class BooksCsvParser {
         } catch (IOException e) {
             throw new IllegalStateException("Error leyendo books.csv", e);
         }
-    }
-
-    public List<Book> assignPrequelsAndSequels(List<Book> loadedBooks) {
-        List<BookCsvRow> bookCsvRows = loadBookCsvRowsFromCsv();
-        Map<String, Book> loadedBooksByName = loadedBooks.stream()
-                .collect(Collectors.toMap(Book::getName, book -> book));
-
-        for (BookCsvRow row : bookCsvRows) {
-            Book currentBook = loadedBooksByName.get(row.getName());
-
-            String prequelName = row.getPrequel();
-            if (prequelName != null) {
-                Book prequel = loadedBooksByName.get(prequelName);
-                if (prequel == null) {
-                    throw new IllegalStateException(
-                            "No existe el libro predecesor '" + prequelName + "'");
-                }
-                currentBook.setPrequel(prequel);
-            }
-
-            String sequelName = row.getSequel();
-            if (sequelName != null) {
-                Book sequel = loadedBooksByName.get(sequelName);
-                if (sequel == null) {
-                    throw new IllegalStateException(
-                            "No existe el libro sucesor '" + sequelName + "'");
-                }
-                currentBook.setSequel(sequel);
-            }
-        }
-
-        return loadedBooks;
     }
 
     private BookCsvRow mapLine(String line) {
@@ -109,18 +79,15 @@ public class BooksCsvParser {
                 .categories(parts[13])
                 .author(clean(parts[14]))
                 .isbn(clean(parts[15]))
-                .saga(parseNullableString(parts[16]))
-                .number(parseNullableInteger(parts[17]))
-                .type(clean(parts[18]))
-                .prequel(parseNullableString(parts[19]))
-                .sequel(parseNullableString(parts[20]))
+                .type(clean(parts[16]))
+                .saga(parseNullableString(parts[17]))
                 .build();
     }
 
     private Book toBook(
             BookCsvRow row,
             Map<String, Section> sectionsByName,
-            Map<String, Category> categoriesByName) {
+            Map<String, Category> categoriesByName, Map<String, Saga> sagasByName) {
 
         LocalDate purchasedAt = row.getPurchasedAt() != null
                 ? LocalDate.parse(row.getPurchasedAt())
@@ -130,6 +97,7 @@ public class BooksCsvParser {
                 .setScale(2, RoundingMode.HALF_UP);
         List<String> categoryNames = parseCategories(row.getCategories());
         Set<Category> categories = getCategories(categoryNames, categoriesByName);
+        Saga saga = row.getSaga() != null ? sagasByName.get(row.getSaga()) : null;
 
         return Book.builder()
                 .name(row.getName())
@@ -148,9 +116,8 @@ public class BooksCsvParser {
                 .categories(categories)
                 .author(row.getAuthor())
                 .isbn(row.getIsbn())
-                .saga(row.getSaga())
-                .number(row.getNumber())
                 .type(BookType.valueOf(row.getType()))
+                .saga(saga)
                 .build();
     }
 

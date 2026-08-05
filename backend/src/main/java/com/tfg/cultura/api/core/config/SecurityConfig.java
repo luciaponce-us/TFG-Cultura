@@ -72,6 +72,8 @@ public class SecurityConfig {
                         // Catalog
                         .requestMatchers(HttpMethod.GET, "/api/catalog", "/api/catalog/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/catalog/**").hasAnyRole(adminRoles)
+                        .requestMatchers(HttpMethod.PUT, "/api/catalog/**").hasAnyRole(adminRoles)
+                        .requestMatchers(HttpMethod.DELETE, "/api/catalog/**").hasAnyRole(adminRoles)
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(basic -> basic.disable())

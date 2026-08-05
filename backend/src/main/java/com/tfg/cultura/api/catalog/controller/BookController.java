@@ -32,51 +32,51 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Books - CRUD", description = "Gestión de libros")
 public class BookController {
 
-        private final BookService bookService;
+	private final BookService bookService;
 
-        @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-        public ResponseEntity<BookResponse> createBook(
-                        @Valid @Parameter(description = "Datos del libro en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("book") BookCreateRequest bookRequest,
-                        @RequestPart(value = "image", required = false) MultipartFile image) {
-                BookResponse response = bookService.create(bookRequest, image);
-                return ResponseEntity
-                                .status(HttpStatus.CREATED)
-                                .body(response);
-        }
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<BookResponse> createBook(
+			@Valid @Parameter(description = "Datos del libro en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("book") BookCreateRequest bookRequest,
+			@RequestPart(value = "image", required = false) MultipartFile image) {
+		BookResponse response = bookService.create(bookRequest, image);
+		return ResponseEntity
+				.status(HttpStatus.CREATED)
+				.body(response);
+	}
 
-        @GetMapping("/{id}")
-        public ResponseEntity<BookResponse> getBook(@PathVariable String id) {
-                BookResponse response = bookService.getById(id);
-                return ResponseEntity
-                                .status(HttpStatus.OK)
-                                .body(response);
-        }
+	@GetMapping("/{id}")
+	public ResponseEntity<BookResponse> getBook(@PathVariable String id) {
+		BookResponse response = bookService.getById(id);
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.body(response);
+	}
 
-        @GetMapping
-        public ResponseEntity<Page<BookResponse>> getAllBooks(
-                        @Parameter(description = "Número de página (0-indexed)") @RequestParam(defaultValue = "0") int page,
-                        @Parameter(description = "Tamaño de página") @RequestParam(defaultValue = "10") int size) {
-                var responsePage = bookService.getAll(PageRequest.of(page, size));
-                return ResponseEntity
-                                .status(HttpStatus.OK)
-                                .body(responsePage);
-        }
+	@GetMapping
+	public ResponseEntity<Page<BookResponse>> getAllBooks(
+			@Parameter(description = "Número de página (0-indexed)") @RequestParam(defaultValue = "0") int page,
+			@Parameter(description = "Tamaño de página") @RequestParam(defaultValue = "10") int size) {
+		var responsePage = bookService.getAll(PageRequest.of(page, size));
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.body(responsePage);
+	}
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<Void> deleteBook(@PathVariable String id) {
-                bookService.delete(id);
-                return ResponseEntity
-                                .status(HttpStatus.NO_CONTENT).build();
-        }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteBook(@PathVariable String id) {
+		bookService.delete(id);
+		return ResponseEntity
+				.status(HttpStatus.NO_CONTENT).build();
+	}
 
-        @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-        public ResponseEntity<BookResponse> updateBook(
-                        @PathVariable String id,
-                        @Valid @Parameter(description = "Datos del libro en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("book") BookCreateRequest bookRequest,
-                        @RequestPart(value = "image", required = false) MultipartFile image) {
-                BookResponse response = bookService.update(id, bookRequest, image);
-                return ResponseEntity
-                                .status(HttpStatus.OK)
-                                .body(response);
-        }
+	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<BookResponse> updateBook(
+			@PathVariable String id,
+			@Valid @Parameter(description = "Datos del libro en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("book") BookCreateRequest bookRequest,
+			@RequestPart(value = "image", required = false) MultipartFile image) {
+		BookResponse response = bookService.update(id, bookRequest, image);
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.body(response);
+	}
 }

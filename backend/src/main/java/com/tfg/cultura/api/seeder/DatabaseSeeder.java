@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
-import com.tfg.cultura.api.catalog.repository.BookRepository;
+import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.seeder.parser.BooksCsvParser;
 import com.tfg.cultura.api.seeder.parser.SectionsCsvParser;
@@ -35,7 +35,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private final MongoTemplate mongoTemplate;
     private final PasswordEncoder passwordEncoder;
-    private final BookRepository bookRepository;
 
     private static final Logger logger = LoggerFactory.getLogger("appLogger");
 
@@ -59,7 +58,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         seedSugerencias(usuarios);
         List<Section> secciones = seedSections(usuarios);
         List<Category> categorias = seedCategories();
-        seedBooks(secciones, categorias);
+        List<Saga> sagas = seedSagas();
+        seedBooks(secciones, categorias, sagas);
 
         logger.info("💾 Todos los datos se han guardado correctamente");
     }
@@ -164,13 +164,27 @@ public class DatabaseSeeder implements CommandLineRunner {
         Category c1 = Category.builder().name("Ficción").color("#FF5733").build();
         Category c2 = Category.builder().name("No Ficción").color("#33FF57").build();
         Category c3 = Category.builder().name("Ciencia Ficción").color("#3357FF").build();
-        List<Category> categories = List.of(c1, c2, c3);
+        Category c4 = Category.builder().name("Novela").color("#FF33A1").build();
+        Category c5 = Category.builder().name("Fantasía").color("#A133FF").build();
+        Category c6 = Category.builder().name("Terror").color("#33FFA1").build();
+        List<Category> categories = List.of(c1, c2, c3, c4, c5, c6);
         mongoTemplate.insertAll(categories);
         logger.info("✅🏷️ Insertadas {} categorías", categories.size());
         return categories;
     }
 
-    private void seedBooks(List<Section> sections, List<Category> categories) {
+    private List<Saga> seedSagas() {
+        logger.info("📖 Creando colección: sagas");
+        Saga s1 = Saga.builder().name("Geralt de Rivia").build();
+        Saga s2 = Saga.builder().name("Crónicas Vampíricas").build();
+        Saga s3 = Saga.builder().name("Odisea").build();
+        List<Saga> sagas = List.of(s1, s2, s3);
+        mongoTemplate.insertAll(sagas);
+        logger.info("✅📖 Insertadas {} sagas", sagas.size());
+        return sagas;
+    }
+
+    private void seedBooks(List<Section> sections, List<Category> categories, List<Saga> sagas) {
         logger.info("📖 Creando colección: books");
 
         Map<String, Section> sectionsByName = sections.stream()
@@ -183,15 +197,18 @@ public class DatabaseSeeder implements CommandLineRunner {
                         Category::getName,
                         Function.identity()));
 
-                        List<Book> booksFromCsv = new BooksCsvParser().loadBooksFromCsv(
-                sectionsByName,
-                categoriesByName
-        );
-        Collection<Book> books = mongoTemplate.insertAll(booksFromCsv);
-        List<Book> booksWithPrequelsAndSequels = new BooksCsvParser().assignPrequelsAndSequels(books.stream().toList());
-        System.out.println("Books with prequels and sequels: " + booksWithPrequelsAndSequels.stream().map(b-> "Libro:" + b.getName()+ " - Prequel: " + b.getPrequel() + " - Sequel: " + b.getSequel()).toList());
+        Map<String, Saga> sagasByName = sagas.stream()
+                .collect(Collectors.toMap(
+                        Saga::getName,
+                        Function.identity()));
 
-        Collection<Book> updatedBooks = bookRepository.saveAll(booksWithPrequelsAndSequels);
-        logger.info("✅📖 Insertados {} libros", updatedBooks.size());
+        List<Book> booksFromCsv = new BooksCsvParser().loadBooksFromCsv(
+                sectionsByName,
+                categoriesByName,
+                sagasByName);
+
+        Collection<Book> books = mongoTemplate.insertAll(booksFromCsv);
+
+        logger.info("✅📖 Insertados {} libros", books.size());
     }
 }

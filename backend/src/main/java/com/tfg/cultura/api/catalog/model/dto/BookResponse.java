@@ -35,11 +35,8 @@ public class BookResponse {
     // Book-specific fields
     private String author;
     private String isbn;
-    private String saga;
-    private Integer number;
     private BookType type;
-    private BookReference prequel;
-    private BookReference sequel;
+    private String saga;
 
     public BookResponse(Book book) {
         this.id = book.getId();
@@ -62,15 +59,7 @@ public class BookResponse {
         // Book-specific fields
         this.author = book.getAuthor();
         this.isbn = book.getIsbn();
-        this.saga = book.getSaga();
-        this.number = book.getNumber();
         this.type = book.getType();
-
-        if (book.getPrequel() != null) {
-            this.prequel = new BookReference(book.getPrequel());
-        }
-        if (book.getSequel() != null) {
-            this.sequel = new BookReference(book.getSequel());
-        }
+        this.saga = book.getSaga() != null ? book.getSaga().getName() : null;
     }
 }

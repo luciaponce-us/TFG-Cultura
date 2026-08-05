@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.tfg.cultura.api.catalog.exception.ItemNotFoundException;
+import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Item;
 import com.tfg.cultura.api.catalog.model.dto.ItemCreateRequest;
 import com.tfg.cultura.api.core.exception.FileUploadException;

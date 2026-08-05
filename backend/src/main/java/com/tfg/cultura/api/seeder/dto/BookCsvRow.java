@@ -8,9 +8,6 @@ import lombok.experimental.SuperBuilder;
 public class BookCsvRow extends ItemCsvRow {
     private String author;
     private String isbn;
-    private String saga;
-    private Integer number;
     private String type;
-    private String prequel;
-    private String sequel;
+    private String saga;
 }

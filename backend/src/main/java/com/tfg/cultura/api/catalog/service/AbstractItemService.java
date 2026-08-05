@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Item;
 import com.tfg.cultura.api.catalog.model.dto.ItemCreateRequest;
@@ -23,7 +24,6 @@ import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.service.SectionService;
-import com.tfg.cultura.api.catalog.exception.ItemNotFoundException;
 
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
@@ -136,12 +136,12 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
 
         updateImage(existingItem, image, getImageFolder(), getDefaultImageUrl());
 
-        postUpdateActions(existingItem, request);
+        postUpdateActions(existingItem, updatedItem);
 
         return mapper.apply(updatedItem);
     }
 
-    protected abstract void postUpdateActions(T oldItem, C request);
+    protected abstract void postUpdateActions(T oldItem, T updatedItem) throws ItemNotFoundException, IllegalArgumentException;
 
     private void checkAvailableCopies(Integer availableCopies, Integer copies) throws IllegalArgumentException {
         if (availableCopies < 0) {
