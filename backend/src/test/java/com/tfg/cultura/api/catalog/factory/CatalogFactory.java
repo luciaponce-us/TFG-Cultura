@@ -1,10 +1,18 @@
 package com.tfg.cultura.api.catalog.factory;
 
 import com.tfg.cultura.api.catalog.model.Book;
+import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.dto.BookCreateRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 
 public class CatalogFactory {
+
+    public static Category validCategory() {
+        return Category.builder()
+                .id("1")
+                .name("Test Category")
+                .build();
+    }
 
     public static Book validBook() {
         return Book.builder()
