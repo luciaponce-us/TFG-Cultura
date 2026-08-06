@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tfg.cultura.api.catalog.model.Category;
@@ -28,7 +30,7 @@ public class CategoryController {
     private final CategoryDeletingService categoryDeletingService;
 
     @PostMapping
-    public ResponseEntity<Category> createCategory(String name) {
+    public ResponseEntity<Category> createCategory(@RequestParam String name) {
         Category category = categoryService.createCategory(name);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -44,7 +46,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> updateCategory(String id, String name) {
+    public ResponseEntity<Category> updateCategory(@PathVariable String id, @RequestParam String name) {
         Category updatedCategory = categoryService.updateCategory(id, name);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -52,7 +54,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(String id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable String id) {
         categoryDeletingService.deleteCategory(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
