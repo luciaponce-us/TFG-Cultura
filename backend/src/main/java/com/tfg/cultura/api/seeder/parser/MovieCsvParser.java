@@ -2,20 +2,22 @@ package com.tfg.cultura.api.seeder.parser;
 
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
-import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
+import com.tfg.cultura.api.catalog.model.Movie;
+import com.tfg.cultura.api.catalog.model.MovieInfo;
 import com.tfg.cultura.api.catalog.model.Saga;
-import com.tfg.cultura.api.catalog.model.enumerators.BookType;
+import com.tfg.cultura.api.catalog.model.enumerators.Format;
 import com.tfg.cultura.api.sections.model.Section;
 
 @Component
-public class BooksCsvParser extends ItemCsvParser {
+public class MovieCsvParser extends ItemCsvParser {
 
-    private static final String CSV_FILE_PATH = "data/books.csv";
+    private static final String CSV_FILE_PATH = "data/movies.csv";
 
-    public List<Book> loadBooksFromCsv(
+    public List<Movie> loadMoviesFromCsv(
             Map<String, Section> sectionsByName,
             Map<String, Category> categoriesByName,
             Map<String, Saga> sagasByName) {
@@ -23,7 +25,7 @@ public class BooksCsvParser extends ItemCsvParser {
         return loadCsv(CSV_FILE_PATH, line -> mapLine(line, sectionsByName, categoriesByName, sagasByName));
     }
 
-    private Book mapLine(
+    private Movie mapLine(
             String line,
             Map<String, Section> sectionsByName,
             Map<String, Category> categoriesByName,
@@ -31,15 +33,22 @@ public class BooksCsvParser extends ItemCsvParser {
 
         String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 
-        Book.BookBuilder<?, ?> builder = Book.builder();
+        Movie.MovieBuilder<?, ?> builder = Movie.builder();
 
         fillItemFields(builder, parts, categoriesByName, sectionsByName);
 
+        MovieInfo movieInfo = MovieInfo.builder()
+                .releaseDate(parseNullableString(parts[16]) != null
+                        ? parseLocalDate(parts[16])
+                        : null)
+                .trailerUrl(parseNullableString(parts[17]))
+                .saga(getSaga(parts[18], sagasByName))
+                .build();
+
         return builder
-                .author(clean(parts[14]))
-                .isbn(clean(parts[15]))
-                .type(BookType.valueOf(clean(parts[16])))
-                .saga(getSaga(parts[17], sagasByName))
+                .format(Format.valueOf(clean(parts[14])))
+                .numberOfDiscs(Integer.parseInt(parts[15]))
+                .movieInfo(movieInfo)
                 .build();
     }
 
