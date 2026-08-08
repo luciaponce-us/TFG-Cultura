@@ -14,6 +14,8 @@ import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.catalog.repository.SagaRepository;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -48,8 +50,9 @@ public class SagaService {
         if (optionalSaga.isPresent()) {
             return optionalSaga.get();
         } else {
-            logger.error("Saga no encontrada con ID: {}", id);
-            throw new SagaNotFoundException(id);
+            String errorMessage = "Saga no encontrada con ID: " + sanitize(id);
+            logger.error(errorMessage);
+            throw new SagaNotFoundException(errorMessage);
         }
     }
 
@@ -58,8 +61,9 @@ public class SagaService {
         if (saga != null) {
             return saga;
         } else {
-            logger.error("Saga no encontrada con nombre: {}", name);
-            throw new SagaNotFoundException(name);
+            String errorMessage = "Saga no encontrada con nombre: " + sanitize(name);
+            logger.error(errorMessage);
+            throw new SagaNotFoundException(errorMessage);
         }
     }
 
