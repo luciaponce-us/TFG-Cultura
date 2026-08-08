@@ -70,14 +70,6 @@ class BookControllerTest extends BaseControllerTest {
                 toJson(request).getBytes(StandardCharsets.UTF_8));
     }
 
-    private MockMultipartFile mockImagePart() {
-        return new MockMultipartFile(
-                "image",
-                "cover.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                "image-content".getBytes(StandardCharsets.UTF_8));
-    }
-
     // ====================== CREATION ======================
 
     @Test
@@ -101,7 +93,7 @@ class BookControllerTest extends BaseControllerTest {
         when(bookService.create(any(BookCreateRequest.class), any())).thenReturn(bookResponse);
 
         MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
-        MockMultipartFile imagePart = mockImagePart();
+        MockMultipartFile imagePart = CatalogFactory.mockImagePart();
 
         mockMvc.perform(multipart(BASE_URL)
                 .file(bookPart)
