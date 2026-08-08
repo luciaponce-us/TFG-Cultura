@@ -66,9 +66,4 @@ public class GlobalExceptionHandler {
         return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "Tipo de archivo inválido", logger);
     }
 
-    @ExceptionHandler(DateMustBeAtThePastException.class)
-    public ResponseEntity<ApiError> handleDateMustBeAtThePastException(DateMustBeAtThePastException ex) {
-        return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "La fecha debe estar en el pasado", logger);
-    }
-
 }

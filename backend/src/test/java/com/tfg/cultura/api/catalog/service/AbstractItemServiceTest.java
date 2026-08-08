@@ -36,7 +36,6 @@ import com.tfg.cultura.api.catalog.model.dto.BookCreateRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
-import com.tfg.cultura.api.core.exception.DateMustBeAtThePastException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.service.SectionService;
@@ -85,7 +84,7 @@ class AbstractItemServiceTest {
 				.copies(2)
 				.availableCopies(2)
 				.loanAvailable(true)
-				.saga("Harry Potter")
+				.sagaName("Harry Potter")
 				.build();
 	}
 
@@ -137,13 +136,6 @@ class AbstractItemServiceTest {
 		request.setAvailableCopies(-1);
 
 		assertThrows(IllegalArgumentException.class, () -> service.create(request, null));
-	}
-
-	@Test
-	void should_throw_exception_when_purchased_at_is_in_the_future() {
-		request.setPurchasedAt(java.time.LocalDate.now().plusDays(1));
-
-		assertThrows(DateMustBeAtThePastException.class, () -> service.create(request, null));
 	}
 
 	@Test

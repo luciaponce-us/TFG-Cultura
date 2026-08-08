@@ -17,6 +17,7 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -64,6 +65,7 @@ public class Item {
     @NotNull(message = "La visibilidad es obligatoria")
     private Boolean publicated = true;
 
+    @PastOrPresent(message = "La fecha de compra debe ser en el pasado o presente")
     private LocalDate purchasedAt;
 
     @DecimalMin(value = "0.00", inclusive = true, message = "El precio debe ser mayor o igual que 0")

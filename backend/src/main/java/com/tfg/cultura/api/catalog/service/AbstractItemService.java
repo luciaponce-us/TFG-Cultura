@@ -1,6 +1,5 @@
 package com.tfg.cultura.api.catalog.service;
 
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -17,7 +16,6 @@ import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Item;
 import com.tfg.cultura.api.catalog.model.dto.ItemCreateRequest;
 import com.tfg.cultura.api.catalog.repository.ItemRepository;
-import com.tfg.cultura.api.core.exception.DateMustBeAtThePastException;
 import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.service.FileService;
@@ -102,12 +100,15 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
 
     private void validateItem(T item) {
         checkAvailableCopies(item.getAvailableCopies(), item.getCopies());
-        checkPurchasedAtNotInFuture(item);
     };
 
-    protected abstract void validate(T item);
+    protected void validate(T item) {
+        // Default validation logic can be implemented here if needed
+    }
 
-    protected abstract void postCreationActions(T item);
+    protected void postCreationActions(T item) {
+        // Default implementation - can be overridden by subclasses
+    }
 
     @Override
     @Transactional
@@ -117,7 +118,9 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
         repository.delete(item);
     }
 
-    protected abstract void preDeletionActions(T item);
+    protected void preDeletionActions(T item) {
+        // Default implementation - can be overridden by subclasses
+    }
 
     @Override
     public RES update(String id, C request, MultipartFile image)
@@ -141,8 +144,10 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
         return mapper.apply(updatedItem);
     }
 
-    protected abstract void postUpdateActions(T oldItem, T updatedItem)
-            throws ItemNotFoundException, IllegalArgumentException;
+    protected void postUpdateActions(T oldItem, T updatedItem)
+            throws ItemNotFoundException, IllegalArgumentException {
+        // Default implementation - can be overridden by subclasses
+    };
 
     private void checkAvailableCopies(Integer availableCopies, Integer copies) throws IllegalArgumentException {
         if (availableCopies < 0) {
@@ -153,13 +158,6 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
             logger.error("El número de copias disponibles no puede ser mayor que el número total de copias");
             throw new IllegalArgumentException(
                     "El número de copias disponibles no puede ser mayor que el número total de copias");
-        }
-    }
-
-    private void checkPurchasedAtNotInFuture(T item) throws DateMustBeAtThePastException {
-        if (item.getPurchasedAt() != null && item.getPurchasedAt().isAfter(LocalDate.now())) {
-            logger.error("La fecha de compra no puede ser posterior a la fecha actual");
-            throw new DateMustBeAtThePastException("La fecha de compra no puede ser posterior a la fecha actual");
         }
     }
 
