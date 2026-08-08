@@ -2,7 +2,6 @@ package com.tfg.cultura.api.catalog.model.dto;
 
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -25,16 +24,9 @@ public class BookCreateRequest extends ItemCreateRequest {
     @NotBlank(message = "El ISBN es obligatorio")
     private String isbn;
 
-    private String saga;
-
-    @Min(value = 1, message = "El número de libro en la saga debe ser mayor o igual a 1")
-    private Integer number;
+    private String sagaName;
 
     @NotNull(message = "El tipo de libro es obligatorio")
     private BookType type;
-
-    private String prequelId;
-    
-    private String sequelId;
     
 }

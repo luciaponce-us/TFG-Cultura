@@ -3,7 +3,6 @@ package com.tfg.cultura.api.catalog.service;
 import org.springframework.stereotype.Service;
 
 import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.dto.BookCreateRequest;
@@ -54,7 +53,7 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookC
 
     @Override
     protected void fillSpecificFields(Book item, BookCreateRequest request) {
-        Saga saga = sagaService.findByName(request.getSaga());
+        Saga saga = sagaService.findByName(request.getSagaName());
 
         item.setAuthor(sanitize(request.getAuthor()));
         item.setIsbn(sanitize(request.getIsbn()));
@@ -74,22 +73,6 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookC
             default:
                 return 15;
         }
-    }
-
-    @Override
-    protected void postCreationActions(Book item) {
-        // No additional actions needed after creation
-    }
-
-    @Override
-    protected void preDeletionActions(Book item) {
-        // No additional actions needed before deletion
-    }
-
-    @Override
-    protected void postUpdateActions(Book oldItem, Book updatedItem)
-            throws ItemNotFoundException, IllegalArgumentException {
-        // No additional actions needed after update
     }
 
 }

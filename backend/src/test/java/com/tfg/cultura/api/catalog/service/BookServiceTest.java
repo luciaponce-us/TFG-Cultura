@@ -86,7 +86,7 @@ class BookServiceTest {
 				.author("Asimov")
 				.isbn("978...")
 				.type(BookType.NOVEL)
-				.saga("Fundación")
+				.sagaName("Fundación")
 				.build();
 
 		when(sagaService.findByName("Fundación"))
