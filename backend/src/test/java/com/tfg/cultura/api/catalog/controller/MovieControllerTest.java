@@ -68,7 +68,7 @@ class MovieControllerTest extends BaseControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         return new MockMultipartFile(
-                "movie",
+                "item",
                 "movie.json",
                 MediaType.APPLICATION_JSON_VALUE,
                 mapper.writeValueAsString(request).getBytes(StandardCharsets.UTF_8));

@@ -64,7 +64,7 @@ class BookControllerTest extends BaseControllerTest {
 
     private MockMultipartFile mockBookPart(BookRequest request) throws Exception {
         return new MockMultipartFile(
-                "book",
+                "item",
                 "book.json",
                 MediaType.APPLICATION_JSON_VALUE,
                 toJson(request).getBytes(StandardCharsets.UTF_8));
