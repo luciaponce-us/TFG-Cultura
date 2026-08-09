@@ -10,10 +10,12 @@ import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.Saga;
+import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.seeder.parser.BooksCsvParser;
 import com.tfg.cultura.api.seeder.parser.MovieCsvParser;
 import com.tfg.cultura.api.seeder.parser.SectionsCsvParser;
+import com.tfg.cultura.api.seeder.parser.SeriesCsvParser;
 import com.tfg.cultura.api.seeder.parser.UserCsvParser;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
@@ -77,6 +79,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         
         seedBooks(sectionsByName, categoriesByName, sagasByName);
         seedMovies(sectionsByName, categoriesByName, sagasByName);
+        seedSeries(sectionsByName, categoriesByName);
 
         logger.info("💾 Todos los datos se han guardado correctamente");
     }
@@ -186,7 +189,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         Category c6 = Category.builder().name("Terror").color("#33FFA1").build();
         Category c7 = Category.builder().name("Acción").color("#FFA133").build();
         Category c8 = Category.builder().name("Superhéroes").color("#33A1FF").build();
-        List<Category> categories = List.of(c1, c2, c3, c4, c5, c6, c7, c8);
+        Category c9 = Category.builder().name("Drama").color("#A1FF33").build();
+        List<Category> categories = List.of(c1, c2, c3, c4, c5, c6, c7, c8, c9);
         mongoTemplate.insertAll(categories);
         logger.info("✅🏷️ Insertadas {} categorías", categories.size());
         return categories;
@@ -227,6 +231,18 @@ public class DatabaseSeeder implements CommandLineRunner {
         Collection<Movie> movies = mongoTemplate.insertAll(moviesFromCsv);
 
         logger.info("✅🎬 Insertadas {} películas", movies.size());
+    }
+
+    private void seedSeries(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
+        logger.info("📺 Creando colección: series");
+
+        List<Series> seriesFromCsv = new SeriesCsvParser().loadSeriesFromCsv(
+                sectionsByName,
+                categoriesByName);
+
+        Collection<Series> series = mongoTemplate.insertAll(seriesFromCsv);
+
+        logger.info("✅📺 Insertadas {} series", series.size());
     }
 
 }
