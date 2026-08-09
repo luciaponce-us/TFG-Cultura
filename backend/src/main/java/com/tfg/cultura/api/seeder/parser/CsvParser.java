@@ -51,7 +51,7 @@ public abstract class CsvParser {
     }
 
     protected static String clean(String value) {
-        return value.trim().replace("\"", "");
+        return value.trim().replace("\"", "").trim();
     }
 
     protected static List<String> parseList(String value) {
@@ -72,6 +72,14 @@ public abstract class CsvParser {
 
     protected static LocalDate parseLocalDate(String value) {
         return LocalDate.parse(clean(value));
+    }
+
+    protected static Integer parseInteger(String value) {
+        if (clean(value).isEmpty() || clean(value).equalsIgnoreCase("null")) {
+            return null;
+        }
+        value = value.trim();
+        return Integer.parseInt(clean(value));
     }
 
     protected Set<User> getUsers(
