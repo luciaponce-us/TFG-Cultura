@@ -33,9 +33,9 @@ public abstract class ItemCsvParser extends CsvParser {
                 .publicated(Boolean.parseBoolean(parts[6]))
                 .purchasedAt(parseLocalDate(parts[7]))
                 .price(BigDecimal.valueOf(Double.parseDouble(clean(parts[8]))))
-                .copies(Integer.parseInt(parts[9]))
-                .availableCopies(Integer.parseInt(parts[10]))
-                .loanDays(Integer.parseInt(parts[11]))
+                .copies(parseInteger(parts[9]))
+                .availableCopies(parseInteger(parts[10]))
+                .loanDays(parseInteger(parts[11]))
                 .section(section)
                 .categories(categories);
     }
