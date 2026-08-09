@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
-import com.tfg.cultura.api.catalog.model.dto.BookCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.core.service.FileService;
@@ -14,7 +14,7 @@ import com.tfg.cultura.api.sections.service.SectionService;
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 @Service
-public class BookService extends AbstractItemService<Book, BookRepository, BookCreateRequest, BookResponse> {
+public class BookService extends AbstractItemService<Book, BookRepository, BookRequest, BookResponse> {
 
     private final SagaService sagaService;
 
@@ -52,7 +52,7 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookC
     }
 
     @Override
-    protected void fillSpecificFields(Book item, BookCreateRequest request) {
+    protected void fillSpecificFields(Book item, BookRequest request) {
         Saga saga = sagaService.findByName(request.getSagaName());
 
         item.setAuthor(sanitize(request.getAuthor()));
@@ -62,7 +62,7 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookC
     }
 
     @Override
-    protected Integer getLoanDays(BookCreateRequest request) {
+    protected Integer getLoanDays(BookRequest request) {
         switch (request.getType()) {
             case NOVEL:
                 return 15; // RN-15

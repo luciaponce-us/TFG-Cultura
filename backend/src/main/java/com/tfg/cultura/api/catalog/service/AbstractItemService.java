@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Item;
-import com.tfg.cultura.api.catalog.model.dto.ItemCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.ItemRequest;
 import com.tfg.cultura.api.catalog.repository.ItemRepository;
 import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public abstract class AbstractItemService<T extends Item, R extends ItemRepository<T>, C extends ItemCreateRequest, RES>
+public abstract class AbstractItemService<T extends Item, R extends ItemRepository<T>, C extends ItemRequest, RES>
         implements ItemServiceInterface<T, C, RES> {
 
     private static final Integer MAX_IMAGE_SIZE_MB = 2;

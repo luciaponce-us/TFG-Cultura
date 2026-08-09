@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.tfg.cultura.api.catalog.model.dto.MovieCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieResponse;
 import com.tfg.cultura.api.catalog.service.MovieService;
 
@@ -36,7 +36,7 @@ public class MovieController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MovieResponse> createMovie(
-            @Valid @Parameter(description = "Datos de la película en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("movie") MovieCreateRequest movieRequest,
+            @Valid @Parameter(description = "Datos de la película en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("movie") MovieRequest movieRequest,
             @RequestPart(value = "image", required = false) MultipartFile image) {
         MovieResponse response = movieService.create(movieRequest, image);
         return ResponseEntity
@@ -65,7 +65,7 @@ public class MovieController {
     @PutMapping(value="/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MovieResponse> updateMovie(
             @PathVariable String id,
-            @Valid @Parameter(description = "Datos de la película en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("movie") MovieCreateRequest movieRequest,
+            @Valid @Parameter(description = "Datos de la película en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("movie") MovieRequest movieRequest,
             @RequestPart(value = "image", required = false) MultipartFile image) {
         MovieResponse response = movieService.update(id, movieRequest, image);
         return ResponseEntity

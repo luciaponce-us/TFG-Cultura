@@ -20,7 +20,7 @@ import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
 import com.tfg.cultura.api.catalog.model.Saga;
-import com.tfg.cultura.api.catalog.model.dto.MovieCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.Format;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.core.service.FileService;
@@ -112,7 +112,7 @@ class MovieServiceTest {
 
     @Test
     void should_fill_movie_specific_fields() throws Exception {
-        MovieCreateRequest request = CatalogFactory.validMovieCreateRequest();
+        MovieRequest request = CatalogFactory.validMovieCreateRequest();
         Saga saga = CatalogFactory.validSaga();
 
         when(sagaService.findByName(request.getSagaName())).thenReturn(saga);
@@ -132,7 +132,7 @@ class MovieServiceTest {
 
     @Test
     void should_return_3_days_for_single_disc() {
-        MovieCreateRequest request = MovieCreateRequest.builder()
+        MovieRequest request = MovieRequest.builder()
                 .numberOfDiscs(1)
                 .build();
 
@@ -141,7 +141,7 @@ class MovieServiceTest {
 
     @Test
     void should_return_7_days_for_multiple_discs() {
-        MovieCreateRequest request = MovieCreateRequest.builder()
+        MovieRequest request = MovieRequest.builder()
                 .numberOfDiscs(2)
                 .build();
 

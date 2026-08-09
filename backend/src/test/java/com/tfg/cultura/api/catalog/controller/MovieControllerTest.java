@@ -33,7 +33,7 @@ import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Movie;
-import com.tfg.cultura.api.catalog.model.dto.MovieCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieResponse;
 import com.tfg.cultura.api.catalog.service.MovieService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
@@ -47,7 +47,7 @@ class MovieControllerTest extends BaseControllerTest {
     private static final String MOVIE_URL = BASE_URL + "/{id}";
 
     private Movie movie;
-    private MovieCreateRequest movieCreateRequest;
+    private MovieRequest movieCreateRequest;
     private MovieResponse movieResponse;
 
     @BeforeEach
@@ -64,7 +64,7 @@ class MovieControllerTest extends BaseControllerTest {
         movieResponse = new MovieResponse(movie);
     }
 
-    private MockMultipartFile mockMoviePart(MovieCreateRequest request) throws Exception {
+    private MockMultipartFile mockMoviePart(MovieRequest request) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         return new MockMultipartFile(
@@ -78,7 +78,7 @@ class MovieControllerTest extends BaseControllerTest {
 
     @Test
     void should_create_movie_successfully_without_image() throws Exception {
-        when(movieService.create(any(MovieCreateRequest.class), isNull())).thenReturn(movieResponse);
+        when(movieService.create(any(MovieRequest.class), isNull())).thenReturn(movieResponse);
 
         MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
 
@@ -89,12 +89,12 @@ class MovieControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.name").value(movieResponse.getName()))
                 .andExpect(jsonPath("$.format").value(movieResponse.getFormat()));
 
-        verify(movieService).create(any(MovieCreateRequest.class), isNull());
+        verify(movieService).create(any(MovieRequest.class), isNull());
     }
 
     @Test
     void should_create_movie_successfully_with_image() throws Exception {
-        when(movieService.create(any(MovieCreateRequest.class), any())).thenReturn(movieResponse);
+        when(movieService.create(any(MovieRequest.class), any())).thenReturn(movieResponse);
 
         MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
         MockMultipartFile imagePart = CatalogFactory.mockImagePart();
@@ -107,12 +107,12 @@ class MovieControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.name").value(movieResponse.getName()))
                 .andExpect(jsonPath("$.format").value(movieResponse.getFormat()));
 
-        verify(movieService).create(any(MovieCreateRequest.class), any());
+        verify(movieService).create(any(MovieRequest.class), any());
     }
 
     @Test
     void should_return_conflict_when_movie_already_exists() throws Exception {
-        when(movieService.create(any(MovieCreateRequest.class), any()))
+        when(movieService.create(any(MovieRequest.class), any()))
                 .thenThrow(new ItemAlreadyExistsException("Ya existe una película con el mismo nombre, año de estreno y formato"));
 
         MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
@@ -122,7 +122,7 @@ class MovieControllerTest extends BaseControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("Item Already Exists"));
 
-        verify(movieService).create(any(MovieCreateRequest.class), any());
+        verify(movieService).create(any(MovieRequest.class), any());
     }
 
     @Test
@@ -215,7 +215,7 @@ class MovieControllerTest extends BaseControllerTest {
 
     @Test
     void should_update_movie_successfully() throws Exception {
-        when(movieService.update(anyString(), any(MovieCreateRequest.class), any())).thenReturn(movieResponse);
+        when(movieService.update(anyString(), any(MovieRequest.class), any())).thenReturn(movieResponse);
 
         MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
 
@@ -229,12 +229,12 @@ class MovieControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.id").value(movie.getId()))
                 .andExpect(jsonPath("$.name").value(movie.getName()));
 
-        verify(movieService).update(anyString(), any(MovieCreateRequest.class), any());
+        verify(movieService).update(anyString(), any(MovieRequest.class), any());
     }
 
     @Test
     void should_return_conflict_when_updating_movie_that_already_exists() throws Exception {
-        when(movieService.update(anyString(), any(MovieCreateRequest.class), any()))
+        when(movieService.update(anyString(), any(MovieRequest.class), any()))
                 .thenThrow(new ItemAlreadyExistsException("Ya existe una película con el mismo nombre, año de estreno y formato"));
 
         MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
@@ -248,7 +248,7 @@ class MovieControllerTest extends BaseControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("Item Already Exists"));
 
-        verify(movieService).update(anyString(), any(MovieCreateRequest.class), any());
+        verify(movieService).update(anyString(), any(MovieRequest.class), any());
     }
 
     @Test

@@ -24,7 +24,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class ItemCreateRequest {
+public class ItemRequest {
 
     @NotBlank(message = "El nombre es obligatorio")
     @Size(min = 3, max = 50, message = "El nombre debe tener entre 3 y 50 caracteres")

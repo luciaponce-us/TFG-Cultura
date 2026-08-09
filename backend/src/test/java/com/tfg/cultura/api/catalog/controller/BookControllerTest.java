@@ -31,7 +31,7 @@ import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Book;
-import com.tfg.cultura.api.catalog.model.dto.BookCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.service.BookService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
@@ -45,7 +45,7 @@ class BookControllerTest extends BaseControllerTest {
     private static final String BOOK_URL = BASE_URL + "/{id}";
 
     private Book book;
-    private BookCreateRequest bookCreateRequest;
+    private BookRequest bookCreateRequest;
     private BookResponse bookResponse;
 
     @BeforeEach
@@ -62,7 +62,7 @@ class BookControllerTest extends BaseControllerTest {
         bookResponse = new BookResponse(book);
     }
 
-    private MockMultipartFile mockBookPart(BookCreateRequest request) throws Exception {
+    private MockMultipartFile mockBookPart(BookRequest request) throws Exception {
         return new MockMultipartFile(
                 "book",
                 "book.json",
@@ -74,7 +74,7 @@ class BookControllerTest extends BaseControllerTest {
 
     @Test
     void should_create_book_successfully_without_image() throws Exception {
-        when(bookService.create(any(BookCreateRequest.class), isNull())).thenReturn(bookResponse);
+        when(bookService.create(any(BookRequest.class), isNull())).thenReturn(bookResponse);
 
         MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
 
@@ -85,12 +85,12 @@ class BookControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.name").value(bookResponse.getName()))
                 .andExpect(jsonPath("$.author").value(bookResponse.getAuthor()));
 
-        verify(bookService).create(any(BookCreateRequest.class), isNull());
+        verify(bookService).create(any(BookRequest.class), isNull());
     }
 
     @Test
     void should_create_book_successfully_with_image() throws Exception {
-        when(bookService.create(any(BookCreateRequest.class), any())).thenReturn(bookResponse);
+        when(bookService.create(any(BookRequest.class), any())).thenReturn(bookResponse);
 
         MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
         MockMultipartFile imagePart = CatalogFactory.mockImagePart();
@@ -102,12 +102,12 @@ class BookControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.id").value(bookResponse.getId()))
                 .andExpect(jsonPath("$.author").value(bookResponse.getAuthor()));
 
-        verify(bookService).create(any(BookCreateRequest.class), any());
+        verify(bookService).create(any(BookRequest.class), any());
     }
 
     @Test
     void should_return_conflict_when_book_already_exists() throws Exception {
-        when(bookService.create(any(BookCreateRequest.class), any()))
+        when(bookService.create(any(BookRequest.class), any()))
                 .thenThrow(new ItemAlreadyExistsException("El ISBN ya existe"));
 
         MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
@@ -117,7 +117,7 @@ class BookControllerTest extends BaseControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("Item Already Exists"));
 
-        verify(bookService).create(any(BookCreateRequest.class), any());
+        verify(bookService).create(any(BookRequest.class), any());
     }
 
     @Test
@@ -210,7 +210,7 @@ class BookControllerTest extends BaseControllerTest {
 
     @Test
     void should_update_book_successfully() throws Exception {
-        when(bookService.update(anyString(), any(BookCreateRequest.class), any())).thenReturn(bookResponse);
+        when(bookService.update(anyString(), any(BookRequest.class), any())).thenReturn(bookResponse);
 
         MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
 
@@ -224,7 +224,7 @@ class BookControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.id").value(book.getId()))
                 .andExpect(jsonPath("$.name").value(book.getName()));
 
-        verify(bookService).update(anyString(), any(BookCreateRequest.class), any());
+        verify(bookService).update(anyString(), any(BookRequest.class), any());
     }
 
     @Test

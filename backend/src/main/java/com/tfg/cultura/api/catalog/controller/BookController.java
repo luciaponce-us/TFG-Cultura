@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.tfg.cultura.api.catalog.model.dto.BookCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.service.BookService;
 
@@ -36,7 +36,7 @@ public class BookController {
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<BookResponse> createBook(
-			@Valid @Parameter(description = "Datos del libro en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("book") BookCreateRequest bookRequest,
+			@Valid @Parameter(description = "Datos del libro en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("book") BookRequest bookRequest,
 			@RequestPart(value = "image", required = false) MultipartFile image) {
 		BookResponse response = bookService.create(bookRequest, image);
 		return ResponseEntity
@@ -72,7 +72,7 @@ public class BookController {
 	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<BookResponse> updateBook(
 			@PathVariable String id,
-			@Valid @Parameter(description = "Datos del libro en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("book") BookCreateRequest bookRequest,
+			@Valid @Parameter(description = "Datos del libro en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("book") BookRequest bookRequest,
 			@RequestPart(value = "image", required = false) MultipartFile image) {
 		BookResponse response = bookService.update(id, bookRequest, image);
 		return ResponseEntity

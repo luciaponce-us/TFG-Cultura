@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class MovieCreateRequest extends ItemCreateRequest {
+public class MovieRequest extends ItemRequest {
 
     @NotNull(message = "El formato es obligatorio")
     private Format format;

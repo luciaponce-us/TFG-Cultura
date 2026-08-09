@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
-import com.tfg.cultura.api.catalog.model.dto.BookCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.core.service.FileService;
@@ -82,7 +82,7 @@ class BookServiceTest {
 
 		Saga saga = new Saga();
 
-		BookCreateRequest request = BookCreateRequest.builder()
+		BookRequest request = BookRequest.builder()
 				.author("Asimov")
 				.isbn("978...")
 				.type(BookType.NOVEL)
@@ -106,7 +106,7 @@ class BookServiceTest {
 
 	@Test
 	void should_return_15_days_for_novel() {
-		BookCreateRequest request = BookCreateRequest.builder()
+		BookRequest request = BookRequest.builder()
 				.type(BookType.NOVEL)
 				.build();
 
@@ -115,7 +115,7 @@ class BookServiceTest {
 
 	@Test
 	void should_return_15_days_for_comic() {
-		BookCreateRequest request = BookCreateRequest.builder()
+		BookRequest request = BookRequest.builder()
 				.type(BookType.COMIC)
 				.build();
 
@@ -124,7 +124,7 @@ class BookServiceTest {
 
 	@Test
 	void should_return_15_days_for_manga() {
-		BookCreateRequest request = BookCreateRequest.builder()
+		BookRequest request = BookRequest.builder()
 				.type(BookType.MANGA)
 				.build();
 
@@ -133,7 +133,7 @@ class BookServiceTest {
 
 	@Test
 	void should_return_15_days_for_rol() {
-		BookCreateRequest request = BookCreateRequest.builder()
+		BookRequest request = BookRequest.builder()
 				.type(BookType.ROL)
 				.build();
 

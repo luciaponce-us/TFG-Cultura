@@ -6,10 +6,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Item;
-import com.tfg.cultura.api.catalog.model.dto.ItemCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.ItemRequest;
 import com.tfg.cultura.api.core.exception.FileUploadException;
 
-public interface ItemServiceInterface<T extends Item, C extends ItemCreateRequest, RES> {
+public interface ItemServiceInterface<T extends Item, C extends ItemRequest, RES> {
 
     RES create(C request, MultipartFile image) throws FileUploadException, IllegalArgumentException;
 

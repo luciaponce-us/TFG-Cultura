@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class BookCreateRequest extends ItemCreateRequest {
+public class BookRequest extends ItemRequest {
     @NotBlank(message = "El autor es obligatorio")
     private String author;
 

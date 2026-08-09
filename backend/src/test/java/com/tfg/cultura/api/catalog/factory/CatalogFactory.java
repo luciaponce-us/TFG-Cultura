@@ -10,8 +10,8 @@ import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
 import com.tfg.cultura.api.catalog.model.Saga;
-import com.tfg.cultura.api.catalog.model.dto.BookCreateRequest;
-import com.tfg.cultura.api.catalog.model.dto.MovieCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.BookRequest;
+import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.model.enumerators.Format;
 
@@ -40,8 +40,8 @@ public class CatalogFactory {
                 .build();
     }
 
-    public static BookCreateRequest validBookCreateRequest() {
-        return BookCreateRequest.builder()
+    public static BookRequest validBookCreateRequest() {
+        return BookRequest.builder()
                 .name("Test Book")
                 .author("Test Author")
                 .isbn("1234567890")
@@ -65,8 +65,8 @@ public class CatalogFactory {
                 .build();
     }
 
-    public static MovieCreateRequest validMovieCreateRequest() {
-        return MovieCreateRequest.builder()
+    public static MovieRequest validMovieCreateRequest() {
+        return MovieRequest.builder()
                 .name("Test Movie")
                 .format(Format.DVD)
                 .numberOfDiscs(1)

@@ -32,7 +32,7 @@ import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Saga;
-import com.tfg.cultura.api.catalog.model.dto.BookCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
@@ -55,7 +55,7 @@ class AbstractItemServiceTest {
 
 	private BookService service;
 
-	private BookCreateRequest request;
+	private BookRequest request;
 	private Section section;
 	private Category category;
 	private Saga saga;
@@ -73,7 +73,7 @@ class AbstractItemServiceTest {
 		category = Category.builder().id("category").build();
 		saga = Saga.builder().name("Harry Potter").build();
 
-		request = BookCreateRequest.builder()
+		request = BookRequest.builder()
 				.name("Harry Potter")
 				.description("...")
 				.author("J.K. Rowling")

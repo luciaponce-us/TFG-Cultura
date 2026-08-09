@@ -10,14 +10,14 @@ import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
 import com.tfg.cultura.api.catalog.model.Saga;
-import com.tfg.cultura.api.catalog.model.dto.MovieCreateRequest;
+import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieResponse;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 
 @Service
-public class MovieService extends AbstractItemService<Movie, MovieRepository, MovieCreateRequest, MovieResponse> {
+public class MovieService extends AbstractItemService<Movie, MovieRepository, MovieRequest, MovieResponse> {
 
     private final SagaService sagaService;
 
@@ -60,7 +60,7 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
     }
 
     @Override
-    protected void fillSpecificFields(Movie item, MovieCreateRequest request) throws SagaNotFoundException {
+    protected void fillSpecificFields(Movie item, MovieRequest request) throws SagaNotFoundException {
         Saga saga = sagaService.findByName(request.getSagaName());
 
         MovieInfo movieInfo = MovieInfo.builder()
@@ -75,7 +75,7 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
     }
 
     @Override
-    protected Integer getLoanDays(MovieCreateRequest request) {
+    protected Integer getLoanDays(MovieRequest request) {
         switch(request.getNumberOfDiscs()){
             case 1:
                 return 3;
