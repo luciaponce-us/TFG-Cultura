@@ -6,12 +6,14 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.sections.model.Section;
+import com.tfg.cultura.api.seeder.parser.BoardGameCsvParser;
 import com.tfg.cultura.api.seeder.parser.BooksCsvParser;
 import com.tfg.cultura.api.seeder.parser.MovieCsvParser;
 import com.tfg.cultura.api.seeder.parser.SectionsCsvParser;
@@ -80,6 +82,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         seedBooks(sectionsByName, categoriesByName, sagasByName);
         seedMovies(sectionsByName, categoriesByName, sagasByName);
         seedSeries(sectionsByName, categoriesByName);
+        seedBoardGames(sectionsByName, categoriesByName);
 
         logger.info("💾 Todos los datos se han guardado correctamente");
     }
@@ -190,7 +193,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         Category c7 = Category.builder().name("Acción").color("#FFA133").build();
         Category c8 = Category.builder().name("Superhéroes").color("#33A1FF").build();
         Category c9 = Category.builder().name("Drama").color("#A1FF33").build();
-        List<Category> categories = List.of(c1, c2, c3, c4, c5, c6, c7, c8, c9);
+        Category c10 = Category.builder().name("Espacial").color("#FF33FF").build();
+        Category c11 = Category.builder().name("Animales").color("#33FF33").build();
+        List<Category> categories = List.of(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11);
         mongoTemplate.insertAll(categories);
         logger.info("✅🏷️ Insertadas {} categorías", categories.size());
         return categories;
@@ -243,6 +248,21 @@ public class DatabaseSeeder implements CommandLineRunner {
         Collection<Series> series = mongoTemplate.insertAll(seriesFromCsv);
 
         logger.info("✅📺 Insertadas {} series", series.size());
+    }
+
+    private void seedBoardGames(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
+        logger.info("🎲 Creando colección: boardgames");
+
+        List<BoardGame> baseBoardGames = new BoardGameCsvParser().loadBaseBoardGamesFromCsv(sectionsByName, categoriesByName);
+        Map<String, BoardGame> baseGamesByName = baseBoardGames.stream()
+                .collect(Collectors.toMap(BoardGame::getName, Function.identity()));
+
+        List<BoardGame> expansionBoardGames = new BoardGameCsvParser().loadBoardGamesExpansionFromCsv(sectionsByName, categoriesByName, baseGamesByName);
+
+        Collection<BoardGame> allBoardGames = mongoTemplate.insertAll(baseBoardGames);
+        allBoardGames.addAll(mongoTemplate.insertAll(expansionBoardGames));
+
+        logger.info("✅🎲 Insertados {} juegos de mesa", allBoardGames.size());
     }
 
 }
