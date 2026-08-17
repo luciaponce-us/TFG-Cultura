@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -44,17 +44,8 @@ class MovieServiceTest {
     @Mock
     private SagaService sagaService;
 
+    @InjectMocks
     private MovieService service;
-
-    @BeforeEach
-    void setUp() {
-        service = new MovieService(
-                movieRepository,
-                sectionService,
-                categoryService,
-                fileService,
-                sagaService);
-    }
 
     @Test
     void should_throw_exception_when_movie_with_same_name_format_and_year_exists() {
