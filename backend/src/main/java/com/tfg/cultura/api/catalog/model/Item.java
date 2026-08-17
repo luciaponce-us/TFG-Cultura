@@ -48,12 +48,12 @@ public class Item {
 
     @Pattern(regexp = "^https://res\\.cloudinary\\.com/[^/]+/(image|raw|video)/upload/.+", message = "URL de Cloudinary no válida")
     @Builder.Default
-    private String imageUrl= DEFAULT_IMAGE_URL;
+    private String imageUrl = DEFAULT_IMAGE_URL;
 
     @Builder.Default
     @NotBlank(message = "El estado es obligatorio")
     private ItemCondition condition = ItemCondition.PERFECT;
-    
+
     @Size(max = 280, message = "Los comentarios no pueden tener más de 280 caracteres")
     private String comments;
 
@@ -72,23 +72,24 @@ public class Item {
     @Digits(integer = 8, fraction = 2, message = "El precio debe tener como máximo 8 enteros y 2 decimales")
     private BigDecimal price;
 
-    @Min(1)
+    @Min(value = 1, message = "Debe haber al menos una copia del ítem")
     @Builder.Default
     private Integer copies = 1;
 
-    @Min(0)
+    @Min(value = 0, message = "El número de copias disponibles no puede ser negativo")
     @Builder.Default
     private Integer availableCopies = 1;
 
-    @Min(0)
+    @Min(value = 0, message = "El número de días para devolver el ítem no puede ser negativo")
     private Integer loanDays;
 
+    @NotNull(message = "El ítem debe pertenecer a una sección")
     @DocumentReference
     private Section section;
 
     @DocumentReference
     private Set<Category> categories;
-    
+
     @CreatedDate
     private LocalDateTime createdAt;
 }
