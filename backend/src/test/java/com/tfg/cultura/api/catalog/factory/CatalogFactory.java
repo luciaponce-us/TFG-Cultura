@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
+import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Movie;
@@ -18,10 +19,13 @@ import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.Season;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.catalog.model.SeriesInfo;
+import com.tfg.cultura.api.catalog.model.dto.BoardGameRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
+import com.tfg.cultura.api.catalog.model.enumerators.BoardGameType;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
+import com.tfg.cultura.api.catalog.model.enumerators.Complexity;
 import com.tfg.cultura.api.catalog.model.enumerators.Format;
 import com.tfg.cultura.api.catalog.model.enumerators.SeriesStatus;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
@@ -139,6 +143,60 @@ public class CatalogFactory {
                 .seasons(series.getSeasons())
                 .build();
 
+    }
+
+    public static BoardGame validBaseBoardGame() {
+        return BoardGame.builder()
+                .id("basegame")
+                .name("Base Game")
+                .minPlayers(2)
+                .maxPlayers(4)
+                .playTime(60)
+                .complexity(Complexity.MEDIUM)
+                .types(Set.of(BoardGameType.STRATEGY))
+                .build();
+    }
+
+    public static BoardGame validBoardGame() {
+        BoardGame baseGame = validBaseBoardGame();
+
+        return BoardGame.builder()
+                .id("boardgame")
+                .name("Test Board Game")
+                .purchasedAt(LocalDate.of(2015, 01, 01)) // Optional
+                .price(BigDecimal.valueOf(15.99)) // Optional
+                .loanDays(14) // Optional
+                .section(SectionFactory.validSection()) // Optional
+                .categories(Set.of(validCategory())) // Optional
+                // BoardGame fields
+                .minPlayers(2)
+                .maxPlayers(4)
+                .playTime(60)
+                .complexity(Complexity.MEDIUM)
+                .types(Set.of(BoardGameType.STRATEGY))
+                .baseGame(baseGame)
+                .build();
+    }
+
+    public static BoardGameRequest validBoardGameRequest() {
+        BoardGame boardGame = validBoardGame();
+        Set<String> categoriesIds = boardGame.getCategories().stream().map(c -> c.getId()).collect(Collectors.toSet());
+        BoardGameType[] typesArray = boardGame.getTypes().toArray(new BoardGameType[0]);
+
+        return BoardGameRequest.builder()
+                .name(boardGame.getName())
+                .purchasedAt(boardGame.getPurchasedAt()) // Optional
+                .price(boardGame.getPrice()) // Optional
+                .sectionId(boardGame.getSection().getId()) // Optional
+                .categoriesIds(categoriesIds) // Optional
+                // BoardGame fields
+                .minPlayers(boardGame.getMinPlayers())
+                .maxPlayers(boardGame.getMaxPlayers())
+                .playTime(boardGame.getPlayTime())
+                .complexity(boardGame.getComplexity())
+                .types(typesArray)
+                .baseGameId(boardGame.getBaseGame().getId())
+                .build();
     }
 
     public static MockMultipartFile mockImagePart() {
