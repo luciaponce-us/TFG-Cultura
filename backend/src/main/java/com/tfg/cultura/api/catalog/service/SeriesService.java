@@ -7,15 +7,19 @@ import com.tfg.cultura.api.catalog.model.SeriesInfo;
 import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
 import com.tfg.cultura.api.catalog.model.dto.SeriesResponse;
 import com.tfg.cultura.api.catalog.repository.SeriesRepository;
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 
 @Service
 public class SeriesService extends AbstractItemService<Series, SeriesRepository, SeriesRequest, SeriesResponse> {
 
+    private final AppProperties appProperties;
+    
     public SeriesService(SeriesRepository seriesRepository, SectionService sectionService,
-                         CategoryService categoryService, FileService fileService) {
+                         CategoryService categoryService, FileService fileService, AppProperties appProperties) {
         super(seriesRepository, sectionService, categoryService, fileService, SeriesResponse::new);
+        this.appProperties = appProperties;
     }
 
     @Override
@@ -25,7 +29,7 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 
     @Override
     protected String getDefaultImageUrl() {
-        return "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/movies_placeholder.jpg";
+        return appProperties.defaultImages().series();
     }
 
     @Override

@@ -5,12 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.factory.AppPropertiesFactory;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
@@ -20,7 +19,6 @@ class JwtServiceTest {
     private JwtService jwtService;
 
     private static final String SECRET = "mySuperSecretKeyThatIsLongEnoughForHS256Algorithm12345";
-    private static final long EXPIRATION = 1000 * 60 * 60; // 1 hora
 
     private CustomUserDetails userDetails;
     private String username;
@@ -29,7 +27,7 @@ class JwtServiceTest {
 
     @BeforeEach
     void setUp() {
-        AppProperties appProperties = createAppProperties(SECRET, EXPIRATION);
+        AppProperties appProperties = AppPropertiesFactory.validAppProperties();
 
         jwtService = new JwtService(appProperties);
         jwtService.init();
@@ -39,22 +37,6 @@ class JwtServiceTest {
         username = user.getUsername();
         role = user.getRole();
         id = user.getId();
-    }
-
-    private AppProperties createAppProperties(String secret, long expiration) {
-        AppProperties.Jwt jwt = new AppProperties.Jwt(secret, expiration);
-        AppProperties.Cloudinary cloudinary = new AppProperties.Cloudinary(
-                "test-cloud",
-                "test-key",
-                "test-secret",
-                false);
-        return new AppProperties(
-                "http://localhost:3000", // frontendUrl
-                false, // seedEnabled
-                jwt,
-                cloudinary,
-                List.of(Role.COORDINADOR)
-        );
     }
 
     @Test
@@ -83,7 +65,7 @@ class JwtServiceTest {
 
     @Test
     void should_detect_expired_token() {
-        AppProperties appPropertiesExpiredToken = createAppProperties(SECRET, -1000L);
+        AppProperties appPropertiesExpiredToken = AppPropertiesFactory.validAppPropertiesWithJwt(SECRET, -1000L);
 
         JwtService jwtServiceExpired = new JwtService(appPropertiesExpiredToken);
         jwtServiceExpired.init();

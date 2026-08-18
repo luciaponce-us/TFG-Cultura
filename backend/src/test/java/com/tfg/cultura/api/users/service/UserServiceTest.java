@@ -40,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
+import com.tfg.cultura.api.core.factory.AppPropertiesFactory;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
 import com.tfg.cultura.api.users.exception.RoleModificationNotAllowedException;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
@@ -89,7 +90,7 @@ class UserServiceTest {
         userResponse = UserFactory.validUserResponse();
         updateRequest = UserFactory.validUserUpdateRequest();
         userDetails = new CustomUserDetails(user);
-        appProperties = createAppProperties();
+        appProperties = AppPropertiesFactory.validAppProperties();
         service = new UserService(
                 userRepository,
                 passwordEncoder,
@@ -113,22 +114,6 @@ class UserServiceTest {
             currentUser = UserFactory.validCurrentUserWithRole(Role.SOCIO);
         }
         when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(currentUser));
-    }
-
-    private AppProperties createAppProperties() {
-        AppProperties.Jwt jwt = new AppProperties.Jwt("test-secret", 3600);
-        AppProperties.Cloudinary cloudinary = new AppProperties.Cloudinary(
-                "test-cloud",
-                "test-key",
-                "test-secret",
-                false);
-        return new AppProperties(
-                "http://localhost:3000", // frontendUrl
-                false, // seedEnabled
-                jwt,
-                cloudinary,
-                List.of(Role.COORDINADOR, Role.SECRETARIO, Role.ENCARGADO, Role.COLABORADOR) // adminRoles
-        );
     }
 
     // GET USER

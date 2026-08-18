@@ -8,15 +8,19 @@ import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.dto.BoardGameRequest;
 import com.tfg.cultura.api.catalog.model.dto.BoardGameResponse;
 import com.tfg.cultura.api.catalog.repository.BoardGameRepository;
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 
 @Service
 public class BoardGameService extends AbstractItemService<BoardGame, BoardGameRepository, BoardGameRequest, BoardGameResponse> {
 
+    private final AppProperties appProperties;
+
     public BoardGameService(BoardGameRepository boardGameRepository, SectionService sectionService,
-                            CategoryService categoryService, FileService fileService) {
+                            CategoryService categoryService, FileService fileService, AppProperties appProperties) {
         super(boardGameRepository, sectionService, categoryService, fileService, BoardGameResponse::new);
+        this.appProperties = appProperties;
     }
 
     @Override
@@ -26,7 +30,7 @@ public class BoardGameService extends AbstractItemService<BoardGame, BoardGameRe
 
     @Override
     protected String getDefaultImageUrl() {
-        return "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/boardgames_placeholder.jpg";
+        return appProperties.defaultImages().boardGame();
     }
 
     @Override

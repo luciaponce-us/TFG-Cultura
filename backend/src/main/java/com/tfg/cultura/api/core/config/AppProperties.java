@@ -12,7 +12,8 @@ public record AppProperties(
         boolean seedEnabled,
         Jwt jwt,
         Cloudinary cloudinary,
-        List<Role> adminRoles) {
+        List<Role> adminRoles,
+        DefaultImages defaultImages) {
 
     public AppProperties {
         adminRoles = List.copyOf(adminRoles);
@@ -28,5 +29,14 @@ public record AppProperties(
             String apiKey,
             String apiSecret,
             boolean enabled) {
+    }
+
+    public record DefaultImages(
+            String userAvatar,
+            String movie,
+            String series,
+            String book,
+            String boardGame,
+            String rolGame) {
     }
 }

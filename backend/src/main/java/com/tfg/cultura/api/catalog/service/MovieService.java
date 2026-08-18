@@ -13,6 +13,7 @@ import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieResponse;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 
@@ -21,10 +22,13 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
 
     private final SagaService sagaService;
 
+    private final AppProperties appProperties;
+
     public MovieService(MovieRepository movieRepository, SectionService sectionService, CategoryService categoryService,
-            FileService fileService, SagaService sagaService) {
+            FileService fileService, SagaService sagaService, AppProperties appProperties) {
         super(movieRepository, sectionService, categoryService, fileService, MovieResponse::new);
         this.sagaService = sagaService;
+        this.appProperties = appProperties;
     }
 
     @Override
@@ -34,7 +38,7 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
 
     @Override
     protected String getDefaultImageUrl() {
-        return "https://res.cloudinary.com/dubz79y98/image/upload/v1786126736/movie_placeholder.jpg";
+        return appProperties.defaultImages().movie();
     }
 
     @Override

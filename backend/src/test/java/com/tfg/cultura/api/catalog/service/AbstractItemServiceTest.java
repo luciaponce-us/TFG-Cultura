@@ -36,6 +36,8 @@ import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
+import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.factory.AppPropertiesFactory;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.service.SectionService;
@@ -62,12 +64,14 @@ class AbstractItemServiceTest {
 
 	@BeforeEach
 	void setUp() {
+		AppProperties appProperties = AppPropertiesFactory.validAppProperties();
 		service = new BookService(
 				repository,
 				sectionService,
 				categoryService,
 				fileService,
-				sagaService);
+				sagaService,
+				appProperties);
 
 		section = Section.builder().id("section").build();
 		category = Category.builder().id("category").build();

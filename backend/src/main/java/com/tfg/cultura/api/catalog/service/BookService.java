@@ -8,6 +8,7 @@ import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
+import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 
@@ -18,10 +19,13 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 
     private final SagaService sagaService;
 
+    private final AppProperties appProperties;
+
     public BookService(BookRepository bookRepository, SectionService sectionService, CategoryService categoryService,
-            FileService fileService, SagaService sagaService) {
+            FileService fileService, SagaService sagaService, AppProperties appProperties) {
         super(bookRepository, sectionService, categoryService, fileService, BookResponse::new);
         this.sagaService = sagaService;
+        this.appProperties = appProperties;
     }
 
     @Override
@@ -31,7 +35,7 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 
     @Override
     protected String getDefaultImageUrl() {
-        return "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/book_placeholder.jpg";
+        return appProperties.defaultImages().book();
     }
 
     @Override

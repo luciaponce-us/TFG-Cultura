@@ -7,9 +7,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -40,17 +40,8 @@ class BookServiceTest {
 	@Mock
 	private SagaService sagaService;
 
+	@InjectMocks
 	private BookService service;
-
-	@BeforeEach
-	void setUp() {
-		service = new BookService(
-				bookRepository,
-				sectionService,
-				categoryService,
-				fileService,
-				sagaService);
-	}
 
 	@Test
 	void should_throw_exception_when_isbn_already_exists() {
