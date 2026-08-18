@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import com.tfg.cultura.api.users.validation.annotations.ValidPhone;
@@ -21,6 +20,8 @@ import com.tfg.cultura.api.users.validation.annotations.ValidDni;
 
 import org.springframework.data.annotation.CreatedDate;
 
+import com.tfg.cultura.api.core.validation.annotations.ValidCloudinaryUrl;
+import com.tfg.cultura.api.core.validation.enums.ResourceType;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 
 @Document(collection = "users")
@@ -30,7 +31,7 @@ import com.tfg.cultura.api.users.model.enumerators.Role;
 @AllArgsConstructor
 @Builder
 public class User {
-
+    
     @Id
     private String id;
 
@@ -66,11 +67,10 @@ public class User {
     @NotBlank(message = "El email es obligatorio")
     private String email;
 
-    @Pattern(regexp = "^https://res\\.cloudinary\\.com/[^/]+/(image|raw|video)/upload/.+", message = "URL de Cloudinary no válida")
-    @Builder.Default
-    private String avatar = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png";
+    @ValidCloudinaryUrl(type = ResourceType.IMAGE, message = "La URL de la imagen no es válida")
+    private String avatar;
 
-    @Pattern(regexp = "^https://res\\.cloudinary\\.com/[^/]+/(image|raw|video)/upload/.+", message = "URL de Cloudinary no válida")
+    @ValidCloudinaryUrl(type = ResourceType.RAW, message = "La URL del archivo no es válida")
     @NotBlank(message = "La carta de pago es obligatoria")
     private String paymentReceipt;
 

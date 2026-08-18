@@ -10,6 +10,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import com.tfg.cultura.api.catalog.model.enumerators.ItemCondition;
+import com.tfg.cultura.api.core.validation.annotations.ValidCloudinaryUrl;
+import com.tfg.cultura.api.core.validation.enums.ResourceType;
 import com.tfg.cultura.api.sections.model.Section;
 
 import jakarta.validation.constraints.DecimalMin;
@@ -18,7 +20,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,7 +47,7 @@ public class Item {
     @Size(max = 280, message = "La descripción no puede tener más de 280 caracteres")
     private String description;
 
-    @Pattern(regexp = "^https://res\\.cloudinary\\.com/[^/]+/(image|raw|video)/upload/.+", message = "URL de Cloudinary no válida")
+    @ValidCloudinaryUrl(type = ResourceType.IMAGE, message = "La URL de la imagen no es válida")
     @Builder.Default
     private String imageUrl = DEFAULT_IMAGE_URL;
 
