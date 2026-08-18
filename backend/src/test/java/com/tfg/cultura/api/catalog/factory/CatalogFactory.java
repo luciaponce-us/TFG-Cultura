@@ -51,7 +51,7 @@ public class CatalogFactory {
                 .id("1")
                 .name("Test Book")
                 .author("Test Author")
-                .isbn("1234567890")
+                .isbn("9780306406157")
                 .build();
     }
 
@@ -59,7 +59,7 @@ public class CatalogFactory {
         return BookRequest.builder()
                 .name("Test Book")
                 .author("Test Author")
-                .isbn("1234567890")
+                .isbn("9780306406157")
                 .type(BookType.NOVEL)
                 .build();
     }
