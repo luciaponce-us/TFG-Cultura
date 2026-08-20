@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
+import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.GameMaster;
 import com.tfg.cultura.api.core.validation.annotations.ValidCloudinaryUrl;
 import com.tfg.cultura.api.core.validation.enums.ResourceType;
@@ -74,4 +75,16 @@ public class RolSaga {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    public RolSaga(RolSagaRequest request, Section section, Set<Category> categories) {
+        this.name = request.getName();
+        this.description = request.getDescription();
+        this.website = request.getWebsite();
+        this.characterSheetUrl = request.getCharacterSheetUrl();
+        this.gameMaster = request.getGameMaster();
+        this.dice = request.getDice();
+        this.recommendedPlayers = request.getRecommendedPlayers();
+        this.section = section;
+        this.categories = categories;
+    }
 }

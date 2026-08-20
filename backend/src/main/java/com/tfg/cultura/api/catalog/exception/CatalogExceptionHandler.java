@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.tfg.cultura.api.catalog.exception.category.*;
 import com.tfg.cultura.api.catalog.exception.item.*;
+import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.saga.*;
 import com.tfg.cultura.api.core.exception.ApiError;
 import com.tfg.cultura.api.core.exception.ApiErrorBuilder;
@@ -74,5 +75,14 @@ public class CatalogExceptionHandler {
 				"Category Already Exists",
 				logger);
 	}
+
+	@ExceptionHandler(RolSagaAlreadyExistsException.class)
+	public ResponseEntity<ApiError> handleRolSagaAlreadyExistsException(RolSagaAlreadyExistsException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.CONFLICT,
+				"Rol Saga Already Exists",
+				logger);
+		}
 
 }
