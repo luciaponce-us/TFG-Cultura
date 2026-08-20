@@ -17,6 +17,7 @@ import com.tfg.cultura.api.core.exception.file.InvalidFileSizeException;
 import com.tfg.cultura.api.core.exception.file.InvalidFileTypeException;
 import com.tfg.cultura.api.core.model.CustomMultipartFile;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
+import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -24,6 +25,7 @@ import net.coobird.thumbnailator.Thumbnails;
 public class FileService {
 
     private Cloudinary cloudinary;
+    private static final Integer MAX_IMAGE_SIZE_MB = 2;
 
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
     public FileService(Cloudinary cloudinary) {
@@ -56,26 +58,26 @@ public class FileService {
     }
 
     public MultipartFile resizeImage(MultipartFile file, int width, int height) {
-        try{
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        Thumbnails.of(file.getInputStream())
-                .size(width, height)
-                .crop(net.coobird.thumbnailator.geometry.Positions.CENTER)
-                .outputFormat("png")
-                .toOutputStream(outputStream);
+            Thumbnails.of(file.getInputStream())
+                    .size(width, height)
+                    .crop(net.coobird.thumbnailator.geometry.Positions.CENTER)
+                    .outputFormat("png")
+                    .toOutputStream(outputStream);
 
-        String originalName = file.getOriginalFilename();
+            String originalName = file.getOriginalFilename();
 
-        String newName = (originalName != null)
-                ? originalName.replaceAll("\\.[^.]+$", ".png")
-                : "image.png";
+            String newName = (originalName != null)
+                    ? originalName.replaceAll("\\.[^.]+$", ".png")
+                    : "image.png";
 
-        return new CustomMultipartFile(
-                outputStream.toByteArray(),
-                file.getName(),
-                newName,
-                "image/png");
+            return new CustomMultipartFile(
+                    outputStream.toByteArray(),
+                    file.getName(),
+                    newName,
+                    "image/png");
         } catch (IOException e) {
             throw new FileUploadException("Error al redimensionar la imagen: " + e.getMessage());
         }
@@ -111,6 +113,27 @@ public class FileService {
     public void validateImageSize(MultipartFile file, long maxSizeMB) {
         validateImage(file);
         validateFileSize(file, maxSizeMB);
+    }
+
+    public String uploadImage(String className, String id, MultipartFile image, String folder, String defaultImageUrl,
+            Integer width, Integer height) throws FileUploadException {
+        if (image != null && !image.isEmpty()) {
+            String sanitizedId = LoggerSanitizer.sanitize(id);
+            String publicId = className + "_" + sanitizedId;
+
+            validateImageSize(image, MAX_IMAGE_SIZE_MB);
+            MultipartFile resizedImage = resizeImage(image, width, height);
+
+            FileUploadRequest request = FileUploadRequest.builder()
+                    .file(resizedImage)
+                    .folder(folder)
+                    .publicId(publicId)
+                    .resourceType("image")
+                    .build();
+
+            return uploadFile(request);
+        }
+        return defaultImageUrl;
     }
 
     private String extractPublicId(String url) {

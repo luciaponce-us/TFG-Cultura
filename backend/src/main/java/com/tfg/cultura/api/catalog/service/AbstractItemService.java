@@ -17,9 +17,7 @@ import com.tfg.cultura.api.catalog.model.Item;
 import com.tfg.cultura.api.catalog.model.dto.ItemRequest;
 import com.tfg.cultura.api.catalog.repository.ItemRepository;
 import com.tfg.cultura.api.core.exception.FileUploadException;
-import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.service.FileService;
-import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.service.SectionService;
 
@@ -31,8 +29,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public abstract class AbstractItemService<T extends Item, R extends ItemRepository<T>, C extends ItemRequest, RES>
         implements ItemServiceInterface<T, C, RES> {
-
-    private static final Integer MAX_IMAGE_SIZE_MB = 2;
 
     private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
 
@@ -78,7 +74,15 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
 
         validate(item);
 
-        String imageUrl = uploadImage(item.getId(), image, getImageFolder(), getDefaultImageUrl());
+        String imageUrl = fileService.uploadImage(
+                "item",
+                item.getId(),
+                image,
+                getImageFolder(),
+                getDefaultImageUrl(),
+                400,
+                600
+        );
         item.setImageUrl(imageUrl);
 
         T savedItem = repository.save(item);
@@ -182,35 +186,21 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
         item.setCategories(categories);
     }
 
-    private String uploadImage(String itemId, MultipartFile image, String folder, String defaultImageUrl)
-            throws FileUploadException {
-        if (image != null && !image.isEmpty()) {
-            String id = LoggerSanitizer.sanitize(itemId);
-
-            fileService.validateImageSize(image, MAX_IMAGE_SIZE_MB);
-            MultipartFile resizedImage = fileService.resizeImage(image, 400, 600);
-
-            FileUploadRequest request = FileUploadRequest.builder()
-                    .file(resizedImage)
-                    .folder(folder)
-                    .publicId("item_" + id)
-                    .resourceType("image")
-                    .build();
-            String imageUrl = fileService.uploadFile(request);
-            logger.info("Se ha subido la imagen {} para el item con id {}", imageUrl, id);
-
-            return imageUrl;
-        }
-        return defaultImageUrl;
-    }
-
     private void updateImage(T item, MultipartFile image, String folder, String defaultImageUrl)
             throws FileUploadException {
         String oldImageUrl = item.getImageUrl();
         if (oldImageUrl != null && !oldImageUrl.equals(defaultImageUrl)) {
             fileService.deleteFile(oldImageUrl);
         }
-        String newImageUrl = uploadImage(item.getId(), image, folder, defaultImageUrl);
+        String newImageUrl = fileService.uploadImage(
+                "item",
+                item.getId(),
+                image,
+                folder,
+                defaultImageUrl,
+                400,
+                600
+        );
         item.setImageUrl(newImageUrl);
     }
 
