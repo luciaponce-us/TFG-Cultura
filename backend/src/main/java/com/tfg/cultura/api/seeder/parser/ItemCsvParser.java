@@ -40,7 +40,7 @@ public abstract class ItemCsvParser extends CsvParser {
                 .categories(categories);
     }
 
-    private Section getSection(
+    protected Section getSection(
             String name,
             Map<String, Section> sectionsByName) {
 
@@ -53,7 +53,7 @@ public abstract class ItemCsvParser extends CsvParser {
         return section;
     }
 
-    private Set<Category> getCategories(
+    protected Set<Category> getCategories(
             List<String> names,
             Map<String, Category> categoriesByName) {
 

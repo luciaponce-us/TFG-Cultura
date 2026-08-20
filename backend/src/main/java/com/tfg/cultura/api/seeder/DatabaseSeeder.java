@@ -10,6 +10,7 @@ import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Movie;
+import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.sections.model.Section;
@@ -17,6 +18,7 @@ import com.tfg.cultura.api.seeder.parser.BoardGameCsvParser;
 import com.tfg.cultura.api.seeder.parser.BooksCsvParser;
 import com.tfg.cultura.api.seeder.parser.CategoryCsvParser;
 import com.tfg.cultura.api.seeder.parser.MovieCsvParser;
+import com.tfg.cultura.api.seeder.parser.RolSagaCsvParser;
 import com.tfg.cultura.api.seeder.parser.SectionsCsvParser;
 import com.tfg.cultura.api.seeder.parser.SeriesCsvParser;
 import com.tfg.cultura.api.seeder.parser.UserCsvParser;
@@ -84,6 +86,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         seedMovies(sectionsByName, categoriesByName, sagasByName);
         seedSeries(sectionsByName, categoriesByName);
         seedBoardGames(sectionsByName, categoriesByName);
+
+        List<RolSaga> rolSagas = seedRolSagas(sectionsByName, categoriesByName);
 
         logger.info("💾 Todos los datos se han guardado correctamente");
     }
@@ -255,6 +259,17 @@ public class DatabaseSeeder implements CommandLineRunner {
         allBoardGames.addAll(mongoTemplate.insertAll(expansionBoardGames));
 
         logger.info("✅🎲 Insertados {} juegos de mesa", allBoardGames.size());
+    }
+
+    private List<RolSaga> seedRolSagas(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
+        logger.info("🎲 Creando colección: rol_sagas");
+
+        List<RolSaga> rolSagasFromCsv = new RolSagaCsvParser().loadRolSagasFromCsv(sectionsByName, categoriesByName);
+
+        Collection<RolSaga> rolSagas = mongoTemplate.insertAll(rolSagasFromCsv);
+
+        logger.info("✅🎲 Insertadas {} sagas de rol", rolSagas.size());
+        return rolSagas.stream().toList();
     }
 
 }
