@@ -15,6 +15,7 @@ import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.seeder.parser.BoardGameCsvParser;
 import com.tfg.cultura.api.seeder.parser.BooksCsvParser;
+import com.tfg.cultura.api.seeder.parser.CategoryCsvParser;
 import com.tfg.cultura.api.seeder.parser.MovieCsvParser;
 import com.tfg.cultura.api.seeder.parser.SectionsCsvParser;
 import com.tfg.cultura.api.seeder.parser.SeriesCsvParser;
@@ -184,18 +185,9 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private List<Category> seedCategories() {
         logger.info("🏷️  Creando colección: categories");
-        Category c1 = Category.builder().name("Ficción").color("#FF5733").build();
-        Category c2 = Category.builder().name("No Ficción").color("#33FF57").build();
-        Category c3 = Category.builder().name("Ciencia Ficción").color("#3357FF").build();
-        Category c4 = Category.builder().name("Novela").color("#FF33A1").build();
-        Category c5 = Category.builder().name("Fantasía").color("#A133FF").build();
-        Category c6 = Category.builder().name("Terror").color("#33FFA1").build();
-        Category c7 = Category.builder().name("Acción").color("#FFA133").build();
-        Category c8 = Category.builder().name("Superhéroes").color("#33A1FF").build();
-        Category c9 = Category.builder().name("Drama").color("#A1FF33").build();
-        Category c10 = Category.builder().name("Espacial").color("#FF33FF").build();
-        Category c11 = Category.builder().name("Animales").color("#33FF33").build();
-        List<Category> categories = List.of(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11);
+
+        List<Category> categories = new CategoryCsvParser().loadCategoriesFromCsv();
+
         mongoTemplate.insertAll(categories);
         logger.info("✅🏷️ Insertadas {} categorías", categories.size());
         return categories;
