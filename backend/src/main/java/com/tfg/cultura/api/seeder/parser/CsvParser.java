@@ -58,7 +58,7 @@ public abstract class CsvParser {
 
         value = clean(value);
 
-        if (value.equals("[]")) {
+        if (value.equals("[]") || value.equalsIgnoreCase("null") || value.isEmpty()) {
             return List.of();
         }
 

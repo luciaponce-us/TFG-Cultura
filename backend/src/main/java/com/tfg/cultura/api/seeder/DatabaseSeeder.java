@@ -10,6 +10,7 @@ import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Movie;
+import com.tfg.cultura.api.catalog.model.RolGame;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.Series;
@@ -18,6 +19,7 @@ import com.tfg.cultura.api.seeder.parser.BoardGameCsvParser;
 import com.tfg.cultura.api.seeder.parser.BooksCsvParser;
 import com.tfg.cultura.api.seeder.parser.CategoryCsvParser;
 import com.tfg.cultura.api.seeder.parser.MovieCsvParser;
+import com.tfg.cultura.api.seeder.parser.RolGameCsvParser;
 import com.tfg.cultura.api.seeder.parser.RolSagaCsvParser;
 import com.tfg.cultura.api.seeder.parser.SectionsCsvParser;
 import com.tfg.cultura.api.seeder.parser.SeriesCsvParser;
@@ -88,6 +90,11 @@ public class DatabaseSeeder implements CommandLineRunner {
         seedBoardGames(sectionsByName, categoriesByName);
 
         List<RolSaga> rolSagas = seedRolSagas(sectionsByName, categoriesByName);
+        Map<String, RolSaga> rolSagasByName = rolSagas.stream()
+                .collect(Collectors.toMap(
+                        RolSaga::getName,
+                        Function.identity()));
+        seedRolGames(rolSagasByName, categoriesByName, sectionsByName);
 
         logger.info("💾 Todos los datos se han guardado correctamente");
     }
@@ -270,6 +277,16 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         logger.info("✅🎲 Insertadas {} sagas de rol", rolSagas.size());
         return rolSagas.stream().toList();
+    }
+
+    private void seedRolGames(Map<String, RolSaga> sagasByName, Map<String, Category> categoriesByName, Map<String, Section> sectionsByName) {
+        logger.info("🎲 Creando colección: rol_games");
+
+        List<RolGame> rolGamesFromCsv = new RolGameCsvParser().loadRolGamesFromCsv(sagasByName, categoriesByName, sectionsByName);
+
+        Collection<RolGame> rolGames = mongoTemplate.insertAll(rolGamesFromCsv);
+
+        logger.info("✅🎲 Insertados {} juegos de rol", rolGames.size());
     }
 
 }

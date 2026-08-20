@@ -21,7 +21,7 @@ public abstract class ItemCsvParser extends CsvParser {
             Map<String, Section> sectionsByName) {
 
         Set<Category> categories = getCategories(parseList(parts[13]), categoriesByName);
-        Section section = getSection(clean(parts[12]), sectionsByName);
+        Section section = getSection(parseNullableString(parts[12]), sectionsByName);
 
         builder
                 .name(clean(parts[0]))
@@ -44,6 +44,10 @@ public abstract class ItemCsvParser extends CsvParser {
             String name,
             Map<String, Section> sectionsByName) {
 
+        if (name == null || name.isEmpty()) {
+            return null;
+        }
+        
         Section section = sectionsByName.get(name);
 
         if (section == null) {
