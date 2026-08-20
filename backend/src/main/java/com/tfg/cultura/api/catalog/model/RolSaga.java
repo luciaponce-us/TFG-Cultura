@@ -1,12 +1,19 @@
 package com.tfg.cultura.api.catalog.model;
 
+import java.time.LocalDateTime;
+
+import java.util.Set;
+
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import com.tfg.cultura.api.catalog.model.enumerators.GameMaster;
 import com.tfg.cultura.api.core.validation.annotations.ValidCloudinaryUrl;
 import com.tfg.cultura.api.core.validation.enums.ResourceType;
+import com.tfg.cultura.api.sections.model.Section;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -57,4 +64,14 @@ public class RolSaga {
 
     @Size(max = 50, message = "Los jugadores recomendados no pueden tener más de 50 caracteres")
     private String recommendedPlayers;
+
+    @NotNull(message = "La saga debe pertenecer a una sección")
+    @DocumentReference
+    private Section section;
+
+    @DocumentReference
+    private Set<Category> categories;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
 }

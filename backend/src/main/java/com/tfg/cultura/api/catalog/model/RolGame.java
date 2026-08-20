@@ -1,10 +1,9 @@
 package com.tfg.cultura.api.catalog.model;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
+import com.tfg.cultura.api.catalog.model.enumerators.RolBookType;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -26,8 +25,7 @@ public class RolGame extends Item {
     @NotNull(message = "La saga es obligatoria")
     private RolSaga saga;
 
-    @DocumentReference
-    @NotNull(message = "La lista de expansiones es obligatoria")
+    @NotNull(message = "El tipo de libro es obligatorio")
     @Builder.Default
-    private List<RolGame> expansions = new ArrayList<RolGame>();
+    private RolBookType type = RolBookType.BASIC;
 }
