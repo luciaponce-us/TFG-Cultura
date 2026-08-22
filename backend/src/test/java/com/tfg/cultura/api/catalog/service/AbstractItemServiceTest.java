@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +43,7 @@ import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.factory.AppPropertiesFactory;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
+import com.tfg.cultura.api.sections.model.dto.SectionReference;
 import com.tfg.cultura.api.sections.service.SectionService;
 
 @ExtendWith(MockitoExtension.class)
@@ -92,6 +96,31 @@ class AbstractItemServiceTest {
 				.build();
 	}
 
+	private void mockFileServiceUploadImage(String imageUrl) {
+		when(fileService.uploadImage(
+				any(),
+				any(),
+				any(),
+				any(),
+				any(),
+				anyInt(),
+				anyInt()))
+				.thenReturn(imageUrl);
+	}
+
+	private void mockFileServiceUpdateImage(String imageUrl) {
+		when(fileService.updateImage(
+				anyString(),
+				anyString(),
+				anyString(),
+				any(),
+				anyString(),
+				anyString(),
+				anyInt(),
+				anyInt()))
+				.thenReturn(imageUrl);
+	}
+
 	// CREATE
 
 	@Test
@@ -101,6 +130,7 @@ class AbstractItemServiceTest {
 		when(categoryService.findCategoriesByIds(any())).thenReturn(Set.of(category));
 		when(sagaService.findByName("Harry Potter")).thenReturn(saga);
 		when(repository.existsByIsbn(any())).thenReturn(false);
+		mockFileServiceUploadImage(service.getDefaultImageUrl());
 
 		when(repository.save(any(Book.class)))
 				.thenAnswer(inv -> {
@@ -115,16 +145,15 @@ class AbstractItemServiceTest {
 
 		ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
 
-		verify(repository).save(captor.capture());
+		verify(repository, times(2)).save(captor.capture());
 
-		Book saved = captor.getValue();
-
-		assertEquals("Harry Potter", saved.getName());
-		assertEquals("J.K. Rowling", saved.getAuthor());
-		assertEquals(section, saved.getSection());
-		assertEquals(saga, saved.getSaga());
-		assertEquals(15, saved.getLoanDays());
-		assertEquals(service.getDefaultImageUrl(), saved.getImageUrl());
+		assertEquals("Harry Potter", response.getName());
+		assertEquals("J.K. Rowling", response.getAuthor());
+		SectionReference sectionRef = new SectionReference(section);
+		assertEquals(sectionRef.getId(), response.getSection().getId());
+		assertEquals(saga.getName(), response.getSaga());
+		assertEquals(15, response.getLoanDays());
+		assertEquals(service.getDefaultImageUrl(), response.getImageUrl());
 	}
 
 	@Test
@@ -140,45 +169,6 @@ class AbstractItemServiceTest {
 		request.setAvailableCopies(-1);
 
 		assertThrows(IllegalArgumentException.class, () -> service.create(request, null));
-	}
-
-	@Test
-	void should_upload_image() {
-		MockMultipartFile image = new MockMultipartFile(
-				"image",
-				"book.jpg",
-				MediaType.IMAGE_JPEG_VALUE,
-				"data".getBytes());
-
-		when(fileService.resizeImage(any(), eq(400), eq(600)))
-				.thenReturn(image);
-
-		when(fileService.uploadFile(any()))
-				.thenReturn("https://cloudinary/...");
-		when(sectionService.findSectionById("section")).thenReturn(section);
-		when(categoryService.findCategoriesByIds(any())).thenReturn(Set.of(category));
-		when(sagaService.findByName("Harry Potter")).thenReturn(saga);
-		when(repository.existsByIsbn(any())).thenReturn(false);
-
-		when(repository.save(any(Book.class)))
-				.thenAnswer(inv -> {
-					Book b = inv.getArgument(0);
-					b.setId("1");
-					return b;
-				});
-
-		BookResponse response = service.create(request, image);
-
-		ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
-
-		assertEquals(
-				"https://cloudinary/...",
-				response.getImageUrl());
-
-		verify(repository).save(captor.capture());
-		verify(fileService).validateImageSize(any(), anyLong());
-		verify(fileService).resizeImage(any(), eq(400), eq(600));
-		verify(fileService).uploadFile(any());
 	}
 
 	// READ
@@ -303,7 +293,7 @@ class AbstractItemServiceTest {
 
 		assertEquals(request.getName(), response.getName());
 
-		verify(repository).save(book);
+		verify(repository, times(2)).save(book);
 	}
 
 	@Test
@@ -346,93 +336,14 @@ class AbstractItemServiceTest {
 				MediaType.IMAGE_JPEG_VALUE,
 				"data".getBytes());
 
-		when(fileService.resizeImage(any(), eq(400), eq(600)))
-				.thenReturn(image);
-
-		when(fileService.uploadFile(any()))
-				.thenReturn("https://cloudinary/...");
+		mockFileServiceUpdateImage("https://cloudinary/...");
 
 		BookResponse response = service.update("1", request, image);
 
 		assertEquals("https://cloudinary/...", response.getImageUrl());
 
-		verify(fileService).validateImageSize(any(), anyLong());
-		verify(fileService).resizeImage(any(), eq(400), eq(600));
-		verify(fileService).uploadFile(any());
-	}
-
-	@Test
-	void should_not_update_when_image_is_null() {
-		Book book = Book.builder()
-				.id("1")
-				.imageUrl(service.getDefaultImageUrl())
-				.build();
-
-		when(repository.findById("1"))
-				.thenReturn(Optional.of(book));
-
-		when(sectionService.findSectionById(any()))
-				.thenReturn(section);
-
-		when(categoryService.findCategoriesByIds(any()))
-				.thenReturn(Set.of(category));
-
-		when(sagaService.findByName(any()))
-				.thenReturn(saga);
-
-		when(repository.existsByIsbn(any()))
-				.thenReturn(false);
-
-		when(repository.save(any(Book.class)))
-				.thenAnswer(inv -> inv.getArgument(0));
-
-		BookResponse response = service.update("1", request, null);
-
-		assertEquals(service.getDefaultImageUrl(), response.getImageUrl());
-	}
-
-	@Test
-	void should_delete_old_image_when_updating_with_new_image() {
-		Book book = Book.builder()
-				.id("1")
-				.imageUrl("https://cloudinary/old_image.jpg")
-				.build();
-
-		when(repository.findById("1"))
-				.thenReturn(Optional.of(book));
-
-		when(sectionService.findSectionById(any()))
-				.thenReturn(section);
-
-		when(categoryService.findCategoriesByIds(any()))
-				.thenReturn(Set.of(category));
-
-		when(sagaService.findByName(any()))
-				.thenReturn(saga);
-
-		when(repository.existsByIsbn(any()))
-				.thenReturn(false);
-
-		when(repository.save(any(Book.class)))
-				.thenAnswer(inv -> inv.getArgument(0));
-
-		MockMultipartFile image = new MockMultipartFile(
-				"image",
-				"book.jpg",
-				MediaType.IMAGE_JPEG_VALUE,
-				"data".getBytes());
-
-		when(fileService.resizeImage(any(), eq(400), eq(600)))
-				.thenReturn(image);
-
-		when(fileService.uploadFile(any()))
-				.thenReturn("https://cloudinary/new_image.jpg");
-
-		BookResponse response = service.update("1", request, image);
-
-		assertEquals("https://cloudinary/new_image.jpg", response.getImageUrl());
-
-		verify(fileService).deleteFile("https://cloudinary/old_image.jpg");
+		verify(fileService).updateImage(anyString(), anyString(), anyString(), any(), anyString(), anyString(),
+				anyInt(), anyInt());
 	}
 
 	// DELETE

@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserFileService {
+    // TODO: Refactorizar o eliminar este servicio para aprovechar el FileService y evitar duplicación de código
 
     private final FileService fileService;
 

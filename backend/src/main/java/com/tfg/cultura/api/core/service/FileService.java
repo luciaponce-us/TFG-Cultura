@@ -23,6 +23,7 @@ import net.coobird.thumbnailator.Thumbnails;
 
 @Service
 public class FileService {
+    // TODO: Refactorizar para convertir métodos en privados y eliminar tests innecesarios
 
     private Cloudinary cloudinary;
     private static final Integer MAX_IMAGE_SIZE_MB = 2;
@@ -140,6 +141,17 @@ public class FileService {
             return uploadFile(request);
         }
         return defaultImageUrl;
+    }
+
+    public String updateImage(String oldUrl, String className, String id, MultipartFile newImage, String folder,
+            String defaultImageUrl, Integer width, Integer height) throws FileDeleteException, FileUploadException {
+        if (newImage != null && !newImage.isEmpty()) {
+            if (oldUrl != null && !oldUrl.equals(defaultImageUrl)) {
+                deleteFile(oldUrl);
+            }
+            return uploadImage(className, id, newImage, folder, defaultImageUrl, width, height);
+        }
+        return oldUrl;
     }
 
     private String extractPublicId(String url) {

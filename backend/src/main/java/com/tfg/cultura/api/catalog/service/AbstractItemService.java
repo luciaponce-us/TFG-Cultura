@@ -74,22 +74,24 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
 
         validate(item);
 
+        T savedItem = repository.save(item);
+
         String imageUrl = fileService.uploadImage(
                 "item",
-                item.getId(),
+                savedItem.getId(),
                 image,
                 getImageFolder(),
                 getDefaultImageUrl(),
                 400,
                 600
         );
-        item.setImageUrl(imageUrl);
 
-        T savedItem = repository.save(item);
+        savedItem.setImageUrl(imageUrl);
+        T savedItemWithImage = repository.save(savedItem);
 
-        postCreationActions(savedItem);
+        postCreationActions(savedItemWithImage);
 
-        return mapper.apply(savedItem);
+        return mapper.apply(savedItemWithImage);
     }
 
     protected abstract T createEntity();
@@ -119,6 +121,9 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
     public void delete(String id) {
         T item = findById(id);
         preDeletionActions(item);
+        if (item.getImageUrl() != null && !item.getImageUrl().equals(getDefaultImageUrl())) {
+            fileService.deleteFile(item.getImageUrl());
+        }
         repository.delete(item);
     }
 
@@ -141,11 +146,22 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
 
         T updatedItem = repository.save(existingItem);
 
-        updateImage(existingItem, image, getImageFolder(), getDefaultImageUrl());
+        String newImageUrl = fileService.updateImage(
+            existingItem.getImageUrl(),
+            "item",
+            id,
+            image,
+            getImageFolder(),
+            getDefaultImageUrl(),
+            400,
+            600
+        );
+        updatedItem.setImageUrl(newImageUrl);
+        T updatedItemWithImage = repository.save(updatedItem);
 
-        postUpdateActions(existingItem, updatedItem);
+        postUpdateActions(existingItem, updatedItemWithImage);
 
-        return mapper.apply(updatedItem);
+        return mapper.apply(updatedItemWithImage);
     }
 
     protected void postUpdateActions(T oldItem, T updatedItem)
@@ -184,24 +200,6 @@ public abstract class AbstractItemService<T extends Item, R extends ItemReposito
         item.setLoanDays(loanDays);
         item.setSection(section);
         item.setCategories(categories);
-    }
-
-    private void updateImage(T item, MultipartFile image, String folder, String defaultImageUrl)
-            throws FileUploadException {
-        String oldImageUrl = item.getImageUrl();
-        if (oldImageUrl != null && !oldImageUrl.equals(defaultImageUrl)) {
-            fileService.deleteFile(oldImageUrl);
-        }
-        String newImageUrl = fileService.uploadImage(
-                "item",
-                item.getId(),
-                image,
-                folder,
-                defaultImageUrl,
-                400,
-                600
-        );
-        item.setImageUrl(newImageUrl);
     }
 
     public void removeCategory(Category category) {
