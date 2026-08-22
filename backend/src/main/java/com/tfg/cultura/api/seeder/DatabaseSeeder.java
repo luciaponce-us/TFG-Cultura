@@ -14,6 +14,7 @@ import com.tfg.cultura.api.catalog.model.RolGame;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.Series;
+import com.tfg.cultura.api.catalog.model.VideoGame;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.seeder.parser.BoardGameCsvParser;
 import com.tfg.cultura.api.seeder.parser.BooksCsvParser;
@@ -24,6 +25,7 @@ import com.tfg.cultura.api.seeder.parser.RolSagaCsvParser;
 import com.tfg.cultura.api.seeder.parser.SectionsCsvParser;
 import com.tfg.cultura.api.seeder.parser.SeriesCsvParser;
 import com.tfg.cultura.api.seeder.parser.UserCsvParser;
+import com.tfg.cultura.api.seeder.parser.VideoGameCsvParser;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.users.model.User;
@@ -95,6 +97,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         RolSaga::getName,
                         Function.identity()));
         seedRolGames(rolSagasByName, categoriesByName, sectionsByName);
+
+        seedVideoGames(sectionsByName, categoriesByName);
 
         logger.info("💾 Todos los datos se han guardado correctamente");
     }
@@ -287,6 +291,16 @@ public class DatabaseSeeder implements CommandLineRunner {
         Collection<RolGame> rolGames = mongoTemplate.insertAll(rolGamesFromCsv);
 
         logger.info("✅🎲 Insertados {} juegos de rol", rolGames.size());
+    }
+
+    private void seedVideoGames(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
+        logger.info("🎮 Creando colección: videogames");
+
+        List<VideoGame> videoGamesFromCsv = new VideoGameCsvParser().loadVideoGamesFromCsv(sectionsByName, categoriesByName);
+
+        Collection<VideoGame> videoGames = mongoTemplate.insertAll(videoGamesFromCsv);
+
+        logger.info("✅🎮 Insertados {} videojuegos", videoGames.size());
     }
 
 }
