@@ -15,6 +15,7 @@ import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaResponse;
+import com.tfg.cultura.api.catalog.repository.RolGameRepository;
 import com.tfg.cultura.api.catalog.repository.RolSagaRepository;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.FileDeleteException;
@@ -36,10 +37,11 @@ public class RolSagaService {
     private final SectionService sectionService;
     private final CategoryService categoryService;
     private final FileService fileService;
+    private final RolGameRepository rolGameRepository;
     private final AppProperties appProperties;
 
     private String getImageFolder() {
-        return "rolsaga";
+        return "cultura/items/rolsaga";
     }
 
     private String getDefaultImageUrl() {
@@ -92,7 +94,7 @@ public class RolSagaService {
         return new RolSagaResponse(rolSaga);
     }
 
-    private RolSaga findById(String id) throws RolSagaNotFoundException {
+    protected RolSaga findById(String id) throws RolSagaNotFoundException {
         return repository.findById(id)
                 .orElseThrow(() -> new RolSagaNotFoundException(id));
     }
@@ -140,7 +142,8 @@ public class RolSagaService {
     @Transactional
     public void delete(String id) throws RolSagaNotFoundException, FileDeleteException {
         RolSaga rolSaga = findById(id);
-        deleteImage(rolSaga.getImageUrl());
+        //deleteImage(rolSaga.getImageUrl());
+        rolGameRepository.deleteAllBySaga(rolSaga);
         repository.delete(rolSaga);
     }
 
