@@ -38,6 +38,7 @@ public record AppProperties(
             String book,
             String boardGame,
             String rolGame,
-            String rolSaga) {
+            String rolSaga,
+            String videoGame) {
     }
 }

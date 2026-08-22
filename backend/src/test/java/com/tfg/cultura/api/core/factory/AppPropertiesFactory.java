@@ -44,6 +44,7 @@ public class AppPropertiesFactory {
             "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/book_placeholder.jpg",
             "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/boardgames_placeholder.jpg",
             "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/rolgames_placeholder.jpg",
-            "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/rolsagas_placeholder.jpg");
+            "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/rolsagas_placeholder.jpg",
+            "https://res.cloudinary.com/dubz79y98/image/upload/v1785682202/videogames_placeholder.jpg");
 
 }
