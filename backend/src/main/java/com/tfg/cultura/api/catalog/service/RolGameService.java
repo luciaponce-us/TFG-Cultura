@@ -62,7 +62,7 @@ public class RolGameService extends AbstractItemService<RolGame, RolGameReposito
         return 15; // RN-17
     }
 
-    public List<RolGameResponse> findBySagaId(String sagaId) throws RolSagaNotFoundException {
+    public List<RolGameResponse> findAllBySagaId(String sagaId) throws RolSagaNotFoundException {
         RolSaga saga = rolSagaService.findById(sagaId);
         List<RolGame> rolGames = repository.findAllBySaga(saga);
         return rolGames.stream().map(RolGameResponse::new).toList();

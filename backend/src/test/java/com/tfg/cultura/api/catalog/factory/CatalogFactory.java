@@ -12,6 +12,7 @@ import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
+import com.tfg.cultura.api.catalog.model.RolGame;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.Season;
@@ -20,6 +21,7 @@ import com.tfg.cultura.api.catalog.model.SeriesInfo;
 import com.tfg.cultura.api.catalog.model.dto.BoardGameRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
+import com.tfg.cultura.api.catalog.model.dto.RolGameRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.BoardGameType;
@@ -27,6 +29,7 @@ import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.model.enumerators.Complexity;
 import com.tfg.cultura.api.catalog.model.enumerators.Format;
 import com.tfg.cultura.api.catalog.model.enumerators.GameMaster;
+import com.tfg.cultura.api.catalog.model.enumerators.RolBookType;
 import com.tfg.cultura.api.catalog.model.enumerators.SeriesStatus;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
 
@@ -220,6 +223,33 @@ public class CatalogFactory {
                 .description(rolSaga.getDescription())
                 .gameMaster(rolSaga.getGameMaster())
                 .sectionId(rolSaga.getSection().getId())
+                .build();
+    }
+
+    // RolGame
+
+    public static RolGame validRolGame() {
+        return RolGame.builder()
+                .id("rol-game-id")
+                .name("Test Rol Game")
+                .description("Test Rol Game valid description")
+                .type(RolBookType.BASIC)
+                .saga(validRolSaga())
+                .section(SectionFactory.validSection())
+                .imageUrl("old-image-url")
+                .saga(validRolSaga())
+                .build();
+    }
+
+    public static RolGameRequest validRolGameRequest() {
+        RolGame rolGame = validRolGame();
+
+        return RolGameRequest.builder()
+                .name("Changed Rol Game Name")
+                .description(rolGame.getDescription())
+                .type(rolGame.getType())
+                .sagaId(rolGame.getSaga().getId())
+                .sectionId(rolGame.getSection().getId())
                 .build();
     }
 

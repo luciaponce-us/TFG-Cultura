@@ -25,8 +25,8 @@ public class RolGameController extends AbstractItemController<RolGameRequest, Ro
     }
 
     @GetMapping("/saga/{sagaId}")
-    public ResponseEntity<List<RolGameResponse>> findBySagaId(@PathVariable String sagaId) {
-        List<RolGameResponse> response = service.findBySagaId(sagaId);
+    public ResponseEntity<List<RolGameResponse>> findAllBySagaId(@PathVariable String sagaId) {
+        List<RolGameResponse> response = service.findAllBySagaId(sagaId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
