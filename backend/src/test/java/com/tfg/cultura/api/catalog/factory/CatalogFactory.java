@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-
 import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
@@ -197,14 +194,6 @@ public class CatalogFactory {
                 .types(typesArray)
                 .baseGameId(boardGame.getBaseGame().getId())
                 .build();
-    }
-
-    public static MockMultipartFile mockImagePart() {
-        return new MockMultipartFile(
-                "image",
-                "image.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                "dummy image content".getBytes());
     }
 
 }

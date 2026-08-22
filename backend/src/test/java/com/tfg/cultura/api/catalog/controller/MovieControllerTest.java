@@ -36,6 +36,7 @@ import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieResponse;
 import com.tfg.cultura.api.catalog.service.MovieService;
+import com.tfg.cultura.api.core.factory.FileFactory;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
 class MovieControllerTest extends BaseControllerTest {
@@ -97,7 +98,7 @@ class MovieControllerTest extends BaseControllerTest {
         when(movieService.create(any(MovieRequest.class), any())).thenReturn(movieResponse);
 
         MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
-        MockMultipartFile imagePart = CatalogFactory.mockImagePart();
+        MockMultipartFile imagePart = FileFactory.mockImagePart();
 
         mockMvc.perform(multipart(BASE_URL)
                 .file(moviePart)

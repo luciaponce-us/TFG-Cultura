@@ -34,6 +34,7 @@ import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.service.BookService;
+import com.tfg.cultura.api.core.factory.FileFactory;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
 class BookControllerTest extends BaseControllerTest {
@@ -93,7 +94,7 @@ class BookControllerTest extends BaseControllerTest {
         when(bookService.create(any(BookRequest.class), any())).thenReturn(bookResponse);
 
         MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
-        MockMultipartFile imagePart = CatalogFactory.mockImagePart();
+        MockMultipartFile imagePart = FileFactory.mockImagePart();
 
         mockMvc.perform(multipart(BASE_URL)
                 .file(bookPart)
