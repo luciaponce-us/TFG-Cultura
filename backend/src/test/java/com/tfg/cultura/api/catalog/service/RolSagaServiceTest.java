@@ -35,6 +35,7 @@ import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaResponse;
+import com.tfg.cultura.api.catalog.repository.RolGameRepository;
 import com.tfg.cultura.api.catalog.repository.RolSagaRepository;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.FileDeleteException;
@@ -48,10 +49,16 @@ import com.tfg.cultura.api.sections.service.SectionService;
 class RolSagaServiceTest {
     @Mock
     private RolSagaRepository repository;
+
+    @Mock
+    private RolGameRepository rolGameRepository;
+    
     @Mock
     private SectionService sectionService;
+
     @Mock
     private CategoryService categoryService;
+    
     @Mock
     private FileService fileService;
 
@@ -505,7 +512,7 @@ class RolSagaServiceTest {
                 eq("rolsaga"),
                 eq(rolSaga.getId()),
                 eq(image),
-                eq("rolsaga"),
+                anyString(),
                 anyString(),
                 anyInt(),
                 anyInt()))

@@ -142,7 +142,7 @@ public class RolSagaService {
     @Transactional
     public void delete(String id) throws RolSagaNotFoundException, FileDeleteException {
         RolSaga rolSaga = findById(id);
-        //deleteImage(rolSaga.getImageUrl());
+        deleteImage(rolSaga.getImageUrl());
         rolGameRepository.deleteAllBySaga(rolSaga);
         repository.delete(rolSaga);
     }
