@@ -12,6 +12,7 @@ import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
+import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.Season;
 import com.tfg.cultura.api.catalog.model.Series;
@@ -19,11 +20,13 @@ import com.tfg.cultura.api.catalog.model.SeriesInfo;
 import com.tfg.cultura.api.catalog.model.dto.BoardGameRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
+import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.BoardGameType;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.model.enumerators.Complexity;
 import com.tfg.cultura.api.catalog.model.enumerators.Format;
+import com.tfg.cultura.api.catalog.model.enumerators.GameMaster;
 import com.tfg.cultura.api.catalog.model.enumerators.SeriesStatus;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
 
@@ -193,6 +196,30 @@ public class CatalogFactory {
                 .complexity(boardGame.getComplexity())
                 .types(typesArray)
                 .baseGameId(boardGame.getBaseGame().getId())
+                .build();
+    }
+
+    // RolSaga
+
+    public static RolSaga validRolSaga() {
+        return RolSaga.builder()
+                .id("rol-saga-id")
+                .name("Test Rol Saga")
+                .description("Test Rol Saga valid description")
+                .gameMaster(GameMaster.COMPULSORY)
+                .section(SectionFactory.validSection())
+                .imageUrl("old-image-url")
+                .build();
+    }
+
+    public static RolSagaRequest validRolSagaRequest() {
+        RolSaga rolSaga = validRolSaga();
+
+        return RolSagaRequest.builder()
+                .name("Changed Rol Saga Name")
+                .description(rolSaga.getDescription())
+                .gameMaster(rolSaga.getGameMaster())
+                .sectionId(rolSaga.getSection().getId())
                 .build();
     }
 

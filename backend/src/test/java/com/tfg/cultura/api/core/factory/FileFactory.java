@@ -11,4 +11,12 @@ public class FileFactory {
                 MediaType.IMAGE_JPEG_VALUE,
                 "dummy image content".getBytes());
     }
+
+    public static MockMultipartFile mockEmptyImagePart() {
+        return new MockMultipartFile(
+                "image",
+                "image.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                new byte[0]);
+    }
 }

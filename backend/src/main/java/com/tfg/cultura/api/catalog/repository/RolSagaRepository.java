@@ -5,5 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 
 public interface RolSagaRepository extends MongoRepository<RolSaga, String> {
-    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, String id);
 }

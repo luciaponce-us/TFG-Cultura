@@ -25,6 +25,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 @Document(collection = "rolsagas")
 @Getter
 @Setter
@@ -77,13 +79,13 @@ public class RolSaga {
     private LocalDateTime createdAt;
 
     public RolSaga(RolSagaRequest request, Section section, Set<Category> categories) {
-        this.name = request.getName();
-        this.description = request.getDescription();
-        this.website = request.getWebsite();
-        this.characterSheetUrl = request.getCharacterSheetUrl();
+        this.name = request.getName().trim();
+        this.description = request.getDescription().trim();
+        this.website = sanitize(request.getWebsite());
+        this.characterSheetUrl = sanitize(request.getCharacterSheetUrl());
         this.gameMaster = request.getGameMaster();
-        this.dice = request.getDice();
-        this.recommendedPlayers = request.getRecommendedPlayers();
+        this.dice = sanitize(request.getDice());
+        this.recommendedPlayers = sanitize(request.getRecommendedPlayers());
         this.section = section;
         this.categories = categories;
     }
