@@ -83,18 +83,24 @@ public class FileService {
         }
     }
 
-    public void deleteFile(String url) {
+    public void deleteFile(String url) throws FileDeleteException {
         try {
             String publicId = extractPublicId(url);
-
-            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-
+            deleteFileByPublicId(publicId);
         } catch (Exception e) {
             throw new FileDeleteException(e.getMessage());
         }
     }
 
-    public void validateFileSize(MultipartFile file, long maxSizeMB) {
+    public void deleteFileByPublicId(String publicId) throws FileDeleteException {
+        try {
+            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+        } catch (Exception e) {
+            throw new FileDeleteException(e.getMessage());
+        }
+    }
+
+    public void validateFileSize(MultipartFile file, long maxSizeMB) throws InvalidFileSizeException {
         long maxSizeBytes = maxSizeMB * 1024 * 1024;
         if (file.getSize() > maxSizeBytes) {
             throw new InvalidFileSizeException(
@@ -102,7 +108,7 @@ public class FileService {
         }
     }
 
-    public void validateImage(MultipartFile file) {
+    public void validateImage(MultipartFile file) throws InvalidFileTypeException {
         String contentType = file.getContentType();
 
         if (contentType == null || !contentType.startsWith("image/")) {
@@ -110,7 +116,7 @@ public class FileService {
         }
     }
 
-    public void validateImageSize(MultipartFile file, long maxSizeMB) {
+    public void validateImageSize(MultipartFile file, long maxSizeMB) throws InvalidFileSizeException, InvalidFileTypeException {
         validateImage(file);
         validateFileSize(file, maxSizeMB);
     }

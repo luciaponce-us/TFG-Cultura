@@ -2,17 +2,22 @@ package com.tfg.cultura.api.catalog.service;
 
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
 import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaAlreadyExistsException;
+import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaResponse;
 import com.tfg.cultura.api.catalog.repository.RolSagaRepository;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.FileDeleteException;
+import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.exception.SectionNotFoundException;
 import com.tfg.cultura.api.sections.model.Section;
@@ -41,7 +46,8 @@ public class RolSagaService {
     // CREATE
 
     public RolSagaResponse create(RolSagaRequest request, MultipartFile image)
-            throws CategoryNotFoundException, SectionNotFoundException, RolSagaAlreadyExistsException {
+            throws CategoryNotFoundException, SectionNotFoundException, RolSagaAlreadyExistsException,
+            FileDeleteException, FileUploadException {
         boolean exists = repository.existsByName(request.getName());
         if (exists) {
             throw new RolSagaAlreadyExistsException(request.getName());
@@ -58,7 +64,13 @@ public class RolSagaService {
         return new RolSagaResponse(savedRolSaga);
     }
 
-    private void setImage(RolSaga rolSaga, MultipartFile image) {
+    private void setImage(RolSaga rolSaga, MultipartFile image) throws FileDeleteException, FileUploadException {
+        if (image == null || image.isEmpty()) {
+            return;
+        }
+
+        deleteImage(rolSaga.getImageUrl());
+
         String imageUrl = fileService.uploadImage(
                 "rolsaga",
                 rolSaga.getId(),
@@ -67,7 +79,78 @@ public class RolSagaService {
                 getDefaultImageUrl(),
                 400,
                 600);
+
         rolSaga.setImageUrl(imageUrl);
+    }
+
+    // READ
+
+    public RolSagaResponse getById(String id) throws RolSagaNotFoundException {
+        RolSaga rolSaga = findById(id);
+        return new RolSagaResponse(rolSaga);
+    }
+
+    private RolSaga findById(String id) throws RolSagaNotFoundException {
+        return repository.findById(id)
+                .orElseThrow(() -> new RolSagaNotFoundException(id));
+    }
+
+    public Page<RolSagaResponse> getAll(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(RolSagaResponse::new);
+    }
+
+    // UPDATE
+
+    public RolSagaResponse update(String id, RolSagaRequest request, MultipartFile image)
+            throws CategoryNotFoundException, SectionNotFoundException, RolSagaNotFoundException,
+            RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
+        RolSaga existingRolSaga = findById(id);
+        boolean nameChanged = !existingRolSaga.getName().toLowerCase().equals(request.getName().trim().toLowerCase());
+        if (nameChanged) {
+            checkNameUniqueness(request.getName().trim(), id);
+        }
+
+        Set<Category> categories = categoryService.findCategoriesByIds(request.getCategoriesIds());
+        Section section = sectionService.findSectionById(request.getSectionId());
+
+        existingRolSaga.setName(request.getName().trim());
+        existingRolSaga.setDescription(request.getDescription().trim());
+        existingRolSaga.setWebsite(request.getWebsite().trim());
+        existingRolSaga.setCharacterSheetUrl(request.getCharacterSheetUrl().trim());
+        existingRolSaga.setGameMaster(request.getGameMaster());
+        existingRolSaga.setDice(request.getDice().trim());
+        existingRolSaga.setRecommendedPlayers(request.getRecommendedPlayers().trim());
+        existingRolSaga.setSection(section);
+        existingRolSaga.setCategories(categories);
+
+        if (image != null && !image.isEmpty()) {
+            setImage(existingRolSaga, image);
+        }
+
+        RolSaga updatedRolSaga = repository.save(existingRolSaga);
+        return new RolSagaResponse(updatedRolSaga);
+    }
+
+    private void checkNameUniqueness(String name, String id) throws RolSagaAlreadyExistsException {
+        boolean exists = repository.existsByName(name);
+        if (exists) {
+            throw new RolSagaAlreadyExistsException(name);
+        }
+    }
+
+    // DELETE
+
+    public void delete(String id) throws RolSagaNotFoundException, FileDeleteException {
+        RolSaga rolSaga = findById(id);
+        deleteImage(rolSaga.getImageUrl());
+        repository.delete(rolSaga);
+    }
+
+    private void deleteImage(String imageUrl) throws FileDeleteException {
+        if (imageUrl != null && !imageUrl.equals(getDefaultImageUrl())) {
+            fileService.deleteFile(imageUrl);
+        }
     }
 
 }

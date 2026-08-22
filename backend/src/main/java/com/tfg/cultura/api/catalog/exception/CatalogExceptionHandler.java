@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.tfg.cultura.api.catalog.exception.category.*;
 import com.tfg.cultura.api.catalog.exception.item.*;
 import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaAlreadyExistsException;
+import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaNotFoundException;
 import com.tfg.cultura.api.catalog.exception.saga.*;
 import com.tfg.cultura.api.core.exception.ApiError;
 import com.tfg.cultura.api.core.exception.ApiErrorBuilder;
@@ -46,6 +47,15 @@ public class CatalogExceptionHandler {
 				ex,
 				HttpStatus.NOT_FOUND,
 				"Saga Not Found",
+				logger);
+	}
+
+	@ExceptionHandler(RolSagaNotFoundException.class)
+	public ResponseEntity<ApiError> handleRolSagaNotFoundException(RolSagaNotFoundException ex) {
+		return apiErrorBuilder.build(
+				ex,
+				HttpStatus.NOT_FOUND,
+				"Rol Saga Not Found",
 				logger);
 	}
 
