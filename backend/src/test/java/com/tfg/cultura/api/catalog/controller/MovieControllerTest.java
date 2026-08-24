@@ -175,7 +175,7 @@ class MovieControllerTest extends BaseControllerTest {
                 PageRequest.of(0, 10),
                 1);
 
-        when(movieService.getAll(PageRequest.of(0, 10))).thenReturn(page);
+        when(movieService.getAll(PageRequest.of(0, 10), null, null)).thenReturn(page);
 
         mockMvc.perform(get(BASE_URL)
                 .param("page", "0")
@@ -187,7 +187,7 @@ class MovieControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.size").value(10))
                 .andExpect(jsonPath("$.number").value(0));
 
-        verify(movieService).getAll(PageRequest.of(0, 10));
+        verify(movieService).getAll(PageRequest.of(0, 10), null, null);
     }
 
     // ====================== DELETE ======================

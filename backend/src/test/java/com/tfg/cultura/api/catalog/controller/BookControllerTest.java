@@ -170,7 +170,7 @@ class BookControllerTest extends BaseControllerTest {
                 PageRequest.of(0, 10),
                 1);
 
-        when(bookService.getAll(PageRequest.of(0, 10))).thenReturn(page);
+        when(bookService.getAll(PageRequest.of(0, 10), null, null)).thenReturn(page);
 
         mockMvc.perform(get(BASE_URL)
                 .param("page", "0")
@@ -182,7 +182,7 @@ class BookControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.size").value(10))
                 .andExpect(jsonPath("$.number").value(0));
 
-        verify(bookService).getAll(PageRequest.of(0, 10));
+        verify(bookService).getAll(PageRequest.of(0, 10), null, null);
     }
 
     // ====================== DELETE ======================

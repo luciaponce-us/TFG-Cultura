@@ -55,8 +55,26 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
     }
 
     @Override
-    public Page<RES> getAll(Pageable pageable) {
-        Page<T> items = repository.findAll(pageable);
+    public Page<RES> getAll(Pageable pageable, String nameContains, Set<String> categoryIds) {
+        Set<Category> categories = categoryIds == null || categoryIds.isEmpty() ? null
+                    : categoryService.findCategoriesByIds(categoryIds);
+
+        String nameFilter = nameContains == null ? "*" : nameContains;
+        
+        Page<T> items;
+        if (nameContains == null && categories == null) {
+            items = repository.findAll(pageable);
+        } else if (nameContains == null) {
+            items = repository.findAllByCategoriesContaining(categories, pageable);
+        } else if (categories == null) {
+            items = repository.findAllByNameContainingIgnoreCase(nameFilter, pageable);
+        } else {
+            items = repository.findAllByNameContainingIgnoreCaseAndCategoriesContaining(
+                    nameFilter,
+                    categories,
+                    pageable);
+        }
+
         return items.map(mapper);
     }
 
@@ -83,8 +101,7 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
                 getImageFolder(),
                 getDefaultImageUrl(),
                 400,
-                600
-        );
+                600);
 
         savedItem.setImageUrl(imageUrl);
         T savedItemWithImage = repository.save(savedItem);
@@ -147,15 +164,14 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
         T updatedItem = repository.save(existingItem);
 
         String newImageUrl = fileService.updateImage(
-            existingItem.getImageUrl(),
-            "item",
-            id,
-            image,
-            getImageFolder(),
-            getDefaultImageUrl(),
-            400,
-            600
-        );
+                existingItem.getImageUrl(),
+                "item",
+                id,
+                image,
+                getImageFolder(),
+                getDefaultImageUrl(),
+                400,
+                600);
         updatedItem.setImageUrl(newImageUrl);
         T updatedItemWithImage = repository.save(updatedItem);
 

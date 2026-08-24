@@ -250,7 +250,7 @@ class AbstractItemServiceTest {
 		when(repository.findAll(pageable))
 				.thenReturn(page);
 
-		Page<BookResponse> result = service.getAll(pageable);
+		Page<BookResponse> result = service.getAll(pageable, null, null);
 
 		assertEquals(2, result.getTotalElements());
 

@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.catalog.controller;
 
+import java.util.Set;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -46,8 +48,8 @@ public abstract class AbstractItemController<TRequest extends ItemRequest, TResp
     }
 
     @GetMapping
-    protected ResponseEntity<Page<TResponse>> getAllItems(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        Page<TResponse> response = service.getAll(PageRequest.of(page, size));
+    protected ResponseEntity<Page<TResponse>> getAllItems(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String nameContains, @RequestParam(required = false) Set<String> categoryIds) {
+        Page<TResponse> response = service.getAll(PageRequest.of(page, size), nameContains, categoryIds);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
