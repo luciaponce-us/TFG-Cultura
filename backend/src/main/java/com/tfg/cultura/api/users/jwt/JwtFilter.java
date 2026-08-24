@@ -11,11 +11,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tfg.cultura.api.core.exception.ApiError;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
-
-import io.jsonwebtoken.JwtException;
 
 import org.slf4j.LoggerFactory;
 
@@ -43,74 +42,119 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain)
-            throws ServletException, IOException, UserNotFoundException {
+            throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
         String path = request.getRequestURI();
 
-        // Sin token
+        // No hay token: continuar sin autenticación
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("[JWT] Se ha intentado acceder a {} sin token", path);
+            log.debug("[JWT] Acceso a {} sin token", path);
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Extraer token
         String token = authHeader.substring(7);
 
         try {
-            // Extraer id del usuario
+            // Si ya existe una autenticación, no hacemos nada
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String userId = jwtService.extractId(token);
 
-            // Si hay id y no hay autenticación previa
-            if (userId != null &&
-                    SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                UserDetails userDetails = userDetailsService.loadUserById(userId);
-                log.info("[JWT] El usuario con id {} ha intentado acceder a {}", userId, path);
-
-                // Devolver 403 si el usuario no está activado
-                if (!userDetails.isEnabled()) {
-                    ApiError error = ApiError.builder()
-                            .status(HttpStatus.FORBIDDEN.value())
-                            .error("Usuario desactivado")
-                            .message("Tu usuario está desactivado")
-                            .build();
-                    log.warn("[JWT] El usuario con id {} está desactivado", userId);
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-                    mapper.writeValue(response.getWriter(), error);
-                    return;
-                }
-
-                // Validar token
-                if (jwtService.isTokenValid(token, userDetails)) {
-
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities());
-
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                    log.info("[JWT] Token válido para usuario: {} - Path: {}", userDetails.getUsername(), path);
-                } else {
-                    log.warn("[JWT] Token inválido o expirado para usuario: {} - Path: {}", userDetails.getUsername(),
-                            path);
-                }
-            } else if (userId != null) {
-                log.debug("[JWT] Usuario con id {} ya tiene autenticación previa", userId);
+            if (userId == null) {
+                log.debug("[JWT] No se pudo extraer el usuario del token para {}", path);
+                filterChain.doFilter(request, response);
+                return;
             }
-        } catch (JwtException e) {
-            log.error("[JWT] Error procesando JWT para path {}: {}", path, e.getMessage(), e);
-        } catch (UserNotFoundException e) {
-            log.error("[JWT] Usuario no encontrado en JWT para path {}: {}", path, e.getMessage());
+
+            UserDetails userDetails = userDetailsService.loadUserById(userId);
+
+            // El usuario existe pero está desactivado
+            if (!userDetails.isEnabled()) {
+                writeDisabledUserResponse(userId, response);
+                return;
+            }
+
+            // Validar token
+            if (jwtService.isTokenValid(token, userDetails)) {
+                authenticateUser(userDetails, path, request);
+            } else {
+                log.debug(
+                        "[JWT] Token inválido o expirado - Path: {}",
+                        path);
+            }
+
         } catch (Exception e) {
-            log.error("[JWT] Error inesperado en JwtFilter para path {}: {}", path, e.getMessage(), e);
+            logCatchedException(path, e);
         }
 
+        // SIEMPRE continuar si no hemos generado una respuesta propia
         filterChain.doFilter(request, response);
+    }
+
+    private void writeDisabledUserResponse(String userId, HttpServletResponse response)
+            throws IOException, StreamWriteException, DatabindException {
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .error("Usuario desactivado")
+                .message("Tu usuario está desactivado")
+                .build();
+
+        log.warn("[JWT] El usuario con id {} está desactivado", userId);
+
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        mapper.writeValue(response.getWriter(), error);
+    }
+
+    private void logCatchedException(String path, Exception e) {
+        switch (e.getClass().getSimpleName()) {
+            case "ExpiredJwtException":
+                log.info(
+                        "[JWT] Token expirado para path: {}",
+                        path);
+                break;
+            case "JwtException":
+                log.info(
+                        "[JWT] Token inválido para path {}: {}",
+                        path,
+                        e.getMessage());
+                break;
+            case "UserNotFoundException":
+                log.info(
+                        "[JWT] Usuario no encontrado para path {}: {}",
+                        path,
+                        e.getMessage());
+                break;
+            default:
+                log.error(
+                        "[JWT] Error inesperado para path {}: {}",
+                        path,
+                        e.getMessage());
+        }
+    }
+
+    private void authenticateUser(UserDetails userDetails, String path, HttpServletRequest request) {
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities());
+
+        authToken.setDetails(
+                new WebAuthenticationDetailsSource()
+                        .buildDetails(request));
+
+        SecurityContextHolder.getContext()
+                .setAuthentication(authToken);
+
+        log.info(
+                "[JWT] Token válido para usuario: {} - Path: {}",
+                userDetails.getUsername(),
+                path);
     }
 }
