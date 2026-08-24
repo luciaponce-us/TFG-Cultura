@@ -3,6 +3,7 @@ package com.tfg.cultura.api.catalog.model.dto;
 import java.util.Set;
 
 import com.tfg.cultura.api.catalog.model.enumerators.GameMaster;
+import com.tfg.cultura.api.core.validation.annotations.ValidUrl;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,9 +28,11 @@ public class RolSagaRequest {
     private String description;
 
     @Size(max = 280, message = "La URL del sitio web no puede tener más de 280 caracteres")
+    @ValidUrl(message = "La URL del sitio web no es válida")
     private String website;
 
     @Size(max = 280, message = "La URL de la hoja de personaje no puede tener más de 280 caracteres")
+    @ValidUrl(message = "La URL de la hoja de personaje no es válida")
     private String characterSheetUrl;
 
     @NotNull(message = "El maestro del juego es obligatorio")

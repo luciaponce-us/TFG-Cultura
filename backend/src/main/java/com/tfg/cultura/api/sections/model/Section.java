@@ -35,12 +35,12 @@ public class Section {
     private String name;
 
     @Builder.Default
-    @NotNull
+    @NotNull(message = "La lista de encargados es obligatoria")
     @DocumentReference
     private Set<User> managers = new HashSet<>(); // Encargados de la sección
 
     @Builder.Default
-    @NotNull
+    @NotNull(message = "La lista de colaboradores es obligatoria")
     @DocumentReference
     private Set<User> collaborators = new HashSet<>(); // Colaboradores de la sección
 

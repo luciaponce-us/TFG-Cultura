@@ -4,8 +4,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.tfg.cultura.api.core.validation.annotations.ValidHexColor;
+
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,8 +31,7 @@ public class Category {
     private String name;
 
     @NotBlank(message = "El color es obligatorio")
-    @Size(max = 7, message = "El color debe tener un máximo de 7 caracteres")
-    @Pattern(regexp = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", message = "El color debe ser un código hexadecimal válido")
+    @ValidHexColor
     private String color;
     
 }

@@ -38,6 +38,8 @@ import com.tfg.cultura.api.sections.factory.SectionFactory;
 
 public class CatalogFactory {
 
+    private static final String YT_EMBED_URL = "https://www.youtube.com/embed/nsNFOn_4i4E";
+
     public static Category validCategory() {
         return Category.builder()
                 .id("1")
@@ -73,7 +75,7 @@ public class CatalogFactory {
     public static Movie validMovie() {
         MovieInfo movieInfo = MovieInfo.builder()
                 .releaseDate(LocalDate.of(2020, 1, 1))
-                .trailerUrl("https://example.com/trailer")
+                .trailerUrl(YT_EMBED_URL)
                 .saga(validSaga())
                 .build();
 
@@ -92,7 +94,7 @@ public class CatalogFactory {
                 .format(Format.DVD)
                 .numberOfDiscs(1)
                 .releaseDate(LocalDate.of(2020, 1, 1))
-                .trailerUrl("https://example.com/trailer")
+                .trailerUrl(YT_EMBED_URL)
                 .sagaName(validSaga().getName())
                 .build();
     }
@@ -101,7 +103,7 @@ public class CatalogFactory {
         return Season.builder()
                 .seasonNumber(1)
                 .seasonPart(1)
-                .trailerUrl("https://example.com/season-trailer")
+                .trailerUrl(YT_EMBED_URL)
                 .build();
     }
 
@@ -269,8 +271,8 @@ public class CatalogFactory {
                 .categories(Set.of(validCategory())) // Optional
                 .imageUrl("old-image-url")
                 .platform(Platform.PC)
-                .releaseDate(LocalDate.of(2020,01,01))
-                .trailerUrl("https://youtu.be/CYG09cW5NkA?si=JGR0TDCdMDnBIo2u")
+                .releaseDate(LocalDate.of(2020, 01, 01))
+                .trailerUrl(YT_EMBED_URL)
                 .build();
     }
 

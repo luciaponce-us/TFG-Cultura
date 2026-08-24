@@ -35,7 +35,7 @@ public class Suggestion {
     @Size(min = 3, max = 50, message = "El título debe tener entre 3 y 50 caracteres")
     private String title;
 
-    @Size(min = 0, max = 280, message = "La descripción no puede tener más de 280 caracteres")
+    @Size(max = 280, message = "La descripción no puede tener más de 280 caracteres")
     private String description;
 
     @Builder.Default

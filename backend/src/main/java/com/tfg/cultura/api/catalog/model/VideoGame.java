@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.tfg.cultura.api.catalog.model.enumerators.Platform;
+import com.tfg.cultura.api.core.validation.annotations.ValidYouTubeEmbedUrl;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -31,6 +32,7 @@ public class VideoGame extends Item {
     private LocalDate releaseDate;
 
     @Size(max = 280, message = "La URL del tráiler no puede tener más de 280 caracteres")
+    @ValidYouTubeEmbedUrl(message = "La URL del tráiler debe ser una URL de YouTube embebida válida. Ejemplo: https://www.youtube.com/embed/nsNFOn_4i4E")
     private String trailerUrl;
     
 }
