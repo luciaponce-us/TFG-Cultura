@@ -5,7 +5,7 @@ import java.util.List;
 import com.tfg.cultura.api.catalog.model.RolGame;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 
-public interface RolGameRepository extends ItemRepository<RolGame> {
+public interface RolGameRepository extends AbstractItemRepository<RolGame> {
     List<RolGame> findAllBySaga(RolSaga saga);
     void deleteAllBySaga(RolSaga saga);
 }

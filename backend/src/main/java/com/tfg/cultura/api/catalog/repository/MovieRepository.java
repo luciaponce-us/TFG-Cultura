@@ -5,6 +5,6 @@ import java.util.Optional;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.enumerators.Format;
 
-public interface MovieRepository extends ItemRepository<Movie> {
+public interface MovieRepository extends AbstractItemRepository<Movie> {
     Optional<Movie> findByNameAndFormat(String name, Format format);
 }

@@ -1,15 +1,15 @@
 package com.tfg.cultura.api.catalog.repository;
 
-import java.util.List;
+import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.repository.NoRepositoryBean;
 
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Item;
+import com.tfg.cultura.api.sections.model.Section;
 
-@NoRepositoryBean
-public interface ItemRepository<T extends Item> extends MongoRepository<T, String> {
-    List<T> findByNameContainingIgnoreCase(String name);
-    Iterable<T> findAllByCategoriesContaining(Category category);
+public interface ItemRepository extends MongoRepository<Item, String> {
+    Page<Item> findAllByNameContainingIgnoreCaseAndCategoriesContainingAndSection(String name, Set<Category> categories, Section section, Pageable pageable);
 }

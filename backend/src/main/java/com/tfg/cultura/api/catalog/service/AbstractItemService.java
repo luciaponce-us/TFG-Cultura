@@ -15,7 +15,7 @@ import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Item;
 import com.tfg.cultura.api.catalog.model.dto.ItemRequest;
-import com.tfg.cultura.api.catalog.repository.ItemRepository;
+import com.tfg.cultura.api.catalog.repository.AbstractItemRepository;
 import com.tfg.cultura.api.core.exception.FileUploadException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public abstract class AbstractItemService<T extends Item, R extends ItemRepository<T>, C extends ItemRequest, RES>
+public abstract class AbstractItemService<T extends Item, R extends AbstractItemRepository<T>, C extends ItemRequest, RES>
         implements ItemServiceInterface<T, C, RES> {
 
     private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
