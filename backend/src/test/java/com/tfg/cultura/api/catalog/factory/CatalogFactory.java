@@ -18,17 +18,20 @@ import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.Season;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.catalog.model.SeriesInfo;
+import com.tfg.cultura.api.catalog.model.VideoGame;
 import com.tfg.cultura.api.catalog.model.dto.BoardGameRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolGameRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
+import com.tfg.cultura.api.catalog.model.dto.VideoGameRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.BoardGameType;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.model.enumerators.Complexity;
 import com.tfg.cultura.api.catalog.model.enumerators.Format;
 import com.tfg.cultura.api.catalog.model.enumerators.GameMaster;
+import com.tfg.cultura.api.catalog.model.enumerators.Platform;
 import com.tfg.cultura.api.catalog.model.enumerators.RolBookType;
 import com.tfg.cultura.api.catalog.model.enumerators.SeriesStatus;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
@@ -250,6 +253,40 @@ public class CatalogFactory {
                 .type(rolGame.getType())
                 .sagaId(rolGame.getSaga().getId())
                 .sectionId(rolGame.getSection().getId())
+                .build();
+    }
+
+    // VideoGame
+
+    public static VideoGame validVideoGame() {
+        return VideoGame.builder()
+                .id("videogame")
+                .name("Test Video Game")
+                .purchasedAt(LocalDate.of(2020, 06, 01)) // Optional
+                .price(BigDecimal.valueOf(15.99)) // Optional
+                .loanDays(0) // Optional
+                .section(SectionFactory.validSection()) // Optional
+                .categories(Set.of(validCategory())) // Optional
+                .imageUrl("old-image-url")
+                .platform(Platform.PC)
+                .releaseDate(LocalDate.of(2020,01,01))
+                .trailerUrl("https://youtu.be/CYG09cW5NkA?si=JGR0TDCdMDnBIo2u")
+                .build();
+    }
+
+    public static VideoGameRequest validVideoGameRequest() {
+        VideoGame videoGame = validVideoGame();
+        Set<String> categoriesIds = videoGame.getCategories().stream().map(c -> c.getId()).collect(Collectors.toSet());
+
+        return VideoGameRequest.builder()
+                .name(videoGame.getName())
+                .purchasedAt(videoGame.getPurchasedAt()) // Optional
+                .price(videoGame.getPrice()) // Optional
+                .sectionId(videoGame.getSection().getId()) // Optional
+                .categoriesIds(categoriesIds) // Optional
+                .platform(videoGame.getPlatform())
+                .releaseDate(videoGame.getReleaseDate())
+                .trailerUrl(videoGame.getTrailerUrl())
                 .build();
     }
 
