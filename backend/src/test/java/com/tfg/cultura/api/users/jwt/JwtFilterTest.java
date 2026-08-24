@@ -139,8 +139,7 @@ class JwtFilterTest {
         String token = "token";
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractId(token)).thenReturn("lucia");
-
+        
         // Simular autenticación previa
         SecurityContextHolder.getContext().setAuthentication(mock(Authentication.class));
 
