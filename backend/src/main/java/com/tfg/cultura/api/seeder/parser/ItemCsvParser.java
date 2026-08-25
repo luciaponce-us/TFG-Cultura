@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Item;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.enumerators.ItemCondition;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.sections.model.Section;
 
 public abstract class ItemCsvParser extends CsvParser {

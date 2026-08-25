@@ -28,7 +28,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
 import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
@@ -37,6 +36,8 @@ import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaResponse;
 import com.tfg.cultura.api.catalog.repository.RolGameRepository;
 import com.tfg.cultura.api.catalog.repository.RolSagaRepository;
+import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
+import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.FileDeleteException;
 import com.tfg.cultura.api.core.exception.FileUploadException;

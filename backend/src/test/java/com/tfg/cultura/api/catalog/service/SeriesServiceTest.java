@@ -18,6 +18,7 @@ import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.catalog.model.SeriesInfo;
 import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
 import com.tfg.cultura.api.catalog.repository.SeriesRepository;
+import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 

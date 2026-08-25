@@ -1,4 +1,4 @@
-package com.tfg.cultura.api.catalog.service;
+package com.tfg.cultura.api.categories.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,10 +19,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.tfg.cultura.api.catalog.exception.category.CategoryAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
-import com.tfg.cultura.api.catalog.model.Category;
-import com.tfg.cultura.api.catalog.repository.CategoryRepository;
+import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
+import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
+import com.tfg.cultura.api.categories.factory.CategoryFactory;
+import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.repository.CategoryRepository;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
@@ -38,15 +39,8 @@ class CategoryServiceTest {
 
     @BeforeEach
     void setUp() {
-        category = Category.builder()
-                .id("1")
-                .name("Fantasy")
-                .build();
-
-        anotherCategory = Category.builder()
-                .id("2")
-                .name("Horror")
-                .build();
+        category = CategoryFactory.validCategory();
+        anotherCategory = CategoryFactory.anotherValidCategory();
     }
 
     // CREATE

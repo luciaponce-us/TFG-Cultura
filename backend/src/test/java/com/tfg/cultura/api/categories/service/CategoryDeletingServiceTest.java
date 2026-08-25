@@ -1,4 +1,4 @@
-package com.tfg.cultura.api.catalog.service;
+package com.tfg.cultura.api.categories.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,14 +14,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
-import com.tfg.cultura.api.catalog.model.Category;
-import com.tfg.cultura.api.catalog.repository.CategoryRepository;
+import com.tfg.cultura.api.catalog.service.BookService;
+import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
+import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.repository.CategoryRepository;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryDeletingServiceTest {
 
-        @Mock
+    @Mock
     private CategoryRepository categoryRepository;
 
     @Mock
@@ -70,5 +71,5 @@ class CategoryDeletingServiceTest {
         verify(bookService, never()).removeCategory(any());
         verify(categoryRepository, never()).delete(any());
     }
-    
+
 }

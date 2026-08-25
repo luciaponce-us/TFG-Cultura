@@ -17,6 +17,7 @@ import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.VideoGame;
 import com.tfg.cultura.api.catalog.model.dto.VideoGameRequest;
 import com.tfg.cultura.api.catalog.repository.VideoGameRepository;
+import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.factory.AppPropertiesFactory;
 import com.tfg.cultura.api.core.service.FileService;

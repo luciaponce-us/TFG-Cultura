@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Season;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.catalog.model.SeriesInfo;
 import com.tfg.cultura.api.catalog.model.enumerators.Format;
 import com.tfg.cultura.api.catalog.model.enumerators.SeriesStatus;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.sections.model.Section;
 
 public class SeriesCsvParser extends ItemCsvParser {

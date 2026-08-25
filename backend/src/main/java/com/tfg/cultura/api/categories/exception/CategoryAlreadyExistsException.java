@@ -1,4 +1,4 @@
-package com.tfg.cultura.api.catalog.exception.category;
+package com.tfg.cultura.api.categories.exception;
 
 public class CategoryAlreadyExistsException extends RuntimeException {
     public CategoryAlreadyExistsException(String name) {

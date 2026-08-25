@@ -3,9 +3,9 @@ package com.tfg.cultura.api.catalog.model.dto;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.enumerators.GameMaster;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.sections.model.dto.SectionReference;
 
 import lombok.AllArgsConstructor;

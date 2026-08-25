@@ -1,10 +1,10 @@
-package com.tfg.cultura.api.catalog.repository;
+package com.tfg.cultura.api.categories.repository;
 
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import com.tfg.cultura.api.catalog.model.Category;
+import com.tfg.cultura.api.categories.model.Category;
 
 public interface CategoryRepository extends MongoRepository<Category, String> {
 

@@ -10,6 +10,7 @@ import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.dto.RolGameRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolGameResponse;
 import com.tfg.cultura.api.catalog.repository.RolGameRepository;
+import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;

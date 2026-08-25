@@ -1,4 +1,4 @@
-package com.tfg.cultura.api.catalog.controller;
+package com.tfg.cultura.api.categories.controller;
 
 import java.util.List;
 
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tfg.cultura.api.catalog.model.Category;
-import com.tfg.cultura.api.catalog.service.CategoryDeletingService;
-import com.tfg.cultura.api.catalog.service.CategoryService;
+import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.service.CategoryDeletingService;
+import com.tfg.cultura.api.categories.service.CategoryService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

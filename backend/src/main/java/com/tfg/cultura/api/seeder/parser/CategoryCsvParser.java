@@ -2,7 +2,7 @@ package com.tfg.cultura.api.seeder.parser;
 
 import java.util.List;
 
-import com.tfg.cultura.api.catalog.model.Category;
+import com.tfg.cultura.api.categories.model.Category;
 
 public class CategoryCsvParser extends CsvParser {
 

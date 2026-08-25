@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import com.tfg.cultura.api.catalog.model.enumerators.ItemCondition;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.core.validation.annotations.ValidCloudinaryUrl;
 import com.tfg.cultura.api.core.validation.enums.ResourceType;
 import com.tfg.cultura.api.sections.model.Section;

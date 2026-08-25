@@ -3,9 +3,9 @@ package com.tfg.cultura.api.seeder.parser;
 import java.util.List;
 import java.util.Map;
 
-import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.VideoGame;
 import com.tfg.cultura.api.catalog.model.enumerators.Platform;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.sections.model.Section;
 
 public class VideoGameCsvParser extends ItemCsvParser {

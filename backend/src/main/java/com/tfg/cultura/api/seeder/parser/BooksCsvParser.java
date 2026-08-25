@@ -5,9 +5,9 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.tfg.cultura.api.catalog.model.Book;
-import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.sections.model.Section;
 
 @Component

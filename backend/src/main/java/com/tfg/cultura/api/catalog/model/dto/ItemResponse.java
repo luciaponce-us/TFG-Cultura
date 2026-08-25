@@ -5,9 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.Item;
 import com.tfg.cultura.api.catalog.model.enumerators.ItemCondition;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.sections.model.dto.SectionReference;
 
 import lombok.AllArgsConstructor;

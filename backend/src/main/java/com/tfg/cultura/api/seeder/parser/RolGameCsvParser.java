@@ -3,10 +3,10 @@ package com.tfg.cultura.api.seeder.parser;
 import java.util.List;
 import java.util.Map;
 
-import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.RolGame;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.enumerators.RolBookType;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.sections.model.Section;
 
 public class RolGameCsvParser extends ItemCsvParser {

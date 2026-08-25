@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.tfg.cultura.api.catalog.model.BoardGame;
-import com.tfg.cultura.api.catalog.model.Category;
 import com.tfg.cultura.api.catalog.model.enumerators.Complexity;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.catalog.model.enumerators.BoardGameType;
 import com.tfg.cultura.api.sections.model.Section;
 

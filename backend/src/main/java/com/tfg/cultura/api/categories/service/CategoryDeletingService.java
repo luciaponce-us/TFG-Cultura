@@ -1,10 +1,11 @@
-package com.tfg.cultura.api.catalog.service;
+package com.tfg.cultura.api.categories.service;
 
 import org.springframework.stereotype.Service;
 
-import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
-import com.tfg.cultura.api.catalog.model.Category;
-import com.tfg.cultura.api.catalog.repository.CategoryRepository;
+import com.tfg.cultura.api.catalog.service.BookService;
+import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
+import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.repository.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;
 

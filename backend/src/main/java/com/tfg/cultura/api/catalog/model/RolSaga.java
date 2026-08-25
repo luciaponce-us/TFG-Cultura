@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.GameMaster;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.core.validation.annotations.ValidCloudinaryUrl;
 import com.tfg.cultura.api.core.validation.annotations.ValidUrl;
 import com.tfg.cultura.api.core.validation.enums.ResourceType;

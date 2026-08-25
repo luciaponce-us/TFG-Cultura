@@ -7,45 +7,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.tfg.cultura.api.catalog.model.BoardGame;
-import com.tfg.cultura.api.catalog.model.Book;
-import com.tfg.cultura.api.catalog.model.Category;
-import com.tfg.cultura.api.catalog.model.Movie;
-import com.tfg.cultura.api.catalog.model.MovieInfo;
-import com.tfg.cultura.api.catalog.model.RolGame;
-import com.tfg.cultura.api.catalog.model.RolSaga;
-import com.tfg.cultura.api.catalog.model.Saga;
-import com.tfg.cultura.api.catalog.model.Season;
-import com.tfg.cultura.api.catalog.model.Series;
-import com.tfg.cultura.api.catalog.model.SeriesInfo;
-import com.tfg.cultura.api.catalog.model.VideoGame;
-import com.tfg.cultura.api.catalog.model.dto.BoardGameRequest;
-import com.tfg.cultura.api.catalog.model.dto.BookRequest;
-import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
-import com.tfg.cultura.api.catalog.model.dto.RolGameRequest;
-import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
-import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
-import com.tfg.cultura.api.catalog.model.dto.VideoGameRequest;
-import com.tfg.cultura.api.catalog.model.enumerators.BoardGameType;
-import com.tfg.cultura.api.catalog.model.enumerators.BookType;
-import com.tfg.cultura.api.catalog.model.enumerators.Complexity;
-import com.tfg.cultura.api.catalog.model.enumerators.Format;
-import com.tfg.cultura.api.catalog.model.enumerators.GameMaster;
-import com.tfg.cultura.api.catalog.model.enumerators.Platform;
-import com.tfg.cultura.api.catalog.model.enumerators.RolBookType;
-import com.tfg.cultura.api.catalog.model.enumerators.SeriesStatus;
+import com.tfg.cultura.api.catalog.model.*;
+import com.tfg.cultura.api.catalog.model.dto.*;
+import com.tfg.cultura.api.catalog.model.enumerators.*;
+import com.tfg.cultura.api.categories.factory.CategoryFactory;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
 
 public class CatalogFactory {
 
     private static final String YT_EMBED_URL = "https://www.youtube.com/embed/nsNFOn_4i4E";
 
-    public static Category validCategory() {
-        return Category.builder()
-                .id("1")
-                .name("Test Category")
-                .build();
-    }
+    private static final Category validCategory = CategoryFactory.validCategory();
 
     public static Saga validSaga() {
         return Saga.builder()
@@ -123,7 +96,7 @@ public class CatalogFactory {
                 .price(BigDecimal.valueOf(15.99)) // Optional
                 .loanDays(14) // Optional
                 .section(SectionFactory.validSection()) // Optional
-                .categories(Set.of(validCategory())) // Optional
+                .categories(Set.of(validCategory)) // Optional
                 // Series fields
                 .format(Format.DVD)
                 .numberOfDiscs(2)
@@ -175,7 +148,7 @@ public class CatalogFactory {
                 .price(BigDecimal.valueOf(15.99)) // Optional
                 .loanDays(14) // Optional
                 .section(SectionFactory.validSection()) // Optional
-                .categories(Set.of(validCategory())) // Optional
+                .categories(Set.of(validCategory)) // Optional
                 // BoardGame fields
                 .minPlayers(2)
                 .maxPlayers(4)
@@ -268,7 +241,7 @@ public class CatalogFactory {
                 .price(BigDecimal.valueOf(15.99)) // Optional
                 .loanDays(0) // Optional
                 .section(SectionFactory.validSection()) // Optional
-                .categories(Set.of(validCategory())) // Optional
+                .categories(Set.of(validCategory)) // Optional
                 .imageUrl("old-image-url")
                 .platform(Platform.PC)
                 .releaseDate(LocalDate.of(2020, 01, 01))

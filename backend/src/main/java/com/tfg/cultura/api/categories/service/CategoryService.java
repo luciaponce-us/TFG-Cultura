@@ -1,4 +1,4 @@
-package com.tfg.cultura.api.catalog.service;
+package com.tfg.cultura.api.categories.service;
 
 import java.util.HashSet;
 import java.util.List;
@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.tfg.cultura.api.catalog.exception.category.CategoryAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
-import com.tfg.cultura.api.catalog.model.Category;
-import com.tfg.cultura.api.catalog.repository.CategoryRepository;
+import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
+import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
+import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.repository.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;
 

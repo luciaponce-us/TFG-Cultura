@@ -1,4 +1,4 @@
-package com.tfg.cultura.api.catalog.controller;
+package com.tfg.cultura.api.categories.controller;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -19,13 +19,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 
-import com.tfg.cultura.api.catalog.exception.category.CategoryAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.category.CategoryNotFoundException;
-import com.tfg.cultura.api.catalog.exception.CatalogExceptionHandler;
-import com.tfg.cultura.api.catalog.factory.CatalogFactory;
-import com.tfg.cultura.api.catalog.model.Category;
-import com.tfg.cultura.api.catalog.service.CategoryDeletingService;
-import com.tfg.cultura.api.catalog.service.CategoryService;
+import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
+import com.tfg.cultura.api.categories.exception.CategoryExceptionHandler;
+import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
+import com.tfg.cultura.api.categories.factory.CategoryFactory;
+import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.service.CategoryDeletingService;
+import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
 class CategoryControllerTest extends BaseControllerTest {
@@ -45,12 +45,12 @@ class CategoryControllerTest extends BaseControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         CategoryController controller = new CategoryController(categoryService, categoryDeletingService);
-        mockMvc = buildMockMvc(controller, CatalogExceptionHandler.class);
+        mockMvc = buildMockMvc(controller, CategoryExceptionHandler.class);
         initTestData();
     }
 
     private void initTestData() {
-        category = CatalogFactory.validCategory();
+        category = CategoryFactory.validCategory();
     }
 
     // ====================== CREATE ======================

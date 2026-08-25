@@ -1,4 +1,4 @@
-package com.tfg.cultura.api.catalog.model;
+package com.tfg.cultura.api.categories.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
