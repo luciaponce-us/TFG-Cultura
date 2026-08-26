@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.tfg.cultura.api.catalog.exception.CatalogExceptionHandler;
 import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
@@ -53,7 +53,7 @@ class BookControllerTest extends BaseControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         BookController controller = new BookController(bookService);
-        mockMvc = buildMockMvc(controller, CatalogExceptionHandler.class);
+        mockMvc = buildMockMvc(controller);
         initTestData();
     }
 
@@ -109,14 +109,14 @@ class BookControllerTest extends BaseControllerTest {
     @Test
     void should_return_conflict_when_book_already_exists() throws Exception {
         when(bookService.create(any(BookRequest.class), any()))
-                .thenThrow(new ItemAlreadyExistsException("El ISBN ya existe"));
+                .thenThrow(new ItemAlreadyExistsException(Map.of("isbn", "El ISBN ya existe")));
 
         MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
 
         mockMvc.perform(multipart(BASE_URL)
                 .file(bookPart))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Item Already Exists"));
+                .andExpect(jsonPath("$.errors.isbn").value("El ISBN ya existe"));
 
         verify(bookService).create(any(BookRequest.class), any());
     }
@@ -155,8 +155,7 @@ class BookControllerTest extends BaseControllerTest {
                 .thenThrow(new ItemNotFoundException("El libro no existe"));
 
         mockMvc.perform(get(BOOK_URL, "missing-id"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Item Not Found"));
+                .andExpect(status().isNotFound());
 
         verify(bookService).getById("missing-id");
     }
@@ -201,8 +200,7 @@ class BookControllerTest extends BaseControllerTest {
                 .when(bookService).delete(anyString());
 
         mockMvc.perform(delete(BOOK_URL, "missing-id"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Item Not Found"));
+                .andExpect(status().isNotFound());
 
         verify(bookService).delete("missing-id");
     }

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.tfg.cultura.api.core.service.BusinessSpecification;
@@ -20,7 +18,6 @@ import lombok.AllArgsConstructor;
 public class SingleSectionManagerSpecification implements BusinessSpecification<Set<User>> {
 
     private final SectionRepository sectionRepository;
-    private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
 
     /**
      * RN-08: Un usuario no puede estar nombrado como gestor de más de una sección
@@ -44,13 +41,7 @@ public class SingleSectionManagerSpecification implements BusinessSpecification<
         }
 
         if (!alreadyAssignedManagers.isEmpty()) {
-            logger.error(
-                    "Los siguientes usuarios ya están asignados como gestores en otra sección: {}",
-                    alreadyAssignedManagers);
-
-            throw new ManagerAlreadyAssignedException(
-                    "Los siguientes usuarios ya están asignados como gestores en otra sección: "
-                            + alreadyAssignedManagers);
+            throw new ManagerAlreadyAssignedException(alreadyAssignedManagers.toString());
         }
     }
 

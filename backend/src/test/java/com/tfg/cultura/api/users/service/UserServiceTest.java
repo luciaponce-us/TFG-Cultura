@@ -331,7 +331,7 @@ class UserServiceTest {
         UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
                 () -> service.updateUser(username, updateRequest));
 
-        assertTrue(ex.getMessage().contains("ya está en uso"));
+        assertTrue(ex.getErrors().containsKey("dni"));
     }
 
     @Test

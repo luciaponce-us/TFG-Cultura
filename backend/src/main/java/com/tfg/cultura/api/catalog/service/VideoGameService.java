@@ -1,6 +1,7 @@
 package com.tfg.cultura.api.catalog.service;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -58,7 +59,8 @@ public class VideoGameService
         boolean exists = repository.existsByNameAndPlatform(item.getName(), item.getPlatform());
         if (exists) {
             throw new ItemAlreadyExistsException(
-                    "Ya existe un videojuego con el mismo nombre y plataforma");
+                    Map.of("name", "Ya existe un videojuego con el mismo nombre y plataforma",
+                            "platform", "Ya existe un videojuego con el mismo nombre y plataforma"));
         }
     }
 

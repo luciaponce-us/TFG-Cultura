@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.tfg.cultura.api.catalog.exception.CatalogExceptionHandler;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.dto.RolGameResponse;
 import com.tfg.cultura.api.catalog.service.RolGameService;
@@ -33,7 +32,7 @@ class RolGameControllerTest extends BaseControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         RolGameController controller = new RolGameController(rolGameService);
-        mockMvc = buildMockMvc(controller, CatalogExceptionHandler.class);
+        mockMvc = buildMockMvc(controller);
         rolGameResponse = new RolGameResponse(CatalogFactory.validRolGame());
     }
 

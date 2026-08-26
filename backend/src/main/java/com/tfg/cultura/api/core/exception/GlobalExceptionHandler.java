@@ -1,13 +1,15 @@
 package com.tfg.cultura.api.core.exception;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 
-import com.tfg.cultura.api.core.exception.file.InvalidFileSizeException;
-import com.tfg.cultura.api.core.exception.file.InvalidFileTypeException;
+import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,55 +17,44 @@ import org.slf4j.LoggerFactory;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger("appLogger");
 
     private final ApiErrorBuilder apiErrorBuilder;
 
-    public GlobalExceptionHandler(ApiErrorBuilder apiErrorBuilder) {
-        this.apiErrorBuilder = apiErrorBuilder;
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> "Campo " + error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining(". "));
+        ValidationException validationException = new ValidationException(
+                logger,
+                ex.getBindingResult().getFieldErrors().stream()
+                        .collect(Collectors.toMap(
+                                error -> error.getField(),
+                            error -> error.getDefaultMessage(),
+                            (first, second) -> first)));
 
-        return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "Errores de validación", logger, message);
+        return apiErrorBuilder.build(validationException);
     }
 
-    @ExceptionHandler(FileUploadException.class)
-    public ResponseEntity<ApiError> handleFileUploadException(FileUploadException ex) {
-        return apiErrorBuilder.build(ex, HttpStatus.INTERNAL_SERVER_ERROR, "Error al subir el archivo", logger);
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ApiError> handleApiException(ApiException ex) {
+        return apiErrorBuilder.build(ex);
     }
 
-    @ExceptionHandler(UnathenticatedException.class)
-    public ResponseEntity<ApiError> handleUnathenticatedException(UnathenticatedException ex) {
-        return apiErrorBuilder.build(ex, HttpStatus.UNAUTHORIZED, "No autenticado", logger);
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleUnreadableMessage(HttpMessageNotReadableException ex) {
+        return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, logger, "Solicitud inválida");
     }
 
-    @ExceptionHandler(FileDeleteException.class)
-    public ResponseEntity<ApiError> handleFileDeleteException(FileDeleteException ex) {
-        return apiErrorBuilder.build(ex, HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar el archivo", logger);
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
+        return apiErrorBuilder.build(ex, HttpStatus.UNAUTHORIZED, logger, ex.getMessage());
     }
 
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException ex) {
-        return apiErrorBuilder.build(ex, HttpStatus.FORBIDDEN, "No autorizado", logger);
-    }
-
-    @ExceptionHandler(InvalidFileSizeException.class)
-    public ResponseEntity<ApiError> handleInvalidFileSizeException(InvalidFileSizeException ex) {
-        return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "Tamaño de archivo inválido", logger);
-    }
-
-    @ExceptionHandler(InvalidFileTypeException.class)
-    public ResponseEntity<ApiError> handleInvalidFileTypeException(InvalidFileTypeException ex) {
-        return apiErrorBuilder.build(ex, HttpStatus.BAD_REQUEST, "Tipo de archivo inválido", logger);
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiError> handleDisabledUser(DisabledException ex) {
+        return apiErrorBuilder.build(ex, HttpStatus.FORBIDDEN, logger, ex.getMessage());
     }
 
 }

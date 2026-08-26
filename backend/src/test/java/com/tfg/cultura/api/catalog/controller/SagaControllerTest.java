@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.tfg.cultura.api.catalog.exception.CatalogExceptionHandler;
 import com.tfg.cultura.api.catalog.exception.saga.SagaAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Saga;
@@ -40,7 +39,7 @@ class SagaControllerTest extends BaseControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         SagaController controller = new SagaController(sagaService);
-        mockMvc = buildMockMvc(controller, CatalogExceptionHandler.class);
+        mockMvc = buildMockMvc(controller);
         saga = Saga.builder()
                 .id("1")
                 .name("Test Saga")
@@ -70,7 +69,7 @@ class SagaControllerTest extends BaseControllerTest {
         mockMvc.perform(post(BASE_URL)
                 .param("name", saga.getName()))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Saga Already Exists"));
+                .andExpect(jsonPath("$.message").exists());
 
         verify(sagaService).createSaga(saga.getName());
     }
@@ -96,7 +95,7 @@ class SagaControllerTest extends BaseControllerTest {
 
         mockMvc.perform(get(GET_SAGA_URL, "missing-saga"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Saga Not Found"));
+                .andExpect(jsonPath("$.message").exists());
 
         verify(sagaService).findByName("missing-saga");
     }
@@ -144,7 +143,7 @@ class SagaControllerTest extends BaseControllerTest {
         mockMvc.perform(put(SAGA_URL, "missing-id")
                 .param("name", "Updated Saga"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Saga Not Found"));
+                .andExpect(jsonPath("$.message").exists());
 
         verify(sagaService).updateSaga("missing-id", "Updated Saga");
     }
@@ -157,7 +156,7 @@ class SagaControllerTest extends BaseControllerTest {
         mockMvc.perform(put(SAGA_URL, saga.getId())
                 .param("name", "Existing Saga"))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Saga Already Exists"));
+                .andExpect(jsonPath("$.message").exists());
 
         verify(sagaService).updateSaga(saga.getId(), "Existing Saga");
     }
@@ -179,7 +178,7 @@ class SagaControllerTest extends BaseControllerTest {
 
         mockMvc.perform(delete(SAGA_URL, "missing-id"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Saga Not Found"));
+                .andExpect(jsonPath("$.message").exists());
 
         verify(sagaService).deleteSaga("missing-id");
     }

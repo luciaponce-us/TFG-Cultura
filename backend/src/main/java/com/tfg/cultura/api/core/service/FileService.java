@@ -3,16 +3,19 @@ package com.tfg.cultura.api.core.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.tfg.cultura.api.core.exception.FileDeleteException;
-import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.exception.file.FileDeleteException;
+import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.exception.file.InvalidFileSizeException;
 import com.tfg.cultura.api.core.exception.file.InvalidFileTypeException;
 import com.tfg.cultura.api.core.model.CustomMultipartFile;
@@ -23,10 +26,9 @@ import net.coobird.thumbnailator.Thumbnails;
 
 @Service
 public class FileService {
-    // TODO: Refactorizar para convertir métodos en privados y eliminar tests innecesarios
 
     private Cloudinary cloudinary;
-    private static final Integer MAX_IMAGE_SIZE_MB = 2;
+    private static final Integer MAX_FILE_SIZE_MB = 2;
 
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
     public FileService(Cloudinary cloudinary) {
@@ -58,6 +60,80 @@ public class FileService {
         }
     }
 
+    public void deleteFile(String url) throws FileDeleteException {
+        try {
+            String publicId = extractPublicId(url);
+            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+        } catch (Exception e) {
+            throw new FileDeleteException(e.getMessage());
+        }
+    }
+
+    public String uploadPdf(String className, String id, MultipartFile pdf, String folder, String defaultPdfUrl,
+            Logger logger, String field) throws FileUploadException {
+        if (pdf != null && !pdf.isEmpty()) {
+            String sanitizedId = LoggerSanitizer.sanitize(id);
+            String publicId = className + "_" + sanitizedId;
+
+            validateFileSize(pdf, logger, field);
+
+            FileUploadRequest request = FileUploadRequest.builder()
+                    .file(pdf)
+                    .folder(folder)
+                    .publicId(publicId)
+                    .resourceType("raw")
+                    .build();
+
+            return uploadFile(request);
+        }
+        return defaultPdfUrl;
+    }
+
+    public String uploadImage(String className, String id, MultipartFile image, String folder, String defaultImageUrl,
+            Integer width, Integer height, Logger logger, String field) throws FileUploadException {
+        if (image != null && !image.isEmpty()) {
+            String sanitizedId = LoggerSanitizer.sanitize(id);
+            String publicId = className + "_" + sanitizedId;
+
+            validateImageSize(image, logger, field);
+            MultipartFile resizedImage = resizeImage(image, width, height);
+
+            FileUploadRequest request = FileUploadRequest.builder()
+                    .file(resizedImage)
+                    .folder(folder)
+                    .publicId(publicId)
+                    .resourceType("image")
+                    .build();
+
+            return uploadFile(request);
+        }
+        return defaultImageUrl;
+    }
+
+    public String uploadImage(String className, String id, MultipartFile image, String folder, String defaultImageUrl,
+            int width, int height) throws FileUploadException {
+        return uploadImage(className, id, image, folder, defaultImageUrl, width, height,
+                LoggerFactory.getLogger("appLogger"), "image");
+    }
+
+    public String updateImage(String oldUrl, String className, String id, MultipartFile newImage, String folder,
+            String defaultImageUrl, Integer width, Integer height, Logger logger, String field)
+            throws FileDeleteException, FileUploadException {
+        if (newImage != null && !newImage.isEmpty()) {
+            if (oldUrl != null && !oldUrl.equals(defaultImageUrl)) {
+                deleteFile(oldUrl);
+            }
+            return uploadImage(className, id, newImage, folder, defaultImageUrl, width, height, logger, field);
+        }
+        return oldUrl;
+    }
+
+    public String updateImage(String oldUrl, String className, String id, MultipartFile newImage, String folder,
+            String defaultImageUrl, int width, int height) throws FileDeleteException, FileUploadException {
+        return updateImage(oldUrl, className, id, newImage, folder, defaultImageUrl, width, height,
+                LoggerFactory.getLogger("appLogger"), "image");
+    }
+
     public MultipartFile resizeImage(MultipartFile file, int width, int height) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -84,74 +160,35 @@ public class FileService {
         }
     }
 
-    public void deleteFile(String url) throws FileDeleteException {
-        try {
-            String publicId = extractPublicId(url);
-            deleteFileByPublicId(publicId);
-        } catch (Exception e) {
-            throw new FileDeleteException(e.getMessage());
-        }
-    }
-
-    public void deleteFileByPublicId(String publicId) throws FileDeleteException {
-        try {
-            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-        } catch (Exception e) {
-            throw new FileDeleteException(e.getMessage());
-        }
-    }
-
-    public void validateFileSize(MultipartFile file, long maxSizeMB) throws InvalidFileSizeException {
-        long maxSizeBytes = maxSizeMB * 1024 * 1024;
+    private void validateFileSize(MultipartFile file, Logger logger, String field) throws InvalidFileSizeException {
+        long maxSizeBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
         if (file.getSize() > maxSizeBytes) {
             throw new InvalidFileSizeException(
-                    "El archivo excede el tamaño máximo permitido de " + maxSizeMB + " MB");
+                    logger,
+                    field,
+                    MAX_FILE_SIZE_MB);
         }
     }
 
-    public void validateImage(MultipartFile file) throws InvalidFileTypeException {
+    private void validateImage(MultipartFile file, Logger logger, String field) throws InvalidFileTypeException {
         String contentType = file.getContentType();
+        List<String> allowedTypes = List.of(
+                "image/jpeg",
+                "image/jpg",
+                "image/png",
+                "image/webp",
+                "image/gif");
 
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new InvalidFileTypeException("El archivo debe ser una imagen.");
+        if (contentType == null || !contentType.startsWith("image/") || !allowedTypes.contains(contentType)) {
+            String allowedTypesMessage = "JPEG, JPG, PNG, WebP o GIF";
+            throw new InvalidFileTypeException(logger, field, allowedTypesMessage);
         }
     }
 
-    public void validateImageSize(MultipartFile file, long maxSizeMB) throws InvalidFileSizeException, InvalidFileTypeException {
-        validateImage(file);
-        validateFileSize(file, maxSizeMB);
-    }
-
-    public String uploadImage(String className, String id, MultipartFile image, String folder, String defaultImageUrl,
-            Integer width, Integer height) throws FileUploadException {
-        if (image != null && !image.isEmpty()) {
-            String sanitizedId = LoggerSanitizer.sanitize(id);
-            String publicId = className + "_" + sanitizedId;
-
-            validateImageSize(image, MAX_IMAGE_SIZE_MB);
-            MultipartFile resizedImage = resizeImage(image, width, height);
-
-            FileUploadRequest request = FileUploadRequest.builder()
-                    .file(resizedImage)
-                    .folder(folder)
-                    .publicId(publicId)
-                    .resourceType("image")
-                    .build();
-
-            return uploadFile(request);
-        }
-        return defaultImageUrl;
-    }
-
-    public String updateImage(String oldUrl, String className, String id, MultipartFile newImage, String folder,
-            String defaultImageUrl, Integer width, Integer height) throws FileDeleteException, FileUploadException {
-        if (newImage != null && !newImage.isEmpty()) {
-            if (oldUrl != null && !oldUrl.equals(defaultImageUrl)) {
-                deleteFile(oldUrl);
-            }
-            return uploadImage(className, id, newImage, folder, defaultImageUrl, width, height);
-        }
-        return oldUrl;
+    public void validateImageSize(MultipartFile file, Logger logger, String field)
+            throws InvalidFileSizeException, InvalidFileTypeException {
+        validateImage(file, logger, field);
+        validateFileSize(file, logger, field);
     }
 
     private String extractPublicId(String url) {

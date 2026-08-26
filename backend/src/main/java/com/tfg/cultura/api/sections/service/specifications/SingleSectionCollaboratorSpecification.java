@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.tfg.cultura.api.core.service.BusinessSpecification;
@@ -20,7 +18,6 @@ import lombok.AllArgsConstructor;
 public class SingleSectionCollaboratorSpecification implements BusinessSpecification<Set<User>> {
 
     private final SectionRepository sectionRepository;
-    private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
 
     /**
      * RN-10: Un usuario no puede estar nombrado como colaborador de más de una
@@ -43,13 +40,7 @@ public class SingleSectionCollaboratorSpecification implements BusinessSpecifica
         }
 
         if (!alreadyAssignedCollaborators.isEmpty()) {
-            logger.error(
-                    "Los siguientes usuarios ya están asignados como colaboradores de otras secciones: {}",
-                    alreadyAssignedCollaborators);
-
-            throw new CollaboratorAlreadyAssignedException(
-                    "Los siguientes usuarios ya están asignados como colaboradores de otras secciones: "
-                            + alreadyAssignedCollaborators);
+            throw new CollaboratorAlreadyAssignedException(alreadyAssignedCollaborators.toString());
         }
     }
 

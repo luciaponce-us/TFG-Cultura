@@ -20,7 +20,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 
 import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
-import com.tfg.cultura.api.categories.exception.CategoryExceptionHandler;
 import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.factory.CategoryFactory;
 import com.tfg.cultura.api.categories.model.Category;
@@ -45,7 +44,7 @@ class CategoryControllerTest extends BaseControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         CategoryController controller = new CategoryController(categoryService, categoryDeletingService);
-        mockMvc = buildMockMvc(controller, CategoryExceptionHandler.class);
+        mockMvc = buildMockMvc(controller);
         initTestData();
     }
 
@@ -78,7 +77,7 @@ class CategoryControllerTest extends BaseControllerTest {
                 .param("name", category.getName())
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Category Already Exists"));
+                .andExpect(jsonPath("$.message").exists());
 
         verify(categoryService).createCategory(category.getName());
     }
@@ -140,7 +139,7 @@ class CategoryControllerTest extends BaseControllerTest {
                 .param("name", "Updated Category")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Category Not Found"));
+                .andExpect(jsonPath("$.message").exists());
 
         verify(categoryService).updateCategory("99", "Updated Category");
     }
@@ -162,7 +161,7 @@ class CategoryControllerTest extends BaseControllerTest {
 
         mockMvc.perform(delete(CATEGORY_URL, "99"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Category Not Found"));
+                .andExpect(jsonPath("$.message").exists());
 
         verify(categoryDeletingService).deleteCategory("99");
     }

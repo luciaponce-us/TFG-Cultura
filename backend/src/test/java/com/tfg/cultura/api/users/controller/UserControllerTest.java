@@ -19,12 +19,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
+import java.util.Map;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
-import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
@@ -49,7 +49,7 @@ class UserControllerTest extends BaseControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         UserController controller = new UserController(userService);
-        mockMvc = buildMockMvc(controller, UsersExceptionHandler.class);
+        mockMvc = buildMockMvc(controller);
 
         initTestData();
     }
@@ -125,7 +125,7 @@ class UserControllerTest extends BaseControllerTest {
         request.setUsername("existingUser");
 
         when(userService.updateUser(anyString(), any(UserUpdateRequest.class)))
-                .thenThrow(new UserAlreadyExistsException("Username en uso"));
+                .thenThrow(new UserAlreadyExistsException(Map.of("username", "Username en uso")));
 
         mockMvc.perform(put(USER_URL, username)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -237,25 +237,22 @@ class UserControllerTest extends BaseControllerTest {
     @Test
     void toggle_user_activation_fail_self_activation() throws Exception {
         String userId = "123";
-        String message = String.format("El usuario %s con id %s ha intentado activar su propio usuario",
-                userResponse.getUsername(), userId);
-        SelfActivationNotAllowedException ex = new SelfActivationNotAllowedException(message);
+        SelfActivationNotAllowedException ex = new SelfActivationNotAllowedException();
         when(userService.toggleUserActivation(any())).thenThrow(ex);
 
         mockMvc.perform(put(TOGGLE_ACTIVATION_URL, userId))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value(message));
+                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
     void toggle_user_activation_fail_unauthenticated() throws Exception {
-        String message = "No se ha podido obtener la autenticación del usuario";
-        UnathenticatedException ex = new UnathenticatedException(message);
+        UnathenticatedException ex = new UnathenticatedException();
         when(userService.toggleUserActivation(any())).thenThrow(ex);
 
         mockMvc.perform(put(TOGGLE_ACTIVATION_URL, "123"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(message));
+                .andExpect(jsonPath("$.message").exists());
     }
 
     // ================ UPDATE AVATAR ================

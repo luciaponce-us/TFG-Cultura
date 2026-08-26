@@ -15,6 +15,8 @@ import com.tfg.cultura.api.sections.service.SectionService;
 
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
+import java.util.Map;
+
 @Service
 public class BookService extends AbstractItemService<Book, BookRepository, BookRequest, BookResponse> {
 
@@ -47,7 +49,7 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
     private void checkUniqueIsbn(Book item) throws ItemAlreadyExistsException {
         String isbn = item.getIsbn();
         if (isbn != null && repository.existsByIsbn(isbn)) {
-            throw new ItemAlreadyExistsException("El ISBN ya existe en otro libro. ISBN: " + sanitize(isbn));
+            throw new ItemAlreadyExistsException(Map.of("isbn", "El ISBN " + sanitize(isbn) + " ya existe en otro libro."));
         }
     }
 

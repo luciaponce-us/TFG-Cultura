@@ -96,7 +96,7 @@ class UniqueSectionNameSpecificationTest {
                 () -> specification.validateForUpdate("Cultura", "sectionId"));
 
         assertEquals(
-                "La sección con nombre 'Cultura' ya existe",
+                "La sección con nombre Cultura ya existe",
                 exception.getMessage());
 
         verify(sectionRepository).findByName("Cultura");

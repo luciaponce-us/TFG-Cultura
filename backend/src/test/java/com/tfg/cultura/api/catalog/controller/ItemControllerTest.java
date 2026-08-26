@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.tfg.cultura.api.catalog.exception.CatalogExceptionHandler;
 import com.tfg.cultura.api.catalog.service.ItemService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
@@ -28,7 +27,7 @@ class ItemControllerTest extends BaseControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         ItemController controller = new ItemController(itemService);
-        mockMvc = buildMockMvc(controller, CatalogExceptionHandler.class);
+        mockMvc = buildMockMvc(controller);
     }
 
     @Test

@@ -2,6 +2,8 @@ package com.tfg.cultura.api.catalog.service;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,8 +21,8 @@ import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
-import com.tfg.cultura.api.core.exception.FileDeleteException;
-import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.exception.file.FileDeleteException;
+import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.exception.SectionNotFoundException;
 import com.tfg.cultura.api.sections.model.Section;
@@ -40,6 +42,7 @@ public class RolSagaService {
     private final FileService fileService;
     private final RolGameRepository rolGameRepository;
     private final AppProperties appProperties;
+    private final Logger logger = LoggerFactory.getLogger("catalogLogger");
 
     private String getImageFolder() {
         return "cultura/items/rolsaga";
@@ -83,7 +86,9 @@ public class RolSagaService {
                 getImageFolder(),
                 getDefaultImageUrl(),
                 400,
-                600);
+                600,
+                logger,
+                "imageUrl");
 
         rolSaga.setImageUrl(imageUrl);
     }
@@ -156,7 +161,7 @@ public class RolSagaService {
 
     private void checkNameUniqueness(String name, String id) throws RolSagaAlreadyExistsException {
         if (repository.existsByNameAndIdNot(name.trim(), id)) {
-            throw new RolSagaAlreadyExistsException(name.trim());
+            throw new RolSagaAlreadyExistsException("name", "Ya existe una saga de rol con el mismo nombre");
         }
     }
 

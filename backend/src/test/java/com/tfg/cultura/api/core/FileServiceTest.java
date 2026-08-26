@@ -24,8 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Uploader;
-import com.tfg.cultura.api.core.exception.FileDeleteException;
-import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.exception.file.FileDeleteException;
+import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.model.CustomMultipartFile;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.service.FileService;

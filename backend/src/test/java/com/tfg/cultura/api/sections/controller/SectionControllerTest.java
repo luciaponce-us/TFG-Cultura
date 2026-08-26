@@ -34,7 +34,6 @@ import com.tfg.cultura.api.sections.model.dto.SectionResponse;
 import com.tfg.cultura.api.sections.service.SectionService;
 import com.tfg.cultura.api.sections.service.SectionUpdateService;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
-import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 
@@ -68,7 +67,7 @@ class SectionControllerTest extends BaseControllerTest {
 	void setup() {
 		MockitoAnnotations.openMocks(this);
 		SectionController controller = new SectionController(sectionService, sectionUpdateService);
-		mockMvc = buildMockMvc(controller, SectionExceptionHandler.class, UsersExceptionHandler.class);
+		mockMvc = buildMockMvc(controller);
 
 		initTestData();
 	}
@@ -108,7 +107,7 @@ class SectionControllerTest extends BaseControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
 				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.error").value("Section Already Exists"));
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any(SectionCreateRequest.class));
 	}
@@ -125,7 +124,7 @@ class SectionControllerTest extends BaseControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.error").value("Invalid Manager Role"));
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any());
 	}
@@ -142,7 +141,7 @@ class SectionControllerTest extends BaseControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.error").value("Invalid Collaborator Role"));
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any());
 	}
@@ -159,8 +158,7 @@ class SectionControllerTest extends BaseControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
 				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.error")
-						.value("Manager Already Assigned to Another Section"));
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any());
 	}
@@ -177,8 +175,7 @@ class SectionControllerTest extends BaseControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
 				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.error")
-						.value("Collaborator Already Assigned to Another Section"));
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any());
 	}

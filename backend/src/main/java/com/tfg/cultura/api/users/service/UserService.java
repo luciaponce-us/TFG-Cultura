@@ -165,7 +165,7 @@ public class UserService {
 
         if (isChanged(request.getUsername(), user.getUsername())) {
             if (userRepository.existsByUsername(request.getUsername()))
-                throw new UserAlreadyExistsException("El username ya está en uso");
+                throw new UserAlreadyExistsException(Map.of("username", "El nombre de usuario ya está en uso"));
 
             String newUsername = LoggerSanitizer.sanitize(request.getUsername());
             logger.info("Se va a cambiar el username del usuario {} a {}", user.getUsername(), newUsername);
@@ -196,7 +196,7 @@ public class UserService {
         if (isAdmin) {
             if (isChanged(request.getDni(), user.getDni())) {
                 if (userRepository.existsByDni(request.getDni()))
-                    throw new UserAlreadyExistsException("El DNI ya está en uso");
+                    throw new UserAlreadyExistsException(Map.of("dni","Ya existe un usuario con el mismo DNI"));
 
                 user.setDni(request.getDni());
             }
@@ -301,10 +301,7 @@ public class UserService {
 
         boolean isSelfActivation = user.getId().equals(currentUser.getId());
         if (isSelfActivation) {
-            throw new SelfActivationNotAllowedException(
-                    String.format("El usuario %s con id %s ha intentado activar o desactivar su propio usuario",
-                            user.getUsername(),
-                            user.getId()));
+            throw new SelfActivationNotAllowedException();
         }
 
         if (isSameOrHigherRole(user.getRole(), currentUser.getRole())) {

@@ -103,7 +103,9 @@ class AbstractItemServiceTest {
 				any(),
 				any(),
 				anyInt(),
-				anyInt()))
+				anyInt(),
+				any(),
+				anyString()))
 				.thenReturn(imageUrl);
 	}
 
@@ -116,7 +118,9 @@ class AbstractItemServiceTest {
 				anyString(),
 				anyString(),
 				anyInt(),
-				anyInt()))
+				anyInt(),
+				any(),
+				anyString()))
 				.thenReturn(imageUrl);
 	}
 
@@ -342,7 +346,7 @@ class AbstractItemServiceTest {
 		assertEquals("https://cloudinary/...", response.getImageUrl());
 
 		verify(fileService).updateImage(anyString(), anyString(), anyString(), any(), anyString(), anyString(),
-				anyInt(), anyInt());
+				anyInt(), anyInt(), any(), anyString());
 	}
 
 	// DELETE

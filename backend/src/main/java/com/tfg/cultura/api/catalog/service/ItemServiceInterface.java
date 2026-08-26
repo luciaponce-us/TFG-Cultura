@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Item;
 import com.tfg.cultura.api.catalog.model.dto.ItemRequest;
-import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.exception.file.FileUploadException;
 
 public interface ItemServiceInterface<T extends Item, C extends ItemRequest, RES> {
 

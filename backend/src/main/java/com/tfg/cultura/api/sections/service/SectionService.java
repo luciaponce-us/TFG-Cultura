@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 import com.tfg.cultura.api.sections.exception.*;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
@@ -39,9 +38,7 @@ public class SectionService {
     public Section findSectionById(String id) throws SectionNotFoundException {
         return sectionRepository.findById(id)
                 .orElseThrow(() -> {
-                    String sanitizedId = LoggerSanitizer.sanitize(id);
-                    logger.error("Sección no encontrada con ID: {}", sanitizedId);
-                    return new SectionNotFoundException("Sección no encontrada con ID: " + sanitizedId);
+                    return new SectionNotFoundException(id);
                 });
     }
 

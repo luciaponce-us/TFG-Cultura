@@ -298,7 +298,7 @@ class SectionServiceTest {
 				SectionNotFoundException.class,
 				() -> sectionService.getSectionById(id));
 
-		assertEquals("Sección no encontrada con ID: " + id, exception.getMessage());
+		assertEquals("Sección no encontrada con id: " + id, exception.getMessage());
 
 		verify(sectionRepository).findById(id);
 	}

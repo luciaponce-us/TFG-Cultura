@@ -17,9 +17,10 @@ import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.jwt.JwtService;
 
+import java.util.Map;
 import java.util.Optional;
 
-import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 
 import org.slf4j.Logger;
@@ -42,13 +43,11 @@ public class UserAuthService {
         userFileService.validatePaymentReceipt(paymentReceipt);
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            logger.warn("Error al registrar el usuario: El nombre de usuario ya existe");
-            throw new UserAlreadyExistsException("El nombre de usuario ya existe");
+            throw new UserAlreadyExistsException(Map.of("username", "El nombre de usuario ya está en uso"));
         }
 
         if (userRepository.existsByDni(request.getDni())) {
-            logger.warn("Error al registrar el usuario: El DNI ya existe");
-            throw new UserAlreadyExistsException("Ya existe un usuario con el mismo DNI");
+            throw new UserAlreadyExistsException(Map.of("dni","Ya existe un usuario con el mismo DNI"));
         }
 
         String avatarUrl = UserFileService.AVATAR_PLACEHOLDER;

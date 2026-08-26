@@ -24,7 +24,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.tfg.cultura.api.catalog.exception.CatalogExceptionHandler;
 import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
@@ -47,7 +46,7 @@ class RolSagaControllerTest extends BaseControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         RolSagaController controller = new RolSagaController(rolSagaService);
-        mockMvc = buildMockMvc(controller, CatalogExceptionHandler.class);
+        mockMvc = buildMockMvc(controller);
         initTestData();
     }
 

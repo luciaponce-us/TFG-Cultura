@@ -1,6 +1,7 @@
 package com.tfg.cultura.api.catalog.service;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -22,7 +23,6 @@ import com.tfg.cultura.api.sections.service.SectionService;
 public class MovieService extends AbstractItemService<Movie, MovieRepository, MovieRequest, MovieResponse> {
 
     private final SagaService sagaService;
-
     private final AppProperties appProperties;
 
     public MovieService(MovieRepository movieRepository, SectionService sectionService, CategoryService categoryService,
@@ -54,7 +54,7 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
             LocalDate existingReleaseDate = existingMovie.get().getMovieInfo().getReleaseDate();
             boolean sameReleaseYear = existingReleaseDate.getYear() == item.getMovieInfo().getReleaseDate().getYear();
             if (sameReleaseYear) {
-                throw new ItemAlreadyExistsException("Ya existe una película con el mismo nombre, año de estreno y formato");
+                throw new ItemAlreadyExistsException(Map.of("name", "Ya existe una película con el mismo nombre, año de estreno y formato"));
             }
         }
     }

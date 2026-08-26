@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
-import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
@@ -24,6 +23,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Map;
 
 class UserAuthControllerTest extends BaseControllerTest {
 
@@ -44,7 +45,7 @@ class UserAuthControllerTest extends BaseControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         UserAuthController controller = new UserAuthController(userService);
-        mockMvc = buildMockMvc(controller, UsersExceptionHandler.class);
+        mockMvc = buildMockMvc(controller);
 
         initTestData();
     }
@@ -68,7 +69,7 @@ class UserAuthControllerTest extends BaseControllerTest {
 
     @Test
     void register_fail_user_already_exists() throws Exception {
-        UserAlreadyExistsException ex = new UserAlreadyExistsException("El nombre de usuario ya existe");
+        UserAlreadyExistsException ex = new UserAlreadyExistsException(Map.of("username", "El nombre de usuario ya está en uso"));
 
         when(userService.register(any(), any(), any())).thenThrow(ex);
 
@@ -76,7 +77,7 @@ class UserAuthControllerTest extends BaseControllerTest {
                 .file(userPart(registerRequest))
                 .file(pdfPart()))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(jsonPath("$.errors.username").value("El nombre de usuario ya está en uso"));
     }
 
     @Test

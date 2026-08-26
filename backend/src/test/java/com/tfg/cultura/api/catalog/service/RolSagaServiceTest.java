@@ -39,8 +39,8 @@ import com.tfg.cultura.api.catalog.repository.RolSagaRepository;
 import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
-import com.tfg.cultura.api.core.exception.FileDeleteException;
-import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.exception.file.FileDeleteException;
+import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.factory.FileFactory;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.exception.SectionNotFoundException;
@@ -127,7 +127,9 @@ class RolSagaServiceTest {
                 anyString(),
                 anyString(),
                 anyInt(),
-                anyInt()))
+                anyInt(),
+                any(),
+                anyString()))
                 .thenReturn("new-image-url");
 
         when(appProperties.defaultImages()).thenReturn(defaultImages);
@@ -149,7 +151,9 @@ class RolSagaServiceTest {
                 anyString(),
                 anyString(),
                 anyInt(),
-                anyInt());
+                anyInt(),
+                any(),
+                anyString());
     }
 
     @Test
@@ -253,7 +257,9 @@ class RolSagaServiceTest {
                         anyString(),
                         anyString(),
                         anyInt(),
-                        anyInt());
+                        anyInt(),
+                        any(),
+                        anyString());
 
         // When & Then
         assertThrows(
@@ -516,7 +522,9 @@ class RolSagaServiceTest {
                 anyString(),
                 anyString(),
                 anyInt(),
-                anyInt()))
+                anyInt(),
+                any(),
+                anyString()))
                 .thenReturn("new-image-url");
 
         when(repository.save(rolSaga))
@@ -534,7 +542,8 @@ class RolSagaServiceTest {
 
         verify(fileService).deleteFile("old-image-url");
 
-        verify(fileService).uploadImage(any(), anyString(), any(), anyString(), anyString(), anyInt(), anyInt());
+        verify(fileService).uploadImage(any(), anyString(), any(), anyString(), anyString(), anyInt(), anyInt(),
+                any(), anyString());
 
         verify(repository).save(rolSaga);
     }

@@ -20,7 +20,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
-import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
@@ -45,7 +44,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	void setup() {
 		MockitoAnnotations.openMocks(this);
 		UserProfileController controller = new UserProfileController(service);
-		mockMvc = buildMockMvc(controller, UsersExceptionHandler.class);
+		mockMvc = buildMockMvc(controller);
 
 		initTestData();
 	}

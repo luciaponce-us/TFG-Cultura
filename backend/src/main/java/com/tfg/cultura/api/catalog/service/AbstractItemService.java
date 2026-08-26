@@ -17,7 +17,7 @@ import com.tfg.cultura.api.catalog.model.dto.ItemRequest;
 import com.tfg.cultura.api.catalog.repository.AbstractItemRepository;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
-import com.tfg.cultura.api.core.exception.FileUploadException;
+import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.service.SectionService;
@@ -102,7 +102,9 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
                 getImageFolder(),
                 getDefaultImageUrl(),
                 400,
-                600);
+                600,
+                logger,
+                "imageUrl");
 
         savedItem.setImageUrl(imageUrl);
         T savedItemWithImage = repository.save(savedItem);
@@ -172,7 +174,9 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
                 getImageFolder(),
                 getDefaultImageUrl(),
                 400,
-                600);
+                600,
+                logger,
+                "imageUrl");
         updatedItem.setImageUrl(newImageUrl);
         T updatedItemWithImage = repository.save(updatedItem);
 

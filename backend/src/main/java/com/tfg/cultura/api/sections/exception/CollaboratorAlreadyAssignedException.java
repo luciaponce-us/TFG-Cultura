@@ -1,8 +1,19 @@
 package com.tfg.cultura.api.sections.exception;
 
-public class CollaboratorAlreadyAssignedException extends RuntimeException {
-    public CollaboratorAlreadyAssignedException(String message) {
-        super(message);
+import java.util.Map;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+
+import com.tfg.cultura.api.core.exception.FieldException;
+
+public class CollaboratorAlreadyAssignedException extends FieldException {
+    public CollaboratorAlreadyAssignedException(String alreadyAssignedCollaborators) {
+        super(
+            LoggerFactory.getLogger("sectionsLogger"),
+            HttpStatus.CONFLICT,
+            Map.of("collaborators", "Los siguientes usuarios ya están asignados como colaboradores de otras secciones: " + alreadyAssignedCollaborators)
+        );
     }
     
 }

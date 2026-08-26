@@ -1,8 +1,12 @@
 package com.tfg.cultura.api.catalog.exception.item;
 
-public class ItemNotFoundException extends RuntimeException {
+import org.slf4j.LoggerFactory;
+
+import com.tfg.cultura.api.core.exception.NotFoundException;
+
+public class ItemNotFoundException extends NotFoundException {
     public ItemNotFoundException(String message) {
-        super(message);
+        super(message, LoggerFactory.getLogger("catalogLogger"));
     }
 
 }

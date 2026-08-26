@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.suggestions.exception.SelfSupportSuggestionException;
-import com.tfg.cultura.api.suggestions.exception.SuggestionExceptionHandler;
 import com.tfg.cultura.api.suggestions.exception.SuggestionNotFoundException;
 import com.tfg.cultura.api.suggestions.factory.SuggestionFactory;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
@@ -29,7 +28,6 @@ import com.tfg.cultura.api.suggestions.model.dto.SuggestionCreateRequest;
 import com.tfg.cultura.api.suggestions.model.dto.SuggestionResponse;
 import com.tfg.cultura.api.suggestions.service.SuggestionService;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
-import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.utils.BaseControllerTest;
@@ -54,7 +52,7 @@ class SuggestionControllerTest extends BaseControllerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         SuggestionController controller = new SuggestionController(service);
-        mockMvc = buildMockMvc(controller, UsersExceptionHandler.class, SuggestionExceptionHandler.class);
+        mockMvc = buildMockMvc(controller);
 
         initTestData();
     }

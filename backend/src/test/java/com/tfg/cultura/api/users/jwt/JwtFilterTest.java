@@ -176,6 +176,5 @@ class JwtFilterTest {
         String json = stringWriter.toString();
         assertTrue(json.contains("\"status\":403"));
         assertTrue(json.contains("Usuario desactivado"));
-        assertTrue(json.contains("Tu usuario está desactivado"));
     }
 }

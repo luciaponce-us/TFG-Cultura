@@ -100,8 +100,7 @@ public class JwtFilter extends OncePerRequestFilter {
             throws IOException, StreamWriteException, DatabindException {
         ApiError error = ApiError.builder()
                 .status(HttpStatus.FORBIDDEN.value())
-                .error("Usuario desactivado")
-                .message("Tu usuario está desactivado")
+                .message("Usuario desactivado")
                 .build();
 
         log.warn("[JWT] El usuario con id {} está desactivado", userId);

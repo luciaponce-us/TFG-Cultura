@@ -3,8 +3,6 @@ package com.tfg.cultura.api.sections.service.specifications;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.tfg.cultura.api.core.service.BusinessSpecification;
@@ -14,8 +12,6 @@ import com.tfg.cultura.api.users.model.enumerators.Role;
 
 @Component
 public class CollaboratorsMustBeColaboradoresSpecification implements BusinessSpecification<Set<User>> {
-
-    private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
     
     /**
      * RN-09: Solo los usuarios que tienen el rol de colaborador pueden ser nombrados colaboradores (collaborators) de una sección.
@@ -29,9 +25,7 @@ public class CollaboratorsMustBeColaboradoresSpecification implements BusinessSp
                 .toList();
 
         if (!nonColaboradores.isEmpty()) {
-            logger.warn("Los siguientes usuarios no son colaboradores: {}", nonColaboradores);
-            throw new InvalidCollaboratorRoleException(
-                    "Los siguientes usuarios no son colaboradores: " + nonColaboradores);
+            throw new InvalidCollaboratorRoleException(nonColaboradores.toString());
         }
     }
     
