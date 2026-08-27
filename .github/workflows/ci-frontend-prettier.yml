@@ -2,8 +2,12 @@ name: Prettier Frontend CI
 
 on:
   push:
+    paths:
+      - "frontend/**"
   pull_request:
     branches: ["main", "develop"]
+    paths:
+      - "frontend/**"
 
 permissions:
   contents: write
