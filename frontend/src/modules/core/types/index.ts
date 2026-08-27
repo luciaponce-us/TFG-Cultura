@@ -1,12 +1,14 @@
 export class ApiError extends Error {
   status: number;
   timestamp: string;
+  errors: { [key: string]: string };
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, errors: { [key: string]: string } = {}) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.timestamp = new Date().toISOString();
+    this.errors = errors;
   }
 }
 

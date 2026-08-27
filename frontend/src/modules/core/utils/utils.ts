@@ -15,6 +15,7 @@ export async function handleResponse<T>(res: Response): Promise<T> {
 
   if (!res.ok) {
     let message = `Error ${res.status}`;
+    let errors: { [key: string]: string } = {};
 
     try {
       if (contentType.includes("application/json")) {
@@ -23,6 +24,7 @@ export async function handleResponse<T>(res: Response): Promise<T> {
         if (typeof data === "object" && data !== null) {
           const d = data as Partial<ApiError>;
           message = d.message || message;
+          errors = d.errors || {};
         }
       } else {
         const text = await res.text();
@@ -31,7 +33,7 @@ export async function handleResponse<T>(res: Response): Promise<T> {
     } catch {
       // ignore parsing errors
     }
-    const apiError = new ApiError(message, res.status);
+    const apiError = new ApiError(message, res.status, errors);
 
     throw apiError;
   }
