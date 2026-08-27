@@ -267,11 +267,14 @@
 				<version>3.10.0</version> <!-- Agosto 2026 -->
 				<configuration>
 					<java>
-            <eclipse/>
-            <removeUnusedImports/>
-			<importOrder/>
-			<trimTrailingWhitespace/>
-        </java>
+						<includes>
+        					<include>src/**/*.java</include>
+    					</includes>
+						<eclipse/>
+						<removeUnusedImports/>
+						<importOrder/>
+						<trimTrailingWhitespace/>
+					</java>
 				</configuration>
 			</plugin>
 		</plugins>
