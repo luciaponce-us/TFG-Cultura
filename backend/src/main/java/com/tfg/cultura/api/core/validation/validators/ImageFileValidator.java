@@ -11,7 +11,7 @@ public class ImageFileValidator
         implements ConstraintValidator<ValidImage, MultipartFile> {
 
     private static final long MAX_MB = 2;
-    private static final long MAX_SIZE = MAX_MB * 11048576; // 2MB
+    private static final long MAX_SIZE = MAX_MB * 1024 * 1024;
 
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {

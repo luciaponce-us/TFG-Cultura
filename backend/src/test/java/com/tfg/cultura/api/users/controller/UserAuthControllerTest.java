@@ -69,7 +69,8 @@ class UserAuthControllerTest extends BaseControllerTest {
 
     @Test
     void register_fail_user_already_exists() throws Exception {
-        UserAlreadyExistsException ex = new UserAlreadyExistsException(Map.of("username", "El nombre de usuario ya está en uso"));
+        UserAlreadyExistsException ex = new UserAlreadyExistsException(
+                Map.of("username", "El nombre de usuario ya está en uso"));
 
         when(userService.register(any(), any(), any())).thenThrow(ex);
 
@@ -88,7 +89,23 @@ class UserAuthControllerTest extends BaseControllerTest {
                 .file(userPart(registerRequest))
                 .file(pdfPart()))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(jsonPath("$.errors.email").exists());
+    }
+
+    @Test
+    void register_fail_payment_receipt_not_pdf() throws Exception {
+        MockMultipartFile image = new MockMultipartFile(
+                "paymentReceipt",
+                "receipt.png",
+                "image/png",
+                "image content".getBytes());
+
+        mockMvc.perform(multipart(REGISTER_URL)
+                .file(userPart(registerRequest))
+                .file(image))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.paymentReceipt")
+                        .value("La carta de pago no es un archivo PDF válido"));
     }
 
     // ====== LOGIN ========

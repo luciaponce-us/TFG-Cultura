@@ -7,7 +7,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 public class CloudinaryUrlValidator implements ConstraintValidator<ValidCloudinaryUrl,String>{
-    private ResourceType type;
+    private ResourceType type = ResourceType.IMAGE;
 
     @Override
     public void initialize(ValidCloudinaryUrl annotation) {
