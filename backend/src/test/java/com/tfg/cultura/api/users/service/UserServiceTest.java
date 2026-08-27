@@ -10,32 +10,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.spy;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
@@ -54,872 +32,839 @@ import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
+	@Mock
+	private UserRepository userRepository;
 
-    @Mock
-    private SuggestionRepository suggestionRepository;
+	@Mock
+	private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private UserFileService userFileService;
+	@Mock
+	private SuggestionRepository suggestionRepository;
 
-    @Mock
-    private CustomUserDetailsService userDetailsService;
+	@Mock
+	private UserFileService userFileService;
 
-    private AppProperties appProperties;
+	@Mock
+	private CustomUserDetailsService userDetailsService;
 
-    private UserService service;
+	private AppProperties appProperties;
 
-    private User user;
-    private User currentUser;
-    private UserResponse userResponse;
-    private UserUpdateRequest updateRequest;
-    private CustomUserDetails userDetails;
+	private UserService service;
 
-    @BeforeEach
-    void setUp() {
-        user = UserFactory.validUser();
+	private User user;
+	private User currentUser;
+	private UserResponse userResponse;
+	private UserUpdateRequest updateRequest;
+	private CustomUserDetails userDetails;
 
-        userResponse = UserFactory.validUserResponse();
-        updateRequest = UserFactory.validUserUpdateRequest();
-        userDetails = new CustomUserDetails(user);
-        appProperties = AppPropertiesFactory.validAppProperties();
-        service = new UserService(
-                userRepository,
-                passwordEncoder,
-                userDetailsService,
-                suggestionRepository,
-                userFileService,
-                appProperties);
+	@BeforeEach
+	void setUp() {
+		user = UserFactory.validUser();
 
-    }
-
-    private void mockAuthContext(boolean isAdmin) {
-        CustomUserDetails currentUserDetails = isAdmin ? UserFactory.mockAuthContextAdmin()
-                : UserFactory.mockAuthContext();
-        when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUserDetails);
-    }
-
-    private void mockCurrentUser(boolean isAdmin) {
-        if (isAdmin) {
-            currentUser = UserFactory.validCurrentUserWithRole(Role.COORDINADOR);
-        } else {
-            currentUser = UserFactory.validCurrentUserWithRole(Role.SOCIO);
-        }
-        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(currentUser));
-    }
-
-    // GET USER
+		userResponse = UserFactory.validUserResponse();
+		updateRequest = UserFactory.validUserUpdateRequest();
+		userDetails = new CustomUserDetails(user);
+		appProperties = AppPropertiesFactory.validAppProperties();
+		service = new UserService(userRepository, passwordEncoder, userDetailsService, suggestionRepository,
+				userFileService, appProperties);
 
-    @Test
-    void should_return_user_response_when_get_existing_user() {
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+	}
 
-        UserResponse response = service.getUser(user.getUsername());
-
-        assertNotNull(response);
-        assertEquals(user.getUsername(), response.getUsername());
-    }
-
-    @Test
-    void should_throw_exception_when_get_unexisting_user() {
-        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> service.getUser("123"));
+	private void mockAuthContext(boolean isAdmin) {
+		CustomUserDetails currentUserDetails = isAdmin
+				? UserFactory.mockAuthContextAdmin()
+				: UserFactory.mockAuthContext();
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(currentUserDetails);
+	}
 
-        assertTrue(ex.getMessage().contains("no existe"));
-    }
-
-    // GET CURRENT USER
+	private void mockCurrentUser(boolean isAdmin) {
+		if (isAdmin) {
+			currentUser = UserFactory.validCurrentUserWithRole(Role.COORDINADOR);
+		} else {
+			currentUser = UserFactory.validCurrentUserWithRole(Role.SOCIO);
+		}
+		when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(currentUser));
+	}
 
-    @Test
-    void should_return_current_user_successfully() throws Exception {
-        mockAuthContext(false);
-        CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
-        when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.of(user));
-
-        User result = service.getCurrentUser();
+	// GET USER
 
-        assertEquals(user, result);
-        verify(userRepository).findById(currentUserDetails.getId());
-    }
+	@Test
+	void should_return_user_response_when_get_existing_user() {
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
 
-    @Test
-    void should_throw_exception_when_user_not_found_in_get_current_user() {
-        mockAuthContext(false);
+		UserResponse response = service.getUser(user.getUsername());
 
-        CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
-        when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.empty());
+		assertNotNull(response);
+		assertEquals(user.getUsername(), response.getUsername());
+	}
 
-        assertThrows(UserNotFoundException.class,
-                () -> service.getCurrentUser());
-    }
+	@Test
+	void should_throw_exception_when_get_unexisting_user() {
+		UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> service.getUser("123"));
 
-    // FIND USER BY ID
+		assertTrue(ex.getMessage().contains("no existe"));
+	}
 
-    @Test
-    void should_return_user_when_find_user_by_id_with_existing_user() {
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+	// GET CURRENT USER
 
-        User foundUser = service.findUserById(user.getId());
-
-        assertNotNull(foundUser);
-        assertEquals(user.getId(), foundUser.getId());
-    }
-
-    @Test
-    void should_throw_UserNotFoundException_when_find_user_by_id_with_unexisting_user() {
-        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> service.findUserById("123"));
-
-        assertTrue(ex.getMessage().contains("no existe"));
-    }
-
-    // UPDATE USER
+	@Test
+	void should_return_current_user_successfully() throws Exception {
+		mockAuthContext(false);
+		CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
+		when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.of(user));
 
-    void mockSaveUser() {
-        when(userRepository.save(any(User.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-    }
-
-    @Test
-    void should_update_user_successfully() {
-        mockAuthContext(false);
-        mockSaveUser();
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
-        UserResponse response = service.updateUser(user.getUsername(), updateRequest);
-
-        assertNotNull(response);
-        assertEquals(user.getUsername(), response.getUsername());
-        assertEquals(updateRequest.getName(), response.getName());
-        assertEquals(updateRequest.getSurname(), response.getSurname());
-    }
-
-    @Test
-    void should_update_user_username_successfully() {
-        mockAuthContext(false);
-        mockSaveUser();
-
-        String newUsername = "newUsername";
-        updateRequest.setUsername(newUsername);
-
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
-        when(userRepository.existsByUsername(newUsername)).thenReturn(false);
-
-        UserResponse response = service.updateUser(user.getUsername(), updateRequest);
-
-        assertNotNull(response);
-        assertEquals(newUsername, response.getUsername());
-    }
-
-    @Test
-    void should_update_user_password_succesfully() {
-        mockAuthContext(false);
-        mockSaveUser();
-
-        String username = user.getUsername();
-        String oldEmail = user.getEmail();
-
-        UserUpdateRequest request = new UserUpdateRequest();
-        request.setPassword("newPassword");
-
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
-        when(userRepository.findByUsername(username))
-                .thenReturn(Optional.of(user));
-        when(passwordEncoder.encode(any()))
-                .thenReturn("encodedNewPassword");
-
-        // WHEN
-        UserResponse response = service.updateUser(username, request);
-
-        // THEN
-        assertEquals("encodedNewPassword", user.getPassword());
-        assertEquals(oldEmail, response.getEmail()); // no cambia
-
-        verify(passwordEncoder).encode("newPassword");
-        verify(userRepository).save(user);
-
-    }
-
-    @Test
-    void should_update_user_dni_and_role_successfully_when_admin() {
-        mockAuthContext(true);
-        mockCurrentUser(true);
-        mockSaveUser();
-
-        String newDni = "12345678A";
-        Role newRole = Role.COORDINADOR;
-        updateRequest.setDni(newDni);
-        updateRequest.setRole(newRole);
-
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
-        when(userRepository.existsByDni(newDni)).thenReturn(false);
-
-        UserResponse response = service.updateUser(user.getUsername(), updateRequest);
-        assertNotNull(response);
-        assertEquals(newDni, response.getDni());
-        assertEquals(newRole, response.getRole());
-    }
-
-    @Test
-    void should_not_update_user_dni_and_role_when_not_admin() {
-        mockAuthContext(false);
-        mockSaveUser();
-
-        String originalDni = user.getDni();
-        Role originalRole = user.getRole();
-        updateRequest.setDni("12345678A");
-        updateRequest.setRole(Role.COORDINADOR);
-
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
-
-        UserResponse response = service.updateUser(user.getUsername(), updateRequest);
-        assertNotNull(response);
-        assertEquals(originalDni, response.getDni());
-        assertEquals(originalRole, response.getRole());
-    }
-
-    @Test
-    void should_throw_UserNotFoundException_when_update_unexisting_user() {
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
-
-        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> service.updateUser("123", updateRequest));
-
-        assertTrue(ex.getMessage().contains("no existe"));
-    }
-
-    @Test
-    void should_throw_UserAlreadyExistsException_when_update_user_with_existing_username() {
-        mockAuthContext(false);
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
-        String username = user.getUsername();
-        String existingUsername = "existingUsername";
-        updateRequest.setUsername(existingUsername);
-
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-        when(userRepository.existsByUsername(existingUsername)).thenReturn(true);
-
-        UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
-                () -> service.updateUser(username, updateRequest));
-
-        assertTrue(ex.getMessage().contains("ya está en uso"));
-    }
+		User result = service.getCurrentUser();
 
-    @Test
-    void should_throw_UserAlreadyExistsException_when_update_user_with_existing_dni() {
-        mockAuthContext(true);
-        mockCurrentUser(true);
-
-        String username = user.getUsername();
-        String existingDni = "06323988T";
-        updateRequest.setDni(existingDni);
-        assertNotEquals(existingDni, user.getDni());
-
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(userRepository.existsByDni(existingDni)).thenReturn(true);
-
-        UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
-                () -> service.updateUser(username, updateRequest));
+		assertEquals(user, result);
+		verify(userRepository).findById(currentUserDetails.getId());
+	}
 
-        assertTrue(ex.getErrors().containsKey("dni"));
-    }
+	@Test
+	void should_throw_exception_when_user_not_found_in_get_current_user() {
+		mockAuthContext(false);
 
-    @Test
-    void should_throw_UnauthorizedException_when_update_user_with_higher_role() {
-        mockAuthContext(false);
-        mockCurrentUser(false);
-        currentUser = UserFactory.validCurrentUserWithRole(Role.COLABORADOR);
-        user.setRole(Role.ENCARGADO); // Rol superior al del usuario actual
-        String username = user.getUsername();
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+		CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
+		when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.empty());
 
-        UnauthorizedException ex = assertThrows(UnauthorizedException.class,
-                () -> service.updateUser(username, updateRequest));
+		assertThrows(UserNotFoundException.class, () -> service.getCurrentUser());
+	}
 
-        assertTrue(ex.getMessage().contains("No tienes permisos"));
-    }
+	// FIND USER BY ID
 
-    @Test
-    void saveUpdatedUser_when_user_is_null_should_throw_illegal_argument_exception() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.saveUpdatedUser(null));
+	@Test
+	void should_return_user_when_find_user_by_id_with_existing_user() {
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
-        assertEquals("El usuario no puede ser nulo", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
+		User foundUser = service.findUserById(user.getId());
 
-    // UPDATE ROLES
+		assertNotNull(foundUser);
+		assertEquals(user.getId(), foundUser.getId());
+	}
 
-    @Test
-    void should_update_other_user_to_inferior_role() throws Exception {
-        mockSaveUser();
-        currentUser = UserFactory.validCurrentUserWithRole(Role.COORDINADOR);
-        Role oldRole = Role.COLABORADOR;
-        user.setRole(oldRole);
-        Role requestedRole = Role.SOCIO;
+	@Test
+	void should_throw_UserNotFoundException_when_find_user_by_id_with_unexisting_user() {
+		UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> service.findUserById("123"));
 
-        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
-        request.setRole(requestedRole);
+		assertTrue(ex.getMessage().contains("no existe"));
+	}
 
-        service.updateUser(user, request, currentUser);
+	// UPDATE USER
+
+	void mockSaveUser() {
+		when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+	}
+
+	@Test
+	void should_update_user_successfully() {
+		mockAuthContext(false);
+		mockSaveUser();
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+		when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+		UserResponse response = service.updateUser(user.getUsername(), updateRequest);
+
+		assertNotNull(response);
+		assertEquals(user.getUsername(), response.getUsername());
+		assertEquals(updateRequest.getName(), response.getName());
+		assertEquals(updateRequest.getSurname(), response.getSurname());
+	}
+
+	@Test
+	void should_update_user_username_successfully() {
+		mockAuthContext(false);
+		mockSaveUser();
+
+		String newUsername = "newUsername";
+		updateRequest.setUsername(newUsername);
+
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+		when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+		when(userRepository.existsByUsername(newUsername)).thenReturn(false);
 
-        assertEquals(requestedRole, user.getRole());
-    }
+		UserResponse response = service.updateUser(user.getUsername(), updateRequest);
+
+		assertNotNull(response);
+		assertEquals(newUsername, response.getUsername());
+	}
+
+	@Test
+	void should_update_user_password_succesfully() {
+		mockAuthContext(false);
+		mockSaveUser();
+
+		String username = user.getUsername();
+		String oldEmail = user.getEmail();
+
+		UserUpdateRequest request = new UserUpdateRequest();
+		request.setPassword("newPassword");
 
-    @Test
-    void should_throw_when_self_assigning_higher_role() {
-        Role oldRole = Role.SECRETARIO;
-        currentUser = UserFactory.validCurrentUserWithRole(oldRole);
-        Role requestedRole = Role.COORDINADOR;
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+		when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+		when(passwordEncoder.encode(any())).thenReturn("encodedNewPassword");
 
-        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
-        request.setRole(requestedRole);
+		// WHEN
+		UserResponse response = service.updateUser(username, request);
+
+		// THEN
+		assertEquals("encodedNewPassword", user.getPassword());
+		assertEquals(oldEmail, response.getEmail()); // no cambia
+
+		verify(passwordEncoder).encode("newPassword");
+		verify(userRepository).save(user);
+
+	}
+
+	@Test
+	void should_update_user_dni_and_role_successfully_when_admin() {
+		mockAuthContext(true);
+		mockCurrentUser(true);
+		mockSaveUser();
+
+		String newDni = "12345678A";
+		Role newRole = Role.COORDINADOR;
+		updateRequest.setDni(newDni);
+		updateRequest.setRole(newRole);
+
+		when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+		when(userRepository.existsByDni(newDni)).thenReturn(false);
+
+		UserResponse response = service.updateUser(user.getUsername(), updateRequest);
+		assertNotNull(response);
+		assertEquals(newDni, response.getDni());
+		assertEquals(newRole, response.getRole());
+	}
+
+	@Test
+	void should_not_update_user_dni_and_role_when_not_admin() {
+		mockAuthContext(false);
+		mockSaveUser();
+
+		String originalDni = user.getDni();
+		Role originalRole = user.getRole();
+		updateRequest.setDni("12345678A");
+		updateRequest.setRole(Role.COORDINADOR);
+
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+		when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+
+		UserResponse response = service.updateUser(user.getUsername(), updateRequest);
+		assertNotNull(response);
+		assertEquals(originalDni, response.getDni());
+		assertEquals(originalRole, response.getRole());
+	}
+
+	@Test
+	void should_throw_UserNotFoundException_when_update_unexisting_user() {
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(RoleModificationNotAllowedException.class,
-                () -> service.updateUser(currentUser, request, currentUser));
+		UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+				() -> service.updateUser("123", updateRequest));
+
+		assertTrue(ex.getMessage().contains("no existe"));
+	}
+
+	@Test
+	void should_throw_UserAlreadyExistsException_when_update_user_with_existing_username() {
+		mockAuthContext(false);
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+		String username = user.getUsername();
+		String existingUsername = "existingUsername";
+		updateRequest.setUsername(existingUsername);
 
-        assertEquals(oldRole, currentUser.getRole());
-    }
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+		when(userRepository.existsByUsername(existingUsername)).thenReturn(true);
 
-    @Test
-    void should_allow_self_downgrade() throws Exception {
-        mockSaveUser();
-        currentUser = UserFactory.validCurrentUserWithRole(Role.COORDINADOR);
-        Role requestedRole = Role.SOCIO;
+		UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+				() -> service.updateUser(username, updateRequest));
 
-        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
-        request.setRole(requestedRole);
+		assertTrue(ex.getMessage().contains("ya está en uso"));
+	}
 
-        service.updateUser(currentUser, request, currentUser);
+	@Test
+	void should_throw_UserAlreadyExistsException_when_update_user_with_existing_dni() {
+		mockAuthContext(true);
+		mockCurrentUser(true);
 
-        assertEquals(requestedRole, currentUser.getRole());
-    }
+		String username = user.getUsername();
+		String existingDni = "06323988T";
+		updateRequest.setDni(existingDni);
+		assertNotEquals(existingDni, user.getDni());
 
-    @Test
-    void should_throw_when_assigning_same_role_to_other_user() {
-        currentUser = UserFactory.validCurrentUserWithRole(Role.SECRETARIO);
-        Role oldRole = user.getRole();
+		when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+		when(userRepository.existsByDni(existingDni)).thenReturn(true);
 
-        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
-        request.setRole(Role.SECRETARIO);
+		UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+				() -> service.updateUser(username, updateRequest));
 
-        assertThrows(RoleModificationNotAllowedException.class,
-                () -> service.updateUser(user, request, currentUser));
+		assertTrue(ex.getErrors().containsKey("dni"));
+	}
 
-        Role newRole = user.getRole();
-        assertEquals(oldRole, newRole);
-    }
+	@Test
+	void should_throw_UnauthorizedException_when_update_user_with_higher_role() {
+		mockAuthContext(false);
+		mockCurrentUser(false);
+		currentUser = UserFactory.validCurrentUserWithRole(Role.COLABORADOR);
+		user.setRole(Role.ENCARGADO); // Rol superior al del usuario actual
+		String username = user.getUsername();
+		when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
-    @Test
-    void should_throw_when_assigning_higher_role_to_other_user() {
-        currentUser = UserFactory.validCurrentUserWithRole(Role.SECRETARIO);
-        Role oldRole = user.getRole();
+		UnauthorizedException ex = assertThrows(UnauthorizedException.class,
+				() -> service.updateUser(username, updateRequest));
 
-        UserUpdateRequest request = UserFactory.validUserUpdateRequest();
-        request.setRole(Role.COORDINADOR);
+		assertTrue(ex.getMessage().contains("No tienes permisos"));
+	}
 
-        assertThrows(RoleModificationNotAllowedException.class,
-                () -> service.updateUser(user, request, currentUser));
+	@Test
+	void saveUpdatedUser_when_user_is_null_should_throw_illegal_argument_exception() {
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> service.saveUpdatedUser(null));
 
-        Role newRole = user.getRole();
-        assertEquals(oldRole, newRole);
-    }
+		assertEquals("El usuario no puede ser nulo", exception.getMessage());
+		verify(userRepository, never()).save(any());
+	}
 
-    // DELETE USER
+	// UPDATE ROLES
 
-    @Test
-    void should_delete_user_successfully() {
-        mockAuthContext(true);
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+	@Test
+	void should_update_other_user_to_inferior_role() throws Exception {
+		mockSaveUser();
+		currentUser = UserFactory.validCurrentUserWithRole(Role.COORDINADOR);
+		Role oldRole = Role.COLABORADOR;
+		user.setRole(oldRole);
+		Role requestedRole = Role.SOCIO;
 
-        service.deleteUser(user.getUsername());
+		UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+		request.setRole(requestedRole);
 
-        verify(userRepository).delete(user);
-    }
+		service.updateUser(user, request, currentUser);
 
-    @Test
-    void should_throw_UserNotFoundException_when_delete_unexisting_user() {
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+		assertEquals(requestedRole, user.getRole());
+	}
 
-        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> service.deleteUser("123"));
+	@Test
+	void should_throw_when_self_assigning_higher_role() {
+		Role oldRole = Role.SECRETARIO;
+		currentUser = UserFactory.validCurrentUserWithRole(oldRole);
+		Role requestedRole = Role.COORDINADOR;
 
-        assertTrue(ex.getMessage().contains("no existe"));
-    }
+		UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+		request.setRole(requestedRole);
 
-    @Test
-    void deleteUser_when_target_user_has_same_or_higher_role_and_is_not_self_should_throw_unauthorized_exception() {
+		assertThrows(RoleModificationNotAllowedException.class,
+				() -> service.updateUser(currentUser, request, currentUser));
 
-        mockAuthContext(true);
-        mockCurrentUser(true);
+		assertEquals(oldRole, currentUser.getRole());
+	}
 
-        currentUser.setRole(Role.SECRETARIO);
+	@Test
+	void should_allow_self_downgrade() throws Exception {
+		mockSaveUser();
+		currentUser = UserFactory.validCurrentUserWithRole(Role.COORDINADOR);
+		Role requestedRole = Role.SOCIO;
 
-        user.setId("otherUserId"); // No es el mismo usuario
-        user.setRole(Role.COORDINADOR); // Rol superior
+		UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+		request.setRole(requestedRole);
 
-        when(userRepository.findByUsername(user.getUsername()))
-                .thenReturn(Optional.of(user));
+		service.updateUser(currentUser, request, currentUser);
 
-        String username = user.getUsername();
+		assertEquals(requestedRole, currentUser.getRole());
+	}
 
-        UnauthorizedException exception = assertThrows(
-                UnauthorizedException.class,
-                () -> service.deleteUser(username));
+	@Test
+	void should_throw_when_assigning_same_role_to_other_user() {
+		currentUser = UserFactory.validCurrentUserWithRole(Role.SECRETARIO);
+		Role oldRole = user.getRole();
 
-        assertEquals("No tienes permisos para eliminar este usuario.", exception.getMessage());
+		UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+		request.setRole(Role.SECRETARIO);
 
-        verify(userRepository, never()).delete(any());
-    }
+		assertThrows(RoleModificationNotAllowedException.class, () -> service.updateUser(user, request, currentUser));
 
-    // =================== PROFILE ===================
+		Role newRole = user.getRole();
+		assertEquals(oldRole, newRole);
+	}
 
-    // GET USER PROFILE
+	@Test
+	void should_throw_when_assigning_higher_role_to_other_user() {
+		currentUser = UserFactory.validCurrentUserWithRole(Role.SECRETARIO);
+		Role oldRole = user.getRole();
 
-    @Test
-    void should_return_user_profile_when_authenticated() throws Exception {
-        when(userDetailsService.getCurrentUserDetails())
-                .thenReturn(userDetails);
+		UserUpdateRequest request = UserFactory.validUserUpdateRequest();
+		request.setRole(Role.COORDINADOR);
 
-        when(userRepository.findById(anyString()))
-                .thenReturn(Optional.of(user));
+		assertThrows(RoleModificationNotAllowedException.class, () -> service.updateUser(user, request, currentUser));
 
-        UserResponse response = service.getProfile();
+		Role newRole = user.getRole();
+		assertEquals(oldRole, newRole);
+	}
 
-        assertNotNull(response);
-        assertEquals(user.getUsername(), response.getUsername());
-    }
+	// DELETE USER
 
-    @Test
-    void should_throw_exception_when_no_authenticated_user() {
+	@Test
+	void should_delete_user_successfully() {
+		mockAuthContext(true);
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
-        when(userDetailsService.getCurrentUserDetails())
-                .thenThrow(new UnathenticatedException("No auth"));
+		service.deleteUser(user.getUsername());
 
-        assertThrows(UnathenticatedException.class, () -> {
-            service.getProfile();
-        });
+		verify(userRepository).delete(user);
+	}
 
-        verify(userDetailsService).getCurrentUserDetails();
-    }
+	@Test
+	void should_throw_UserNotFoundException_when_delete_unexisting_user() {
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-    // UPDATE USER PROFILE
+		UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> service.deleteUser("123"));
 
-    @Test
-    void should_update_profile_successfully() throws Exception {
+		assertTrue(ex.getMessage().contains("no existe"));
+	}
 
-        UserUpdateRequest request = new UserUpdateRequest();
+	@Test
+	void deleteUser_when_target_user_has_same_or_higher_role_and_is_not_self_should_throw_unauthorized_exception() {
 
-        when(userDetailsService.getCurrentUserDetails())
-                .thenReturn(userDetails);
+		mockAuthContext(true);
+		mockCurrentUser(true);
 
-        when(userRepository.findById(anyString()))
-                .thenReturn(Optional.of(user));
+		currentUser.setRole(Role.SECRETARIO);
 
-        when(userRepository.save(any(User.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+		user.setId("otherUserId"); // No es el mismo usuario
+		user.setRole(Role.COORDINADOR); // Rol superior
 
-        UserResponse response = service.updateProfile(request);
+		when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
-        assertNotNull(response);
-        assertEquals(user.getUsername(), response.getUsername());
+		String username = user.getUsername();
 
-        verify(userDetailsService).getCurrentUserDetails();
-        verify(userRepository).save(any(User.class));
-    }
+		UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> service.deleteUser(username));
 
-    @Test
-    void should_throw_when_user_not_found_on_update() {
-        when(userDetailsService.getCurrentUserDetails())
-                .thenReturn(userDetails);
+		assertEquals("No tienes permisos para eliminar este usuario.", exception.getMessage());
 
-        when(userRepository.findById(anyString()))
-                .thenReturn(Optional.empty());
+		verify(userRepository, never()).delete(any());
+	}
 
-        assertThrows(UserNotFoundException.class, () -> {
-            service.updateProfile(updateRequest);
-        });
+	// =================== PROFILE ===================
 
-        verify(userRepository, never()).save(any());
-    }
+	// GET USER PROFILE
 
-    @Test
-    void should_throw_when_user_already_exists() {
-        updateRequest.setUsername("newUsername");
-        when(userDetailsService.getCurrentUserDetails())
-                .thenReturn(userDetails);
+	@Test
+	void should_return_user_profile_when_authenticated() throws Exception {
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
 
-        when(userRepository.findById(anyString()))
-                .thenReturn(Optional.of(user));
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
-        // simula conflicto
-        when(userRepository.existsByUsername(anyString()))
-                .thenReturn(true);
+		UserResponse response = service.getProfile();
 
-        assertThrows(UserAlreadyExistsException.class, () -> {
-            service.updateProfile(updateRequest);
-        });
-    }
+		assertNotNull(response);
+		assertEquals(user.getUsername(), response.getUsername());
+	}
 
-    // DELETE USER PROFILE
+	@Test
+	void should_throw_exception_when_no_authenticated_user() {
 
-    @Test
-    void should_delete_user_profile_successfully() throws Exception {
-        user.setAvatar("avatar_url");
-        user.setPaymentReceipt("receipt_url");
+		when(userDetailsService.getCurrentUserDetails()).thenThrow(new UnathenticatedException("No auth"));
 
-        when(userDetailsService.getCurrentUserDetails())
-                .thenReturn(userDetails);
+		assertThrows(UnathenticatedException.class, () -> {
+			service.getProfile();
+		});
 
-        when(userRepository.findById(anyString()))
-                .thenReturn(Optional.of(user));
+		verify(userDetailsService).getCurrentUserDetails();
+	}
 
-        service.deleteProfile();
+	// UPDATE USER PROFILE
 
-        verify(userFileService).deleteUserFile("avatar_url");
-        verify(userFileService).deleteUserFile("receipt_url");
-        verify(suggestionRepository).deleteByAuthorId(user.getId());
-        verify(userRepository).delete(user);
-    }
+	@Test
+	void should_update_profile_successfully() throws Exception {
 
-    @Test
-    void should_throw_when_user_not_found_on_delete() {
-        when(userDetailsService.getCurrentUserDetails())
-                .thenReturn(userDetails);
+		UserUpdateRequest request = new UserUpdateRequest();
 
-        when(userRepository.findById(anyString()))
-                .thenReturn(Optional.empty());
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
 
-        assertThrows(UserNotFoundException.class, () -> {
-            service.deleteProfile();
-        });
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
-        verifyNoInteractions(userFileService);
-        verify(userRepository, never()).delete(any());
-    }
+		when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-    // GET ALL USERS
+		UserResponse response = service.updateProfile(request);
 
-    @Test
-    void should_return_paginated_user_response_list() {
-        User user2 = UserFactory.validUser();
-        user2.setId("2");
-        user2.setUsername("otherUser");
+		assertNotNull(response);
+		assertEquals(user.getUsername(), response.getUsername());
 
-        when(userRepository.findAll(any(PageRequest.class)))
-                .thenReturn(new PageImpl<>(List.of(user, user2)));
+		verify(userDetailsService).getCurrentUserDetails();
+		verify(userRepository).save(any(User.class));
+	}
 
-        Page<UserResponse> result = service.getAllUsers(0, 10, null, null, null);
+	@Test
+	void should_throw_when_user_not_found_on_update() {
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
 
-        assertNotNull(result);
-        assertEquals(2, result.getContent().size());
+		when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        assertEquals(user.getUsername(), result.getContent().get(0).getUsername());
-        assertEquals(user2.getUsername(), result.getContent().get(1).getUsername());
+		assertThrows(UserNotFoundException.class, () -> {
+			service.updateProfile(updateRequest);
+		});
 
-        verify(userRepository).findAll(any(PageRequest.class));
-    }
+		verify(userRepository, never()).save(any());
+	}
 
-    @Test
-    void should_call_repository_with_correct_sorting() {
-        User user2 = UserFactory.validUser();
-        user2.setId("2");
-        user2.setUsername("otherUser");
+	@Test
+	void should_throw_when_user_already_exists() {
+		updateRequest.setUsername("newUsername");
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
 
-        PageRequest pageable = PageRequest.of(
-                1,
-                5,
-                Sort.by("createdAt").descending());
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
-        when(userRepository.findAll(any(PageRequest.class)))
-                .thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
+		// simula conflicto
+		when(userRepository.existsByUsername(anyString())).thenReturn(true);
 
-        Page<UserResponse> result = service.getAllUsers(1, 5, null, null, null);
+		assertThrows(UserAlreadyExistsException.class, () -> {
+			service.updateProfile(updateRequest);
+		});
+	}
 
-        assertEquals(1, result.getPageable().getPageNumber());
-        assertEquals(5, result.getPageable().getPageSize());
-        assertTrue(result.getPageable().getSort().isSorted());
-        assertTrue(result.getPageable().getSort().getOrderFor("createdAt").getDirection().isDescending());
+	// DELETE USER PROFILE
 
-        verify(userRepository).findAll(any(PageRequest.class));
-    }
+	@Test
+	void should_delete_user_profile_successfully() throws Exception {
+		user.setAvatar("avatar_url");
+		user.setPaymentReceipt("receipt_url");
 
-    @Test
-    void should_return_empty_page_when_no_users_exist() {
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
 
-        when(userRepository.findAll(any(PageRequest.class)))
-                .thenReturn(Page.empty());
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
-        Page<UserResponse> result = service.getAllUsers(0, 10, null, null, null);
+		service.deleteProfile();
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
+		verify(userFileService).deleteUserFile("avatar_url");
+		verify(userFileService).deleteUserFile("receipt_url");
+		verify(suggestionRepository).deleteByAuthorId(user.getId());
+		verify(userRepository).delete(user);
+	}
 
-    @Test
-    void should_use_filters_when_any_filter_is_provided() {
-        PageRequest pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
-        User user2 = UserFactory.validUser();
-        user2.setId("2");
-        user2.setUsername("otherUser");
+	@Test
+	void should_throw_when_user_not_found_on_delete() {
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
 
-        when(userRepository.findAllWithFilters(Role.COLABORADOR, true, "Ana", pageable))
-                .thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
+		when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        Page<UserResponse> result = service.getAllUsers(0, 10, Role.COLABORADOR, true, "Ana");
+		assertThrows(UserNotFoundException.class, () -> {
+			service.deleteProfile();
+		});
 
-        assertNotNull(result);
-        assertEquals(2, result.getContent().size());
-        verify(userRepository).findAllWithFilters(Role.COLABORADOR, true, "Ana", pageable);
-        verify(userRepository, never()).findAll(any(PageRequest.class));
-    }
+		verifyNoInteractions(userFileService);
+		verify(userRepository, never()).delete(any());
+	}
 
-    // UPDATE USER AVATAR
+	// GET ALL USERS
 
-    @Test
-    void should_update_user_avatar_successfully() {
-        MockMultipartFile avatar = new MockMultipartFile(
-                "avatar",
-                "avatar.png",
-                "image/png",
-                "image-content".getBytes());
-        String newAvatarUrl = "https://cdn.example.com/avatar.png";
+	@Test
+	void should_return_paginated_user_response_list() {
+		User user2 = UserFactory.validUser();
+		user2.setId("2");
+		user2.setUsername("otherUser");
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-        when(userFileService.uploadAvatar(user.getId(), avatar)).thenReturn(newAvatarUrl);
-        when(userRepository.save(any(User.class))).thenReturn(user);
+		when(userRepository.findAll(any(PageRequest.class))).thenReturn(new PageImpl<>(List.of(user, user2)));
 
-        UserResponse response = service.updateUserAvatar(user.getUsername(), avatar);
+		Page<UserResponse> result = service.getAllUsers(0, 10, null, null, null);
 
-        assertNotNull(response);
-        assertEquals(newAvatarUrl, response.getAvatar());
-        verify(userFileService).uploadAvatar(user.getId(), avatar);
-        verify(userRepository).save(user);
-    }
+		assertNotNull(result);
+		assertEquals(2, result.getContent().size());
 
-    @Test
-    void should_throw_UserNotFoundException_when_update_user_avatar_unexisting_user() {
-        MockMultipartFile avatar = new MockMultipartFile(
-                "avatar",
-                "avatar.png",
-                "image/png",
-                "image-content".getBytes());
+		assertEquals(user.getUsername(), result.getContent().get(0).getUsername());
+		assertEquals(user2.getUsername(), result.getContent().get(1).getUsername());
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+		verify(userRepository).findAll(any(PageRequest.class));
+	}
 
-        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> service.updateUserAvatar("unknown", avatar));
+	@Test
+	void should_call_repository_with_correct_sorting() {
+		User user2 = UserFactory.validUser();
+		user2.setId("2");
+		user2.setUsername("otherUser");
 
-        assertTrue(ex.getMessage().contains("no existe"));
-        verifyNoInteractions(userFileService);
-        verify(userRepository, never()).save(any());
-    }
+		PageRequest pageable = PageRequest.of(1, 5, Sort.by("createdAt").descending());
 
-    // UPDATE CURRENT USER AVATAR
+		when(userRepository.findAll(any(PageRequest.class)))
+				.thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
 
-    @Test
-    void should_update_avatar_successfully() throws Exception {
-        // Arrange
-        MultipartFile avatar = mock(MultipartFile.class);
-        mockAuthContext(false);
-        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+		Page<UserResponse> result = service.getAllUsers(1, 5, null, null, null);
 
-        UserResponse expectedResponse = userResponse;
+		assertEquals(1, result.getPageable().getPageNumber());
+		assertEquals(5, result.getPageable().getPageSize());
+		assertTrue(result.getPageable().getSort().isSorted());
+		assertTrue(result.getPageable().getSort().getOrderFor("createdAt").getDirection().isDescending());
 
-        // Espiamos el service para mockear updateAvatar (método interno)
-        UserService spyService = spy(service);
-        doReturn(expectedResponse).when(spyService).updateAvatar(user, avatar);
+		verify(userRepository).findAll(any(PageRequest.class));
+	}
 
-        // Act
-        UserResponse result = spyService.updateCurrentUserAvatar(avatar);
+	@Test
+	void should_return_empty_page_when_no_users_exist() {
 
-        // Assert
-        assertEquals(expectedResponse, result);
-        verify(spyService).updateCurrentUserAvatar(avatar);
-    }
+		when(userRepository.findAll(any(PageRequest.class))).thenReturn(Page.empty());
 
-    @Test
-    void should_throw_exception_when_user_not_found_in_update_avatar() {
-        // Arrange
-        MultipartFile avatar = mock(MultipartFile.class);
-        mockAuthContext(false);
+		Page<UserResponse> result = service.getAllUsers(0, 10, null, null, null);
 
-        CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
-        when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.empty());
+		assertNotNull(result);
+		assertTrue(result.isEmpty());
+	}
 
-        // Act & Assert
-        assertThrows(UserNotFoundException.class,
-                () -> service.updateCurrentUserAvatar(avatar));
-    }
+	@Test
+	void should_use_filters_when_any_filter_is_provided() {
+		PageRequest pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+		User user2 = UserFactory.validUser();
+		user2.setId("2");
+		user2.setUsername("otherUser");
 
-    // TOGGLE USER ACTIVATION
+		when(userRepository.findAllWithFilters(Role.COLABORADOR, true, "Ana", pageable))
+				.thenReturn(new PageImpl<>(List.of(user, user2), pageable, 2));
 
-    @Test
-    void should_return_user_response_when_toggle_activation_with_active_user() {
-        mockAuthContext(true);
-        mockCurrentUser(true); // Rol COORDINADOR
-        mockSaveUser();
+		Page<UserResponse> result = service.getAllUsers(0, 10, Role.COLABORADOR, true, "Ana");
 
-        assertEquals(Role.COORDINADOR, currentUser.getRole());
-        assertEquals(Role.SOCIO, user.getRole());
-        assertTrue(user.isActive());
-        assertNotEquals(currentUser.getId(), user.getId()); // Asegurarse de que no es el mismo usuario
-        when(userRepository.findById("currentUserId")).thenReturn(Optional.of(currentUser));
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+		assertNotNull(result);
+		assertEquals(2, result.getContent().size());
+		verify(userRepository).findAllWithFilters(Role.COLABORADOR, true, "Ana", pageable);
+		verify(userRepository, never()).findAll(any(PageRequest.class));
+	}
 
-        UserResponse response = service.toggleUserActivation("testUser");
+	// UPDATE USER AVATAR
 
-        assertNotNull(response);
-        assertTrue(!response.isActive()); // Verifica que el usuario ahora está inactivo
-    }
+	@Test
+	void should_update_user_avatar_successfully() {
+		MockMultipartFile avatar = new MockMultipartFile("avatar", "avatar.png", "image/png",
+				"image-content".getBytes());
+		String newAvatarUrl = "https://cdn.example.com/avatar.png";
 
-    @Test
-    void should_return_user_response_when_toggle_activation_with_inactive_user() {
-        mockAuthContext(true);
-        mockCurrentUser(true);
-        user.setActive(false); // Usuario inactivo
-        user.setId("otherId"); // Usuario distinto a sí mismo
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+		when(userFileService.uploadAvatar(user.getId(), avatar)).thenReturn(newAvatarUrl);
+		when(userRepository.save(any(User.class))).thenReturn(user);
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-        // Simula que el repositorio persiste el usuario retornando la entidad guardada
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		UserResponse response = service.updateUserAvatar(user.getUsername(), avatar);
 
-        UserResponse response = service.toggleUserActivation("testUser");
+		assertNotNull(response);
+		assertEquals(newAvatarUrl, response.getAvatar());
+		verify(userFileService).uploadAvatar(user.getId(), avatar);
+		verify(userRepository).save(user);
+	}
 
-        assertNotNull(response);
-        assertTrue(response.isActive()); // Verifica que el usuario ahora está activo
-    }
+	@Test
+	void should_throw_UserNotFoundException_when_update_user_avatar_unexisting_user() {
+		MockMultipartFile avatar = new MockMultipartFile("avatar", "avatar.png", "image/png",
+				"image-content".getBytes());
 
-    @Test
-    void should_throw_exception_when_toggle_activation_unexisting_user() {
-        mockAuthContext(true);
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
-                () -> service.toggleUserActivation("123"));
+		UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+				() -> service.updateUserAvatar("unknown", avatar));
 
-        assertTrue(ex.getMessage().contains("no existe"));
-    }
+		assertTrue(ex.getMessage().contains("no existe"));
+		verifyNoInteractions(userFileService);
+		verify(userRepository, never()).save(any());
+	}
 
-    @Test
-    void should_throw_exception_when_user_toggles_activation_himself() {
-        mockAuthContext(false);
-        mockCurrentUser(false);
-        currentUser.setActive(true);
+	// UPDATE CURRENT USER AVATAR
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(currentUser));
+	@Test
+	void should_update_avatar_successfully() throws Exception {
+		// Arrange
+		MultipartFile avatar = mock(MultipartFile.class);
+		mockAuthContext(false);
+		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 
-        assertThrows(SelfActivationNotAllowedException.class, () -> {
-            service.toggleUserActivation("currentUserId");
-        });
-    }
+		UserResponse expectedResponse = userResponse;
 
-    @Test
-    void should_throw_exception_when_toggling_activation_unathenticated() {
-        when(userDetailsService.getCurrentUserDetails())
-                .thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
+		// Espiamos el service para mockear updateAvatar (método interno)
+		UserService spyService = spy(service);
+		doReturn(expectedResponse).when(spyService).updateAvatar(user, avatar);
 
-        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
-            service.toggleUserActivation("123");
-        });
+		// Act
+		UserResponse result = spyService.updateCurrentUserAvatar(avatar);
 
-        assertTrue(ex.getMessage().contains("autenticación"));
-    }
+		// Assert
+		assertEquals(expectedResponse, result);
+		verify(spyService).updateCurrentUserAvatar(avatar);
+	}
 
-    @Test
-    void should_throw_exception_when_toggling_activation_and_no_user_details() {
-        when(userDetailsService.getCurrentUserDetails())
-                .thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
+	@Test
+	void should_throw_exception_when_user_not_found_in_update_avatar() {
+		// Arrange
+		MultipartFile avatar = mock(MultipartFile.class);
+		mockAuthContext(false);
 
-        SecurityContext context = mock(SecurityContext.class);
-        SecurityContextHolder.setContext(context);
+		CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
+		when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.empty());
 
-        UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
-            service.toggleUserActivation("123");
-        });
+		// Act & Assert
+		assertThrows(UserNotFoundException.class, () -> service.updateCurrentUserAvatar(avatar));
+	}
 
-        assertTrue(ex.getMessage().contains("autenticación"));
-    }
+	// TOGGLE USER ACTIVATION
 
-    @Test
-    void toggleUserActivation_when_target_user_has_same_or_higher_role_should_throw_unauthorized_exception() {
+	@Test
+	void should_return_user_response_when_toggle_activation_with_active_user() {
+		mockAuthContext(true);
+		mockCurrentUser(true); // Rol COORDINADOR
+		mockSaveUser();
 
-        mockAuthContext(true);
-        mockCurrentUser(true);
+		assertEquals(Role.COORDINADOR, currentUser.getRole());
+		assertEquals(Role.SOCIO, user.getRole());
+		assertTrue(user.isActive());
+		assertNotEquals(currentUser.getId(), user.getId()); // Asegurarse de que no es el mismo usuario
+		when(userRepository.findById("currentUserId")).thenReturn(Optional.of(currentUser));
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
 
-        user.setId("otherId");
-        user.setRole(Role.COORDINADOR);
+		UserResponse response = service.toggleUserActivation("testUser");
 
-        when(userRepository.findByUsername(currentUser.getUsername()))
-                .thenReturn(Optional.of(currentUser));
-        when(userRepository.findByUsername(user.getUsername()))
-                .thenReturn(Optional.of(user));
+		assertNotNull(response);
+		assertTrue(!response.isActive()); // Verifica que el usuario ahora está inactivo
+	}
 
-        String username = user.getUsername();
+	@Test
+	void should_return_user_response_when_toggle_activation_with_inactive_user() {
+		mockAuthContext(true);
+		mockCurrentUser(true);
+		user.setActive(false); // Usuario inactivo
+		user.setId("otherId"); // Usuario distinto a sí mismo
 
-        UnauthorizedException exception = assertThrows(
-                UnauthorizedException.class,
-                () -> service.toggleUserActivation(username));
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+		// Simula que el repositorio persiste el usuario retornando la entidad guardada
+		when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertEquals("No tienes permisos para actualizar este usuario.", exception.getMessage());
+		UserResponse response = service.toggleUserActivation("testUser");
 
-        verify(userRepository, never()).save(any());
-    }
+		assertNotNull(response);
+		assertTrue(response.isActive()); // Verifica que el usuario ahora está activo
+	}
 
-    // IS SAME OR HIGHER ROLE
+	@Test
+	void should_throw_exception_when_toggle_activation_unexisting_user() {
+		mockAuthContext(true);
 
-    @ParameterizedTest
-    @MethodSource("sameOrHigherRoleProvider")
-    void isSameOrHigherRole_should_return_expected_result(Role role1, Role role2, boolean expected) {
-        assertEquals(expected, service.isSameOrHigherRole(role1, role2));
-    }
+		UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> service.toggleUserActivation("123"));
 
-    private static Stream<Arguments> sameOrHigherRoleProvider() {
-        return Stream.of(
-                // Same role
-                Arguments.of(Role.COORDINADOR, Role.COORDINADOR, true),
-                Arguments.of(Role.SECRETARIO, Role.SECRETARIO, true),
-                Arguments.of(Role.ENCARGADO, Role.ENCARGADO, true),
-                Arguments.of(Role.COLABORADOR, Role.COLABORADOR, true),
-                Arguments.of(Role.SOCIO, Role.SOCIO, true),
+		assertTrue(ex.getMessage().contains("no existe"));
+	}
 
-                // Higher role
-                Arguments.of(Role.COORDINADOR, Role.SECRETARIO, true),
-                Arguments.of(Role.COORDINADOR, Role.ENCARGADO, true),
-                Arguments.of(Role.COORDINADOR, Role.COLABORADOR, true),
-                Arguments.of(Role.COORDINADOR, Role.SOCIO, true),
+	@Test
+	void should_throw_exception_when_user_toggles_activation_himself() {
+		mockAuthContext(false);
+		mockCurrentUser(false);
+		currentUser.setActive(true);
 
-                Arguments.of(Role.SECRETARIO, Role.ENCARGADO, true),
-                Arguments.of(Role.SECRETARIO, Role.COLABORADOR, true),
-                Arguments.of(Role.SECRETARIO, Role.SOCIO, true),
+		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(currentUser));
 
-                Arguments.of(Role.ENCARGADO, Role.COLABORADOR, true),
-                Arguments.of(Role.ENCARGADO, Role.SOCIO, true),
+		assertThrows(SelfActivationNotAllowedException.class, () -> {
+			service.toggleUserActivation("currentUserId");
+		});
+	}
 
-                Arguments.of(Role.COLABORADOR, Role.SOCIO, true),
+	@Test
+	void should_throw_exception_when_toggling_activation_unathenticated() {
+		when(userDetailsService.getCurrentUserDetails())
+				.thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
 
-                // Lower role
-                Arguments.of(Role.SECRETARIO, Role.COORDINADOR, false),
-                Arguments.of(Role.ENCARGADO, Role.COORDINADOR, false),
-                Arguments.of(Role.ENCARGADO, Role.SECRETARIO, false),
-                Arguments.of(Role.COLABORADOR, Role.COORDINADOR, false),
-                Arguments.of(Role.COLABORADOR, Role.SECRETARIO, false),
-                Arguments.of(Role.COLABORADOR, Role.ENCARGADO, false),
-                Arguments.of(Role.SOCIO, Role.COORDINADOR, false),
-                Arguments.of(Role.SOCIO, Role.SECRETARIO, false),
-                Arguments.of(Role.SOCIO, Role.ENCARGADO, false),
-                Arguments.of(Role.SOCIO, Role.COLABORADOR, false));
-    }
+		UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
+			service.toggleUserActivation("123");
+		});
+
+		assertTrue(ex.getMessage().contains("autenticación"));
+	}
+
+	@Test
+	void should_throw_exception_when_toggling_activation_and_no_user_details() {
+		when(userDetailsService.getCurrentUserDetails())
+				.thenThrow(new UnathenticatedException("No se ha podido obtener la autenticación del usuario"));
+
+		SecurityContext context = mock(SecurityContext.class);
+		SecurityContextHolder.setContext(context);
+
+		UnathenticatedException ex = assertThrows(UnathenticatedException.class, () -> {
+			service.toggleUserActivation("123");
+		});
+
+		assertTrue(ex.getMessage().contains("autenticación"));
+	}
+
+	@Test
+	void toggleUserActivation_when_target_user_has_same_or_higher_role_should_throw_unauthorized_exception() {
+
+		mockAuthContext(true);
+		mockCurrentUser(true);
+
+		user.setId("otherId");
+		user.setRole(Role.COORDINADOR);
+
+		when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
+		when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+
+		String username = user.getUsername();
+
+		UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+				() -> service.toggleUserActivation(username));
+
+		assertEquals("No tienes permisos para actualizar este usuario.", exception.getMessage());
+
+		verify(userRepository, never()).save(any());
+	}
+
+	// IS SAME OR HIGHER ROLE
+
+	@ParameterizedTest
+	@MethodSource("sameOrHigherRoleProvider")
+	void isSameOrHigherRole_should_return_expected_result(Role role1, Role role2, boolean expected) {
+		assertEquals(expected, service.isSameOrHigherRole(role1, role2));
+	}
+
+	private static Stream<Arguments> sameOrHigherRoleProvider() {
+		return Stream.of(
+				// Same role
+				Arguments.of(Role.COORDINADOR, Role.COORDINADOR, true),
+				Arguments.of(Role.SECRETARIO, Role.SECRETARIO, true),
+				Arguments.of(Role.ENCARGADO, Role.ENCARGADO, true),
+				Arguments.of(Role.COLABORADOR, Role.COLABORADOR, true), Arguments.of(Role.SOCIO, Role.SOCIO, true),
+
+				// Higher role
+				Arguments.of(Role.COORDINADOR, Role.SECRETARIO, true),
+				Arguments.of(Role.COORDINADOR, Role.ENCARGADO, true),
+				Arguments.of(Role.COORDINADOR, Role.COLABORADOR, true),
+				Arguments.of(Role.COORDINADOR, Role.SOCIO, true),
+
+				Arguments.of(Role.SECRETARIO, Role.ENCARGADO, true),
+				Arguments.of(Role.SECRETARIO, Role.COLABORADOR, true), Arguments.of(Role.SECRETARIO, Role.SOCIO, true),
+
+				Arguments.of(Role.ENCARGADO, Role.COLABORADOR, true), Arguments.of(Role.ENCARGADO, Role.SOCIO, true),
+
+				Arguments.of(Role.COLABORADOR, Role.SOCIO, true),
+
+				// Lower role
+				Arguments.of(Role.SECRETARIO, Role.COORDINADOR, false),
+				Arguments.of(Role.ENCARGADO, Role.COORDINADOR, false),
+				Arguments.of(Role.ENCARGADO, Role.SECRETARIO, false),
+				Arguments.of(Role.COLABORADOR, Role.COORDINADOR, false),
+				Arguments.of(Role.COLABORADOR, Role.SECRETARIO, false),
+				Arguments.of(Role.COLABORADOR, Role.ENCARGADO, false),
+				Arguments.of(Role.SOCIO, Role.COORDINADOR, false), Arguments.of(Role.SOCIO, Role.SECRETARIO, false),
+				Arguments.of(Role.SOCIO, Role.ENCARGADO, false), Arguments.of(Role.SOCIO, Role.COLABORADOR, false));
+	}
 
 }

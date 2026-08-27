@@ -10,31 +10,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApiErrorBuilder {
 
-    public ResponseEntity<ApiError> build(Exception ex, HttpStatus status, Logger logger, String message) {
-        
-        String finalMessage = (message != null && !message.equals("")) ? message : ex.getMessage();
+	public ResponseEntity<ApiError> build(Exception ex, HttpStatus status, Logger logger, String message) {
 
-        ApiError response = ApiError.builder()
-                .timestamp(LocalDateTime.now())
-                .status(status.value())
-                .errors(null)
-                .message(finalMessage)
-                .build();
+		String finalMessage = (message != null && !message.equals("")) ? message : ex.getMessage();
 
-        logger.warn("HTTP {} - {}: {}", status, ex.getClass().getSimpleName(), ex.getMessage());
+		ApiError response = ApiError.builder().timestamp(LocalDateTime.now()).status(status.value()).errors(null)
+				.message(finalMessage).build();
 
-        return new ResponseEntity<>(response, status);
-    }
+		logger.warn("HTTP {} - {}: {}", status, ex.getClass().getSimpleName(), ex.getMessage());
 
-    public ResponseEntity<ApiError> build(Exception ex, HttpStatus status, Logger logger) {
-        return build(ex, status, logger, status.getReasonPhrase());
-    }
+		return new ResponseEntity<>(response, status);
+	}
 
-    public ResponseEntity<ApiError> build(ApiException ex) {
-        ApiError response = new ApiError(ex);
+	public ResponseEntity<ApiError> build(Exception ex, HttpStatus status, Logger logger) {
+		return build(ex, status, logger, status.getReasonPhrase());
+	}
 
-        ex.getLogger().warn("HTTP {} - {}: {}", ex.getStatus(), ex.getClass().getSimpleName(), ex.getMessage());
-        return new ResponseEntity<>(response, ex.getStatus());
-    }
+	public ResponseEntity<ApiError> build(ApiException ex) {
+		ApiError response = new ApiError(ex);
+
+		ex.getLogger().warn("HTTP {} - {}: {}", ex.getStatus(), ex.getClass().getSimpleName(), ex.getMessage());
+		return new ResponseEntity<>(response, ex.getStatus());
+	}
 
 }

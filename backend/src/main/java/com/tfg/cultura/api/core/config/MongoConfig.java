@@ -12,21 +12,21 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 @Configuration
 public class MongoConfig {
 
-    @Value("${spring.data.mongodb.uri}")
-    private String mongoUri;
+	@Value("${spring.data.mongodb.uri}")
+	private String mongoUri;
 
-    @Value("${spring.data.mongodb.database:cultura_db}")
-    private String mongoDatabase;
+	@Value("${spring.data.mongodb.database:cultura_db}")
+	private String mongoDatabase;
 
-    @Bean
-    @Primary
-    public MongoClient mongoClient() {
-        return MongoClients.create(mongoUri);
-    }
+	@Bean
+	@Primary
+	public MongoClient mongoClient() {
+		return MongoClients.create(mongoUri);
+	}
 
-    @Bean
-    public MongoTemplate mongoTemplate(MongoClient mongoClient) {
-        return new MongoTemplate(mongoClient, mongoDatabase);
-    }
+	@Bean
+	public MongoTemplate mongoTemplate(MongoClient mongoClient) {
+		return new MongoTemplate(mongoClient, mongoDatabase);
+	}
 
 }

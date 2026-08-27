@@ -7,12 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
@@ -22,6 +16,11 @@ import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class BookServiceTest {
@@ -46,25 +45,18 @@ class BookServiceTest {
 
 	@Test
 	void should_throw_exception_when_isbn_already_exists() {
-		Book book = Book.builder()
-				.isbn("9781234567890")
-				.build();
+		Book book = Book.builder().isbn("9781234567890").build();
 
-		when(bookRepository.existsByIsbn("9781234567890"))
-				.thenReturn(true);
+		when(bookRepository.existsByIsbn("9781234567890")).thenReturn(true);
 
-		assertThrows(ItemAlreadyExistsException.class,
-				() -> service.validate(book));
+		assertThrows(ItemAlreadyExistsException.class, () -> service.validate(book));
 	}
 
 	@Test
 	void should_not_throw_when_isbn_is_unique() {
-		Book book = Book.builder()
-				.isbn("9781234567890")
-				.build();
+		Book book = Book.builder().isbn("9781234567890").build();
 
-		when(bookRepository.existsByIsbn(any()))
-				.thenReturn(false);
+		when(bookRepository.existsByIsbn(any())).thenReturn(false);
 
 		assertDoesNotThrow(() -> service.validate(book));
 	}
@@ -74,15 +66,10 @@ class BookServiceTest {
 
 		Saga saga = new Saga();
 
-		BookRequest request = BookRequest.builder()
-				.author("Asimov")
-				.isbn("978...")
-				.type(BookType.NOVEL)
-				.sagaName("Fundación")
-				.build();
+		BookRequest request = BookRequest.builder().author("Asimov").isbn("978...").type(BookType.NOVEL)
+				.sagaName("Fundación").build();
 
-		when(sagaService.findByName("Fundación"))
-				.thenReturn(saga);
+		when(sagaService.findByName("Fundación")).thenReturn(saga);
 
 		Book book = new Book();
 
@@ -98,36 +85,28 @@ class BookServiceTest {
 
 	@Test
 	void should_return_15_days_for_novel() {
-		BookRequest request = BookRequest.builder()
-				.type(BookType.NOVEL)
-				.build();
+		BookRequest request = BookRequest.builder().type(BookType.NOVEL).build();
 
 		assertEquals(15, service.getLoanDays(request));
 	}
 
 	@Test
 	void should_return_15_days_for_comic() {
-		BookRequest request = BookRequest.builder()
-				.type(BookType.COMIC)
-				.build();
+		BookRequest request = BookRequest.builder().type(BookType.COMIC).build();
 
 		assertEquals(7, service.getLoanDays(request));
 	}
 
 	@Test
 	void should_return_15_days_for_manga() {
-		BookRequest request = BookRequest.builder()
-				.type(BookType.MANGA)
-				.build();
+		BookRequest request = BookRequest.builder().type(BookType.MANGA).build();
 
 		assertEquals(7, service.getLoanDays(request));
 	}
 
 	@Test
 	void should_return_15_days_for_rol() {
-		BookRequest request = BookRequest.builder()
-				.type(BookType.ROL)
-				.build();
+		BookRequest request = BookRequest.builder().type(BookType.ROL).build();
 
 		assertEquals(15, service.getLoanDays(request));
 	}

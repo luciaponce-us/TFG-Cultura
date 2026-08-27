@@ -15,13 +15,13 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class RolGameResponse extends ItemResponse {
-    private RolSagaReference saga;
-    private RolBookType type;
+	private RolSagaReference saga;
+	private RolBookType type;
 
-    public RolGameResponse(RolGame rolGame) {
-        super(rolGame);
-        this.saga = new RolSagaReference(rolGame.getSaga());
-        this.type = rolGame.getType();
-    }
-    
+	public RolGameResponse(RolGame rolGame) {
+		super(rolGame);
+		this.saga = new RolSagaReference(rolGame.getSaga());
+		this.type = rolGame.getType();
+	}
+
 }

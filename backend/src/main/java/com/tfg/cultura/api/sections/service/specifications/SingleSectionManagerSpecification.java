@@ -1,48 +1,44 @@
 package com.tfg.cultura.api.sections.service.specifications;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.stereotype.Component;
-
 import com.tfg.cultura.api.core.service.BusinessSpecification;
 import com.tfg.cultura.api.sections.exception.ManagerAlreadyAssignedException;
 import com.tfg.cultura.api.sections.repository.SectionRepository;
 import com.tfg.cultura.api.users.model.User;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
 public class SingleSectionManagerSpecification implements BusinessSpecification<Set<User>> {
 
-    private final SectionRepository sectionRepository;
+	private final SectionRepository sectionRepository;
 
-    /**
-     * RN-08: Un usuario no puede estar nombrado como gestor de más de una sección
-     * simultáneamente.
-     * 
-     * @param managers
-     */
-    @Override
-    public void validate(Set<User> managers) {
-        validate(managers, null);
-    }
+	/**
+	 * RN-08: Un usuario no puede estar nombrado como gestor de más de una sección
+	 * simultáneamente.
+	 *
+	 * @param managers
+	 */
+	@Override
+	public void validate(Set<User> managers) {
+		validate(managers, null);
+	}
 
-    public void validate(Set<User> managers, String currentSectionId) {
-        List<String> alreadyAssignedManagers = new ArrayList<>();
+	public void validate(Set<User> managers, String currentSectionId) {
+		List<String> alreadyAssignedManagers = new ArrayList<>();
 
-        for (User manager : managers) {
-            sectionRepository.findByManagersContaining(manager)
-                    .filter(section -> currentSectionId == null
-                            || !section.getId().equals(currentSectionId))
-                    .ifPresent(section -> alreadyAssignedManagers.add(manager.getUsername()));
-        }
+		for (User manager : managers) {
+			sectionRepository.findByManagersContaining(manager)
+					.filter(section -> currentSectionId == null || !section.getId().equals(currentSectionId))
+					.ifPresent(section -> alreadyAssignedManagers.add(manager.getUsername()));
+		}
 
-        if (!alreadyAssignedManagers.isEmpty()) {
-            throw new ManagerAlreadyAssignedException(alreadyAssignedManagers.toString());
-        }
-    }
+		if (!alreadyAssignedManagers.isEmpty()) {
+			throw new ManagerAlreadyAssignedException(alreadyAssignedManagers.toString());
+		}
+	}
 
 }

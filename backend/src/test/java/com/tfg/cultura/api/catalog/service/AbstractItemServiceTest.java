@@ -12,23 +12,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-
 import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
@@ -44,6 +27,21 @@ import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionReference;
 import com.tfg.cultura.api.sections.service.SectionService;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 class AbstractItemServiceTest {
@@ -68,60 +66,25 @@ class AbstractItemServiceTest {
 	@BeforeEach
 	void setUp() {
 		AppProperties appProperties = AppPropertiesFactory.validAppProperties();
-		service = new BookService(
-				repository,
-				sectionService,
-				categoryService,
-				fileService,
-				sagaService,
-				appProperties);
+		service = new BookService(repository, sectionService, categoryService, fileService, sagaService, appProperties);
 
 		section = Section.builder().id("section").build();
 		category = Category.builder().id("category").build();
 		saga = Saga.builder().name("Harry Potter").build();
 
-		request = BookRequest.builder()
-				.name("Harry Potter")
-				.description("...")
-				.author("J.K. Rowling")
-				.isbn("9781234567897")
-				.type(BookType.NOVEL)
-				.sectionId("section")
-				.categoriesIds(Set.of("category"))
-				.copies(2)
-				.availableCopies(2)
-				.loanAvailable(true)
-				.sagaName("Harry Potter")
-				.build();
+		request = BookRequest.builder().name("Harry Potter").description("...").author("J.K. Rowling")
+				.isbn("9781234567897").type(BookType.NOVEL).sectionId("section").categoriesIds(Set.of("category"))
+				.copies(2).availableCopies(2).loanAvailable(true).sagaName("Harry Potter").build();
 	}
 
 	private void mockFileServiceUploadImage(String imageUrl) {
-		when(fileService.uploadImage(
-				any(),
-				any(),
-				any(),
-				any(),
-				any(),
-				anyInt(),
-				anyInt(),
-				any(),
-				anyString()))
+		when(fileService.uploadImage(any(), any(), any(), any(), any(), anyInt(), anyInt(), any(), anyString()))
 				.thenReturn(imageUrl);
 	}
 
 	private void mockFileServiceUpdateImage(String imageUrl) {
-		when(fileService.updateImage(
-				anyString(),
-				anyString(),
-				anyString(),
-				any(),
-				anyString(),
-				anyString(),
-				anyInt(),
-				anyInt(),
-				any(),
-				anyString()))
-				.thenReturn(imageUrl);
+		when(fileService.updateImage(anyString(), anyString(), anyString(), any(), anyString(), anyString(), anyInt(),
+				anyInt(), any(), anyString())).thenReturn(imageUrl);
 	}
 
 	// CREATE
@@ -135,12 +98,11 @@ class AbstractItemServiceTest {
 		when(repository.existsByIsbn(any())).thenReturn(false);
 		mockFileServiceUploadImage(service.getDefaultImageUrl());
 
-		when(repository.save(any(Book.class)))
-				.thenAnswer(inv -> {
-					Book b = inv.getArgument(0);
-					b.setId("1");
-					return b;
-				});
+		when(repository.save(any(Book.class))).thenAnswer(inv -> {
+			Book b = inv.getArgument(0);
+			b.setId("1");
+			return b;
+		});
 
 		BookResponse response = service.create(request, null);
 
@@ -178,13 +140,9 @@ class AbstractItemServiceTest {
 
 	@Test
 	void should_return_book_when_book_exists() {
-		Book book = Book.builder()
-				.id("book-id")
-				.name("Harry Potter")
-				.build();
+		Book book = Book.builder().id("book-id").name("Harry Potter").build();
 
-		when(repository.findById("book-id"))
-				.thenReturn(Optional.of(book));
+		when(repository.findById("book-id")).thenReturn(Optional.of(book));
 
 		Book result = service.findById("book-id");
 
@@ -194,16 +152,11 @@ class AbstractItemServiceTest {
 
 	@Test
 	void should_throw_when_book_does_not_exist() {
-		when(repository.findById("book-id"))
-				.thenReturn(Optional.empty());
+		when(repository.findById("book-id")).thenReturn(Optional.empty());
 
-		ItemNotFoundException exception = assertThrows(
-				ItemNotFoundException.class,
-				() -> service.findById("book-id"));
+		ItemNotFoundException exception = assertThrows(ItemNotFoundException.class, () -> service.findById("book-id"));
 
-		assertEquals(
-				"Item no encontrado con ID: book-id",
-				exception.getMessage());
+		assertEquals("Item no encontrado con ID: book-id", exception.getMessage());
 
 		verify(repository).findById("book-id");
 	}
@@ -211,14 +164,9 @@ class AbstractItemServiceTest {
 	@Test
 	void should_return_book_response_when_book_exists() {
 
-		Book book = Book.builder()
-				.id("1")
-				.name("Harry Potter")
-				.author("J.K. Rowling")
-				.build();
+		Book book = Book.builder().id("1").name("Harry Potter").author("J.K. Rowling").build();
 
-		when(repository.findById("1"))
-				.thenReturn(Optional.of(book));
+		when(repository.findById("1")).thenReturn(Optional.of(book));
 
 		BookResponse response = service.getById("1");
 
@@ -232,11 +180,9 @@ class AbstractItemServiceTest {
 	@Test
 	void should_throw_when_getting_non_existing_book() {
 
-		when(repository.findById("1"))
-				.thenReturn(Optional.empty());
+		when(repository.findById("1")).thenReturn(Optional.empty());
 
-		assertThrows(ItemNotFoundException.class,
-				() -> service.getById("1"));
+		assertThrows(ItemNotFoundException.class, () -> service.getById("1"));
 	}
 
 	@Test
@@ -247,13 +193,9 @@ class AbstractItemServiceTest {
 
 		PageRequest pageable = PageRequest.of(0, 10);
 
-		Page<Book> page = new PageImpl<>(
-				List.of(book1, book2),
-				pageable,
-				2);
+		Page<Book> page = new PageImpl<>(List.of(book1, book2), pageable, 2);
 
-		when(repository.findAll(pageable))
-				.thenReturn(page);
+		when(repository.findAll(pageable)).thenReturn(page);
 
 		Page<BookResponse> result = service.getAll(pageable, null, null);
 
@@ -269,28 +211,19 @@ class AbstractItemServiceTest {
 	@Test
 	void should_update_book() {
 
-		Book book = Book.builder()
-				.id("1")
-				.imageUrl(service.getDefaultImageUrl())
-				.build();
+		Book book = Book.builder().id("1").imageUrl(service.getDefaultImageUrl()).build();
 
-		when(repository.findById("1"))
-				.thenReturn(Optional.of(book));
+		when(repository.findById("1")).thenReturn(Optional.of(book));
 
-		when(sectionService.findSectionById(any()))
-				.thenReturn(section);
+		when(sectionService.findSectionById(any())).thenReturn(section);
 
-		when(categoryService.findCategoriesByIds(any()))
-				.thenReturn(Set.of(category));
+		when(categoryService.findCategoriesByIds(any())).thenReturn(Set.of(category));
 
-		when(sagaService.findByName(any()))
-				.thenReturn(saga);
+		when(sagaService.findByName(any())).thenReturn(saga);
 
-		when(repository.existsByIsbn(any()))
-				.thenReturn(false);
+		when(repository.existsByIsbn(any())).thenReturn(false);
 
-		when(repository.save(any(Book.class)))
-				.thenAnswer(inv -> inv.getArgument(0));
+		when(repository.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		BookResponse response = service.update("1", request, null);
 
@@ -301,42 +234,28 @@ class AbstractItemServiceTest {
 
 	@Test
 	void should_throw_when_updating_non_existing_book() {
-		when(repository.findById("1"))
-				.thenReturn(Optional.empty());
+		when(repository.findById("1")).thenReturn(Optional.empty());
 
-		assertThrows(ItemNotFoundException.class,
-				() -> service.update("1", request, null));
+		assertThrows(ItemNotFoundException.class, () -> service.update("1", request, null));
 	}
 
 	@Test
 	void should_update_book_image() {
-		Book book = Book.builder()
-				.id("1")
-				.imageUrl(service.getDefaultImageUrl())
-				.build();
+		Book book = Book.builder().id("1").imageUrl(service.getDefaultImageUrl()).build();
 
-		when(repository.findById("1"))
-				.thenReturn(Optional.of(book));
+		when(repository.findById("1")).thenReturn(Optional.of(book));
 
-		when(sectionService.findSectionById(any()))
-				.thenReturn(section);
+		when(sectionService.findSectionById(any())).thenReturn(section);
 
-		when(categoryService.findCategoriesByIds(any()))
-				.thenReturn(Set.of(category));
+		when(categoryService.findCategoriesByIds(any())).thenReturn(Set.of(category));
 
-		when(sagaService.findByName(any()))
-				.thenReturn(saga);
+		when(sagaService.findByName(any())).thenReturn(saga);
 
-		when(repository.existsByIsbn(any()))
-				.thenReturn(false);
+		when(repository.existsByIsbn(any())).thenReturn(false);
 
-		when(repository.save(any(Book.class)))
-				.thenAnswer(inv -> inv.getArgument(0));
+		when(repository.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
 
-		MockMultipartFile image = new MockMultipartFile(
-				"image",
-				"book.jpg",
-				MediaType.IMAGE_JPEG_VALUE,
+		MockMultipartFile image = new MockMultipartFile("image", "book.jpg", MediaType.IMAGE_JPEG_VALUE,
 				"data".getBytes());
 
 		mockFileServiceUpdateImage("https://cloudinary/...");
@@ -353,12 +272,9 @@ class AbstractItemServiceTest {
 
 	@Test
 	void should_delete_existing_book() {
-		Book book = Book.builder()
-				.id("1")
-				.build();
+		Book book = Book.builder().id("1").build();
 
-		when(repository.findById("1"))
-				.thenReturn(Optional.of(book));
+		when(repository.findById("1")).thenReturn(Optional.of(book));
 
 		service.delete("1");
 
@@ -369,12 +285,9 @@ class AbstractItemServiceTest {
 	@Test
 	void should_throw_when_deleting_non_existing_book() {
 
-		when(repository.findById("1"))
-				.thenReturn(Optional.empty());
+		when(repository.findById("1")).thenReturn(Optional.empty());
 
-		assertThrows(
-				ItemNotFoundException.class,
-				() -> service.delete("1"));
+		assertThrows(ItemNotFoundException.class, () -> service.delete("1"));
 
 		verify(repository).findById("1");
 		verify(repository, never()).delete(any());
@@ -383,26 +296,15 @@ class AbstractItemServiceTest {
 	@Test
 	void should_remove_category_from_all_books() {
 
-		Category category = Category.builder()
-				.id("category-1")
-				.name("Fantasy")
-				.build();
+		Category category = Category.builder().id("category-1").name("Fantasy").build();
 
-		Category anotherCategory = Category.builder()
-				.id("category-2")
-				.name("Novel")
-				.build();
+		Category anotherCategory = Category.builder().id("category-2").name("Novel").build();
 
-		Book book1 = Book.builder()
-				.categories(new HashSet<>(Set.of(category, anotherCategory)))
-				.build();
+		Book book1 = Book.builder().categories(new HashSet<>(Set.of(category, anotherCategory))).build();
 
-		Book book2 = Book.builder()
-				.categories(new HashSet<>(Set.of(category)))
-				.build();
+		Book book2 = Book.builder().categories(new HashSet<>(Set.of(category))).build();
 
-		when(repository.findAllByCategoriesContaining(category))
-				.thenReturn(List.of(book1, book2));
+		when(repository.findAllByCategoriesContaining(category)).thenReturn(List.of(book1, book2));
 
 		service.removeCategory(category);
 
@@ -421,8 +323,7 @@ class AbstractItemServiceTest {
 
 		Category category = Category.builder().build();
 
-		when(repository.findAllByCategoriesContaining(category))
-				.thenReturn(List.of());
+		when(repository.findAllByCategoriesContaining(category)).thenReturn(List.of());
 
 		service.removeCategory(category);
 

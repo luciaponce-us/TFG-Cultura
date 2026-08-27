@@ -13,21 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.mock.web.MockMultipartFile;
-
 import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
@@ -45,606 +30,518 @@ import com.tfg.cultura.api.core.factory.FileFactory;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.exception.SectionNotFoundException;
 import com.tfg.cultura.api.sections.service.SectionService;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.mock.web.MockMultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 class RolSagaServiceTest {
-    @Mock
-    private RolSagaRepository repository;
-
-    @Mock
-    private RolGameRepository rolGameRepository;
-    
-    @Mock
-    private SectionService sectionService;
-
-    @Mock
-    private CategoryService categoryService;
-    
-    @Mock
-    private FileService fileService;
-
-    @Mock
-    private AppProperties appProperties;
-
-    @Mock
-    private AppProperties.DefaultImages defaultImages;
-
-    @InjectMocks
-    private RolSagaService service;
-
-    private RolSaga rolSaga;
-    private RolSagaRequest request;
-    private MockMultipartFile image = FileFactory.mockImagePart();
-    private MockMultipartFile emptyImage = FileFactory.mockEmptyImagePart();
-
-    @BeforeEach
-    void setUp() {
-        rolSaga = CatalogFactory.validRolSaga();
-        request = CatalogFactory.validRolSagaRequest();
-    }
-
-    // CREATE
+	@Mock
+	private RolSagaRepository repository;
 
-    @Test
-    void should_create_rol_saga_successfully_without_image() {
-        // Given
-        when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenReturn(rolSaga.getSection());
+	@Mock
+	private RolGameRepository rolGameRepository;
 
-        when(repository.save(any(RolSaga.class))).thenReturn(rolSaga);
-
-        // When
-        RolSagaResponse response = service.create(request, null);
-
-        // Then
-        assertNotNull(response);
-
-        verify(repository).existsByNameAndIdNot(request.getName(), null);
-        verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
-        verify(sectionService).findSectionById(request.getSectionId());
-        verify(repository).save(any(RolSaga.class));
+	@Mock
+	private SectionService sectionService;
 
-        verifyNoInteractions(fileService);
-    }
+	@Mock
+	private CategoryService categoryService;
 
-    @Test
-    void should_create_rol_saga_successfully_with_image()
-            throws FileUploadException, FileDeleteException {
+	@Mock
+	private FileService fileService;
 
-        // Given
+	@Mock
+	private AppProperties appProperties;
 
-        when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenReturn(rolSaga.getSection());
+	@Mock
+	private AppProperties.DefaultImages defaultImages;
 
-        when(repository.save(any(RolSaga.class))).thenReturn(rolSaga);
+	@InjectMocks
+	private RolSagaService service;
 
-        when(fileService.uploadImage(
-                eq("rolsaga"),
-                eq("rol-saga-id"),
-                eq(image),
-                anyString(),
-                anyString(),
-                anyInt(),
-                anyInt(),
-                any(),
-                anyString()))
-                .thenReturn("new-image-url");
+	private RolSaga rolSaga;
+	private RolSagaRequest request;
+	private MockMultipartFile image = FileFactory.mockImagePart();
+	private MockMultipartFile emptyImage = FileFactory.mockEmptyImagePart();
 
-        when(appProperties.defaultImages()).thenReturn(defaultImages);
-        when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
+	@BeforeEach
+	void setUp() {
+		rolSaga = CatalogFactory.validRolSaga();
+		request = CatalogFactory.validRolSagaRequest();
+	}
 
-        // When
-        RolSagaResponse response = service.create(request, image);
+	// CREATE
 
-        // Then
-        assertNotNull(response);
-        assertEquals("new-image-url", rolSaga.getImageUrl());
+	@Test
+	void should_create_rol_saga_successfully_without_image() {
+		// Given
+		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
+		when(sectionService.findSectionById(request.getSectionId())).thenReturn(rolSaga.getSection());
 
-        verify(repository).save(any(RolSaga.class));
+		when(repository.save(any(RolSaga.class))).thenReturn(rolSaga);
 
-        verify(fileService).uploadImage(
-                eq("rolsaga"),
-                eq("rol-saga-id"),
-                eq(image),
-                anyString(),
-                anyString(),
-                anyInt(),
-                anyInt(),
-                any(),
-                anyString());
-    }
+		// When
+		RolSagaResponse response = service.create(request, null);
 
-    @Test
-    void should_not_upload_image_when_image_is_empty()
-            throws FileUploadException, FileDeleteException {
+		// Then
+		assertNotNull(response);
 
-        // Given
-        when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenReturn(rolSaga.getSection());
+		verify(repository).existsByNameAndIdNot(request.getName(), null);
+		verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
+		verify(sectionService).findSectionById(request.getSectionId());
+		verify(repository).save(any(RolSaga.class));
 
-        when(repository.save(any(RolSaga.class))).thenReturn(rolSaga);
+		verifyNoInteractions(fileService);
+	}
 
-        // When
-        RolSagaResponse response = service.create(request, emptyImage);
+	@Test
+	void should_create_rol_saga_successfully_with_image() throws FileUploadException, FileDeleteException {
 
-        // Then
-        assertNotNull(response);
+		// Given
 
-        verify(repository).save(any(RolSaga.class));
+		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
+		when(sectionService.findSectionById(request.getSectionId())).thenReturn(rolSaga.getSection());
 
-        verifyNoInteractions(fileService);
-    }
+		when(repository.save(any(RolSaga.class))).thenReturn(rolSaga);
 
-    @Test
-    void should_throw_exception_when_rol_saga_already_exists() {
+		when(fileService.uploadImage(eq("rolsaga"), eq("rol-saga-id"), eq(image), anyString(), anyString(), anyInt(),
+				anyInt(), any(), anyString())).thenReturn("new-image-url");
 
-        // Given
-        when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(true);
+		when(appProperties.defaultImages()).thenReturn(defaultImages);
+		when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
 
-        // When & Then
-        assertThrows(
-                RolSagaAlreadyExistsException.class,
-                () -> service.create(request, null));
+		// When
+		RolSagaResponse response = service.create(request, image);
 
-        verify(repository).existsByNameAndIdNot(request.getName(), null);
+		// Then
+		assertNotNull(response);
+		assertEquals("new-image-url", rolSaga.getImageUrl());
 
-        verify(repository, never()).save(any());
-        verifyNoInteractions(categoryService);
-        verifyNoInteractions(sectionService);
-        verifyNoInteractions(fileService);
-    }
+		verify(repository).save(any(RolSaga.class));
 
-    @Test
-    void should_propagate_category_not_found_exception() {
+		verify(fileService).uploadImage(eq("rolsaga"), eq("rol-saga-id"), eq(image), anyString(), anyString(), anyInt(),
+				anyInt(), any(), anyString());
+	}
 
-        // Given
-        when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
+	@Test
+	void should_not_upload_image_when_image_is_empty() throws FileUploadException, FileDeleteException {
 
-        when(categoryService.findCategoriesByIds(request.getCategoriesIds()))
-                .thenThrow(new CategoryNotFoundException("category-id"));
+		// Given
+		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
+		when(sectionService.findSectionById(request.getSectionId())).thenReturn(rolSaga.getSection());
 
-        // When & Then
-        assertThrows(
-                CategoryNotFoundException.class,
-                () -> service.create(request, null));
+		when(repository.save(any(RolSaga.class))).thenReturn(rolSaga);
 
-        verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
+		// When
+		RolSagaResponse response = service.create(request, emptyImage);
 
-        verify(sectionService, never()).findSectionById(any());
-        verify(repository, never()).save(any());
-    }
+		// Then
+		assertNotNull(response);
 
-    @Test
-    void should_propagate_section_not_found_exception() {
+		verify(repository).save(any(RolSaga.class));
 
-        // Given
-        when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
+		verifyNoInteractions(fileService);
+	}
 
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenThrow(new SectionNotFoundException(request.getSectionId()));
+	@Test
+	void should_throw_exception_when_rol_saga_already_exists() {
 
-        // When & Then
-        assertThrows(
-                SectionNotFoundException.class,
-                () -> service.create(request, null));
+		// Given
+		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(true);
 
-        verify(repository, never()).save(any());
-    }
+		// When & Then
+		assertThrows(RolSagaAlreadyExistsException.class, () -> service.create(request, null));
 
-    @Test
-    void should_propagate_file_upload_exception()
-            throws FileDeleteException, FileUploadException {
+		verify(repository).existsByNameAndIdNot(request.getName(), null);
 
-        // Given
+		verify(repository, never()).save(any());
+		verifyNoInteractions(categoryService);
+		verifyNoInteractions(sectionService);
+		verifyNoInteractions(fileService);
+	}
 
-        when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenReturn(rolSaga.getSection());
+	@Test
+	void should_propagate_category_not_found_exception() {
 
-        when(repository.save(any(RolSaga.class))).thenReturn(rolSaga);
-        when(appProperties.defaultImages()).thenReturn(defaultImages);
-        when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
+		// Given
+		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
 
-        doThrow(new FileUploadException("Error uploading image"))
-                .when(fileService)
-                .uploadImage(
-                        eq("rolsaga"),
-                        eq(rolSaga.getId()),
-                        eq(image),
-                        anyString(),
-                        anyString(),
-                        anyInt(),
-                        anyInt(),
-                        any(),
-                        anyString());
+		when(categoryService.findCategoriesByIds(request.getCategoriesIds()))
+				.thenThrow(new CategoryNotFoundException("category-id"));
 
-        // When & Then
-        assertThrows(
-                FileUploadException.class,
-                () -> service.create(request, image));
+		// When & Then
+		assertThrows(CategoryNotFoundException.class, () -> service.create(request, null));
 
-        verify(repository).save(any(RolSaga.class));
-    }
+		verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
 
-    // READ
+		verify(sectionService, never()).findSectionById(any());
+		verify(repository, never()).save(any());
+	}
 
-    @Test
-    void should_get_rol_saga_by_id() throws RolSagaNotFoundException {
-        // Given
+	@Test
+	void should_propagate_section_not_found_exception() {
 
-        when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
+		// Given
+		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
 
-        // When
-        RolSagaResponse response = service.getById(rolSaga.getId());
+		when(sectionService.findSectionById(request.getSectionId()))
+				.thenThrow(new SectionNotFoundException(request.getSectionId()));
 
-        // Then
-        assertNotNull(response);
-        assertEquals(rolSaga.getId(), response.getId());
-        assertEquals(rolSaga.getName(), response.getName());
+		// When & Then
+		assertThrows(SectionNotFoundException.class, () -> service.create(request, null));
 
-        verify(repository).findById(rolSaga.getId());
-    }
+		verify(repository, never()).save(any());
+	}
 
-    @Test
-    void should_throw_exception_when_rol_saga_does_not_exist() {
+	@Test
+	void should_propagate_file_upload_exception() throws FileDeleteException, FileUploadException {
 
-        // Given
-        String id = "non-existent-id";
+		// Given
 
-        when(repository.findById(id)).thenReturn(Optional.empty());
+		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
+		when(sectionService.findSectionById(request.getSectionId())).thenReturn(rolSaga.getSection());
 
-        // When & Then
-        assertThrows(
-                RolSagaNotFoundException.class,
-                () -> service.getById(id));
+		when(repository.save(any(RolSaga.class))).thenReturn(rolSaga);
+		when(appProperties.defaultImages()).thenReturn(defaultImages);
+		when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
 
-        verify(repository).findById(id);
-    }
+		doThrow(new FileUploadException("Error uploading image")).when(fileService).uploadImage(eq("rolsaga"),
+				eq(rolSaga.getId()), eq(image), anyString(), anyString(), anyInt(), anyInt(), any(), anyString());
 
-    @Test
-    void should_get_all_rol_sagas() {
+		// When & Then
+		assertThrows(FileUploadException.class, () -> service.create(request, image));
 
-        // Given
-        PageRequest pageable = PageRequest.of(0, 10);
+		verify(repository).save(any(RolSaga.class));
+	}
 
-        Page<RolSaga> page = new PageImpl<>(
-                List.of(rolSaga),
-                pageable,
-                1);
+	// READ
 
-        when(repository.findAll(pageable)).thenReturn(page);
+	@Test
+	void should_get_rol_saga_by_id() throws RolSagaNotFoundException {
+		// Given
 
-        // When
-        Page<RolSagaResponse> response = service.getAll(pageable);
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
-        // Then
-        assertNotNull(response);
-        assertEquals(1, response.getTotalElements());
-        assertEquals(1, response.getContent().size());
+		// When
+		RolSagaResponse response = service.getById(rolSaga.getId());
 
-        assertEquals(rolSaga.getId(), response.getContent().get(0).getId());
-        assertEquals(rolSaga.getName(), response.getContent().get(0).getName());
+		// Then
+		assertNotNull(response);
+		assertEquals(rolSaga.getId(), response.getId());
+		assertEquals(rolSaga.getName(), response.getName());
 
-        verify(repository).findAll(pageable);
-    }
+		verify(repository).findById(rolSaga.getId());
+	}
 
-    // UPDATE
+	@Test
+	void should_throw_exception_when_rol_saga_does_not_exist() {
 
-    @Test
-    void should_update_rol_saga_without_changing_name_or_image()
-            throws CategoryNotFoundException, SectionNotFoundException,
-            RolSagaNotFoundException, RolSagaAlreadyExistsException,
-            FileDeleteException, FileUploadException {
+		// Given
+		String id = "non-existent-id";
 
-        // Given
+		when(repository.findById(id)).thenReturn(Optional.empty());
 
-        when(repository.findById(rolSaga.getId()))
-                .thenReturn(Optional.of(rolSaga));
+		// When & Then
+		assertThrows(RolSagaNotFoundException.class, () -> service.getById(id));
 
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenReturn(rolSaga.getSection());
+		verify(repository).findById(id);
+	}
 
-        when(repository.save(rolSaga))
-                .thenReturn(rolSaga);
+	@Test
+	void should_get_all_rol_sagas() {
 
-        // When
-        RolSagaResponse response = service.update(rolSaga.getId(), request, null);
+		// Given
+		PageRequest pageable = PageRequest.of(0, 10);
 
-        // Then
-        assertNotNull(response);
+		Page<RolSaga> page = new PageImpl<>(List.of(rolSaga), pageable, 1);
 
-        assertEquals(request.getName().trim(), rolSaga.getName());
-        assertEquals(request.getDescription().trim(), rolSaga.getDescription());
-        assertEquals(request.getGameMaster(), rolSaga.getGameMaster());
+		when(repository.findAll(pageable)).thenReturn(page);
 
-        assertEquals(rolSaga.getSection(), rolSaga.getSection());
-        assertEquals(rolSaga.getCategories(), rolSaga.getCategories());
+		// When
+		Page<RolSagaResponse> response = service.getAll(pageable);
 
-        verify(repository).findById(rolSaga.getId());
-        verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
-        verify(sectionService).findSectionById(request.getSectionId());
-        verify(repository).save(rolSaga);
+		// Then
+		assertNotNull(response);
+		assertEquals(1, response.getTotalElements());
+		assertEquals(1, response.getContent().size());
 
-        verifyNoInteractions(fileService);
-    }
+		assertEquals(rolSaga.getId(), response.getContent().get(0).getId());
+		assertEquals(rolSaga.getName(), response.getContent().get(0).getName());
 
-    @Test
-    void should_update_rol_saga_when_name_changes()
-            throws CategoryNotFoundException, SectionNotFoundException,
-            RolSagaNotFoundException, RolSagaAlreadyExistsException,
-            FileDeleteException, FileUploadException {
+		verify(repository).findAll(pageable);
+	}
 
-        // Given
+	// UPDATE
 
-        when(repository.findById(rolSaga.getId()))
-                .thenReturn(Optional.of(rolSaga));
+	@Test
+	void should_update_rol_saga_without_changing_name_or_image()
+			throws CategoryNotFoundException, SectionNotFoundException, RolSagaNotFoundException,
+			RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
 
-        when(repository.existsByNameAndIdNot(request.getName().trim(), rolSaga.getId()))
-                .thenReturn(false);
+		// Given
 
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenReturn(rolSaga.getSection());
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
-        when(repository.save(rolSaga))
-                .thenReturn(rolSaga);
+		when(sectionService.findSectionById(request.getSectionId())).thenReturn(rolSaga.getSection());
 
-        // When
-        RolSagaResponse response = service.update(rolSaga.getId(), request, null);
+		when(repository.save(rolSaga)).thenReturn(rolSaga);
 
-        // Then
-        assertNotNull(response);
-        assertEquals(request.getName().trim(), rolSaga.getName());
+		// When
+		RolSagaResponse response = service.update(rolSaga.getId(), request, null);
 
-        verify(repository).findById(rolSaga.getId());
-        verify(repository).existsByNameAndIdNot(request.getName().trim(), rolSaga.getId());
-        verify(repository).save(rolSaga);
+		// Then
+		assertNotNull(response);
 
-        verifyNoInteractions(fileService);
-    }
+		assertEquals(request.getName().trim(), rolSaga.getName());
+		assertEquals(request.getDescription().trim(), rolSaga.getDescription());
+		assertEquals(request.getGameMaster(), rolSaga.getGameMaster());
 
-    @Test
-    void should_throw_exception_when_updating_non_existing_rol_saga() {
+		assertEquals(rolSaga.getSection(), rolSaga.getSection());
+		assertEquals(rolSaga.getCategories(), rolSaga.getCategories());
 
-        // Given
-        String id = "non-existent-id";
+		verify(repository).findById(rolSaga.getId());
+		verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
+		verify(sectionService).findSectionById(request.getSectionId());
+		verify(repository).save(rolSaga);
 
-        when(repository.findById(id))
-                .thenReturn(Optional.empty());
+		verifyNoInteractions(fileService);
+	}
 
-        // When & Then
-        assertThrows(
-                RolSagaNotFoundException.class,
-                () -> service.update(id, request, null));
+	@Test
+	void should_update_rol_saga_when_name_changes() throws CategoryNotFoundException, SectionNotFoundException,
+			RolSagaNotFoundException, RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
 
-        verify(repository).findById(id);
+		// Given
 
-        verify(repository, never()).save(any());
-        verifyNoInteractions(categoryService);
-        verifyNoInteractions(sectionService);
-        verifyNoInteractions(fileService);
-    }
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
-    @Test
-    void should_throw_exception_when_new_name_already_exists() {
+		when(repository.existsByNameAndIdNot(request.getName().trim(), rolSaga.getId())).thenReturn(false);
 
-        // Given
-        request.setName(" Forgotten Realms ");
+		when(sectionService.findSectionById(request.getSectionId())).thenReturn(rolSaga.getSection());
 
-        when(repository.findById(rolSaga.getId()))
-                .thenReturn(Optional.of(rolSaga));
+		when(repository.save(rolSaga)).thenReturn(rolSaga);
 
-        when(repository.existsByNameAndIdNot("Forgotten Realms", rolSaga.getId()))
-                .thenReturn(true);
+		// When
+		RolSagaResponse response = service.update(rolSaga.getId(), request, null);
 
-        // When & Then
-        assertThrows(
-                RolSagaAlreadyExistsException.class,
-                () -> service.update(rolSaga.getId(), request, null));
+		// Then
+		assertNotNull(response);
+		assertEquals(request.getName().trim(), rolSaga.getName());
 
-        verify(repository).findById(rolSaga.getId());
-        verify(repository).existsByNameAndIdNot("Forgotten Realms", rolSaga.getId());
+		verify(repository).findById(rolSaga.getId());
+		verify(repository).existsByNameAndIdNot(request.getName().trim(), rolSaga.getId());
+		verify(repository).save(rolSaga);
 
-        verify(repository, never()).save(any());
-        verifyNoInteractions(categoryService);
-        verifyNoInteractions(sectionService);
-    }
+		verifyNoInteractions(fileService);
+	}
 
-    @Test
-    void should_propagate_category_not_found_exception_when_updating()
-            throws CategoryNotFoundException {
+	@Test
+	void should_throw_exception_when_updating_non_existing_rol_saga() {
 
-        // Given
+		// Given
+		String id = "non-existent-id";
 
-        request.setCategoriesIds(Set.of("category-id"));
+		when(repository.findById(id)).thenReturn(Optional.empty());
 
-        when(repository.findById(rolSaga.getId()))
-                .thenReturn(Optional.of(rolSaga));
+		// When & Then
+		assertThrows(RolSagaNotFoundException.class, () -> service.update(id, request, null));
 
-        when(categoryService.findCategoriesByIds(request.getCategoriesIds()))
-                .thenThrow(new CategoryNotFoundException("category-id"));
+		verify(repository).findById(id);
 
-        // When & Then
-        assertThrows(
-                CategoryNotFoundException.class,
-                () -> service.update(rolSaga.getId(), request, null));
+		verify(repository, never()).save(any());
+		verifyNoInteractions(categoryService);
+		verifyNoInteractions(sectionService);
+		verifyNoInteractions(fileService);
+	}
 
-        verify(repository).findById(rolSaga.getId());
-        verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
+	@Test
+	void should_throw_exception_when_new_name_already_exists() {
 
-        verify(sectionService, never()).findSectionById(any());
-        verify(repository, never()).save(any());
-    }
+		// Given
+		request.setName(" Forgotten Realms ");
 
-    @Test
-    void should_propagate_section_not_found_exception_when_updating()
-            throws CategoryNotFoundException, SectionNotFoundException {
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
-        // Given
-        when(repository.findById(rolSaga.getId()))
-                .thenReturn(Optional.of(rolSaga));
+		when(repository.existsByNameAndIdNot("Forgotten Realms", rolSaga.getId())).thenReturn(true);
 
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenThrow(new SectionNotFoundException(request.getSectionId()));
+		// When & Then
+		assertThrows(RolSagaAlreadyExistsException.class, () -> service.update(rolSaga.getId(), request, null));
 
-        // When & Then
-        assertThrows(
-                SectionNotFoundException.class,
-                () -> service.update(rolSaga.getId(), request, null));
+		verify(repository).findById(rolSaga.getId());
+		verify(repository).existsByNameAndIdNot("Forgotten Realms", rolSaga.getId());
 
-        verify(repository).findById(rolSaga.getId());
-        verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
-        verify(sectionService).findSectionById(request.getSectionId());
+		verify(repository, never()).save(any());
+		verifyNoInteractions(categoryService);
+		verifyNoInteractions(sectionService);
+	}
 
-        verify(repository, never()).save(any());
-    }
+	@Test
+	void should_propagate_category_not_found_exception_when_updating() throws CategoryNotFoundException {
 
-    @Test
-    void should_update_rol_saga_with_image()
-            throws CategoryNotFoundException, SectionNotFoundException,
-            RolSagaNotFoundException, RolSagaAlreadyExistsException,
-            FileDeleteException, FileUploadException {
+		// Given
 
-        // Given
+		request.setCategoriesIds(Set.of("category-id"));
 
-        when(repository.findById(rolSaga.getId()))
-                .thenReturn(Optional.of(rolSaga));
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenReturn(rolSaga.getSection());
+		when(categoryService.findCategoriesByIds(request.getCategoriesIds()))
+				.thenThrow(new CategoryNotFoundException("category-id"));
 
-        when(fileService.uploadImage(
-                eq("rolsaga"),
-                eq(rolSaga.getId()),
-                eq(image),
-                anyString(),
-                anyString(),
-                anyInt(),
-                anyInt(),
-                any(),
-                anyString()))
-                .thenReturn("new-image-url");
+		// When & Then
+		assertThrows(CategoryNotFoundException.class, () -> service.update(rolSaga.getId(), request, null));
 
-        when(repository.save(rolSaga))
-                .thenReturn(rolSaga);
+		verify(repository).findById(rolSaga.getId());
+		verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
 
-        when(appProperties.defaultImages()).thenReturn(defaultImages);
-        when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
+		verify(sectionService, never()).findSectionById(any());
+		verify(repository, never()).save(any());
+	}
 
-        // When
-        RolSagaResponse response = service.update(rolSaga.getId(), request, image);
+	@Test
+	void should_propagate_section_not_found_exception_when_updating()
+			throws CategoryNotFoundException, SectionNotFoundException {
 
-        // Then
-        assertNotNull(response);
-        assertEquals("new-image-url", rolSaga.getImageUrl());
+		// Given
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
-        verify(fileService).deleteFile("old-image-url");
+		when(sectionService.findSectionById(request.getSectionId()))
+				.thenThrow(new SectionNotFoundException(request.getSectionId()));
 
-        verify(fileService).uploadImage(any(), anyString(), any(), anyString(), anyString(), anyInt(), anyInt(),
-                any(), anyString());
+		// When & Then
+		assertThrows(SectionNotFoundException.class, () -> service.update(rolSaga.getId(), request, null));
 
-        verify(repository).save(rolSaga);
-    }
+		verify(repository).findById(rolSaga.getId());
+		verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
+		verify(sectionService).findSectionById(request.getSectionId());
 
-    @Test
-    void should_not_update_image_when_image_is_empty()
-            throws CategoryNotFoundException, SectionNotFoundException,
-            RolSagaNotFoundException, RolSagaAlreadyExistsException,
-            FileDeleteException, FileUploadException {
+		verify(repository, never()).save(any());
+	}
 
-        // Given
-        when(repository.findById(rolSaga.getId()))
-                .thenReturn(Optional.of(rolSaga));
+	@Test
+	void should_update_rol_saga_with_image() throws CategoryNotFoundException, SectionNotFoundException,
+			RolSagaNotFoundException, RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
 
-        when(sectionService.findSectionById(request.getSectionId()))
-                .thenReturn(rolSaga.getSection());
+		// Given
 
-        when(repository.save(rolSaga))
-                .thenReturn(rolSaga);
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
-        // When
-        RolSagaResponse response = service.update(rolSaga.getId(), request, emptyImage);
+		when(sectionService.findSectionById(request.getSectionId())).thenReturn(rolSaga.getSection());
 
-        // Then
-        assertNotNull(response);
-        assertEquals("old-image-url", rolSaga.getImageUrl());
+		when(fileService.uploadImage(eq("rolsaga"), eq(rolSaga.getId()), eq(image), anyString(), anyString(), anyInt(),
+				anyInt(), any(), anyString())).thenReturn("new-image-url");
 
-        verifyNoInteractions(fileService);
+		when(repository.save(rolSaga)).thenReturn(rolSaga);
 
-        verify(repository).save(rolSaga);
-    }
+		when(appProperties.defaultImages()).thenReturn(defaultImages);
+		when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
 
-    // DELETE
+		// When
+		RolSagaResponse response = service.update(rolSaga.getId(), request, image);
 
-    @Test
-    void should_delete_rol_saga_and_its_image()
-            throws RolSagaNotFoundException, FileDeleteException {
+		// Then
+		assertNotNull(response);
+		assertEquals("new-image-url", rolSaga.getImageUrl());
 
-        // Given
-        rolSaga.setImageUrl("https://cloudinary.com/old-image.png");
+		verify(fileService).deleteFile("old-image-url");
 
-        when(repository.findById(rolSaga.getId()))
-                .thenReturn(Optional.of(rolSaga));
-        when(appProperties.defaultImages()).thenReturn(defaultImages);
-        when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
+		verify(fileService).uploadImage(any(), anyString(), any(), anyString(), anyString(), anyInt(), anyInt(), any(),
+				anyString());
 
-        // When
-        service.delete(rolSaga.getId());
+		verify(repository).save(rolSaga);
+	}
 
-        // Then
-        verify(repository).findById(rolSaga.getId());
-        verify(fileService).deleteFile(rolSaga.getImageUrl());
-        verify(repository).delete(rolSaga);
-    }
+	@Test
+	void should_not_update_image_when_image_is_empty() throws CategoryNotFoundException, SectionNotFoundException,
+			RolSagaNotFoundException, RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
 
-    @Test
-    void should_throw_exception_when_deleting_non_existing_rol_saga() {
+		// Given
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
-        // Given
-        String id = "non-existent-id";
+		when(sectionService.findSectionById(request.getSectionId())).thenReturn(rolSaga.getSection());
 
-        when(repository.findById(id))
-                .thenReturn(Optional.empty());
+		when(repository.save(rolSaga)).thenReturn(rolSaga);
 
-        // When & Then
-        assertThrows(
-                RolSagaNotFoundException.class,
-                () -> service.delete(id));
+		// When
+		RolSagaResponse response = service.update(rolSaga.getId(), request, emptyImage);
 
-        verify(repository).findById(id);
+		// Then
+		assertNotNull(response);
+		assertEquals("old-image-url", rolSaga.getImageUrl());
 
-        verify(fileService, never()).deleteFile(anyString());
-        verify(repository, never()).delete(any());
-    }
+		verifyNoInteractions(fileService);
 
-    @Test
-    void should_not_delete_rol_saga_when_image_deletion_fails()
-            throws FileDeleteException {
+		verify(repository).save(rolSaga);
+	}
 
-        // Given
-        rolSaga.setImageUrl("https://cloudinary.com/old-image.png");
+	// DELETE
 
-        when(repository.findById(rolSaga.getId()))
-                .thenReturn(Optional.of(rolSaga));
+	@Test
+	void should_delete_rol_saga_and_its_image() throws RolSagaNotFoundException, FileDeleteException {
 
-        when(appProperties.defaultImages()).thenReturn(defaultImages);
-        when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
+		// Given
+		rolSaga.setImageUrl("https://cloudinary.com/old-image.png");
 
-        doThrow(new FileDeleteException("Error deleting image"))
-                .when(fileService)
-                .deleteFile(rolSaga.getImageUrl());
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
+		when(appProperties.defaultImages()).thenReturn(defaultImages);
+		when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
 
-        // When & Then
-        assertThrows(
-                FileDeleteException.class,
-                () -> service.delete(rolSaga.getId()));
+		// When
+		service.delete(rolSaga.getId());
 
-        verify(repository).findById(rolSaga.getId());
-        verify(fileService).deleteFile(rolSaga.getImageUrl());
+		// Then
+		verify(repository).findById(rolSaga.getId());
+		verify(fileService).deleteFile(rolSaga.getImageUrl());
+		verify(repository).delete(rolSaga);
+	}
 
-        verify(repository, never()).delete(any());
-    }
+	@Test
+	void should_throw_exception_when_deleting_non_existing_rol_saga() {
+
+		// Given
+		String id = "non-existent-id";
+
+		when(repository.findById(id)).thenReturn(Optional.empty());
+
+		// When & Then
+		assertThrows(RolSagaNotFoundException.class, () -> service.delete(id));
+
+		verify(repository).findById(id);
+
+		verify(fileService, never()).deleteFile(anyString());
+		verify(repository, never()).delete(any());
+	}
+
+	@Test
+	void should_not_delete_rol_saga_when_image_deletion_fails() throws FileDeleteException {
+
+		// Given
+		rolSaga.setImageUrl("https://cloudinary.com/old-image.png");
+
+		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
+
+		when(appProperties.defaultImages()).thenReturn(defaultImages);
+		when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
+
+		doThrow(new FileDeleteException("Error deleting image")).when(fileService).deleteFile(rolSaga.getImageUrl());
+
+		// When & Then
+		assertThrows(FileDeleteException.class, () -> service.delete(rolSaga.getId()));
+
+		verify(repository).findById(rolSaga.getId());
+		verify(fileService).deleteFile(rolSaga.getImageUrl());
+
+		verify(repository, never()).delete(any());
+	}
 
 }

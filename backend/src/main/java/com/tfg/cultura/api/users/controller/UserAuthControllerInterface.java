@@ -1,16 +1,10 @@
 package com.tfg.cultura.api.users.controller;
 
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.tfg.cultura.api.core.validation.annotations.ValidImage;
 import com.tfg.cultura.api.core.validation.annotations.ValidPdf;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,26 +12,26 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserAuthControllerInterface {
 
-    @Operation(summary = "RF-01: Registrar usuarios", description = "Como usuario, quiero poder solicitar mi registro en el sistema, para poder iniciar sesión.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Registro correcto"),
-            @ApiResponse(responseCode = "409", description = "RN-01: DNI único por usuario / RN-02: Apodo único por usuario"),
-            @ApiResponse(responseCode = "400", description = "Los datos introducidos no son válidos")
-    })
-    public ResponseEntity<UserResponse> register(
-            @Valid @Parameter(description = "Datos del usuario en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("user") UserRegisterRequest request,
-            @RequestPart(value = "avatar", required = false) @ValidImage(message = "Avatar no válido") MultipartFile avatar,
-            @RequestPart(value = "paymentReceipt", required = true) @ValidPdf(message = "La carta de pago no es un archivo PDF válido") MultipartFile paymentReceipt);
+	@Operation(summary = "RF-01: Registrar usuarios", description = "Como usuario, quiero poder solicitar mi registro en el sistema, para poder iniciar sesión.")
+	@ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Registro correcto"),
+			@ApiResponse(responseCode = "409", description = "RN-01: DNI único por usuario / RN-02: Apodo único por usuario"),
+			@ApiResponse(responseCode = "400", description = "Los datos introducidos no son válidos")})
+	public ResponseEntity<UserResponse> register(
+			@Valid @Parameter(description = "Datos del usuario en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("user") UserRegisterRequest request,
+			@RequestPart(value = "avatar", required = false) @ValidImage(message = "Avatar no válido") MultipartFile avatar,
+			@RequestPart(value = "paymentReceipt", required = true) @ValidPdf(message = "La carta de pago no es un archivo PDF válido") MultipartFile paymentReceipt);
 
-    @Operation(summary = "RF-02: Iniciar sesión", description = "Como usuario registrado, quiero poder iniciar sesión usando las credenciales con las que me registré previamente, para poder acceder a las funciones del sistema que requieran de autenticación")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login correcto"),
-            @ApiResponse(responseCode = "401", description = "RN-04: Inicio de sesión - Unauthorized - Credenciales inválidas"),
-            @ApiResponse(responseCode = "403", description = "RN-04: Inicio de sesión - User Disabled"),
-            @ApiResponse(responseCode = "404", description = "RN-04: Inicio de sesión - User Not Found"),
-    })
-    public ResponseEntity<String> login(@Valid @RequestBody UserLoginRequest request);
+	@Operation(summary = "RF-02: Iniciar sesión", description = "Como usuario registrado, quiero poder iniciar sesión usando las credenciales con las que me registré previamente, para poder acceder a las funciones del sistema que requieran de autenticación")
+	@ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Login correcto"),
+			@ApiResponse(responseCode = "401", description = "RN-04: Inicio de sesión - Unauthorized - Credenciales inválidas"),
+			@ApiResponse(responseCode = "403", description = "RN-04: Inicio de sesión - User Disabled"),
+			@ApiResponse(responseCode = "404", description = "RN-04: Inicio de sesión - User Not Found"),})
+	public ResponseEntity<String> login(@Valid @RequestBody UserLoginRequest request);
 }

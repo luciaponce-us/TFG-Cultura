@@ -6,21 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.tfg.cultura.api.sections.exception.ManagerAlreadyAssignedException;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.repository.SectionRepository;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
+import java.util.Optional;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SingleSectionManagerSpecificationTest {
@@ -36,10 +34,8 @@ class SingleSectionManagerSpecificationTest {
 		User manager1 = createUser("manager1");
 		User manager2 = createUser("manager2");
 
-		when(sectionRepository.findByManagersContaining(manager1))
-				.thenReturn(Optional.empty());
-		when(sectionRepository.findByManagersContaining(manager2))
-				.thenReturn(Optional.empty());
+		when(sectionRepository.findByManagersContaining(manager1)).thenReturn(Optional.empty());
+		when(sectionRepository.findByManagersContaining(manager2)).thenReturn(Optional.empty());
 
 		assertDoesNotThrow(() -> specification.validate(Set.of(manager1, manager2)));
 
@@ -52,15 +48,12 @@ class SingleSectionManagerSpecificationTest {
 		User manager1 = createUser("manager1");
 		User manager2 = createUser("manager2");
 
-		when(sectionRepository.findByManagersContaining(manager1))
-				.thenReturn(Optional.of(new Section()));
-		when(sectionRepository.findByManagersContaining(manager2))
-				.thenReturn(Optional.empty());
+		when(sectionRepository.findByManagersContaining(manager1)).thenReturn(Optional.of(new Section()));
+		when(sectionRepository.findByManagersContaining(manager2)).thenReturn(Optional.empty());
 
 		Set<User> managers = Set.of(manager1, manager2);
 
-		ManagerAlreadyAssignedException exception = assertThrows(
-				ManagerAlreadyAssignedException.class,
+		ManagerAlreadyAssignedException exception = assertThrows(ManagerAlreadyAssignedException.class,
 				() -> specification.validate(managers));
 		assertTrue(exception.getMessage().contains("manager1"));
 	}
@@ -70,15 +63,12 @@ class SingleSectionManagerSpecificationTest {
 		User manager1 = createUser("manager1");
 		User manager2 = createUser("manager2");
 
-		when(sectionRepository.findByManagersContaining(manager1))
-				.thenReturn(Optional.of(new Section()));
-		when(sectionRepository.findByManagersContaining(manager2))
-				.thenReturn(Optional.of(new Section()));
+		when(sectionRepository.findByManagersContaining(manager1)).thenReturn(Optional.of(new Section()));
+		when(sectionRepository.findByManagersContaining(manager2)).thenReturn(Optional.of(new Section()));
 
 		Set<User> managers = Set.of(manager1, manager2);
 
-		ManagerAlreadyAssignedException exception = assertThrows(
-				ManagerAlreadyAssignedException.class,
+		ManagerAlreadyAssignedException exception = assertThrows(ManagerAlreadyAssignedException.class,
 				() -> specification.validate(managers));
 		assertTrue(exception.getMessage().contains("manager1"));
 		assertTrue(exception.getMessage().contains("manager2"));

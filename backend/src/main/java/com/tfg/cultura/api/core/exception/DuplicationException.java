@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 public class DuplicationException extends FieldException {
 
-    public DuplicationException(Logger logger, Map<String, String> errors) {
-        super(logger, HttpStatus.CONFLICT, errors);
-    }
+	public DuplicationException(Logger logger, Map<String, String> errors) {
+		super(logger, HttpStatus.CONFLICT, errors);
+	}
 }

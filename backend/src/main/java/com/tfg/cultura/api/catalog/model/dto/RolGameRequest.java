@@ -15,10 +15,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class RolGameRequest extends ItemRequest {
-    @NotNull(message = "La saga es obligatoria")
-    private String sagaId;
+	@NotNull(message = "La saga es obligatoria")
+	private String sagaId;
 
-    @NotNull(message = "El tipo de libro es obligatorio")
-    private RolBookType type;
-    
+	@NotNull(message = "El tipo de libro es obligatorio")
+	private RolBookType type;
+
 }

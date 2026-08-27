@@ -15,17 +15,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.tfg.cultura.api.sections.exception.*;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
 import com.tfg.cultura.api.sections.model.Section;
@@ -36,6 +25,15 @@ import com.tfg.cultura.api.sections.service.specifications.*;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.service.UserService;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SectionServiceTest {
@@ -87,10 +85,8 @@ class SectionServiceTest {
 		collaborator.setRole(collaboratorRole);
 		section.setCollaborators(Set.of(collaborator));
 
-		when(userService.findUsersByUsernames(Set.of(manager.getUsername())))
-				.thenReturn(Set.of(manager));
-		when(userService.findUsersByUsernames(Set.of(collaborator.getUsername())))
-				.thenReturn(Set.of(collaborator));
+		when(userService.findUsersByUsernames(Set.of(manager.getUsername()))).thenReturn(Set.of(manager));
+		when(userService.findUsersByUsernames(Set.of(collaborator.getUsername()))).thenReturn(Set.of(collaborator));
 	}
 
 	// ====================== CREATION ======================
@@ -111,10 +107,9 @@ class SectionServiceTest {
 		assertEquals(sectionCreateRequest.getName(), response.getName());
 		assertEquals(managers.size(), response.getManagers().size());
 		assertEquals(collaborators.size(), response.getCollaborators().size());
-		assertTrue(response.getManagers().stream()
-				.anyMatch(m -> m.getUsername().equals(manager.getUsername())));
-		assertTrue(response.getCollaborators().stream()
-				.anyMatch(c -> c.getUsername().equals(collaborator.getUsername())));
+		assertTrue(response.getManagers().stream().anyMatch(m -> m.getUsername().equals(manager.getUsername())));
+		assertTrue(
+				response.getCollaborators().stream().anyMatch(c -> c.getUsername().equals(collaborator.getUsername())));
 
 		verify(uniqueSectionNameSpecification).validate(sectionCreateRequest.getName());
 		verify(managersMustBeEncargadosSpecification).validate(managers);
@@ -128,13 +123,10 @@ class SectionServiceTest {
 	// ❌​ 409 - Conflict - Section Already Exists
 	@Test
 	void should_throw_when_section_name_already_exists() {
-		doThrow(new SectionAlreadyExistsException("error"))
-				.when(uniqueSectionNameSpecification)
+		doThrow(new SectionAlreadyExistsException("error")).when(uniqueSectionNameSpecification)
 				.validate(sectionCreateRequest.getName());
 
-		assertThrows(
-				SectionAlreadyExistsException.class,
-				() -> sectionService.createSection(sectionCreateRequest));
+		assertThrows(SectionAlreadyExistsException.class, () -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -143,15 +135,11 @@ class SectionServiceTest {
 	@Test
 	void should_throw_when_manager_has_invalid_role() {
 		manager.setRole(Role.SOCIO); // Manager has invalid role
-		when(userService.findUsersByUsernames(managerUsernames))
-				.thenReturn(Set.of(manager));
-		doThrow(new InvalidManagerRoleException("error"))
-				.when(managersMustBeEncargadosSpecification)
+		when(userService.findUsersByUsernames(managerUsernames)).thenReturn(Set.of(manager));
+		doThrow(new InvalidManagerRoleException("error")).when(managersMustBeEncargadosSpecification)
 				.validate(anySet());
 
-		assertThrows(
-				InvalidManagerRoleException.class,
-				() -> sectionService.createSection(sectionCreateRequest));
+		assertThrows(InvalidManagerRoleException.class, () -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -159,13 +147,10 @@ class SectionServiceTest {
 	// ❌​ 409 - Conflict - Manager Already Assigned
 	@Test
 	void should_throw_when_manager_is_already_assigned() {
-		doThrow(new ManagerAlreadyAssignedException("error"))
-				.when(singleSectionManagerSpecification)
-				.validate(anySet(), isNull());
+		doThrow(new ManagerAlreadyAssignedException("error")).when(singleSectionManagerSpecification).validate(anySet(),
+				isNull());
 
-		assertThrows(
-				ManagerAlreadyAssignedException.class,
-				() -> sectionService.createSection(sectionCreateRequest));
+		assertThrows(ManagerAlreadyAssignedException.class, () -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -175,13 +160,10 @@ class SectionServiceTest {
 	void should_throw_when_collaborator_has_invalid_role() {
 		mockExistingUsersWithRoles(Role.ENCARGADO, Role.SOCIO); // Collaborator has invalid role
 
-		doThrow(new InvalidCollaboratorRoleException("error"))
-				.when(collaboratorsMustBeColaboradoresSpecification)
+		doThrow(new InvalidCollaboratorRoleException("error")).when(collaboratorsMustBeColaboradoresSpecification)
 				.validate(anySet());
 
-		assertThrows(
-				InvalidCollaboratorRoleException.class,
-				() -> sectionService.createSection(sectionCreateRequest));
+		assertThrows(InvalidCollaboratorRoleException.class, () -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -191,12 +173,10 @@ class SectionServiceTest {
 	void should_throw_when_collaborator_is_already_assigned() {
 		mockExistingUsersWithRoles(Role.ENCARGADO, Role.COLABORADOR);
 
-		doThrow(new CollaboratorAlreadyAssignedException("error"))
-				.when(singleSectionCollaboratorSpecification)
+		doThrow(new CollaboratorAlreadyAssignedException("error")).when(singleSectionCollaboratorSpecification)
 				.validate(anySet(), isNull());
 
-		assertThrows(
-				CollaboratorAlreadyAssignedException.class,
+		assertThrows(CollaboratorAlreadyAssignedException.class,
 				() -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
@@ -207,8 +187,7 @@ class SectionServiceTest {
 	@Test
 	void should_return_all_sections_when_name_filter_is_null() {
 		// Arrange
-		List<Section> sections = List.of(
-				Section.builder().name("Manga").build(),
+		List<Section> sections = List.of(Section.builder().name("Manga").build(),
 				Section.builder().name("Videojuegos").build());
 
 		when(sectionRepository.findAll()).thenReturn(sections);
@@ -228,8 +207,7 @@ class SectionServiceTest {
 	@Test
 	void should_return_all_sections_when_name_filter_is_empty() {
 		// Arrange
-		List<Section> sections = List.of(
-				Section.builder().name("Libros").build());
+		List<Section> sections = List.of(Section.builder().name("Libros").build());
 
 		when(sectionRepository.findAll()).thenReturn(sections);
 
@@ -247,11 +225,9 @@ class SectionServiceTest {
 	@Test
 	void should_return_filtered_sections_when_name_filter_is_provided() {
 		// Arrange
-		List<Section> sections = List.of(
-				Section.builder().name("Videojuegos").build());
+		List<Section> sections = List.of(Section.builder().name("Videojuegos").build());
 
-		when(sectionRepository.findAllByNameContainingIgnoreCase("video"))
-				.thenReturn(sections);
+		when(sectionRepository.findAllByNameContainingIgnoreCase("video")).thenReturn(sections);
 
 		// Act
 		List<SectionResponse> result = sectionService.getAllSections("video");
@@ -270,8 +246,7 @@ class SectionServiceTest {
 	@Test
 	void should_return_section_when_section_exists() throws SectionNotFoundException {
 		// Arrange
-		when(sectionRepository.findById(section.getId()))
-				.thenReturn(Optional.of(section));
+		when(sectionRepository.findById(section.getId())).thenReturn(Optional.of(section));
 
 		// Act
 		SectionResponse response = sectionService.getSectionById(section.getId());
@@ -290,12 +265,10 @@ class SectionServiceTest {
 		// Arrange
 		String id = "non-existent-id";
 
-		when(sectionRepository.findById(id))
-				.thenReturn(Optional.empty());
+		when(sectionRepository.findById(id)).thenReturn(Optional.empty());
 
 		// Act & Assert
-		SectionNotFoundException exception = assertThrows(
-				SectionNotFoundException.class,
+		SectionNotFoundException exception = assertThrows(SectionNotFoundException.class,
 				() -> sectionService.getSectionById(id));
 
 		assertEquals("Sección no encontrada con id: " + id, exception.getMessage());
@@ -309,8 +282,7 @@ class SectionServiceTest {
 	@Test
 	void should_delete_section() {
 		String sectionId = section.getId();
-		when(sectionRepository.findById(sectionId))
-				.thenReturn(Optional.of(section));
+		when(sectionRepository.findById(sectionId)).thenReturn(Optional.of(section));
 
 		doNothing().when(sectionRepository).delete(section);
 
@@ -324,12 +296,9 @@ class SectionServiceTest {
 	@Test
 	void should_throw_when_deleting_non_existing_section() {
 		String sectionId = "non-existing-id";
-		when(sectionRepository.findById(sectionId))
-				.thenReturn(Optional.empty());
+		when(sectionRepository.findById(sectionId)).thenReturn(Optional.empty());
 
-		assertThrows(
-				SectionNotFoundException.class,
-				() -> sectionService.deleteSection(sectionId));
+		assertThrows(SectionNotFoundException.class, () -> sectionService.deleteSection(sectionId));
 
 		verify(sectionRepository).findById(sectionId);
 		verify(sectionRepository, never()).delete(any());

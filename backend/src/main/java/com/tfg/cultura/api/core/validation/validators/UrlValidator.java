@@ -7,12 +7,13 @@ import jakarta.validation.ConstraintValidatorContext;
 
 public class UrlValidator implements ConstraintValidator<ValidUrl, String> {
 
-    private static final String URL_REGEX = "^(https?|ftp)://[\\w\\-]+(\\.[\\w\\-]+)*([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-@?^=%&/~\\+#])?$";
+	private static final String URL_REGEX = "^(https?|ftp)://[\\w\\-]+(\\.[\\w\\-]+)*([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-@?^=%&/~\\+#])?$";
 
-    @Override
-    public boolean isValid(String url, ConstraintValidatorContext context) {
-        if (url == null || url.isEmpty()) return true; // campo opcional
-        return url.matches(URL_REGEX);
-    }
-    
+	@Override
+	public boolean isValid(String url, ConstraintValidatorContext context) {
+		if (url == null || url.isEmpty())
+			return true; // campo opcional
+		return url.matches(URL_REGEX);
+	}
+
 }

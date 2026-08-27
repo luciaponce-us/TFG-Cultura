@@ -17,16 +17,16 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class BookRequest extends ItemRequest {
-    @NotBlank(message = "El autor es obligatorio")
-    private String author;
+	@NotBlank(message = "El autor es obligatorio")
+	private String author;
 
-    @ValidIsbn
-    @NotBlank(message = "El ISBN es obligatorio")
-    private String isbn;
+	@ValidIsbn
+	@NotBlank(message = "El ISBN es obligatorio")
+	private String isbn;
 
-    private String sagaName;
+	private String sagaName;
 
-    @NotNull(message = "El tipo de libro es obligatorio")
-    private BookType type;
-    
+	@NotNull(message = "El tipo de libro es obligatorio")
+	private BookType type;
+
 }

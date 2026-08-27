@@ -16,19 +16,17 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class BookResponse extends ItemResponse {
 
-    private String author;
-    private String isbn;
-    private BookType type;
-    private String saga;
+	private String author;
+	private String isbn;
+	private BookType type;
+	private String saga;
 
-    public BookResponse(Book book) {
-        super(book);
+	public BookResponse(Book book) {
+		super(book);
 
-        this.author = book.getAuthor();
-        this.isbn = book.getIsbn();
-        this.type = book.getType();
-        this.saga = book.getSaga() != null
-                ? book.getSaga().getName()
-                : null;
-    }
+		this.author = book.getAuthor();
+		this.isbn = book.getIsbn();
+		this.type = book.getType();
+		this.saga = book.getSaga() != null ? book.getSaga().getName() : null;
+	}
 }

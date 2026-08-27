@@ -1,189 +1,171 @@
 package com.tfg.cultura.api.users.jwt;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.repository.UserRepository;
-
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.Authentication;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailsServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+	@Mock
+	private UserRepository userRepository;
 
-    @InjectMocks
-    private CustomUserDetailsService service;
+	@InjectMocks
+	private CustomUserDetailsService service;
 
-    private User user;
+	private User user;
 
-    @BeforeEach
-    void setUp() {
-        user = UserFactory.validUser();
-        SecurityContextHolder.clearContext();
-    }
+	@BeforeEach
+	void setUp() {
+		user = UserFactory.validUser();
+		SecurityContextHolder.clearContext();
+	}
 
-    // -------------------------------
-    // loadUserByUsername
-    // -------------------------------
+	// -------------------------------
+	// loadUserByUsername
+	// -------------------------------
 
-    @Test
-    void should_load_user_by_username() {
-        when(userRepository.findByUsername(user.getUsername()))
-                .thenReturn(Optional.of(user));
-
-        var result = service.loadUserByUsername(user.getUsername());
-
-        assertNotNull(result);
-        assertEquals(user.getUsername(), result.getUsername());
-
-        verify(userRepository).findByUsername(user.getUsername());
-    }
-
-    @Test
-    void should_throw_exception_when_user_not_found() {
-        when(userRepository.findByUsername(user.getUsername()))
-                .thenReturn(Optional.empty());
-
-        String username = user.getUsername();
-
-        assertThrows(UserNotFoundException.class, () ->
-                service.loadUserByUsername(username));
-
-        verify(userRepository).findByUsername(user.getUsername());
-    }
-
-    // -------------------------------
-    // loadUserByUserId
-    // -------------------------------
 	@Test
-    void should_load_user_by_id_successfully() throws Exception {
-        // Arrange
-        String userId = user.getId();
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+	void should_load_user_by_username() {
+		when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
-        // Act
-        UserDetails result = service.loadUserById(userId);
+		var result = service.loadUserByUsername(user.getUsername());
 
-        // Assert
-        assertNotNull(result);
-        assertTrue(result instanceof CustomUserDetails);
+		assertNotNull(result);
+		assertEquals(user.getUsername(), result.getUsername());
 
-        CustomUserDetails custom = (CustomUserDetails) result;
-        assertEquals(user.getId(), custom.getId());
-        assertEquals(user.getUsername(), custom.getUsername());
+		verify(userRepository).findByUsername(user.getUsername());
+	}
 
-        verify(userRepository).findById(userId);
-    }
+	@Test
+	void should_throw_exception_when_user_not_found() {
+		when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
 
-    @Test
-    void should_throw_user_not_found_exception_when_user_does_not_exist() {
-        // Arrange
-        String userId = "non-existent-id";
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+		String username = user.getUsername();
 
-        // Act & Assert
-        UserNotFoundException exception = assertThrows(
-                UserNotFoundException.class,
-                () -> service.loadUserById(userId)
-        );
+		assertThrows(UserNotFoundException.class, () -> service.loadUserByUsername(username));
 
-        assertEquals("El usuario con id " + userId + " no existe", exception.getMessage());
+		verify(userRepository).findByUsername(user.getUsername());
+	}
 
-        verify(userRepository).findById(userId);
-    }
+	// -------------------------------
+	// loadUserByUserId
+	// -------------------------------
+	@Test
+	void should_load_user_by_id_successfully() throws Exception {
+		// Arrange
+		String userId = user.getId();
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-    // -------------------------------
-    // getCurrentUserDetails
-    // -------------------------------
+		// Act
+		UserDetails result = service.loadUserById(userId);
 
-    @Test
-    void should_return_current_user_details() {
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+		// Assert
+		assertNotNull(result);
+		assertTrue(result instanceof CustomUserDetails);
 
-        when(userRepository.existsById(user.getId()))
-                .thenReturn(true);
+		CustomUserDetails custom = (CustomUserDetails) result;
+		assertEquals(user.getId(), custom.getId());
+		assertEquals(user.getUsername(), custom.getUsername());
 
-        var auth = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
+		verify(userRepository).findById(userId);
+	}
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
+	@Test
+	void should_throw_user_not_found_exception_when_user_does_not_exist() {
+		// Arrange
+		String userId = "non-existent-id";
+		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        CustomUserDetails result = service.getCurrentUserDetails();
+		// Act & Assert
+		UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> service.loadUserById(userId));
 
-        assertNotNull(result);
-        assertEquals(user.getId(), result.getId());
+		assertEquals("El usuario con id " + userId + " no existe", exception.getMessage());
 
-        verify(userRepository).existsById(user.getId());
-    }
+		verify(userRepository).findById(userId);
+	}
 
-    @Test
-    void should_throw_when_no_authentication() {
-        SecurityContextHolder.clearContext();
+	// -------------------------------
+	// getCurrentUserDetails
+	// -------------------------------
 
-        assertThrows(UnathenticatedException.class, () ->
-                service.getCurrentUserDetails());
-    }
+	@Test
+	void should_return_current_user_details() {
+		CustomUserDetails userDetails = new CustomUserDetails(user);
 
-    @Test
-    void should_throw_when_not_authenticated() {
-        var auth = mock(org.springframework.security.core.Authentication.class);
-        when(auth.isAuthenticated()).thenReturn(false);
+		when(userRepository.existsById(user.getId())).thenReturn(true);
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
+		var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-        assertThrows(UnathenticatedException.class, () ->
-                service.getCurrentUserDetails());
-    }
+		SecurityContextHolder.getContext().setAuthentication(auth);
 
-    @Test
-    void should_throw_when_user_does_not_exist_in_database() {
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+		CustomUserDetails result = service.getCurrentUserDetails();
 
-        when(userRepository.existsById(user.getId()))
-                .thenReturn(false);
+		assertNotNull(result);
+		assertEquals(user.getId(), result.getId());
 
-        var auth = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
+		verify(userRepository).existsById(user.getId());
+	}
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
+	@Test
+	void should_throw_when_no_authentication() {
+		SecurityContextHolder.clearContext();
 
-        assertThrows(UserNotFoundException.class, () ->
-                service.getCurrentUserDetails());
+		assertThrows(UnathenticatedException.class, () -> service.getCurrentUserDetails());
+	}
 
-        verify(userRepository).existsById(user.getId());
-    }
+	@Test
+	void should_throw_when_not_authenticated() {
+		var auth = mock(org.springframework.security.core.Authentication.class);
+		when(auth.isAuthenticated()).thenReturn(false);
 
-    @Test
-    void should_throw_when_principal_is_not_custom_user_details() {
-        Authentication auth = mock(Authentication.class);
+		SecurityContextHolder.getContext().setAuthentication(auth);
 
-        when(auth.isAuthenticated()).thenReturn(true);
+		assertThrows(UnathenticatedException.class, () -> service.getCurrentUserDetails());
+	}
 
-        // Principal inválido (NO CustomUserDetails)
-        when(auth.getPrincipal()).thenReturn("invalid-principal");
+	@Test
+	void should_throw_when_user_does_not_exist_in_database() {
+		CustomUserDetails userDetails = new CustomUserDetails(user);
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
+		when(userRepository.existsById(user.getId())).thenReturn(false);
 
-        assertThrows(UnathenticatedException.class, () ->
-                service.getCurrentUserDetails());
-    }
+		var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+		SecurityContextHolder.getContext().setAuthentication(auth);
+
+		assertThrows(UserNotFoundException.class, () -> service.getCurrentUserDetails());
+
+		verify(userRepository).existsById(user.getId());
+	}
+
+	@Test
+	void should_throw_when_principal_is_not_custom_user_details() {
+		Authentication auth = mock(Authentication.class);
+
+		when(auth.isAuthenticated()).thenReturn(true);
+
+		// Principal inválido (NO CustomUserDetails)
+		when(auth.getPrincipal()).thenReturn("invalid-principal");
+
+		SecurityContextHolder.getContext().setAuthentication(auth);
+
+		assertThrows(UnathenticatedException.class, () -> service.getCurrentUserDetails());
+	}
 }

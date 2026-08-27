@@ -1,75 +1,71 @@
 package com.tfg.cultura.api.categories.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
 import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.repository.CategoryRepository;
-
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
-    
-    private final CategoryRepository categoryRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
+	private final CategoryRepository categoryRepository;
 
-    // CREATE
+	private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
 
-    public Category createCategory(String name) throws CategoryAlreadyExistsException {
-        boolean exists = categoryRepository.existsByName(name);
-        if (exists) {
-            logger.error("Ya existe una categoría con el nombre: {}", name);
-            throw new CategoryAlreadyExistsException(name);
-        }
+	// CREATE
 
-        Category category = Category.builder()
-                .name(name)
-                .build();
-        return categoryRepository.save(category);
-    }
+	public Category createCategory(String name) throws CategoryAlreadyExistsException {
+		boolean exists = categoryRepository.existsByName(name);
+		if (exists) {
+			logger.error("Ya existe una categoría con el nombre: {}", name);
+			throw new CategoryAlreadyExistsException(name);
+		}
 
-    // READ
+		Category category = Category.builder().name(name).build();
+		return categoryRepository.save(category);
+	}
 
-    public Category findCategoryById(String id) throws CategoryNotFoundException {
-        Optional<Category> category = categoryRepository.findById(id);
-        if (category.isEmpty()) {
-            logger.error("Categoría no encontrada con ID: {}", id);
-            throw new CategoryNotFoundException("Categoría no encontrada con ID: " + id);
-        }
-        return category.get();
-    }
+	// READ
 
-    public Set<Category> findCategoriesByIds(Set<String> ids) throws CategoryNotFoundException {
-        Set<Category> categories = new HashSet<>();
-        for (String id : ids) {
-            categories.add(findCategoryById(id));
-        }
-        return categories;
-    }
+	public Category findCategoryById(String id) throws CategoryNotFoundException {
+		Optional<Category> category = categoryRepository.findById(id);
+		if (category.isEmpty()) {
+			logger.error("Categoría no encontrada con ID: {}", id);
+			throw new CategoryNotFoundException("Categoría no encontrada con ID: " + id);
+		}
+		return category.get();
+	}
 
-    public List<Category> findAllCategories() {
-        return categoryRepository.findAllByOrderByNameAsc();
-    }
+	public Set<Category> findCategoriesByIds(Set<String> ids) throws CategoryNotFoundException {
+		Set<Category> categories = new HashSet<>();
+		for (String id : ids) {
+			categories.add(findCategoryById(id));
+		}
+		return categories;
+	}
 
-    // UPDATE
+	public List<Category> findAllCategories() {
+		return categoryRepository.findAllByOrderByNameAsc();
+	}
 
-    public Category updateCategory(String id, String name) throws CategoryNotFoundException {
-        Category category = findCategoryById(id);
-        category.setName(name);
-        return categoryRepository.save(category);
-    }
+	// UPDATE
 
-    // DELETE: In CategoryDeletingService to avoid circular dependency with item services
+	public Category updateCategory(String id, String name) throws CategoryNotFoundException {
+		Category category = findCategoryById(id);
+		category.setName(name);
+		return categoryRepository.save(category);
+	}
+
+	// DELETE: In CategoryDeletingService to avoid circular dependency with item
+	// services
 
 }

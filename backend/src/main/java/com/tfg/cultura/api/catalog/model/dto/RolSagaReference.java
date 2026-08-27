@@ -12,13 +12,13 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class RolSagaReference {
-    private String id;
-    private String imageUrl;
-    private String name;
+	private String id;
+	private String imageUrl;
+	private String name;
 
-    public RolSagaReference(RolSaga rolSaga) {
-        this.id = rolSaga.getId();
-        this.imageUrl = rolSaga.getImageUrl();
-        this.name = rolSaga.getName();
-    }
+	public RolSagaReference(RolSaga rolSaga) {
+		this.id = rolSaga.getId();
+		this.imageUrl = rolSaga.getImageUrl();
+		this.name = rolSaga.getName();
+	}
 }

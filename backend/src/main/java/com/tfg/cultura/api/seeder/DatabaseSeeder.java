@@ -1,11 +1,5 @@
 package com.tfg.cultura.api.seeder;
 
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-
 import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Movie;
@@ -29,278 +23,247 @@ import com.tfg.cultura.api.seeder.parser.VideoGameCsvParser;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.users.model.User;
-
-import lombok.RequiredArgsConstructor;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnProperty(name = "app.seed-enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class DatabaseSeeder implements CommandLineRunner {
 
-    private final MongoTemplate mongoTemplate;
-    private final PasswordEncoder passwordEncoder;
+	private final MongoTemplate mongoTemplate;
+	private final PasswordEncoder passwordEncoder;
 
-    private static final Logger logger = LoggerFactory.getLogger("appLogger");
+	private static final Logger logger = LoggerFactory.getLogger("appLogger");
 
-    @Override
-    public void run(String... args) throws Exception {
-        logger.info("🌱 Iniciando Database Seeder...");
-        logger.info(" - Database: {}", mongoTemplate.getDb().getName());
+	@Override
+	public void run(String... args) throws Exception {
+		logger.info("🌱 Iniciando Database Seeder...");
+		logger.info(" - Database: {}", mongoTemplate.getDb().getName());
 
-        try {
-            seedDatabase();
-            logger.info("✅ Database seeding completado exitosamente");
-        } catch (Exception e) {
-            logger.error("❌ Error durante el seeding: {}", e.getMessage());
-        }
-    }
+		try {
+			seedDatabase();
+			logger.info("✅ Database seeding completado exitosamente");
+		} catch (Exception e) {
+			logger.error("❌ Error durante el seeding: {}", e.getMessage());
+		}
+	}
 
-    private void seedDatabase() {
-        clearDatabase();
+	private void seedDatabase() {
+		clearDatabase();
 
-        List<User> usuarios = seedUsuarios();
-        seedSugerencias(usuarios);
-        List<Section> secciones = seedSections(usuarios);
-        List<Category> categorias = seedCategories();
-        List<Saga> sagas = seedSagas();
+		List<User> usuarios = seedUsuarios();
+		seedSugerencias(usuarios);
+		List<Section> secciones = seedSections(usuarios);
+		List<Category> categorias = seedCategories();
+		List<Saga> sagas = seedSagas();
 
-        Map<String, Section> sectionsByName = secciones.stream()
-                .collect(Collectors.toMap(
-                        Section::getName,
-                        Function.identity()));
-        Map<String, Category> categoriesByName = categorias.stream()
-                .collect(Collectors.toMap(
-                        Category::getName,
-                        Function.identity()));
-        Map<String, Saga> sagasByName = sagas.stream()
-                .collect(Collectors.toMap(
-                        Saga::getName,
-                        Function.identity()));
-                        
-        seedBooks(sectionsByName, categoriesByName, sagasByName);
-        seedMovies(sectionsByName, categoriesByName, sagasByName);
-        seedSeries(sectionsByName, categoriesByName);
-        seedBoardGames(sectionsByName, categoriesByName);
+		Map<String, Section> sectionsByName = secciones.stream()
+				.collect(Collectors.toMap(Section::getName, Function.identity()));
+		Map<String, Category> categoriesByName = categorias.stream()
+				.collect(Collectors.toMap(Category::getName, Function.identity()));
+		Map<String, Saga> sagasByName = sagas.stream().collect(Collectors.toMap(Saga::getName, Function.identity()));
 
-        List<RolSaga> rolSagas = seedRolSagas(sectionsByName, categoriesByName);
-        Map<String, RolSaga> rolSagasByName = rolSagas.stream()
-                .collect(Collectors.toMap(
-                        RolSaga::getName,
-                        Function.identity()));
-        seedRolGames(rolSagasByName, categoriesByName, sectionsByName);
+		seedBooks(sectionsByName, categoriesByName, sagasByName);
+		seedMovies(sectionsByName, categoriesByName, sagasByName);
+		seedSeries(sectionsByName, categoriesByName);
+		seedBoardGames(sectionsByName, categoriesByName);
 
-        seedVideoGames(sectionsByName, categoriesByName);
+		List<RolSaga> rolSagas = seedRolSagas(sectionsByName, categoriesByName);
+		Map<String, RolSaga> rolSagasByName = rolSagas.stream()
+				.collect(Collectors.toMap(RolSaga::getName, Function.identity()));
+		seedRolGames(rolSagasByName, categoriesByName, sectionsByName);
 
-        logger.info("💾 Todos los datos se han guardado correctamente");
-    }
+		seedVideoGames(sectionsByName, categoriesByName);
 
-    private void clearDatabase() {
-        logger.info("🗑️  Limpiando base de datos...");
-        mongoTemplate.getDb().listCollectionNames().forEach(collectionName -> {
-            if (!collectionName.startsWith("system.")) {
-                mongoTemplate.dropCollection(collectionName);
-                logger.info("   - Colección eliminada: {}", collectionName);
-            }
-        });
-    }
+		logger.info("💾 Todos los datos se han guardado correctamente");
+	}
 
-    private List<User> seedUsuarios() {
-        logger.info("👥 Creando colección: users");
+	private void clearDatabase() {
+		logger.info("🗑️  Limpiando base de datos...");
+		mongoTemplate.getDb().listCollectionNames().forEach(collectionName -> {
+			if (!collectionName.startsWith("system.")) {
+				mongoTemplate.dropCollection(collectionName);
+				logger.info("   - Colección eliminada: {}", collectionName);
+			}
+		});
+	}
 
-        List<User> usersFromCsv = new UserCsvParser(passwordEncoder).loadUsersFromCsv();
+	private List<User> seedUsuarios() {
+		logger.info("👥 Creando colección: users");
 
-        Collection<User> users = mongoTemplate.insertAll(usersFromCsv);
+		List<User> usersFromCsv = new UserCsvParser(passwordEncoder).loadUsersFromCsv();
 
-        logger.info("✅👥 Insertados {} usuarios", users.size());
-        return users.stream().toList();
-    }
+		Collection<User> users = mongoTemplate.insertAll(usersFromCsv);
 
-    private void seedSugerencias(List<User> usuarios) {
-        logger.info("💡 Creando colección: suggestions");
+		logger.info("✅👥 Insertados {} usuarios", users.size());
+		return users.stream().toList();
+	}
 
-        User usuario1 = usuarios.get(0);
-        User usuario2 = usuarios.get(1);
-        User usuario3 = usuarios.get(2);
-        User usuario4 = usuarios.get(3);
-        User usuario5 = usuarios.get(4);
+	private void seedSugerencias(List<User> usuarios) {
+		logger.info("💡 Creando colección: suggestions");
 
-        Suggestion s1 = Suggestion.builder()
-                .title("Añadir torneos de juegos de mesa")
-                .description("Organizar torneos mensuales de juegos como Catan, Carcassonne o Terraforming Mars.")
-                .type(SuggestionType.EVENT)
-                .author(usuario1)
-                .totalSupporters(0)
-                .build();
+		User usuario1 = usuarios.get(0);
+		User usuario2 = usuarios.get(1);
+		User usuario3 = usuarios.get(2);
+		User usuario4 = usuarios.get(3);
+		User usuario5 = usuarios.get(4);
 
-        Suggestion s2 = Suggestion.builder()
-                .title("Ampliar catálogo de mangas")
-                .description("Incluir colecciones populares actuales y completar series incompletas.")
-                .type(SuggestionType.CATALOG)
-                .author(usuario5)
-                .supporters(List.of(usuario1, usuario2, usuario3, usuario4))
-                .totalSupporters(4)
-                .build();
+		Suggestion s1 = Suggestion.builder().title("Añadir torneos de juegos de mesa")
+				.description("Organizar torneos mensuales de juegos como Catan, Carcassonne o Terraforming Mars.")
+				.type(SuggestionType.EVENT).author(usuario1).totalSupporters(0).build();
 
-        Suggestion s3 = Suggestion.builder()
-                .title("Talleres de iniciación al rol")
-                .description(
-                        "Crear talleres para aprender a jugar a rol, incluyendo partidas guiadas para principiantes.")
-                .type(SuggestionType.EVENT)
-                .author(usuario5)
-                .supporters(List.of(usuario3))
-                .totalSupporters(1)
-                .build();
+		Suggestion s2 = Suggestion.builder().title("Ampliar catálogo de mangas")
+				.description("Incluir colecciones populares actuales y completar series incompletas.")
+				.type(SuggestionType.CATALOG).author(usuario5)
+				.supporters(List.of(usuario1, usuario2, usuario3, usuario4)).totalSupporters(4).build();
 
-        Suggestion s4 = Suggestion.builder()
-                .title("Ciclo de cine temático")
-                .description("Organizar ciclos de cine por temáticas (terror, ciencia ficción, anime, etc.).")
-                .type(SuggestionType.EVENT)
-                .author(usuario5)
-                .totalSupporters(0)
-                .build();
+		Suggestion s3 = Suggestion.builder().title("Talleres de iniciación al rol")
+				.description(
+						"Crear talleres para aprender a jugar a rol, incluyendo partidas guiadas para principiantes.")
+				.type(SuggestionType.EVENT).author(usuario5).supporters(List.of(usuario3)).totalSupporters(1).build();
 
-        Suggestion s5 = Suggestion.builder()
-                .title("Lorem ipsum dolor sit amet, consectetur porttitor.")
-                .description(
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sit amet ex quis velit blandit volutpat et sed mauris. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis finibus volutpat risus at dictum. Curabitur nunc tortor orci aliquam. ")
-                .type(SuggestionType.OTHER)
-                .author(usuario1)
-                .supporters(List.of(usuario2, usuario3))
-                .totalSupporters(2)
-                .build();
+		Suggestion s4 = Suggestion.builder().title("Ciclo de cine temático")
+				.description("Organizar ciclos de cine por temáticas (terror, ciencia ficción, anime, etc.).")
+				.type(SuggestionType.EVENT).author(usuario5).totalSupporters(0).build();
 
-        List<Suggestion> sugerencias = List.of(s1, s2, s3, s4, s5);
-        mongoTemplate.insertAll(sugerencias);
-        logger.info("✅💡 Insertadas {} sugerencias", sugerencias.size());
-    }
+		Suggestion s5 = Suggestion.builder().title("Lorem ipsum dolor sit amet, consectetur porttitor.").description(
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sit amet ex quis velit blandit volutpat et sed mauris. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis finibus volutpat risus at dictum. Curabitur nunc tortor orci aliquam. ")
+				.type(SuggestionType.OTHER).author(usuario1).supporters(List.of(usuario2, usuario3)).totalSupporters(2)
+				.build();
 
-    private List<Section> seedSections(List<User> usuarios) {
-        logger.info("📚 Creando colección: sections");
+		List<Suggestion> sugerencias = List.of(s1, s2, s3, s4, s5);
+		mongoTemplate.insertAll(sugerencias);
+		logger.info("✅💡 Insertadas {} sugerencias", sugerencias.size());
+	}
 
-        Map<String, User> usersByUsername = usuarios.stream()
-                .collect(Collectors.toMap(
-                        User::getUsername,
-                        Function.identity()));
+	private List<Section> seedSections(List<User> usuarios) {
+		logger.info("📚 Creando colección: sections");
 
-        List<Section> sectionsFromCsv = new SectionsCsvParser().loadSectionsFromCsv(usersByUsername);
+		Map<String, User> usersByUsername = usuarios.stream()
+				.collect(Collectors.toMap(User::getUsername, Function.identity()));
 
-        Collection<Section> sections = mongoTemplate.insertAll(sectionsFromCsv);
-        logger.info("✅📚 Insertadas {} secciones", sections.size());
-        return sections.stream().toList();
-    }
+		List<Section> sectionsFromCsv = new SectionsCsvParser().loadSectionsFromCsv(usersByUsername);
 
-    private List<Category> seedCategories() {
-        logger.info("🏷️  Creando colección: categories");
+		Collection<Section> sections = mongoTemplate.insertAll(sectionsFromCsv);
+		logger.info("✅📚 Insertadas {} secciones", sections.size());
+		return sections.stream().toList();
+	}
 
-        List<Category> categories = new CategoryCsvParser().loadCategoriesFromCsv();
+	private List<Category> seedCategories() {
+		logger.info("🏷️  Creando colección: categories");
 
-        mongoTemplate.insertAll(categories);
-        logger.info("✅🏷️ Insertadas {} categorías", categories.size());
-        return categories;
-    }
+		List<Category> categories = new CategoryCsvParser().loadCategoriesFromCsv();
 
-    private List<Saga> seedSagas() {
-        logger.info("📖 Creando colección: sagas");
-        Saga s1 = Saga.builder().name("Geralt de Rivia").build();
-        Saga s2 = Saga.builder().name("Crónicas Vampíricas").build();
-        Saga s3 = Saga.builder().name("Odisea").build();
-        List<Saga> sagas = List.of(s1, s2, s3);
-        mongoTemplate.insertAll(sagas);
-        logger.info("✅📖 Insertadas {} sagas", sagas.size());
-        return sagas;
-    }
+		mongoTemplate.insertAll(categories);
+		logger.info("✅🏷️ Insertadas {} categorías", categories.size());
+		return categories;
+	}
 
-    private void seedBooks(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName, Map<String, Saga> sagasByName) {
-        logger.info("📖 Creando colección: books");
+	private List<Saga> seedSagas() {
+		logger.info("📖 Creando colección: sagas");
+		Saga s1 = Saga.builder().name("Geralt de Rivia").build();
+		Saga s2 = Saga.builder().name("Crónicas Vampíricas").build();
+		Saga s3 = Saga.builder().name("Odisea").build();
+		List<Saga> sagas = List.of(s1, s2, s3);
+		mongoTemplate.insertAll(sagas);
+		logger.info("✅📖 Insertadas {} sagas", sagas.size());
+		return sagas;
+	}
 
-        List<Book> booksFromCsv = new BooksCsvParser().loadBooksFromCsv(
-                sectionsByName,
-                categoriesByName,
-                sagasByName);
+	private void seedBooks(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName,
+			Map<String, Saga> sagasByName) {
+		logger.info("📖 Creando colección: books");
 
-        Collection<Book> books = mongoTemplate.insertAll(booksFromCsv);
+		List<Book> booksFromCsv = new BooksCsvParser().loadBooksFromCsv(sectionsByName, categoriesByName, sagasByName);
 
-        logger.info("✅📖 Insertados {} libros", books.size());
-    }
+		Collection<Book> books = mongoTemplate.insertAll(booksFromCsv);
 
-    private void seedMovies(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName, Map<String, Saga> sagasByName) {
-        logger.info("🎬 Creando colección: movies");
+		logger.info("✅📖 Insertados {} libros", books.size());
+	}
 
-        List<Movie> moviesFromCsv = new MovieCsvParser().loadMoviesFromCsv(
-                sectionsByName,
-                categoriesByName,
-                sagasByName);
+	private void seedMovies(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName,
+			Map<String, Saga> sagasByName) {
+		logger.info("🎬 Creando colección: movies");
 
-        Collection<Movie> movies = mongoTemplate.insertAll(moviesFromCsv);
+		List<Movie> moviesFromCsv = new MovieCsvParser().loadMoviesFromCsv(sectionsByName, categoriesByName,
+				sagasByName);
 
-        logger.info("✅🎬 Insertadas {} películas", movies.size());
-    }
+		Collection<Movie> movies = mongoTemplate.insertAll(moviesFromCsv);
 
-    private void seedSeries(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
-        logger.info("📺 Creando colección: series");
+		logger.info("✅🎬 Insertadas {} películas", movies.size());
+	}
 
-        List<Series> seriesFromCsv = new SeriesCsvParser().loadSeriesFromCsv(
-                sectionsByName,
-                categoriesByName);
+	private void seedSeries(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
+		logger.info("📺 Creando colección: series");
 
-        Collection<Series> series = mongoTemplate.insertAll(seriesFromCsv);
+		List<Series> seriesFromCsv = new SeriesCsvParser().loadSeriesFromCsv(sectionsByName, categoriesByName);
 
-        logger.info("✅📺 Insertadas {} series", series.size());
-    }
+		Collection<Series> series = mongoTemplate.insertAll(seriesFromCsv);
 
-    private void seedBoardGames(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
-        logger.info("🎲 Creando colección: boardgames");
+		logger.info("✅📺 Insertadas {} series", series.size());
+	}
 
-        List<BoardGame> baseBoardGames = new BoardGameCsvParser().loadBaseBoardGamesFromCsv(sectionsByName, categoriesByName);
-        Map<String, BoardGame> baseGamesByName = baseBoardGames.stream()
-                .collect(Collectors.toMap(BoardGame::getName, Function.identity()));
+	private void seedBoardGames(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
+		logger.info("🎲 Creando colección: boardgames");
 
-        List<BoardGame> expansionBoardGames = new BoardGameCsvParser().loadBoardGamesExpansionFromCsv(sectionsByName, categoriesByName, baseGamesByName);
+		List<BoardGame> baseBoardGames = new BoardGameCsvParser().loadBaseBoardGamesFromCsv(sectionsByName,
+				categoriesByName);
+		Map<String, BoardGame> baseGamesByName = baseBoardGames.stream()
+				.collect(Collectors.toMap(BoardGame::getName, Function.identity()));
 
-        Collection<BoardGame> allBoardGames = mongoTemplate.insertAll(baseBoardGames);
-        allBoardGames.addAll(mongoTemplate.insertAll(expansionBoardGames));
+		List<BoardGame> expansionBoardGames = new BoardGameCsvParser().loadBoardGamesExpansionFromCsv(sectionsByName,
+				categoriesByName, baseGamesByName);
 
-        logger.info("✅🎲 Insertados {} juegos de mesa", allBoardGames.size());
-    }
+		Collection<BoardGame> allBoardGames = mongoTemplate.insertAll(baseBoardGames);
+		allBoardGames.addAll(mongoTemplate.insertAll(expansionBoardGames));
 
-    private List<RolSaga> seedRolSagas(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
-        logger.info("🎲 Creando colección: rol_sagas");
+		logger.info("✅🎲 Insertados {} juegos de mesa", allBoardGames.size());
+	}
 
-        List<RolSaga> rolSagasFromCsv = new RolSagaCsvParser().loadRolSagasFromCsv(sectionsByName, categoriesByName);
+	private List<RolSaga> seedRolSagas(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
+		logger.info("🎲 Creando colección: rol_sagas");
 
-        Collection<RolSaga> rolSagas = mongoTemplate.insertAll(rolSagasFromCsv);
+		List<RolSaga> rolSagasFromCsv = new RolSagaCsvParser().loadRolSagasFromCsv(sectionsByName, categoriesByName);
 
-        logger.info("✅🎲 Insertadas {} sagas de rol", rolSagas.size());
-        return rolSagas.stream().toList();
-    }
+		Collection<RolSaga> rolSagas = mongoTemplate.insertAll(rolSagasFromCsv);
 
-    private void seedRolGames(Map<String, RolSaga> sagasByName, Map<String, Category> categoriesByName, Map<String, Section> sectionsByName) {
-        logger.info("🎲 Creando colección: rol_games");
+		logger.info("✅🎲 Insertadas {} sagas de rol", rolSagas.size());
+		return rolSagas.stream().toList();
+	}
 
-        List<RolGame> rolGamesFromCsv = new RolGameCsvParser().loadRolGamesFromCsv(sagasByName, categoriesByName, sectionsByName);
+	private void seedRolGames(Map<String, RolSaga> sagasByName, Map<String, Category> categoriesByName,
+			Map<String, Section> sectionsByName) {
+		logger.info("🎲 Creando colección: rol_games");
 
-        Collection<RolGame> rolGames = mongoTemplate.insertAll(rolGamesFromCsv);
+		List<RolGame> rolGamesFromCsv = new RolGameCsvParser().loadRolGamesFromCsv(sagasByName, categoriesByName,
+				sectionsByName);
 
-        logger.info("✅🎲 Insertados {} juegos de rol", rolGames.size());
-    }
+		Collection<RolGame> rolGames = mongoTemplate.insertAll(rolGamesFromCsv);
 
-    private void seedVideoGames(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
-        logger.info("🎮 Creando colección: videogames");
+		logger.info("✅🎲 Insertados {} juegos de rol", rolGames.size());
+	}
 
-        List<VideoGame> videoGamesFromCsv = new VideoGameCsvParser().loadVideoGamesFromCsv(sectionsByName, categoriesByName);
+	private void seedVideoGames(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
+		logger.info("🎮 Creando colección: videogames");
 
-        Collection<VideoGame> videoGames = mongoTemplate.insertAll(videoGamesFromCsv);
+		List<VideoGame> videoGamesFromCsv = new VideoGameCsvParser().loadVideoGamesFromCsv(sectionsByName,
+				categoriesByName);
 
-        logger.info("✅🎮 Insertados {} videojuegos", videoGames.size());
-    }
+		Collection<VideoGame> videoGames = mongoTemplate.insertAll(videoGamesFromCsv);
+
+		logger.info("✅🎮 Insertados {} videojuegos", videoGames.size());
+	}
 
 }

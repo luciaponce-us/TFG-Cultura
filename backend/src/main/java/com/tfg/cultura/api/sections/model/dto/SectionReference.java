@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @Getter
 public class SectionReference {
-    private String id;
-    private String name;
+	private String id;
+	private String name;
 
-    public SectionReference(Section section) {
-        this.id = section.getId();
-        this.name = section.getName();
-    }
+	public SectionReference(Section section) {
+		this.id = section.getId();
+		this.name = section.getName();
+	}
 }

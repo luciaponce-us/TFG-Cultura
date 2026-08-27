@@ -7,8 +7,7 @@ import org.springframework.http.HttpStatus;
 
 public class ValidationException extends FieldException {
 
-    public ValidationException(Logger logger, Map<String, String> errors) {
-        super(logger, HttpStatus.BAD_REQUEST, errors);
-    }
+	public ValidationException(Logger logger, Map<String, String> errors) {
+		super(logger, HttpStatus.BAD_REQUEST, errors);
+	}
 }
-

@@ -17,16 +17,16 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class SuggestionCreateRequest {
-    
-    @NotBlank(message = "El título es obligatorio")
-    @Size(min = 3, max = 50, message = "El título debe tener entre 3 y 50 caracteres")
-    private String title;
 
-    @Size(max = 280, message = "La descripción no puede tener más de 280 caracteres")
-    private String description;
+	@NotBlank(message = "El título es obligatorio")
+	@Size(min = 3, max = 50, message = "El título debe tener entre 3 y 50 caracteres")
+	private String title;
 
-    @Builder.Default
-    @NotNull(message = "El tipo de sugerencia es obligatorio")
-    private SuggestionType type = SuggestionType.OTHER;
-    
+	@Size(max = 280, message = "La descripción no puede tener más de 280 caracteres")
+	private String description;
+
+	@Builder.Default
+	@NotNull(message = "El tipo de sugerencia es obligatorio")
+	private SuggestionType type = SuggestionType.OTHER;
+
 }

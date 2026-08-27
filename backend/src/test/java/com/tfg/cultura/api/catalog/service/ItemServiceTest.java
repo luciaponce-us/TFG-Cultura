@@ -8,20 +8,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
 
-    @InjectMocks
-    private ItemService itemService;
+	@InjectMocks
+	private ItemService itemService;
 
-    @Test
-    void should_return_item_types() {
-        var itemTypes = itemService.getItemTypes();
+	@Test
+	void should_return_item_types() {
+		var itemTypes = itemService.getItemTypes();
 
-        assert itemTypes.size() == 6;
-        assert itemTypes.contains("Libro");
-        assert itemTypes.contains("Juego de mesa");
-        assert itemTypes.contains("Película");
-        assert itemTypes.contains("Serie");
-        assert itemTypes.contains("Videojuego");
-        assert itemTypes.contains("Juego de rol");
-    }
-    
+		assert itemTypes.size() == 6;
+		assert itemTypes.contains("Libro");
+		assert itemTypes.contains("Juego de mesa");
+		assert itemTypes.contains("Película");
+		assert itemTypes.contains("Serie");
+		assert itemTypes.contains("Videojuego");
+		assert itemTypes.contains("Juego de rol");
+	}
+
 }

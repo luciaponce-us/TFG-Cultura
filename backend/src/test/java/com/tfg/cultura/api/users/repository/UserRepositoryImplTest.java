@@ -8,8 +8,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tfg.cultura.api.users.factory.UserFactory;
+import com.tfg.cultura.api.users.model.User;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import java.util.List;
-
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,10 +25,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
-
-import com.tfg.cultura.api.users.factory.UserFactory;
-import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.enumerators.Role;
 
 @ExtendWith(MockitoExtension.class)
 class UserRepositoryImplTest {

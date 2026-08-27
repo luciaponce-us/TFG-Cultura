@@ -1,12 +1,5 @@
 package com.tfg.cultura.api.sections.service;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 import com.tfg.cultura.api.sections.exception.*;
 import com.tfg.cultura.api.sections.model.Section;
@@ -17,127 +10,130 @@ import com.tfg.cultura.api.sections.service.specifications.*;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.service.UserService;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
 public class SectionUpdateService {
-    private final SectionService sectionService;
-    private final SectionRepository sectionRepository;
-    private final UserService userService;
+	private final SectionService sectionService;
+	private final SectionRepository sectionRepository;
+	private final UserService userService;
 
-    // SPECIFICATIONS - BUSINESS RULES
-    private final UniqueSectionNameSpecification uniqueSectionNameSpecification;
-    private final ManagersMustBeEncargadosSpecification managersMustBeEncargadosSpecification;
-    private final SingleSectionManagerSpecification singleSectionManagerSpecification;
-    private final CollaboratorsMustBeColaboradoresSpecification collaboratorsMustBeColaboradoresSpecification;
-    private final SingleSectionCollaboratorSpecification singleSectionCollaboratorSpecification;
+	// SPECIFICATIONS - BUSINESS RULES
+	private final UniqueSectionNameSpecification uniqueSectionNameSpecification;
+	private final ManagersMustBeEncargadosSpecification managersMustBeEncargadosSpecification;
+	private final SingleSectionManagerSpecification singleSectionManagerSpecification;
+	private final CollaboratorsMustBeColaboradoresSpecification collaboratorsMustBeColaboradoresSpecification;
+	private final SingleSectionCollaboratorSpecification singleSectionCollaboratorSpecification;
 
-    private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
+	private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
 
-    public SectionResponse updateSection(String id, SectionCreateRequest request)
-            throws SectionNotFoundException, SectionAlreadyExistsException {
-        Section section = sectionService.findSectionById(id);
-        uniqueSectionNameSpecification.validateForUpdate(request.getName(), id);
+	public SectionResponse updateSection(String id, SectionCreateRequest request)
+			throws SectionNotFoundException, SectionAlreadyExistsException {
+		Section section = sectionService.findSectionById(id);
+		uniqueSectionNameSpecification.validateForUpdate(request.getName(), id);
 
-        section.setName(request.getName());
-        sectionService.setSectionManagers(section, request.getManagersUsernames());
-        sectionService.setSectionCollaborators(section, request.getCollaboratorsUsernames());
+		section.setName(request.getName());
+		sectionService.setSectionManagers(section, request.getManagersUsernames());
+		sectionService.setSectionCollaborators(section, request.getCollaboratorsUsernames());
 
-        Section updatedSection = sectionRepository.save(section);
-        logger.info("Sección actualizada con éxito: {}", updatedSection.getName());
+		Section updatedSection = sectionRepository.save(section);
+		logger.info("Sección actualizada con éxito: {}", updatedSection.getName());
 
-        return new SectionResponse(updatedSection);
-    }
+		return new SectionResponse(updatedSection);
+	}
 
-    public SectionResponse removeManagerFromSection(String sectionId, String managerUsername)
-            throws SectionNotFoundException, UserNotFoundException {
-        Section section = sectionService.findSectionById(sectionId);
-        User manager = userService.findUserByUsername(managerUsername);
+	public SectionResponse removeManagerFromSection(String sectionId, String managerUsername)
+			throws SectionNotFoundException, UserNotFoundException {
+		Section section = sectionService.findSectionById(sectionId);
+		User manager = userService.findUserByUsername(managerUsername);
 
-        Set<String> managerUsernames = section.getManagers().stream()
-                .map(User::getUsername)
-                .collect(Collectors.toSet());
-        if (!managerUsernames.contains(manager.getUsername())) {
-                String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
-            logger.error("El usuario '{}' no es un encargado de la sección '{}'. Encargados actuales: {}",
-                    sanitizedManagerUsername, section.getName(), managerUsernames);
-            throw new UserNotFoundException("El usuario '" + sanitizedManagerUsername + "' no es un encargado de la sección '"
-                    + section.getName() + "'. Encargados actuales: " + managerUsernames);
-        }
+		Set<String> managerUsernames = section.getManagers().stream().map(User::getUsername)
+				.collect(Collectors.toSet());
+		if (!managerUsernames.contains(manager.getUsername())) {
+			String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
+			logger.error("El usuario '{}' no es un encargado de la sección '{}'. Encargados actuales: {}",
+					sanitizedManagerUsername, section.getName(), managerUsernames);
+			throw new UserNotFoundException(
+					"El usuario '" + sanitizedManagerUsername + "' no es un encargado de la sección '"
+							+ section.getName() + "'. Encargados actuales: " + managerUsernames);
+		}
 
-        User foundManager = section.getManagers().stream()
-                .filter(m -> m.getUsername().equals(managerUsername))
-                .findFirst().get();
-        section.getManagers().remove(foundManager);
-        Section updatedSection = sectionRepository.save(section);
-        String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
-        logger.info("Encargado '{}' eliminado de la sección '{}'", sanitizedManagerUsername, updatedSection.getName());
+		User foundManager = section.getManagers().stream().filter(m -> m.getUsername().equals(managerUsername))
+				.findFirst().get();
+		section.getManagers().remove(foundManager);
+		Section updatedSection = sectionRepository.save(section);
+		String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
+		logger.info("Encargado '{}' eliminado de la sección '{}'", sanitizedManagerUsername, updatedSection.getName());
 
-        return new SectionResponse(updatedSection);
-    }
+		return new SectionResponse(updatedSection);
+	}
 
-    public SectionResponse removeCollaboratorFromSection(String sectionId, String collaboratorUsername)
-            throws SectionNotFoundException, UserNotFoundException {
-        Section section = sectionService.findSectionById(sectionId);
-        User collaborator = userService.findUserByUsername(collaboratorUsername);
-        String sanitizedCollaboratorUsername = LoggerSanitizer.sanitize(collaboratorUsername);
+	public SectionResponse removeCollaboratorFromSection(String sectionId, String collaboratorUsername)
+			throws SectionNotFoundException, UserNotFoundException {
+		Section section = sectionService.findSectionById(sectionId);
+		User collaborator = userService.findUserByUsername(collaboratorUsername);
+		String sanitizedCollaboratorUsername = LoggerSanitizer.sanitize(collaboratorUsername);
 
-        Set<String> collaboratorUsernames = section.getCollaborators().stream()
-                .map(User::getUsername)
-                .collect(Collectors.toSet());
-        if (!collaboratorUsernames.contains(collaborator.getUsername())) {
-                
-            logger.error("El usuario '{}' no es un colaborador de la sección '{}'. Colaboradores actuales: {}",
-                    sanitizedCollaboratorUsername, section.getName(), collaboratorUsernames);
-            throw new UserNotFoundException(
-                    "El usuario '" + sanitizedCollaboratorUsername + "' no es un colaborador de la sección '" + section.getName()
-                            + "'. Colaboradores actuales: " + collaboratorUsernames);
-        }
+		Set<String> collaboratorUsernames = section.getCollaborators().stream().map(User::getUsername)
+				.collect(Collectors.toSet());
+		if (!collaboratorUsernames.contains(collaborator.getUsername())) {
 
-        User foundCollaborator = section.getCollaborators().stream()
-                .filter(c -> c.getUsername().equals(collaboratorUsername))
-                .findFirst().get();
-        section.getCollaborators().remove(foundCollaborator);
-        Section updatedSection = sectionRepository.save(section);
-        logger.info("Colaborador '{}' eliminado de la sección '{}'", sanitizedCollaboratorUsername, updatedSection.getName());
+			logger.error("El usuario '{}' no es un colaborador de la sección '{}'. Colaboradores actuales: {}",
+					sanitizedCollaboratorUsername, section.getName(), collaboratorUsernames);
+			throw new UserNotFoundException(
+					"El usuario '" + sanitizedCollaboratorUsername + "' no es un colaborador de la sección '"
+							+ section.getName() + "'. Colaboradores actuales: " + collaboratorUsernames);
+		}
 
-        return new SectionResponse(updatedSection);
-    }
+		User foundCollaborator = section.getCollaborators().stream()
+				.filter(c -> c.getUsername().equals(collaboratorUsername)).findFirst().get();
+		section.getCollaborators().remove(foundCollaborator);
+		Section updatedSection = sectionRepository.save(section);
+		logger.info("Colaborador '{}' eliminado de la sección '{}'", sanitizedCollaboratorUsername,
+				updatedSection.getName());
 
-    public SectionResponse addManagerToSection(String sectionId, String managerUsername)
-            throws SectionNotFoundException, UserNotFoundException, InvalidManagerRoleException,
-            ManagerAlreadyAssignedException {
-        Section section = sectionService.findSectionById(sectionId);
-        User manager = userService.findUserByUsername(managerUsername);
+		return new SectionResponse(updatedSection);
+	}
 
-        managersMustBeEncargadosSpecification.validate(Set.of(manager));
-        singleSectionManagerSpecification.validate(Set.of(manager), section.getId());
+	public SectionResponse addManagerToSection(String sectionId, String managerUsername)
+			throws SectionNotFoundException, UserNotFoundException, InvalidManagerRoleException,
+			ManagerAlreadyAssignedException {
+		Section section = sectionService.findSectionById(sectionId);
+		User manager = userService.findUserByUsername(managerUsername);
 
-        section.getManagers().add(manager);
-        Section updatedSection = sectionRepository.save(section);
-        String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
-        logger.info("Encargado '{}' añadido a la sección '{}'", sanitizedManagerUsername, updatedSection.getName());
+		managersMustBeEncargadosSpecification.validate(Set.of(manager));
+		singleSectionManagerSpecification.validate(Set.of(manager), section.getId());
 
-        return new SectionResponse(updatedSection);
-    }
+		section.getManagers().add(manager);
+		Section updatedSection = sectionRepository.save(section);
+		String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
+		logger.info("Encargado '{}' añadido a la sección '{}'", sanitizedManagerUsername, updatedSection.getName());
 
-    public SectionResponse addCollaboratorToSection(String sectionId, String collaboratorUsername)
-            throws SectionNotFoundException, UserNotFoundException, InvalidCollaboratorRoleException,
-            CollaboratorAlreadyAssignedException {
-        Section section = sectionService.findSectionById(sectionId);
-        User collaborator = userService.findUserByUsername(collaboratorUsername);
+		return new SectionResponse(updatedSection);
+	}
 
-        collaboratorsMustBeColaboradoresSpecification.validate(Set.of(collaborator));
-        singleSectionCollaboratorSpecification.validate(Set.of(collaborator), section.getId());
+	public SectionResponse addCollaboratorToSection(String sectionId, String collaboratorUsername)
+			throws SectionNotFoundException, UserNotFoundException, InvalidCollaboratorRoleException,
+			CollaboratorAlreadyAssignedException {
+		Section section = sectionService.findSectionById(sectionId);
+		User collaborator = userService.findUserByUsername(collaboratorUsername);
 
-        section.getCollaborators().add(collaborator);
-        Section updatedSection = sectionRepository.save(section);
-        String sanitizedCollaboratorUsername = LoggerSanitizer.sanitize(collaboratorUsername);
-        logger.info("Colaborador '{}' añadido a la sección '{}'", sanitizedCollaboratorUsername, updatedSection.getName());
+		collaboratorsMustBeColaboradoresSpecification.validate(Set.of(collaborator));
+		singleSectionCollaboratorSpecification.validate(Set.of(collaborator), section.getId());
 
-        return new SectionResponse(updatedSection);
-    }
+		section.getCollaborators().add(collaborator);
+		Section updatedSection = sectionRepository.save(section);
+		String sanitizedCollaboratorUsername = LoggerSanitizer.sanitize(collaboratorUsername);
+		logger.info("Colaborador '{}' añadido a la sección '{}'", sanitizedCollaboratorUsername,
+				updatedSection.getName());
+
+		return new SectionResponse(updatedSection);
+	}
 
 }
