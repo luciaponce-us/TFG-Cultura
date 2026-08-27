@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tfg.cultura.api.core.validation.annotations.ValidImage;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.model.enumerators.Role;
@@ -56,7 +57,7 @@ public interface UserControllerInterface {
 			@ApiResponse(responseCode = "404", description = "User Not Found - No se encontró el usuario")
 	})
 	public ResponseEntity<UserResponse> updateUserAvatar(@PathVariable String username,
-			@RequestPart(value = "avatar") MultipartFile avatar) ;
+			@RequestPart(value = "avatar") @ValidImage(message = "Avatar no válido") MultipartFile avatar) ;
 
 	@Operation(summary = "Eliminar un usuario concreto (RF-04)", description = "Como secretario/coordinador, quiero poder realizar las operaciones CRUD (crear, leer, actualizar y eliminar) la información sobre los usuarios, para tener control total sobre la gestión de usuarios")
 	@ApiResponses(value = {

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tfg.cultura.api.core.validation.annotations.ValidImage;
 import com.tfg.cultura.api.core.validation.annotations.ValidPdf;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
@@ -28,7 +29,7 @@ public interface UserAuthControllerInterface {
     })
     public ResponseEntity<UserResponse> register(
             @Valid @Parameter(description = "Datos del usuario en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("user") UserRegisterRequest request,
-            @RequestPart(value = "avatar", required = false) MultipartFile avatar,
+            @RequestPart(value = "avatar", required = false) @ValidImage(message = "Avatar no válido") MultipartFile avatar,
             @RequestPart(value = "paymentReceipt", required = true) @ValidPdf(message = "La carta de pago no es un archivo PDF válido") MultipartFile paymentReceipt);
 
     @Operation(summary = "RF-02: Iniciar sesión", description = "Como usuario registrado, quiero poder iniciar sesión usando las credenciales con las que me registré previamente, para poder acceder a las funciones del sistema que requieran de autenticación")

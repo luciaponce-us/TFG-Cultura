@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaResponse;
 import com.tfg.cultura.api.catalog.service.RolSagaService;
+import com.tfg.cultura.api.core.validation.annotations.ValidImage;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,7 +38,7 @@ public class RolSagaController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RolSagaResponse> createRolSaga(
             @Valid @Parameter(description = "Datos de la saga de rol en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("rolSaga") RolSagaRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart(value = "image", required = false) @ValidImage MultipartFile image) {
         RolSagaResponse response = service.create(request, image);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -65,7 +66,7 @@ public class RolSagaController {
     public ResponseEntity<RolSagaResponse> updateRolSaga(
             @PathVariable String id,
             @Valid @Parameter(description = "Datos de la saga de rol en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("rolSaga") RolSagaRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart(value = "image", required = false) @ValidImage MultipartFile image) {
         RolSagaResponse response = service.update(id, request, image);
         return ResponseEntity
                 .status(HttpStatus.OK)

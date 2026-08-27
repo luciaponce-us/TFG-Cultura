@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tfg.cultura.api.catalog.model.dto.ItemRequest;
 import com.tfg.cultura.api.catalog.model.dto.ItemResponse;
 import com.tfg.cultura.api.catalog.service.AbstractItemService;
+import com.tfg.cultura.api.core.validation.annotations.ValidImage;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +33,7 @@ public abstract class AbstractItemController<TRequest extends ItemRequest, TResp
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     protected ResponseEntity<TResponse> createItem(@Valid @Parameter(description = "Datos del item en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("item") TRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image){
+            @RequestPart(value = "image", required = false) @ValidImage MultipartFile image){
         TResponse response = service.create(request, image);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -59,7 +60,7 @@ public abstract class AbstractItemController<TRequest extends ItemRequest, TResp
     public ResponseEntity<TResponse> updateItem(
             @PathVariable String id,
             @Valid @Parameter(description = "Datos del item en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("item") TRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image){
+            @RequestPart(value = "image", required = false) @ValidImage MultipartFile image){
         TResponse response = service.update(id, request, image);
         return ResponseEntity
                 .status(HttpStatus.OK)

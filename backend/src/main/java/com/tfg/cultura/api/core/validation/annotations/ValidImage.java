@@ -10,11 +10,11 @@ import com.tfg.cultura.api.core.validation.validators.ImageFileValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-@Target({ ElementType.FIELD })
+@Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ImageFileValidator.class)
 public @interface ValidImage {
-    String message() default "Archivo no válido";
+    String message() default "Imagen no válida";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
