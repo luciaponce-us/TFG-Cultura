@@ -14,6 +14,6 @@ public abstract class FieldException extends ApiException {
 		super(errors == null || errors.isEmpty()
 				? "Errores de validación en los campos del formulario"
 				: String.join("; ", errors.values()), logger, status);
-		this.errors = errors;
+		this.errors = errors == null ? Map.of() : Map.copyOf(errors);
 	}
 }

@@ -11,12 +11,14 @@ import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.List;
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RolGameService extends AbstractItemService<RolGame, RolGameRepository, RolGameRequest, RolGameResponse> {
 
 	private final AppProperties appProperties;
+	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
 	private final RolSagaService rolSagaService;
 
 	public RolGameService(RolGameRepository rolGameRepository, SectionService sectionService,

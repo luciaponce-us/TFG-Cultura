@@ -13,11 +13,13 @@ import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.Map;
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BookService extends AbstractItemService<Book, BookRepository, BookRequest, BookResponse> {
 
+	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
 	private final SagaService sagaService;
 
 	private final AppProperties appProperties;

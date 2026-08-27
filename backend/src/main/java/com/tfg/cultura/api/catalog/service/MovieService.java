@@ -15,11 +15,13 @@ import com.tfg.cultura.api.sections.service.SectionService;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MovieService extends AbstractItemService<Movie, MovieRepository, MovieRequest, MovieResponse> {
 
+	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
 	private final SagaService sagaService;
 	private final AppProperties appProperties;
 

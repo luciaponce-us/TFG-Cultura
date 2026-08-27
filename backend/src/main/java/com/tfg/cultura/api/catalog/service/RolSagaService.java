@@ -103,7 +103,7 @@ public class RolSagaService {
 			throws CategoryNotFoundException, SectionNotFoundException, RolSagaNotFoundException,
 			RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
 		RolSaga existingRolSaga = findById(id);
-		boolean nameChanged = !existingRolSaga.getName().toLowerCase().equals(request.getName().trim().toLowerCase());
+		boolean nameChanged = !existingRolSaga.getName().equalsIgnoreCase(request.getName().trim());
 		if (nameChanged) {
 			checkNameUniqueness(request.getName().trim(), id);
 		}

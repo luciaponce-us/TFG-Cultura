@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -78,6 +79,7 @@ public class RolSaga {
 	@CreatedDate
 	private LocalDateTime createdAt;
 
+	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Section is a document reference managed by Spring Data")
 	public RolSaga(RolSagaRequest request, Section section, Set<Category> categories) {
 		this.name = request.getName().trim();
 		this.description = request.getDescription().trim();
@@ -87,6 +89,6 @@ public class RolSaga {
 		this.dice = sanitize(request.getDice());
 		this.recommendedPlayers = sanitize(request.getRecommendedPlayers());
 		this.section = section;
-		this.categories = categories;
+		this.categories = categories == null ? null : Set.copyOf(categories);
 	}
 }
