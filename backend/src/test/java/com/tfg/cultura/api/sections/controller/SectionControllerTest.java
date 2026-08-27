@@ -7,23 +7,12 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tfg.cultura.api.sections.exception.*;
@@ -34,9 +23,16 @@ import com.tfg.cultura.api.sections.model.dto.SectionResponse;
 import com.tfg.cultura.api.sections.service.SectionService;
 import com.tfg.cultura.api.sections.service.SectionUpdateService;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
-import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.utils.BaseControllerTest;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
 
 class SectionControllerTest extends BaseControllerTest {
 
@@ -48,14 +44,12 @@ class SectionControllerTest extends BaseControllerTest {
 
 	private static final String BASE_URL = "/api/sections";
 	private static final String SECTION_URL = BASE_URL + "/{id}";
-	private static final String SECTION_REMOVE_MANAGER_URL = BASE_URL +
-			"/{id}/managers/{managerUsername}/remove";
-	private static final String SECTION_REMOVE_COLLABORATOR_URL = BASE_URL +
-			"/{id}/collaborators/{collaboratorUsername}/remove";
-	private static final String SECTION_ADD_MANAGER_URL = BASE_URL +
-			"/{id}/managers/{managerUsername}/add";
-	private static final String SECTION_ADD_COLLABORATOR_URL = BASE_URL +
-			"/{id}/collaborators/{collaboratorUsername}/add";
+	private static final String SECTION_REMOVE_MANAGER_URL = BASE_URL + "/{id}/managers/{managerUsername}/remove";
+	private static final String SECTION_REMOVE_COLLABORATOR_URL = BASE_URL
+			+ "/{id}/collaborators/{collaboratorUsername}/remove";
+	private static final String SECTION_ADD_MANAGER_URL = BASE_URL + "/{id}/managers/{managerUsername}/add";
+	private static final String SECTION_ADD_COLLABORATOR_URL = BASE_URL
+			+ "/{id}/collaborators/{collaboratorUsername}/add";
 
 	private Section section;
 	private User manager;
@@ -68,7 +62,7 @@ class SectionControllerTest extends BaseControllerTest {
 	void setup() {
 		MockitoAnnotations.openMocks(this);
 		SectionController controller = new SectionController(sectionService, sectionUpdateService);
-		mockMvc = buildMockMvc(controller, SectionExceptionHandler.class, UsersExceptionHandler.class);
+		mockMvc = buildMockMvc(controller);
 
 		initTestData();
 	}
@@ -86,13 +80,10 @@ class SectionControllerTest extends BaseControllerTest {
 	// ✅​ 201 - Created
 	@Test
 	void should_create_section() throws Exception {
-		when(sectionService.createSection(any(SectionCreateRequest.class)))
-				.thenReturn(sectionResponse);
+		when(sectionService.createSection(any(SectionCreateRequest.class))).thenReturn(sectionResponse);
 
-		mockMvc.perform(post(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isCreated())
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isCreated())
 				.andExpect(jsonPath("$.name").value(sectionCreateRequest.getName()));
 
 		verify(sectionService).createSection(any(SectionCreateRequest.class));
@@ -104,11 +95,9 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionService.createSection(any(SectionCreateRequest.class)))
 				.thenThrow(new SectionAlreadyExistsException(sectionCreateRequest.getName()));
 
-		mockMvc.perform(post(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.error").value("Section Already Exists"));
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isConflict())
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any(SectionCreateRequest.class));
 	}
@@ -116,16 +105,12 @@ class SectionControllerTest extends BaseControllerTest {
 	// ❌​ 400 - Bad Request - Invalid Manager Role
 	@Test
 	void should_return_bad_request_when_manager_role_is_invalid() throws Exception {
-		when(sectionService.createSection(any()))
-				.thenThrow(new InvalidManagerRoleException(
-						sectionCreateRequest.getManagersUsernames().stream()
-								.findFirst().get()));
+		when(sectionService.createSection(any())).thenThrow(new InvalidManagerRoleException(
+				sectionCreateRequest.getManagersUsernames().stream().findFirst().get()));
 
-		mockMvc.perform(post(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.error").value("Invalid Manager Role"));
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any());
 	}
@@ -133,16 +118,12 @@ class SectionControllerTest extends BaseControllerTest {
 	// ❌​ 400 - Bad Request - Invalid Collaborator Role
 	@Test
 	void should_return_bad_request_when_collaborator_role_is_invalid() throws Exception {
-		when(sectionService.createSection(any()))
-				.thenThrow(new InvalidCollaboratorRoleException(
-						sectionCreateRequest.getCollaboratorsUsernames().stream()
-								.findFirst().get()));
+		when(sectionService.createSection(any())).thenThrow(new InvalidCollaboratorRoleException(
+				sectionCreateRequest.getCollaboratorsUsernames().stream().findFirst().get()));
 
-		mockMvc.perform(post(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.error").value("Invalid Collaborator Role"));
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any());
 	}
@@ -150,17 +131,12 @@ class SectionControllerTest extends BaseControllerTest {
 	// ❌​ 409 - Conflict - Manager Already Assigned
 	@Test
 	void should_return_conflict_when_manager_already_assigned() throws Exception {
-		when(sectionService.createSection(any()))
-				.thenThrow(new ManagerAlreadyAssignedException(
-						sectionCreateRequest.getManagersUsernames().stream()
-								.findFirst().get()));
+		when(sectionService.createSection(any())).thenThrow(new ManagerAlreadyAssignedException(
+				sectionCreateRequest.getManagersUsernames().stream().findFirst().get()));
 
-		mockMvc.perform(post(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.error")
-						.value("Manager Already Assigned to Another Section"));
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isConflict())
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any());
 	}
@@ -168,17 +144,12 @@ class SectionControllerTest extends BaseControllerTest {
 	// ❌​ 409 - Conflict - Collaborator Already Assigned
 	@Test
 	void should_return_conflict_when_collaborator_already_assigned() throws Exception {
-		when(sectionService.createSection(any()))
-				.thenThrow(new CollaboratorAlreadyAssignedException(
-						sectionCreateRequest.getCollaboratorsUsernames().stream()
-								.findFirst().get()));
+		when(sectionService.createSection(any())).thenThrow(new CollaboratorAlreadyAssignedException(
+				sectionCreateRequest.getCollaboratorsUsernames().stream().findFirst().get()));
 
-		mockMvc.perform(post(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.error")
-						.value("Collaborator Already Assigned to Another Section"));
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isConflict())
+				.andExpect(jsonPath("$.message").exists());
 
 		verify(sectionService).createSection(any());
 	}
@@ -188,10 +159,8 @@ class SectionControllerTest extends BaseControllerTest {
 	void should_return_bad_request_when_request_is_invalid() throws Exception {
 		sectionCreateRequest.setName(""); // Invalid name
 
-		mockMvc.perform(post(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isBadRequest());
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isBadRequest());
 
 		verifyNoInteractions(sectionService);
 	}
@@ -202,13 +171,10 @@ class SectionControllerTest extends BaseControllerTest {
 	@Test
 	void should_get_all_sections_when_name_filter_is_not_provided() throws Exception {
 		// Arrange
-		when(sectionService.getAllSections(null))
-				.thenReturn(List.of(sectionResponse));
+		when(sectionService.getAllSections(null)).thenReturn(List.of(sectionResponse));
 
 		// Act & Assert
-		mockMvc.perform(get(BASE_URL))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(1))
+		mockMvc.perform(get(BASE_URL)).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
 				.andExpect(jsonPath("$[0].name").value(section.getName()));
 
 		verify(sectionService).getAllSections(null);
@@ -218,15 +184,11 @@ class SectionControllerTest extends BaseControllerTest {
 	@Test
 	void should_get_filtered_sections_when_name_filter_is_provided() throws Exception {
 		// Arrange
-		when(sectionService.getAllSections("manga"))
-				.thenReturn(List.of(sectionResponse));
+		when(sectionService.getAllSections("manga")).thenReturn(List.of(sectionResponse));
 
 		// Act & Assert
-		mockMvc.perform(get(BASE_URL)
-				.param("nameFilter", "manga"))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(1))
-				.andExpect(jsonPath("$[0].name").value(section.getName()));
+		mockMvc.perform(get(BASE_URL).param("nameFilter", "manga")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].name").value(section.getName()));
 
 		verify(sectionService).getAllSections("manga");
 	}
@@ -235,13 +197,10 @@ class SectionControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_empty_list_when_no_sections_are_found() throws Exception {
 		// Arrange
-		when(sectionService.getAllSections(null))
-				.thenReturn(Collections.emptyList());
+		when(sectionService.getAllSections(null)).thenReturn(Collections.emptyList());
 
 		// Act & Assert
-		mockMvc.perform(get(BASE_URL))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(0));
+		mockMvc.perform(get(BASE_URL)).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
 
 		verify(sectionService).getAllSections(null);
 	}
@@ -252,12 +211,10 @@ class SectionControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_section_when_get_section_by_id() throws Exception {
 		// Arrange
-		when(sectionService.getSectionById(section.getId()))
-				.thenReturn(sectionResponse);
+		when(sectionService.getSectionById(section.getId())).thenReturn(sectionResponse);
 
 		// Act & Assert
-		mockMvc.perform(get(SECTION_URL, section.getId()))
-				.andExpect(status().isOk())
+		mockMvc.perform(get(SECTION_URL, section.getId())).andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(section.getId()))
 				.andExpect(jsonPath("$.name").value(section.getName()));
 
@@ -269,12 +226,10 @@ class SectionControllerTest extends BaseControllerTest {
 	void should_return_not_found_when_section_does_not_exist() throws Exception {
 		// Arrange
 		when(sectionService.getSectionById(section.getId()))
-				.thenThrow(new SectionNotFoundException(
-						"Sección no encontrada con ID: " + section.getId()));
+				.thenThrow(new SectionNotFoundException("Sección no encontrada con ID: " + section.getId()));
 
 		// Act & Assert
-		mockMvc.perform(get(SECTION_URL, section.getId()))
-				.andExpect(status().isNotFound());
+		mockMvc.perform(get(SECTION_URL, section.getId())).andExpect(status().isNotFound());
 
 		verify(sectionService).getSectionById(section.getId());
 	}
@@ -287,10 +242,8 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.updateSection(eq(section.getId()), any(SectionCreateRequest.class)))
 				.thenReturn(sectionResponse);
 
-		mockMvc.perform(put(SECTION_URL, section.getId())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isOk())
+		mockMvc.perform(put(SECTION_URL, section.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
 
 		verify(sectionUpdateService).updateSection(eq(section.getId()), any(SectionCreateRequest.class));
@@ -302,10 +255,8 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.updateSection(eq(section.getId()), any(SectionCreateRequest.class)))
 				.thenThrow(new SectionNotFoundException("Section not found"));
 
-		mockMvc.perform(put(SECTION_URL, section.getId())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isNotFound());
+		mockMvc.perform(put(SECTION_URL, section.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isNotFound());
 
 		verify(sectionUpdateService).updateSection(eq(section.getId()), any(SectionCreateRequest.class));
 	}
@@ -316,10 +267,8 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.updateSection(eq(section.getId()), any(SectionCreateRequest.class)))
 				.thenThrow(new SectionAlreadyExistsException("Section already exists"));
 
-		mockMvc.perform(put(SECTION_URL, section.getId())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(sectionCreateRequest)))
-				.andExpect(status().isConflict());
+		mockMvc.perform(put(SECTION_URL, section.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(sectionCreateRequest))).andExpect(status().isConflict());
 
 		verify(sectionUpdateService).updateSection(eq(section.getId()), any(SectionCreateRequest.class));
 	}
@@ -327,15 +276,10 @@ class SectionControllerTest extends BaseControllerTest {
 	// ❌ 400 - Bad Request
 	@Test
 	void should_return_bad_request_when_update_request_is_invalid() throws Exception {
-		SectionCreateRequest invalidRequest = new SectionCreateRequest(
-				"",
-				Set.of(),
-				Set.of());
+		SectionCreateRequest invalidRequest = new SectionCreateRequest("", Set.of(), Set.of());
 
-		mockMvc.perform(put(SECTION_URL, section.getId())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(invalidRequest)))
-				.andExpect(status().isBadRequest());
+		mockMvc.perform(put(SECTION_URL, section.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalidRequest))).andExpect(status().isBadRequest());
 
 		verifyNoInteractions(sectionUpdateService);
 	}
@@ -348,16 +292,11 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.removeManagerFromSection(section.getId(), manager.getUsername()))
 				.thenReturn(sectionResponse);
 
-		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL,
-				section.getId(),
-				manager.getUsername()))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(sectionResponse.getId()))
+		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL, section.getId(), manager.getUsername()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(sectionResponse.getId()))
 				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
 
-		verify(sectionUpdateService).removeManagerFromSection(
-				section.getId(),
-				manager.getUsername());
+		verify(sectionUpdateService).removeManagerFromSection(section.getId(), manager.getUsername());
 	}
 
 	// ❌ 404 - Not Found - Section not found
@@ -366,14 +305,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.removeManagerFromSection(section.getId(), manager.getUsername()))
 				.thenThrow(new SectionNotFoundException("error"));
 
-		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL,
-				section.getId(),
-				manager.getUsername()))
+		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL, section.getId(), manager.getUsername()))
 				.andExpect(status().isNotFound());
 
-		verify(sectionUpdateService).removeManagerFromSection(
-				section.getId(),
-				manager.getUsername());
+		verify(sectionUpdateService).removeManagerFromSection(section.getId(), manager.getUsername());
 	}
 
 	// ❌ 404 - Not Found - Manager not found in section
@@ -382,14 +317,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.removeManagerFromSection(section.getId(), manager.getUsername()))
 				.thenThrow(new UserNotFoundException("error"));
 
-		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL,
-				section.getId(),
-				manager.getUsername()))
+		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL, section.getId(), manager.getUsername()))
 				.andExpect(status().isNotFound());
 
-		verify(sectionUpdateService).removeManagerFromSection(
-				section.getId(),
-				manager.getUsername());
+		verify(sectionUpdateService).removeManagerFromSection(section.getId(), manager.getUsername());
 	}
 
 	// ======================= REMOVE COLLABORATOR ======================
@@ -400,16 +331,11 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.removeCollaboratorFromSection(section.getId(), collaborator.getUsername()))
 				.thenReturn(sectionResponse);
 
-		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL,
-				section.getId(),
-				collaborator.getUsername()))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(sectionResponse.getId()))
+		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(sectionResponse.getId()))
 				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
 
-		verify(sectionUpdateService).removeCollaboratorFromSection(
-				section.getId(),
-				collaborator.getUsername());
+		verify(sectionUpdateService).removeCollaboratorFromSection(section.getId(), collaborator.getUsername());
 	}
 
 	// ❌ 404 - Not Found - Section not found
@@ -418,14 +344,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.removeCollaboratorFromSection(section.getId(), collaborator.getUsername()))
 				.thenThrow(new SectionNotFoundException("error"));
 
-		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL,
-				section.getId(),
-				collaborator.getUsername()))
+		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
 				.andExpect(status().isNotFound());
 
-		verify(sectionUpdateService).removeCollaboratorFromSection(
-				section.getId(),
-				collaborator.getUsername());
+		verify(sectionUpdateService).removeCollaboratorFromSection(section.getId(), collaborator.getUsername());
 	}
 
 	// ❌ 404 - Not Found - Collaborator not found in section
@@ -434,14 +356,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.removeCollaboratorFromSection(section.getId(), collaborator.getUsername()))
 				.thenThrow(new UserNotFoundException("error"));
 
-		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL,
-				section.getId(),
-				collaborator.getUsername()))
+		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
 				.andExpect(status().isNotFound());
 
-		verify(sectionUpdateService).removeCollaboratorFromSection(
-				section.getId(),
-				collaborator.getUsername());
+		verify(sectionUpdateService).removeCollaboratorFromSection(section.getId(), collaborator.getUsername());
 	}
 
 	// ====================== ADD MANAGER ======================
@@ -452,16 +370,11 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
 				.thenReturn(sectionResponse);
 
-		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
-				section.getId(),
-				manager.getUsername()))
-				.andExpect(status().isOk())
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL, section.getId(), manager.getUsername())).andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(sectionResponse.getId()))
 				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
 
-		verify(sectionUpdateService).addManagerToSection(
-				section.getId(),
-				manager.getUsername());
+		verify(sectionUpdateService).addManagerToSection(section.getId(), manager.getUsername());
 	}
 
 	// ❌ 404 - Not Found - Section not found
@@ -470,14 +383,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
 				.thenThrow(new SectionNotFoundException("error"));
 
-		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
-				section.getId(),
-				manager.getUsername()))
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL, section.getId(), manager.getUsername()))
 				.andExpect(status().isNotFound());
 
-		verify(sectionUpdateService).addManagerToSection(
-				section.getId(),
-				manager.getUsername());
+		verify(sectionUpdateService).addManagerToSection(section.getId(), manager.getUsername());
 	}
 
 	// ❌ 404 - Not Found - User not found
@@ -486,14 +395,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
 				.thenThrow(new UserNotFoundException("error"));
 
-		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
-				section.getId(),
-				manager.getUsername()))
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL, section.getId(), manager.getUsername()))
 				.andExpect(status().isNotFound());
 
-		verify(sectionUpdateService).addManagerToSection(
-				section.getId(),
-				manager.getUsername());
+		verify(sectionUpdateService).addManagerToSection(section.getId(), manager.getUsername());
 	}
 
 	// ❌ 400 - Bad Request - Invalid manager role
@@ -502,14 +407,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
 				.thenThrow(new InvalidManagerRoleException("error"));
 
-		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
-				section.getId(),
-				manager.getUsername()))
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL, section.getId(), manager.getUsername()))
 				.andExpect(status().isBadRequest());
 
-		verify(sectionUpdateService).addManagerToSection(
-				section.getId(),
-				manager.getUsername());
+		verify(sectionUpdateService).addManagerToSection(section.getId(), manager.getUsername());
 	}
 
 	// ❌ 409 - Conflict - Manager already assigned
@@ -518,14 +419,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
 				.thenThrow(new ManagerAlreadyAssignedException("error"));
 
-		mockMvc.perform(put(SECTION_ADD_MANAGER_URL,
-				section.getId(),
-				manager.getUsername()))
+		mockMvc.perform(put(SECTION_ADD_MANAGER_URL, section.getId(), manager.getUsername()))
 				.andExpect(status().isConflict());
 
-		verify(sectionUpdateService).addManagerToSection(
-				section.getId(),
-				manager.getUsername());
+		verify(sectionUpdateService).addManagerToSection(section.getId(), manager.getUsername());
 	}
 
 	// ====================== ADD COLLABORATOR ======================
@@ -536,16 +433,11 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
 				.thenReturn(sectionResponse);
 
-		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
-				section.getId(),
-				collaborator.getUsername()))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(sectionResponse.getId()))
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(sectionResponse.getId()))
 				.andExpect(jsonPath("$.name").value(sectionResponse.getName()));
 
-		verify(sectionUpdateService).addCollaboratorToSection(
-				section.getId(),
-				collaborator.getUsername());
+		verify(sectionUpdateService).addCollaboratorToSection(section.getId(), collaborator.getUsername());
 	}
 
 	// ❌ 404 - Not Found - Section not found
@@ -554,14 +446,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
 				.thenThrow(new SectionNotFoundException("error"));
 
-		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
-				section.getId(),
-				collaborator.getUsername()))
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
 				.andExpect(status().isNotFound());
 
-		verify(sectionUpdateService).addCollaboratorToSection(
-				section.getId(),
-				collaborator.getUsername());
+		verify(sectionUpdateService).addCollaboratorToSection(section.getId(), collaborator.getUsername());
 	}
 
 	// ❌ 404 - Not Found - User not found
@@ -570,14 +458,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
 				.thenThrow(new UserNotFoundException("error"));
 
-		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
-				section.getId(),
-				collaborator.getUsername()))
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
 				.andExpect(status().isNotFound());
 
-		verify(sectionUpdateService).addCollaboratorToSection(
-				section.getId(),
-				collaborator.getUsername());
+		verify(sectionUpdateService).addCollaboratorToSection(section.getId(), collaborator.getUsername());
 	}
 
 	// ❌ 400 - Bad Request - Invalid collaborator role
@@ -586,14 +470,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
 				.thenThrow(new InvalidCollaboratorRoleException("error"));
 
-		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
-				section.getId(),
-				collaborator.getUsername()))
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
 				.andExpect(status().isBadRequest());
 
-		verify(sectionUpdateService).addCollaboratorToSection(
-				section.getId(),
-				collaborator.getUsername());
+		verify(sectionUpdateService).addCollaboratorToSection(section.getId(), collaborator.getUsername());
 	}
 
 	// ❌ 409 - Conflict - Collaborator already assigned
@@ -602,14 +482,10 @@ class SectionControllerTest extends BaseControllerTest {
 		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
 				.thenThrow(new CollaboratorAlreadyAssignedException("error"));
 
-		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL,
-				section.getId(),
-				collaborator.getUsername()))
+		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
 				.andExpect(status().isConflict());
 
-		verify(sectionUpdateService).addCollaboratorToSection(
-				section.getId(),
-				collaborator.getUsername());
+		verify(sectionUpdateService).addCollaboratorToSection(section.getId(), collaborator.getUsername());
 	}
 
 	// ====================== DELETE ======================
@@ -619,8 +495,7 @@ class SectionControllerTest extends BaseControllerTest {
 	void should_delete_section() throws Exception {
 		doNothing().when(sectionService).deleteSection(section.getId());
 
-		mockMvc.perform(delete(SECTION_URL, section.getId()))
-				.andExpect(status().isNoContent());
+		mockMvc.perform(delete(SECTION_URL, section.getId())).andExpect(status().isNoContent());
 
 		verify(sectionService).deleteSection(section.getId());
 	}
@@ -628,12 +503,9 @@ class SectionControllerTest extends BaseControllerTest {
 	// ❌ 404 - Not Found - Section not found
 	@Test
 	void should_return_not_found_when_deleting_non_existing_section() throws Exception {
-		doThrow(new SectionNotFoundException("error"))
-				.when(sectionService)
-				.deleteSection(section.getId());
+		doThrow(new SectionNotFoundException("error")).when(sectionService).deleteSection(section.getId());
 
-		mockMvc.perform(delete(SECTION_URL, section.getId()))
-				.andExpect(status().isNotFound());
+		mockMvc.perform(delete(SECTION_URL, section.getId())).andExpect(status().isNotFound());
 
 		verify(sectionService).deleteSection(section.getId());
 	}

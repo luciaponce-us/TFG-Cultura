@@ -1,0 +1,28 @@
+name,description,imageUrl,condition,comments,loanAvailable, publicated, purchasedAt, price, copies, availableCopies, loanDays, section, categories, saga, type
+"Manual del jugador 3.0","Manual del jugador de Dungeons & Dragons 3.0",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",BASIC
+"Guía del Dungeon Master 3.0","Guía del Dungeon Master de Dungeons & Dragons 3.0",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",BASIC
+"Manual del jugador 3.5","Manual del jugador de Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",BASIC
+"Guía del Dungeon Master 3.5","Guía del Dungeon Master de Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",BASIC
+"Manual de Monstruos I 3.5","Manual de Monstruos de Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",BASIC
+"Manual de Monstruos II","Manual de Monstruos II de Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Manual de Monstruos III","Manual de Monstruos III de Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Manual de Monstruos IV","Manual de Monstruos IV de Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Manual de Monstruos V","Manual de Monstruos V de Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Reinos Olvidados: Guía del jugador","Guía del jugador de Reinos Olvidados para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Eberron: Escenario de Campaña","Escenario de campaña de Eberron para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Eberron: Guía del jugador","Guía del jugador de Eberron para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Dragonlance: Guía del jugador","Guía del jugador de Dragonlance para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"El Gran Libro de la Dragonlance","Libro de opciones y contenido de Dragonlance para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Compendio de Monstruos de Faerûn","Compendio de monstruos de Faerûn para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Razas de Eberron","Razas y opciones de personaje de Eberron para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Manual de Psiónica Expandido","Manual de reglas de psiónica para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"El Arcano Completo","Opciones de personajes y reglas de magia arcana para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"El Combatiente Completo","Opciones de personajes y reglas de combate para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"El Divino Completo","Opciones de personajes y reglas de magia divina para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Compendio de Conjuros","Compendio de conjuros para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Guía del Dungeon Master 3.0","Guía del Dungeon Master de Dungeons & Dragons 3.0",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",BASIC
+"Libro de las Obras Elevadas","Reglas y opciones relacionadas con personajes y temas de bondad para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Libro de la Oscuridad Vil","Reglas y opciones relacionadas con personajes y temas malignos para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Draconomicón: el libro de los dragones","Libro de reglas y contenido sobre dragones para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Libris Mortis: el libro de los muertos vivientes","Libro de reglas y contenido sobre muertos vivientes para Dungeons & Dragons 3.5",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION
+"Aventuras Orientales","Libro de ambientación y reglas inspirado en el Asia fantástica para Dungeons & Dragons",null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,,,"Dungeons & Dragons Tercera Edición",EXPANSION

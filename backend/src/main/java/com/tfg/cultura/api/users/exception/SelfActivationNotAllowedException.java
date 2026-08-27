@@ -1,7 +1,9 @@
 package com.tfg.cultura.api.users.exception;
 
-public class SelfActivationNotAllowedException extends RuntimeException {
-    public SelfActivationNotAllowedException(String message) {
-        super(message);
-    }
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
+
+public class SelfActivationNotAllowedException extends UnauthorizedException {
+	public SelfActivationNotAllowedException() {
+		super("No puedes activar tu propio usuario");
+	}
 }

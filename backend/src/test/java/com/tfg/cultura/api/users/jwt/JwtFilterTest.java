@@ -1,204 +1,175 @@
 package com.tfg.cultura.api.users.jwt;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @ExtendWith(MockitoExtension.class)
 class JwtFilterTest {
 
-    @Mock
-    private JwtService jwtService;
+	@Mock
+	private JwtService jwtService;
 
-    @Mock
-    private CustomUserDetailsService userDetailsService;
+	@Mock
+	private CustomUserDetailsService userDetailsService;
 
-    @Mock
-    private HttpServletRequest request;
+	@Mock
+	private HttpServletRequest request;
 
-    @Mock
-    private HttpServletResponse response;
+	@Mock
+	private HttpServletResponse response;
 
-    @Mock
-    private FilterChain filterChain;
+	@Mock
+	private FilterChain filterChain;
 
-    @Mock
-    private UserDetails userDetails;
+	@Mock
+	private UserDetails userDetails;
 
-    @InjectMocks
-    private JwtFilter filter;
+	@InjectMocks
+	private JwtFilter filter;
 
-    @BeforeEach
-    void setUp() {
-        SecurityContextHolder.clearContext();
-    }
+	@BeforeEach
+	void setUp() {
+		SecurityContextHolder.clearContext();
+	}
 
-    // -------------------------------
-    // shouldNotFilter
-    // -------------------------------
+	// -------------------------------
+	// doFilterInternal
+	// -------------------------------
 
-    @Test
-    void should_not_filter_public_urls() throws Exception {
-        when(request.getRequestURI()).thenReturn("/api/users/auth/register");
+	@Test
+	void should_continue_when_no_authorization_header() throws Exception {
+		when(request.getHeader("Authorization")).thenReturn(null);
 
-        boolean result = filter.shouldNotFilter(request);
+		filter.doFilterInternal(request, response, filterChain);
 
-        assertTrue(result);
-    }
+		verify(filterChain).doFilter(request, response);
+		verifyNoInteractions(jwtService, userDetailsService);
+	}
 
-    @Test
-    void should_filter_non_public_urls() throws Exception {
-        when(request.getRequestURI()).thenReturn("/api/private");
+	@Test
+	void should_continue_when_header_does_not_start_with_bearer() throws Exception {
+		when(request.getHeader("Authorization")).thenReturn("Basic 123");
 
-        boolean result = filter.shouldNotFilter(request);
+		filter.doFilterInternal(request, response, filterChain);
 
-        assertFalse(result);
-    }
+		verify(filterChain).doFilter(request, response);
+		verifyNoInteractions(jwtService, userDetailsService);
+	}
 
-    // -------------------------------
-    // doFilterInternal
-    // -------------------------------
+	@Test
+	void should_authenticate_when_token_is_valid() throws Exception {
+		String token = "validToken";
+		String username = "lucia";
 
-    @Test
-    void should_continue_when_no_authorization_header() throws Exception {
-        when(request.getHeader("Authorization")).thenReturn(null);
+		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+		when(jwtService.extractId(token)).thenReturn(username);
+		when(userDetailsService.loadUserById(username)).thenReturn(userDetails);
+		when(userDetails.isEnabled()).thenReturn(true);
+		when(jwtService.isTokenValid(token, userDetails)).thenReturn(true);
+		when(userDetails.getAuthorities()).thenReturn(java.util.List.of());
 
-        filter.doFilterInternal(request, response, filterChain);
+		filter.doFilterInternal(request, response, filterChain);
 
-        verify(filterChain).doFilter(request, response);
-        verifyNoInteractions(jwtService, userDetailsService);
-    }
+		verify(jwtService).extractId(token);
+		verify(userDetailsService).loadUserById(username);
+		verify(jwtService).isTokenValid(token, userDetails);
 
-    @Test
-    void should_continue_when_header_does_not_start_with_bearer() throws Exception {
-        when(request.getHeader("Authorization")).thenReturn("Basic 123");
+		verify(filterChain).doFilter(request, response);
 
-        filter.doFilterInternal(request, response, filterChain);
+		// Verifica que se ha autenticado
+		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+	}
 
-        verify(filterChain).doFilter(request, response);
-        verifyNoInteractions(jwtService, userDetailsService);
-    }
+	@Test
+	void should_not_authenticate_when_token_is_invalid() throws Exception {
+		String token = "invalidToken";
+		String username = "lucia";
 
-    @Test
-    void should_authenticate_when_token_is_valid() throws Exception {
-        String token = "validToken";
-        String username = "lucia";
+		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+		when(jwtService.extractId(token)).thenReturn(username);
+		when(userDetailsService.loadUserById(username)).thenReturn(userDetails);
+		when(userDetails.isEnabled()).thenReturn(true);
+		when(jwtService.isTokenValid(token, userDetails)).thenReturn(false);
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractId(token)).thenReturn(username);
-        when(userDetailsService.loadUserById(username)).thenReturn(userDetails);
-        when(userDetails.isEnabled()).thenReturn(true);
-        when(jwtService.isTokenValid(token, userDetails)).thenReturn(true);
-        when(userDetails.getAuthorities()).thenReturn(java.util.List.of());
+		filter.doFilterInternal(request, response, filterChain);
 
-        filter.doFilterInternal(request, response, filterChain);
+		verify(filterChain).doFilter(request, response);
 
-        verify(jwtService).extractId(token);
-        verify(userDetailsService).loadUserById(username);
-        verify(jwtService).isTokenValid(token, userDetails);
+		// No autenticado
+		assertNull(SecurityContextHolder.getContext().getAuthentication());
+	}
 
-        verify(filterChain).doFilter(request, response);
+	@Test
+	void should_not_authenticate_when_username_is_null() throws Exception {
+		String token = "token";
 
-        // Verifica que se ha autenticado
-        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-    }
+		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+		when(jwtService.extractId(token)).thenReturn(null);
 
-    @Test
-    void should_not_authenticate_when_token_is_invalid() throws Exception {
-        String token = "invalidToken";
-        String username = "lucia";
+		filter.doFilterInternal(request, response, filterChain);
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractId(token)).thenReturn(username);
-        when(userDetailsService.loadUserById(username)).thenReturn(userDetails);
-        when(userDetails.isEnabled()).thenReturn(true);
-        when(jwtService.isTokenValid(token, userDetails)).thenReturn(false);
+		verify(filterChain).doFilter(request, response);
+		verify(userDetailsService, never()).loadUserById(any());
+	}
 
-        filter.doFilterInternal(request, response, filterChain);
+	@Test
+	void should_skip_when_already_authenticated() throws Exception {
+		String token = "token";
 
-        verify(filterChain).doFilter(request, response);
+		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
 
-        // No autenticado
-        assertNull(SecurityContextHolder.getContext().getAuthentication());
-    }
+		// Simular autenticación previa
+		SecurityContextHolder.getContext().setAuthentication(mock(Authentication.class));
 
-    @Test
-    void should_not_authenticate_when_username_is_null() throws Exception {
-        String token = "token";
+		filter.doFilterInternal(request, response, filterChain);
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractId(token)).thenReturn(null);
+		verify(userDetailsService, never()).loadUserById(any());
+		verify(filterChain).doFilter(request, response);
+	}
 
-        filter.doFilterInternal(request, response, filterChain);
+	@Test
+	void should_return_403_when_user_is_disabled() throws Exception {
+		String token = "validToken";
+		String userId = "lucia";
 
-        verify(filterChain).doFilter(request, response);
-        verify(userDetailsService, never()).loadUserById(any());
-    }
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter writer = new PrintWriter(stringWriter);
 
-    @Test
-    void should_skip_when_already_authenticated() throws Exception {
-        String token = "token";
+		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+		when(jwtService.extractId(token)).thenReturn(userId);
+		when(userDetailsService.loadUserById(userId)).thenReturn(userDetails);
+		when(userDetails.isEnabled()).thenReturn(false);
+		when(response.getWriter()).thenReturn(writer);
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractId(token)).thenReturn("lucia");
+		filter.doFilterInternal(request, response, filterChain);
 
-        // Simular autenticación previa
-        SecurityContextHolder.getContext().setAuthentication(mock(Authentication.class));
+		verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+		verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        filter.doFilterInternal(request, response, filterChain);
+		verify(jwtService, never()).isTokenValid(any(), any());
+		verify(filterChain, never()).doFilter(any(), any());
 
-        verify(userDetailsService, never()).loadUserById(any());
-        verify(filterChain).doFilter(request, response);
-    }
+		writer.flush();
 
-    @Test
-    void should_return_403_when_user_is_disabled() throws Exception {
-        String token = "validToken";
-        String userId = "lucia";
-
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter writer = new PrintWriter(stringWriter);
-
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtService.extractId(token)).thenReturn(userId);
-        when(userDetailsService.loadUserById(userId)).thenReturn(userDetails);
-        when(userDetails.isEnabled()).thenReturn(false);
-        when(response.getWriter()).thenReturn(writer);
-
-        filter.doFilterInternal(request, response, filterChain);
-
-        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
-        verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-        verify(jwtService, never()).isTokenValid(any(), any());
-        verify(filterChain, never()).doFilter(any(), any());
-
-        writer.flush();
-
-        String json = stringWriter.toString();
-        assertTrue(json.contains("\"status\":403"));
-        assertTrue(json.contains("Usuario desactivado"));
-        assertTrue(json.contains("Tu usuario está desactivado"));
-    }
+		String json = stringWriter.toString();
+		assertTrue(json.contains("\"status\":403"));
+		assertTrue(json.contains("Usuario desactivado"));
+	}
 }

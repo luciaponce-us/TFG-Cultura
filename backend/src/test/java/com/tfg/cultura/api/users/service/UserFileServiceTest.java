@@ -5,10 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tfg.cultura.api.core.exception.ValidationException;
+import com.tfg.cultura.api.core.exception.file.FileUploadException;
+import com.tfg.cultura.api.core.exception.file.InvalidFileSizeException;
+import com.tfg.cultura.api.core.exception.file.InvalidFileTypeException;
+import com.tfg.cultura.api.core.service.FileService;
+import com.tfg.cultura.api.users.factory.UserFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,171 +26,139 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.tfg.cultura.api.core.exception.FileUploadException;
-import com.tfg.cultura.api.core.service.FileService;
-import com.tfg.cultura.api.users.factory.UserFactory;
-
 @ExtendWith(MockitoExtension.class)
 class UserFileServiceTest {
 
-    @Mock
-    private MultipartFile file;
+	@Mock
+	private MultipartFile file;
 
-    @Mock
-    private FileService fileService;
+	@Mock
+	private FileService fileService;
 
-    @InjectMocks
-    private UserFileService service;
+	@InjectMocks
+	private UserFileService service;
 
-    private static final MockMultipartFile PDF_FILE = UserFactory.valid_payment_receipt_file();
-    private static final MockMultipartFile AVATAR_FILE = UserFactory.valid_avatar_file();
+	private static final MockMultipartFile PDF_FILE = UserFactory.valid_payment_receipt_file();
+	private static final MockMultipartFile AVATAR_FILE = UserFactory.valid_avatar_file();
 
-    // UPLOAD AVATAR
+	// UPLOAD AVATAR
 
-    @Test
-    void should_upload_avatar_successfully() {
-        String userId = "123";
-        when(fileService.uploadFile(any())).thenReturn("url/avatar.png");
+	@Test
+	void should_upload_avatar_successfully() {
+		String userId = "123";
+		when(fileService.uploadImage(anyString(), anyString(), any(), anyString(), anyString(), anyInt(), anyInt(),
+				any(), anyString())).thenReturn("url/avatar.png");
 
-        String result = service.uploadAvatar(userId, AVATAR_FILE);
+		String result = service.uploadAvatar(userId, AVATAR_FILE);
 
-        assertEquals("url/avatar.png", result);
-    }
+		assertEquals("url/avatar.png", result);
+	}
 
-    @Test
-    void should_return_placeholder_when_upload_avatar_fails() {
-        String userId = "123";
-        when(fileService.uploadFile(any()))
-                .thenThrow(new RuntimeException("error"));
+	@Test
+	void should_propagate_avatar_upload_failure() {
+		String userId = "123";
+		when(fileService.uploadImage(anyString(), anyString(), any(), anyString(), anyString(), anyInt(), anyInt(),
+				any(), anyString())).thenThrow(new FileUploadException("error"));
 
-        String result = service.uploadAvatar(userId, AVATAR_FILE);
+		assertThrows(FileUploadException.class, () -> service.uploadAvatar(userId, AVATAR_FILE));
+	}
 
-        assertEquals(UserFileService.AVATAR_PLACEHOLDER, result);
-    }
+	// UPLOAD PAYMENT RECEIPT
 
-    // UPLOAD PAYMENT RECEIPT
+	@Test
+	void should_throw_FileUploadException_when_upload_fails() {
+		String userId = "123";
+		when(fileService.uploadPdf(anyString(), anyString(), any(), anyString(), anyString(), any(), anyString()))
+				.thenThrow(new FileUploadException("Cloud error"));
 
-    @Test
-    void should_throw_FileUploadException_when_upload_fails() {
-        String userId = "123";
-        when(fileService.uploadFile(any()))
-                .thenThrow(new RuntimeException("Cloud error"));
+		FileUploadException exception = assertThrows(FileUploadException.class,
+				() -> service.uploadPaymentReceiptPdf(userId, PDF_FILE));
 
-        FileUploadException exception = assertThrows(
-                FileUploadException.class,
-                () -> service.uploadPaymentReceiptPdf(userId, PDF_FILE));
+		assertTrue(exception.getMessage().contains("Cloud error"));
 
-        assertTrue(exception.getMessage().contains("Error subiendo PDF"));
-        assertTrue(exception.getMessage().contains(PDF_FILE.getOriginalFilename()));
+		verify(fileService).uploadPdf(anyString(), anyString(), any(), anyString(), anyString(), any(), anyString());
+	}
 
-        verify(fileService).uploadFile(any());
-    }
+	// VALIDATE AVATAR
 
-    // VALIDATE AVATAR
+	@Test
+	void should_throw_exception_when_avatar_is_not_image() {
+		doThrow(new InvalidFileTypeException(null, "avatar", "imagen")).when(fileService).validateImageSize(any(),
+				any(), anyString());
 
-    @Test
-    void should_throw_exception_when_avatar_is_not_image() {
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.validateAvatar(PDF_FILE));
+		assertThrows(InvalidFileTypeException.class, () -> service.validateAvatar(PDF_FILE));
+	}
 
-        assertEquals("El archivo de avatar debe ser una imagen", ex.getMessage());
-    }
+	@Test
+	void should_throw_exception_when_avatar_exceeds_max_size() {
+		doThrow(new InvalidFileSizeException(null, "avatar", 2)).when(fileService).validateImageSize(any(), any(),
+				anyString());
 
-    @Test
-    void should_throw_exception_when_avatar_exceeds_max_size() {
-        when(file.getContentType()).thenReturn("image/png");
-        when(file.getSize()).thenReturn(999999999L);
+		assertThrows(InvalidFileSizeException.class, () -> service.validateAvatar(file));
+	}
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.validateAvatar(file));
+	@Test
+	void should_pass_when_avatar_is_valid() {
+		assertDoesNotThrow(() -> service.validateAvatar(file));
+	}
 
-        assertEquals("El archivo no puede superar los 2MB", ex.getMessage());
-    }
+	// VALIDATE PAYMENT RECEIPT
 
-    @Test
-    void should_pass_when_avatar_is_valid() {
-        when(file.getContentType()).thenReturn("image/png");
-        when(file.getSize()).thenReturn(1024L);
+	@Test
+	void should_throw_exception_when_pdf_is_null() {
+		ValidationException ex = assertThrows(ValidationException.class, () -> service.validatePaymentReceipt(null));
 
-        assertDoesNotThrow(() -> service.validateAvatar(file));
-    }
+		assertTrue(ex.getMessage().contains("carta de pago"));
+	}
 
-    // VALIDATE PAYMENT RECEIPT
+	@Test
+	void should_throw_exception_when_pdf_is_empty() {
+		when(file.isEmpty()).thenReturn(true);
 
-    @Test
-    void should_throw_exception_when_pdf_is_null() {
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.validatePaymentReceipt(null));
+		ValidationException ex = assertThrows(ValidationException.class, () -> service.validatePaymentReceipt(file));
 
-        assertEquals("El archivo de carta de pago es obligatorio", ex.getMessage());
-    }
+		assertTrue(ex.getMessage().contains("carta de pago"));
+	}
 
-    @Test
-    void should_throw_exception_when_pdf_is_empty() {
-        when(file.isEmpty()).thenReturn(true);
+	@Test
+	void should_throw_exception_when_pdf_is_not_pdf() {
+		when(file.isEmpty()).thenReturn(false);
+		when(file.getContentType()).thenReturn("image/png");
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.validatePaymentReceipt(file));
+		InvalidFileTypeException ex = assertThrows(InvalidFileTypeException.class,
+				() -> service.validatePaymentReceipt(file));
 
-        assertEquals("El archivo de carta de pago es obligatorio", ex.getMessage());
-    }
+		assertTrue(ex.getMessage().contains("PDF"));
+	}
 
-    @Test
-    void should_throw_exception_when_pdf_is_not_pdf() {
-        when(file.isEmpty()).thenReturn(false);
-        when(file.getContentType()).thenReturn("image/png");
+	@Test
+	void should_throw_exception_when_pdf_exceeds_max_size() {
+		assertDoesNotThrow(() -> service.validatePaymentReceipt(PDF_FILE));
+	}
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.validatePaymentReceipt(file));
+	@Test
+	void should_pass_when_pdf_is_valid() {
+		assertDoesNotThrow(() -> service.validatePaymentReceipt(PDF_FILE));
+	}
 
-        assertEquals("El archivo de carta de pago debe ser un PDF", ex.getMessage());
-    }
+	// DELETE USER FILE
 
-    @Test
-    void should_throw_exception_when_pdf_exceeds_max_size() {
-        when(file.isEmpty()).thenReturn(false);
-        when(file.getContentType()).thenReturn("application/pdf");
-        when(file.getSize()).thenReturn(999999999L);
+	@Test
+	void should_delete_user_file_when_valid_and_not_placeholder() {
+		String fileUrl = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/user_avatar.png";
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.validatePaymentReceipt(file));
+		assertDoesNotThrow(() -> service.deleteUserFile(fileUrl));
 
-        assertEquals("El archivo no puede superar los 2MB", ex.getMessage());
-    }
+		verify(fileService).deleteFile(fileUrl);
+	}
 
-    @Test
-    void should_pass_when_pdf_is_valid() {
-        when(file.isEmpty()).thenReturn(false);
-        when(file.getContentType()).thenReturn("application/pdf");
-        when(file.getSize()).thenReturn(1024L);
+	@Test
+	void should_not_delete_user_file_when_null_or_empty_or_placeholder() {
+		assertDoesNotThrow(() -> service.deleteUserFile(null));
+		assertDoesNotThrow(() -> service.deleteUserFile(""));
+		assertDoesNotThrow(() -> service.deleteUserFile(UserFileService.AVATAR_PLACEHOLDER));
 
-        assertDoesNotThrow(() -> service.validatePaymentReceipt(file));
-    }
-
-    // DELETE USER FILE
-
-    @Test
-    void should_delete_user_file_when_valid_and_not_placeholder() {
-        String fileUrl = "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/user_avatar.png";
-
-        assertDoesNotThrow(() -> service.deleteUserFile(fileUrl));
-
-        verify(fileService).deleteFile(fileUrl);
-    }
-
-    @Test
-    void should_not_delete_user_file_when_null_or_empty_or_placeholder() {
-        assertDoesNotThrow(() -> service.deleteUserFile(null));
-        assertDoesNotThrow(() -> service.deleteUserFile(""));
-        assertDoesNotThrow(() -> service.deleteUserFile(UserFileService.AVATAR_PLACEHOLDER));
-
-        verify(fileService, never()).deleteFile(any());
-    }
+		verify(fileService, never()).deleteFile(any());
+	}
 
 }

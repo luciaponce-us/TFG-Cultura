@@ -21,10 +21,28 @@ app:
     api-secret: ${CLOUDINARY_API_SECRET:}
     enabled: ${CLOUDINARY_ENABLED:true}
   admin-roles: [COORDINADOR, SECRETARIO, ENCARGADO, COLABORADOR]
+  default-images:
+    user-avatar: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder.png"
+    movie: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/movie_placeholder.png"
+    series: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/movie_placeholder.png"
+    book: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/book_placeholder.png"
+    board-game: "https://res.cloudinary.com/dubz79y98/image/upload/v1787070899/boardgame_placeholder.jpg"
+    rol-game: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/book_placeholder.png"
+    rol-saga: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/book_placeholder.png"
+    video-game: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/movie_placeholder.png"
 
 springdoc:
   swagger-ui:
     path: /api/docs
+    doc-expansion: none
+    default-models-expand-depth: -1
+    tags-sorter: alpha
+    persist-authorization: true
+    operations-sorter: method
+    filter: true
+    try-it-out-enabled: true
+    disable-swagger-default-url: true
+    display-request-duration: true
 
 sonar:
   coverage:

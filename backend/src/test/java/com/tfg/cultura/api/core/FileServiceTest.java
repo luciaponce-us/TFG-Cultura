@@ -8,27 +8,25 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Uploader;
+import com.tfg.cultura.api.core.exception.file.FileDeleteException;
+import com.tfg.cultura.api.core.exception.file.FileUploadException;
+import com.tfg.cultura.api.core.model.CustomMultipartFile;
+import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
+import com.tfg.cultura.api.core.service.FileService;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.InputStream;
 import java.util.Objects;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Uploader;
-import com.tfg.cultura.api.core.exception.FileDeleteException;
-import com.tfg.cultura.api.core.exception.FileUploadException;
-import com.tfg.cultura.api.core.model.CustomMultipartFile;
-import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
-import com.tfg.cultura.api.core.service.FileService;
 
 public class FileServiceTest {
 
@@ -52,19 +50,11 @@ public class FileServiceTest {
 
 	@Test
 	void should_return_secure_url_when_upload_file() throws Exception {
-		MockMultipartFile file = new MockMultipartFile(
-				"file",
-				"photo.jpg",
-				"image/jpeg",
+		MockMultipartFile file = new MockMultipartFile("file", "photo.jpg", "image/jpeg",
 				"content".getBytes(StandardCharsets.UTF_8));
 
-		FileUploadRequest request = FileUploadRequest.builder()
-				.file(file)
-				.folder("users")
-				.publicId("user-123")
-				.overwrite(false)
-				.resourceType("image")
-				.build();
+		FileUploadRequest request = FileUploadRequest.builder().file(file).folder("users").publicId("user-123")
+				.overwrite(false).resourceType("image").build();
 
 		Map<String, Object> uploadResult = new HashMap<>();
 		uploadResult.put("secure_url", "https://cdn.example.com/file.png");
@@ -77,8 +67,8 @@ public class FileServiceTest {
 		assertEquals("https://cdn.example.com/file.png", result);
 
 		@SuppressWarnings("unchecked")
-		ArgumentCaptor<Map<String, Object>> optionsCaptor =
-				ArgumentCaptor.forClass((Class<Map<String, Object>>) (Class<?>) Map.class);
+		ArgumentCaptor<Map<String, Object>> optionsCaptor = ArgumentCaptor
+				.forClass((Class<Map<String, Object>>) (Class<?>) Map.class);
 		verify(uploader).upload(eq(file.getBytes()), optionsCaptor.capture());
 
 		Map<String, Object> options = optionsCaptor.getValue();
@@ -91,21 +81,14 @@ public class FileServiceTest {
 
 	@Test
 	void should_throw_exception_when_upload_file_fails() throws Exception {
-		MockMultipartFile file = new MockMultipartFile(
-				"file",
-				"photo.jpg",
-				"image/jpeg",
+		MockMultipartFile file = new MockMultipartFile("file", "photo.jpg", "image/jpeg",
 				"content".getBytes(StandardCharsets.UTF_8));
 
-		FileUploadRequest request = FileUploadRequest.builder()
-				.file(file)
-				.folder("users")
-				.resourceType("image")
+		FileUploadRequest request = FileUploadRequest.builder().file(file).folder("users").resourceType("image")
 				.build();
 
 		when(cloudinary.uploader()).thenReturn(uploader);
-		when(uploader.upload(eq(file.getBytes()), any(Map.class)))
-				.thenThrow(new RuntimeException("boom"));
+		when(uploader.upload(eq(file.getBytes()), any(Map.class))).thenThrow(new RuntimeException("boom"));
 
 		assertThrows(FileUploadException.class, () -> fileService.uploadFile(request));
 	}
@@ -113,11 +96,7 @@ public class FileServiceTest {
 	@Test
 	void should_return_png_multipart_file_when_resize_image() throws Exception {
 		byte[] imageBytes = loadExampleImageBytes();
-		MockMultipartFile file = new MockMultipartFile(
-				"file",
-			"example.png",
-			"image/png",
-				imageBytes);
+		MockMultipartFile file = new MockMultipartFile("file", "example.png", "image/png", imageBytes);
 
 		MultipartFile result = fileService.resizeImage(file, 64, 64);
 
@@ -130,11 +109,7 @@ public class FileServiceTest {
 	@Test
 	void should_return_default_name_when_resize_image_with_null_name() throws Exception {
 		byte[] imageBytes = loadExampleImageBytes();
-		MultipartFile file = new CustomMultipartFile(
-				imageBytes,
-				"file",
-				null,
-				"image/png");
+		MultipartFile file = new CustomMultipartFile(imageBytes, "file", null, "image/png");
 
 		MultipartFile result = fileService.resizeImage(file, 64, 64);
 
@@ -155,8 +130,7 @@ public class FileServiceTest {
 	@Test
 	void should_throw_exception_when_delete_file_fails() throws Exception {
 		when(cloudinary.uploader()).thenReturn(uploader);
-		when(uploader.destroy(eq("users/user-1"), any(Map.class)))
-				.thenThrow(new RuntimeException("boom"));
+		when(uploader.destroy(eq("users/user-1"), any(Map.class))).thenThrow(new RuntimeException("boom"));
 
 		String url = "https://res.cloudinary.com/demo/image/upload/users/user-1.png";
 

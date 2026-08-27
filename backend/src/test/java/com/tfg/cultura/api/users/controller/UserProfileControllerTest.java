@@ -7,20 +7,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
-import com.tfg.cultura.api.users.exception.UsersExceptionHandler;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
@@ -28,6 +18,13 @@ import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.service.UserService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 class UserProfileControllerTest extends BaseControllerTest {
 
@@ -45,7 +42,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	void setup() {
 		MockitoAnnotations.openMocks(this);
 		UserProfileController controller = new UserProfileController(service);
-		mockMvc = buildMockMvc(controller, UsersExceptionHandler.class);
+		mockMvc = buildMockMvc(controller);
 
 		initTestData();
 	}
@@ -54,10 +51,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 		userResponse = UserFactory.validUserResponse();
 		user = UserFactory.validUser();
 		updateRequest = UserFactory.validUserUpdateRequest();
-		avatar = new MockMultipartFile(
-				"avatar",
-				"avatar.png",
-				MediaType.IMAGE_PNG_VALUE,
+		avatar = new MockMultipartFile("avatar", "avatar.png", MediaType.IMAGE_PNG_VALUE,
 				"fake-image-content".getBytes());
 	}
 
@@ -68,19 +62,16 @@ class UserProfileControllerTest extends BaseControllerTest {
 		when(service.getProfile()).thenReturn(userResponse);
 
 		mockMvc.perform(get(BASE_URL)) // ajusta la ruta si es distinta
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.username").value(user.getUsername()));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value(user.getUsername()));
 
 		verify(service).getProfile();
 	}
 
 	@Test
 	void should_return_404_when_user_not_found() throws Exception {
-		when(service.getProfile())
-				.thenThrow(new UserNotFoundException("User not found"));
+		when(service.getProfile()).thenThrow(new UserNotFoundException("User not found"));
 
-		mockMvc.perform(get(BASE_URL))
-				.andExpect(status().isNotFound());
+		mockMvc.perform(get(BASE_URL)).andExpect(status().isNotFound());
 
 		verify(service).getProfile();
 	}
@@ -93,14 +84,10 @@ class UserProfileControllerTest extends BaseControllerTest {
 
 		UserResponse response = new UserResponse(user);
 
-		when(service.updateProfile(any()))
-				.thenReturn(response);
+		when(service.updateProfile(any())).thenReturn(response);
 
-		mockMvc.perform(put(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(toJson(updateRequest)))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.username").value(user.getUsername()));
+		mockMvc.perform(put(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value(user.getUsername()));
 
 		verify(service).updateProfile(any());
 	}
@@ -116,16 +103,11 @@ class UserProfileControllerTest extends BaseControllerTest {
 
 		UserResponse response = new UserResponse(user);
 
-		when(service.updateProfile(any()))
-				.thenReturn(response);
+		when(service.updateProfile(any())).thenReturn(response);
 
-		mockMvc.perform(put(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(toJson(updateRequest)))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.username").value(user.getUsername()))
-				.andExpect(jsonPath("$.dni").value(dni))
-				.andExpect(jsonPath("$.role").value(role.name()));
+		mockMvc.perform(put(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value(user.getUsername()))
+				.andExpect(jsonPath("$.dni").value(dni)).andExpect(jsonPath("$.role").value(role.name()));
 
 		verify(service).updateProfile(any());
 	}
@@ -133,15 +115,12 @@ class UserProfileControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_400_when_validation_fails() throws Exception {
 
-		UserUpdateRequest request = UserUpdateRequest.builder()
-				.username("ab") // ❌ < 3
+		UserUpdateRequest request = UserUpdateRequest.builder().username("ab") // ❌ < 3
 				.password("123") // ❌ < 8
 				.email("email-mal") // ❌ inválido
 				.build();
 
-		mockMvc.perform(put(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(toJson(request)))
+		mockMvc.perform(put(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
 				.andExpect(status().isBadRequest());
 
 		verifyNoInteractions(service);
@@ -150,13 +129,9 @@ class UserProfileControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_404_when_user_not_found_at_update() throws Exception {
 
+		when(service.updateProfile(any())).thenThrow(new UserNotFoundException("User not found"));
 
-		when(service.updateProfile(any()))
-				.thenThrow(new UserNotFoundException("User not found"));
-
-		mockMvc.perform(put(BASE_URL)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(toJson(updateRequest)))
+		mockMvc.perform(put(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
 				.andExpect(status().isNotFound());
 
 		verify(service).updateProfile(any());
@@ -169,8 +144,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 
 		doNothing().when(service).deleteProfile();
 
-		mockMvc.perform(delete(BASE_URL))
-				.andExpect(status().isNoContent());
+		mockMvc.perform(delete(BASE_URL)).andExpect(status().isNoContent());
 
 		verify(service).deleteProfile();
 	}
@@ -178,11 +152,9 @@ class UserProfileControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_404_when_user_not_found_at_deleting() throws Exception {
 
-		doThrow(new UserNotFoundException("User not found"))
-				.when(service).deleteProfile();
+		doThrow(new UserNotFoundException("User not found")).when(service).deleteProfile();
 
-		mockMvc.perform(delete(BASE_URL))
-				.andExpect(status().isNotFound());
+		mockMvc.perform(delete(BASE_URL)).andExpect(status().isNotFound());
 
 		verify(service).deleteProfile();
 	}
@@ -191,17 +163,12 @@ class UserProfileControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_update_my_avatar_successfully() throws Exception {
-		when(service.updateCurrentUserAvatar(any(MultipartFile.class)))
-				.thenReturn(userResponse);
+		when(service.updateCurrentUserAvatar(any(MultipartFile.class))).thenReturn(userResponse);
 
-		mockMvc.perform(multipart(BASE_URL + "/avatar")
-				.file(avatar)
-				.with(request -> {
-					request.setMethod("PUT"); // 👈 clave para PUT multipart
-					return request;
-				})
-				.contentType(MediaType.MULTIPART_FORM_DATA))
-				.andExpect(status().isOk())
+		mockMvc.perform(multipart(BASE_URL + "/avatar").file(avatar).with(request -> {
+			request.setMethod("PUT"); // 👈 clave para PUT multipart
+			return request;
+		}).contentType(MediaType.MULTIPART_FORM_DATA)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value(userResponse.getUsername()))
 				.andExpect(jsonPath("$.email").value(userResponse.getEmail()));
 
@@ -211,16 +178,12 @@ class UserProfileControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_not_found_when_user_does_not_exist() throws Exception {
 
-		when(service.updateCurrentUserAvatar(any()))
-				.thenThrow(new UserNotFoundException("User not found"));
+		when(service.updateCurrentUserAvatar(any())).thenThrow(new UserNotFoundException("User not found"));
 
-		mockMvc.perform(multipart(BASE_URL + "/avatar")
-				.file(avatar)
-				.with(request -> {
-					request.setMethod("PUT");
-					return request;
-				}))
-				.andExpect(status().isNotFound());
+		mockMvc.perform(multipart(BASE_URL + "/avatar").file(avatar).with(request -> {
+			request.setMethod("PUT");
+			return request;
+		})).andExpect(status().isNotFound());
 	}
 
 }

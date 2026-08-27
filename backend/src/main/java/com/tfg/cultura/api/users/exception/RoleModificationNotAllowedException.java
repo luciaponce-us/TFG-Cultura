@@ -1,7 +1,9 @@
 package com.tfg.cultura.api.users.exception;
 
-public class RoleModificationNotAllowedException extends RuntimeException {
-    public RoleModificationNotAllowedException(String message) {
-        super(message);
-    }
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
+
+public class RoleModificationNotAllowedException extends UnauthorizedException {
+	public RoleModificationNotAllowedException(String message) {
+		super(message);
+	}
 }

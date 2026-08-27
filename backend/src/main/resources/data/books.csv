@@ -1,0 +1,24 @@
+name,description,imageUrl,condition,comments,loanAvailable, publicated, purchasedAt, price, copies, availableCopies, loanDays, section, categories,author, isbn,type,saga
+"2001: Una Odisea Espacial","Una novela de ciencia ficción escrita por Arthur C. Clarke, desarrollada en paralelo a la versión cinematográfica​ dirigida por Stanley Kubrick, y publicada después del estreno de la película.",null,PERFECT,null,true,true,2015-01-01,15.99,5,5,14,"Libros",[ "Ciencia Ficción" ],"Arthur C. Clarke","978-84-450-0000-0",NOVEL,"Odisea"
+"2010: Odisea 2","La novela de ciencia ficción escrita por Arthur C. Clarke, publicada en 1982, es la secuela de 2001: Una odisea espacial.",null,PERFECT,null,true,true,2015-01-01,12.99,3,3,14,"Libros",[ "Ciencia Ficción" ],"Arthur C. Clarke","978-84-450-0000-1",NOVEL,"Odisea"
+"2061: Odisea 3","La novela de ciencia ficción escrita por Arthur C. Clarke, publicada en 1987, es la secuela de 2010: Odisea 2.",null,PERFECT,null,true,true,2015-01-01,14.99,4,4,14,"Libros",[ "Ciencia Ficción" ],"Arthur C. Clarke","978-84-450-0000-2",NOVEL,"Odisea"
+"Stars wars: La llegada de la Tormenta",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Novela" ],null,null,NOVEL,null
+"Si tú me dices ven lo dejo todo… Pero dime ven",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Novela" ],null,null,NOVEL,null
+"Los girasoles ciegos",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Novela" ],null,null,NOVEL,null
+"Un mundo feliz",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Novela" ],null,null,NOVEL,null
+"El ladrón de las sombras",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Novela" ],null,null,NOVEL,null
+"Rastreador de sombras",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Novela" ],null,null,NOVEL,null
+"Tempestad de sombras",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Novela" ],null,null,NOVEL,null
+"Las estrellas, mi destino",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Ciencia Ficción" ],null,null,NOVEL,null
+"¿Quién?",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Ciencia Ficción" ],null,null,NOVEL,null
+"El diccionario del mago",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Fantasía" ],null,null,NOVEL,null
+"El Marciano",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Ciencia Ficción" ],null,null,NOVEL,null
+"El último deseo",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Fantasía" ],null,null,NOVEL,null
+"La espada del destino",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Fantasía" ],null,null,NOVEL,"Geralt de Rivia"
+"La sangre de los elfos",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Fantasía" ],null,null,NOVEL,"Geralt de Rivia"
+"Entrevista con el vampiro",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Terror" ],null,null,NOVEL,"Crónicas Vampíricas"
+"Lestat el vampiro",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Terror" ],null,null,NOVEL,"Crónicas Vampíricas"
+"La reina de los condenados",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Terror" ],null,null,NOVEL,"Crónicas Vampíricas"
+"El ladrón de cuerpos",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Terror" ],null,null,NOVEL,"Crónicas Vampíricas"
+"Memnoch el diablo",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Terror" ],null,null,NOVEL,"Crónicas Vampíricas"
+"La naranja mecánica",null,null,PERFECT,null,true,true,2015-01-01,15.99,1,1,14,"Libros",[ "Ciencia Ficción" ],null,null,NOVEL,null
