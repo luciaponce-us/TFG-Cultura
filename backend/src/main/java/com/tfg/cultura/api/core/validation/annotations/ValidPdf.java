@@ -10,12 +10,12 @@ import com.tfg.cultura.api.core.validation.validators.PdfFileValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-@Target({ ElementType.FIELD })
+@Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = PdfFileValidator.class)
 public @interface ValidPdf {
 
-    String message() default "PDF no válido";
+    String message() default "Archivo PDF no válido";
 
     Class<?>[] groups() default {};
 

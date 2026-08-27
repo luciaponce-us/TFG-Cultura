@@ -2,6 +2,8 @@ package com.tfg.cultura.api.core.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -33,6 +37,30 @@ public class GlobalExceptionHandler {
                                 error -> error.getField(),
                             error -> error.getDefaultMessage(),
                             (first, second) -> first)));
+
+        return apiErrorBuilder.build(validationException);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ApiError> handleMethodValidationException(HandlerMethodValidationException ex) {
+        Map<String, String> errors = new LinkedHashMap<>();
+
+        ex.getParameterValidationResults().forEach(result -> {
+            if (result instanceof Errors fieldErrors) {
+            fieldErrors.getFieldErrors().forEach(error ->
+                errors.putIfAbsent(error.getField(), error.getDefaultMessage()));
+            } else {
+            errors.putIfAbsent(
+                result.getMethodParameter().getParameterName(),
+                result.getResolvableErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .findFirst()
+                    .orElse("Valor no válido"));
+            }
+        });
+
+        ValidationException validationException = new ValidationException(
+            logger, errors);
 
         return apiErrorBuilder.build(validationException);
     }

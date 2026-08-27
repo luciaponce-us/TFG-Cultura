@@ -33,7 +33,7 @@ public class UserAuthController implements UserAuthControllerInterface {
     @Override
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> register(
-            @Valid @Parameter(description = "Datos del usuario en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("user") UserRegisterRequest request,
+            @Parameter(description = "Datos del usuario en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("user") UserRegisterRequest request,
             @RequestPart(value = "avatar", required = false) MultipartFile avatar,
             @RequestPart(value = "paymentReceipt", required = true) MultipartFile paymentReceipt) {
 
