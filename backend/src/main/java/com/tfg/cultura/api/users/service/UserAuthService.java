@@ -33,7 +33,7 @@ public class UserAuthService {
 
 	public UserResponse register(UserRegisterRequest request, MultipartFile avatar, MultipartFile paymentReceipt)
 			throws UserAlreadyExistsException, FileUploadException {
-		if(avatar!=null && !avatar.isEmpty()) {
+		if (avatar != null && !avatar.isEmpty()) {
 			userFileService.validateAvatar(avatar);
 		}
 		userFileService.validatePaymentReceipt(paymentReceipt);
@@ -47,7 +47,7 @@ public class UserAuthService {
 		}
 
 		String avatarUrl = UserFileService.AVATAR_PLACEHOLDER;
-		if (avatar!=null &&!avatar.isEmpty()) {
+		if (avatar != null && !avatar.isEmpty()) {
 			logger.info("Se va a intentar subir el avatar para el usuario {}",
 					LoggerSanitizer.sanitize(request.getUsername()));
 			avatarUrl = userFileService.uploadAvatar(request.getUsername(), avatar);
