@@ -20,6 +20,16 @@ export const MAIN_MENU_LINKS: NavLink[] = [
   { icon: null, title: "Sugerencias", href: "/sugerencias" },
 ];
 
+export const CATALOG_SUBMENU_LINKS: NavLink[] = [
+  { icon: null, title: "Libros", href: "/catalogo/libros" },
+  { icon: null, title: "Manga y cómics", href: "/catalogo/manga-y-comics" },
+  { icon: null, title: "Películas", href: "/catalogo/peliculas" },
+  { icon: null, title: "Series", href: "/catalogo/series" },
+  { icon: null, title: "Juegos de mesa", href: "/catalogo/juegos-de-mesa" },
+  { icon: null, title: "Rol", href: "/catalogo/rol" },
+  { icon: null, title: "Videojuegos", href: "/catalogo/videojuegos" },
+];
+
 // Si no usamos tsx no podemos colocar así los iconos
 export const LOGGED_USER_LINKS: NavLink[] = [
   { icon: <IconUser />, title: "Mi perfil", href: "/perfil" },
