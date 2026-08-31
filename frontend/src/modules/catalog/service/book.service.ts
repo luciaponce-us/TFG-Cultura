@@ -19,8 +19,10 @@ export async function fetchAllBooks(
 ): Promise<Paginated<Book>> {
   let queryParams = `?page=${page}&size=${size}`;
 
-  if (nameContains) queryParams += `&nameContains=${encodeURIComponent(nameContains)}`;
-  if (categories && categories.length > 0) queryParams += `&categories=${categories.join(",")}`;
+  if (nameContains)
+    queryParams += `&nameContains=${encodeURIComponent(nameContains)}`;
+  if (categories && categories.length > 0)
+    queryParams += `&categories=${categories.join(",")}`;
 
   const res = await fetchWithTimeout(
     `${BOOK_ROUTES.GET_ALL_BOOKS}${queryParams}`,

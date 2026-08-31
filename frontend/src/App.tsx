@@ -27,9 +27,7 @@ import {
 
 import { SuggestionsPage } from "@/modules/suggestions/pages";
 
-import {
-  BooksPage
-} from "@/modules/catalog/pages";
+import { BooksPage } from "@/modules/catalog/pages";
 
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
 
