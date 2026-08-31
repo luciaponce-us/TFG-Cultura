@@ -27,6 +27,10 @@ import {
 
 import { SuggestionsPage } from "@/modules/suggestions/pages";
 
+import {
+  BooksPage
+} from "@/modules/catalog/pages";
+
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
 
 const queryClient = new QueryClient();
@@ -53,6 +57,7 @@ export default function App() {
                 path="/mis-sugerencias"
                 element={<SuggestionsPage mySuggestions />}
               />
+              <Route path="/catalogo/libros" element={<BooksPage />} />
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/perfil/editar" element={<EditProfilePage />} />
               <Route
