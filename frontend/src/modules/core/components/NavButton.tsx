@@ -8,7 +8,12 @@ interface NavButtonProps extends React.ComponentProps<typeof Button> {
   onClick?: () => void;
 }
 
-export const NavButton = ({ to, children, onClick, ...props }: NavButtonProps) => {
+export const NavButton = ({
+  to,
+  children,
+  onClick,
+  ...props
+}: NavButtonProps) => {
   if (to) {
     return (
       <Button

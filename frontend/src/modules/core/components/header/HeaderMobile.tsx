@@ -20,7 +20,7 @@ export function HeaderMobile() {
 
   return (
     <>
-    <Flex
+      <Flex
         as="header"
         justify="space-between"
         align="center"
@@ -32,30 +32,29 @@ export function HeaderMobile() {
         h="80px"
         overflow="visible"
       >
-      <Flex direction="row" gap={2} align="center">
-        <IconButton
-          aria-label="Abrir menú"
-          onClick={onOpen}
-          variant="ghost"
-          color="white"
-          _hover={{
-            bg: "principal.600",
-          }}
-          _active={{
-            bg: "principal.700",
-            transform: "scale(0.92)",
-          }}
-          boxSize="48px"
-        >
-          <IconMenu2 style={{ width: 40, height: 40 }} />
-        </IconButton>
-        <Heading fontSize="xl">Cultura ETSII</Heading>
-        
-      </Flex>
-      <Flex align="center" gap={4}>
-                  <HeaderSearchBar />
-                  <AvatarMenu />
-                </Flex>
+        <Flex direction="row" gap={2} align="center">
+          <IconButton
+            aria-label="Abrir menú"
+            onClick={onOpen}
+            variant="ghost"
+            color="white"
+            _hover={{
+              bg: "principal.600",
+            }}
+            _active={{
+              bg: "principal.700",
+              transform: "scale(0.92)",
+            }}
+            boxSize="48px"
+          >
+            <IconMenu2 style={{ width: 40, height: 40 }} />
+          </IconButton>
+          <Heading fontSize="xl">Cultura ETSII</Heading>
+        </Flex>
+        <Flex align="center" gap={4}>
+          <HeaderSearchBar />
+          <AvatarMenu />
+        </Flex>
       </Flex>
       <HamburgerMenu open={open} onOpen={onOpen} onClose={onClose} />
     </>

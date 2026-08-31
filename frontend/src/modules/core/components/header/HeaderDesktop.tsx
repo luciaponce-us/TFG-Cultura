@@ -82,7 +82,7 @@ function CatalogMenu({
   }, [setCatalogOpen]);
 
   return (
-    <div ref={catalogMenuRef} style={{width: "100%"}}>
+    <div ref={catalogMenuRef} style={{ width: "100%" }}>
       <Flex
         as="nav"
         aria-label="Submenú del catálogo"
@@ -94,12 +94,7 @@ function CatalogMenu({
         py={2}
         w="100%"
       >
-        <Flex
-          align="center"
-          justify="center"
-          w="100%"
-          position="relative"
-        >
+        <Flex align="center" justify="center" w="100%" position="relative">
           <Flex
             gap={2}
             wrap="nowrap"
