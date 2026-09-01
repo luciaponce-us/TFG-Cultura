@@ -4,7 +4,7 @@ import {
   authHeaders,
 } from "@/modules/core/utils/utils";
 
-import type { Book } from "../types";
+import type { Book, BookCreateRequest } from "../types";
 
 import { BOOK_ROUTES } from "../routes";
 
@@ -33,4 +33,17 @@ export async function fetchAllBooks(
   );
 
   return handleResponse<Paginated<Book>>(res);
+}
+
+export async function createBook(
+    token: string,
+  book: BookCreateRequest
+): Promise<Book> {
+  const res = await fetchWithTimeout(BOOK_ROUTES.GET_ALL_BOOKS, {
+    method: "POST",
+    headers: token ? authHeaders(token) : {},
+    body: JSON.stringify(book),
+  });
+
+  return handleResponse<Book>(res);
 }

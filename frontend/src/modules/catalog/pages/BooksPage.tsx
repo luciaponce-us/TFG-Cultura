@@ -14,9 +14,11 @@ import { FILTERS_GET_ALL_ITEMS_DEFAULT } from "../types";
 
 import type { Book, FiltersGetAllItems as Filters } from "../types";
 import { useBooks } from "../hooks/useBooks";
+import { CreateBookDialog } from "../components";
 
 export function BooksPage() {
   const { token, isAdmin } = useAuth();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(true); // TODO: Change to false when the dialog is implemented
   const [filters, setFilters] = useState<Filters>({
     ...FILTERS_GET_ALL_ITEMS_DEFAULT,
   });
@@ -107,14 +109,19 @@ export function BooksPage() {
       >
         <Heading as="h1">Libros</Heading>
 
-        {isAdmin && (
-          <CustomButton onClick={() => {}}>
+        {!isAdmin && ( // TODO: Invert this condition when the dialog is implemented
+          <CustomButton onClick={() => {setIsCreateDialogOpen(true);}}>
             <IconPlus />
             Crear libro
           </CustomButton>
         )}
         {renderBooks()}
       </VStack>
+      <CreateBookDialog
+        isOpen={isCreateDialogOpen}
+        setIsOpen={setIsCreateDialogOpen}
+        token={token}
+      />
     </Grid>
   );
 }
