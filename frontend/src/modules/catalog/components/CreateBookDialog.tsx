@@ -15,9 +15,12 @@ import {
   CustomSelect,
   CustomSwitch,
   CustomNumberInput,
-  CustomDateInput
+  CustomDateInput,
 } from "@/modules/core/components";
-import { MAX_LENGTH as MAX_LENGTH_BOOK, validateBookForm } from "../validations/book.validations";
+import {
+  MAX_LENGTH as MAX_LENGTH_BOOK,
+  validateBookForm,
+} from "../validations/book.validations";
 import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
 
 export function CreateBookDialog({
@@ -163,19 +166,28 @@ export function CreateBookDialog({
                 defaultValue={form.copies}
                 min={1}
                 max={10}
-                onChange={(value:number) => {
-                  setForm((prev) => ({ ...prev, copies: value, availableCopies: value }));
+                onChange={(value: number) => {
+                  setForm((prev) => ({
+                    ...prev,
+                    copies: value,
+                    availableCopies: value,
+                  }));
                 }}
               />
-              <Heading as="h2" size="md" mt={4}> Información sobre la compra </Heading>
+              <Heading as="h2" size="md" mt={4}>
+                {" "}
+                Información sobre la compra{" "}
+              </Heading>
               <CustomDateInput
                 label="Fecha de compra"
                 value={form.purchasedAt}
                 error={errors.purchasedAt ?? ""}
-                onChange={(e) => setForm((prev) => ({ ...prev, purchasedAt: e }))}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, purchasedAt: e }))
+                }
                 acceptsFutureDates={false}
               />
-              
+
               {/* TODO: Implement saga selection */}
               {/* TODO: Implement section selection */}
               {/* TODO: Implement categories selection */}

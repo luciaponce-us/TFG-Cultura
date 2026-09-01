@@ -2,9 +2,9 @@ import type { BookCreateRequest, BookCreateRequestErrors } from "../types";
 import { validateItemForm } from "./item.validations";
 
 export const MAX_LENGTH = {
-    AUTHOR: 100,
-    ISBN: 13,
-    SAGA_NAME: 50,
+  AUTHOR: 100,
+  ISBN: 13,
+  SAGA_NAME: 50,
 };
 
 export function validateBookForm(
@@ -25,7 +25,9 @@ export function validateBookForm(
 function validateAuthor(value: string): string | undefined {
   if (!value || value.trim() === "") return "El autor es obligatorio.";
   if (value.trim().length > MAX_LENGTH.AUTHOR) {
-    return "El autor no puede superar los " + MAX_LENGTH.AUTHOR + " caracteres.";
+    return (
+      "El autor no puede superar los " + MAX_LENGTH.AUTHOR + " caracteres."
+    );
   }
   return undefined;
 }
@@ -46,7 +48,9 @@ function validateType(value: string): string | undefined {
 
 function validateSagaName(value: string): string | undefined {
   if (value && value.trim().length > MAX_LENGTH.SAGA_NAME) {
-    return "La saga no puede superar los " + MAX_LENGTH.SAGA_NAME + " caracteres.";
+    return (
+      "La saga no puede superar los " + MAX_LENGTH.SAGA_NAME + " caracteres."
+    );
   }
   return undefined;
 }

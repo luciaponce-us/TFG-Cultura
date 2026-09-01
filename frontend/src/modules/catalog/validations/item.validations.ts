@@ -37,7 +37,11 @@ function validateName(name: string): string | undefined {
 
 function validateDescription(description: string): string | undefined {
   if (description && description.length > MAX_LENGTH.DESCRIPTION) {
-    return "La descripción no puede tener más de " + MAX_LENGTH.DESCRIPTION + " caracteres.";
+    return (
+      "La descripción no puede tener más de " +
+      MAX_LENGTH.DESCRIPTION +
+      " caracteres."
+    );
   }
   return undefined;
 }
@@ -48,7 +52,11 @@ function validateCondition(condition: string): string | undefined {
 
 function validateComments(comments: string): string | undefined {
   if (comments && comments.length > MAX_LENGTH.COMMENTS) {
-    return "Los comentarios no pueden tener más de " + MAX_LENGTH.COMMENTS + " caracteres.";
+    return (
+      "Los comentarios no pueden tener más de " +
+      MAX_LENGTH.COMMENTS +
+      " caracteres."
+    );
   }
   return undefined;
 }
@@ -77,7 +85,8 @@ function validatePrice(value: number): string | undefined {
 }
 
 function validateCopies(value: number): string | undefined {
-  if (value === undefined || value === null) return "Las copias son obligatorias.";
+  if (value === undefined || value === null)
+    return "Las copias son obligatorias.";
   if (value < 1) return "Las copias deben ser al menos 1.";
   return undefined;
 }

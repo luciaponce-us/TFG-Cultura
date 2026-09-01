@@ -36,8 +36,8 @@ export async function fetchAllBooks(
 }
 
 export async function createBook(
-    token: string,
-  book: BookCreateRequest
+  token: string,
+  book: BookCreateRequest,
 ): Promise<Book> {
   const res = await fetchWithTimeout(BOOK_ROUTES.GET_ALL_BOOKS, {
     method: "POST",

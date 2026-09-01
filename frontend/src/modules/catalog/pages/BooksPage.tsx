@@ -110,7 +110,11 @@ export function BooksPage() {
         <Heading as="h1">Libros</Heading>
 
         {!isAdmin && ( // TODO: Invert this condition when the dialog is implemented
-          <CustomButton onClick={() => {setIsCreateDialogOpen(true);}}>
+          <CustomButton
+            onClick={() => {
+              setIsCreateDialogOpen(true);
+            }}
+          >
             <IconPlus />
             Crear libro
           </CustomButton>

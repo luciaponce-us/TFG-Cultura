@@ -1,23 +1,30 @@
 import { DateInput, Field } from "@chakra-ui/react";
-import { type DateValue,parseDate,
-  getLocalTimeZone } from "@internationalized/date";
+import {
+  type DateValue,
+  parseDate,
+  getLocalTimeZone,
+} from "@internationalized/date";
 
 export function CustomDateInput({
-    label,
-    error,
+  label,
+  error,
   value,
   onChange,
   acceptsFutureDates = true,
 }: {
-    label: string;
-    error?: string;
+  label: string;
+  error?: string;
   value: string;
   onChange: (value: string) => void;
   acceptsFutureDates?: boolean;
 }) {
-  const dateValue: DateValue[] | undefined = value ? [parseDate(value)] : undefined;
+  const dateValue: DateValue[] | undefined = value
+    ? [parseDate(value)]
+    : undefined;
   const today = new Date();
-  const todayDateValue: DateValue[] = [parseDate(today.toISOString().split("T")[0])];
+  const todayDateValue: DateValue[] = [
+    parseDate(today.toISOString().split("T")[0]),
+  ];
 
   const handleDateChange = (newValue: DateValue[] | undefined) => {
     const firstValue = newValue?.[0] ?? null;
@@ -45,7 +52,7 @@ export function CustomDateInput({
     }
 
     return true;
-  }
+  };
 
   return (
     <DateInput.Root
@@ -57,7 +64,7 @@ export function CustomDateInput({
     >
       <DateInput.Label>{label}</DateInput.Label>
       <DateInput.Control>
-          <DateInput.Segments />
+        <DateInput.Segments />
       </DateInput.Control>
       <DateInput.HiddenInput />
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
