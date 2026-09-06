@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,7 +25,7 @@ public class SagaController {
 	private final SagaService sagaService;
 
 	@PostMapping
-	public ResponseEntity<Saga> createSaga(@RequestParam String name) {
+	public ResponseEntity<Saga> createSaga(@RequestBody String name) {
 		Saga saga = sagaService.createSaga(name);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(saga);
@@ -44,7 +44,7 @@ public class SagaController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Saga> updateSaga(@PathVariable String id, @RequestParam String name) {
+	public ResponseEntity<Saga> updateSaga(@PathVariable String id, @RequestBody String name) {
 		Saga updatedSaga = sagaService.updateSaga(id, name);
 		return ResponseEntity.status(HttpStatus.OK).body(updatedSaga);
 	}
