@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,11 +48,17 @@ class JwtFilterTest {
 	@BeforeEach
 	void setUp() {
 		SecurityContextHolder.clearContext();
+		mockPrivatePath();
 	}
 
 	// -------------------------------
 	// doFilterInternal
 	// -------------------------------
+
+	private void mockPrivatePath() {
+		when(request.getRequestURI()).thenReturn("/api/private");
+		when(request.getMethod()).thenReturn(HttpMethod.GET.name());
+	}
 
 	@Test
 	void should_continue_when_no_authorization_header() throws Exception {
