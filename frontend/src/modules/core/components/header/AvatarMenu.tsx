@@ -59,7 +59,7 @@ function TriggerAvatar({ user }: { user: User | null | undefined }) {
         name={user?.username + "s avatar"}
         src={
           user?.avatar ||
-          "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder_dreac3.png"
+          "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder.png"
         }
         w="48px"
         h="48px"
