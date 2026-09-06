@@ -15,6 +15,7 @@ export { CustomSelect } from "./CustomSelect";
 export { CustomSwitch } from "./CustomSwitch";
 export { ConfirmDialog } from "./ConfirmDialog.tsx";
 export { Footer } from "./Footer";
+export { FormDialog } from "./FormDialog.tsx";
 export { NavButton } from "./NavButton";
 export { SideBar } from "./SideBar";
 export { SocialLink } from "./SocialLink";
