@@ -1,4 +1,4 @@
-import { Field, Portal, Select, createListCollection } from "@chakra-ui/react";
+import { Field, Portal, Select, Spinner, createListCollection } from "@chakra-ui/react";
 
 interface CustomSelectProps extends Omit<
   React.ComponentProps<typeof Select.Root>,
@@ -6,8 +6,11 @@ interface CustomSelectProps extends Omit<
 > {
   label: string;
   placeholder: string;
-  error?: string;
   options: { label: string; value: string }[];
+  error?: string | null;
+  loading?: boolean;
+  onCreate?: () => void; // Optional callback for creating a new option
+  onCreateLabel?: string; // Optional label for the "create new" option
 }
 
 export const CustomSelect = ({
@@ -15,34 +18,55 @@ export const CustomSelect = ({
   placeholder,
   options,
   error,
+  loading = false,
+  onCreate,
+  onCreateLabel = "Crear nuevo",
   ...props
 }: CustomSelectProps) => {
-  console.log("CustomSelect options:", options); // Log the options to verify their structure
   const optionsList = createListCollection({ items: options });
 
   return (
     <Field.Root invalid={!!error}>
-      <Select.Root collection={optionsList} size="sm" w="100%" {...props}>
+      <Select.Root
+      collection={optionsList}
+      size="sm"
+      w="100%"
+      disabled={loading}
+      {...props}
+      >
         <Select.HiddenSelect />
         <Select.Label>{label}</Select.Label>
         <Select.Control>
           <Select.Trigger>
-            <Select.ValueText placeholder={placeholder} />
+            <Select.ValueText placeholder={loading ? "Cargando..." : placeholder} />
           </Select.Trigger>
           <Select.IndicatorGroup>
-            <Select.Indicator />
+            {loading ? (
+              <Spinner size="xs" />
+            ) : (
+              <Select.Indicator />
+            )}
           </Select.IndicatorGroup>
         </Select.Control>
         <Portal>
           <Select.Positioner>
             <Select.Content>
-              {options.map((option) => (
-                <Select.Item item={option} key={option.value}>
-                  {option.label}
-                  <Select.ItemIndicator />
-                </Select.Item>
-              ))}
-            </Select.Content>
+  {options.map((option) => (
+    <Select.Item item={option} key={option.value}>
+      {option.label}
+      <Select.ItemIndicator />
+    </Select.Item>
+  ))}
+
+  {onCreate && (
+    <Select.Item
+      item={{ label: "Crear nuevo", value: "__create_new__" }}
+      onClick={onCreate}
+    >
+      {onCreateLabel}
+    </Select.Item>
+  )}
+</Select.Content>
           </Select.Positioner>
         </Portal>
       </Select.Root>
