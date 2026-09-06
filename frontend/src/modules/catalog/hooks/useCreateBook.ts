@@ -6,8 +6,8 @@ import { createBook } from "../service/book.service";
 import {
   isApiError,
   throwDeactivatedUserError,
+  isDeactivatedUserError
 } from "@/modules/core/utils/utils";
-import { isDeactivatedUserError } from "@/modules/core/utils/utils";
 
 export function useCreateBook() {
   const { token } = useAuth();
@@ -35,7 +35,7 @@ export function useCreateBook() {
       await queryClient.invalidateQueries({ queryKey: ["books"] });
     },
     onError: (error) => {
-      console.error("Error al crear sugerencia:", error);
+      console.error("Error al crear libro:", error);
       if (isApiError(error) && isDeactivatedUserError(error)) {
         throwDeactivatedUserError(error);
         return;

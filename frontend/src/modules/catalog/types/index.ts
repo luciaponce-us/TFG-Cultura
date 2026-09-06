@@ -171,3 +171,8 @@ export const INITIAL_BOOK_ERRORS: BookCreateRequestErrors = {
   type: "",
   sagaName: "",
 };
+
+export interface Saga {
+  id: string;
+  name: string;
+}
