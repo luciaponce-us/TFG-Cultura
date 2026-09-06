@@ -1,7 +1,7 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import type { ApiError } from "../types";
-import {ApiException} from "../types";
+import { ApiException } from "../types";
 import { useBreakpointValue } from "@chakra-ui/react/hooks";
 import { toaster } from "../components";
 
@@ -11,9 +11,7 @@ export const authHeaders = (token: string) => ({
 });
 const REQUEST_TIMEOUT_MS = 12000;
 
-export async function handleResponse<T>(
-  response: Response,
-): Promise<T> {
+export async function handleResponse<T>(response: Response): Promise<T> {
   const text = await response.text();
 
   if (!response.ok) {
@@ -71,10 +69,7 @@ export async function fetchWithTimeout(
   init: RequestInit,
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    REQUEST_TIMEOUT_MS,
-  );
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
     return await fetch(input, {
@@ -97,11 +92,7 @@ export async function fetchWithTimeout(
 
 export function isApiError(err: unknown): err is ApiError {
   if (err == null || err == undefined) return false;
-  return (
-    typeof err === "object" &&
-    "status" in err &&
-    "message" in err
-  );
+  return typeof err === "object" && "status" in err && "message" in err;
 }
 
 export function isDeactivatedUserError(err: unknown): boolean {

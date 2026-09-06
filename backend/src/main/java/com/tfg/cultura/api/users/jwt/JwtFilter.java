@@ -38,63 +38,43 @@ public class JwtFilter extends OncePerRequestFilter {
 		this.userDetailsService = userDetailsService;
 	}
 
-private static final Set<HttpMethod> ALL_HTTP_METHODS = Set.of(
-		HttpMethod.GET,
-		HttpMethod.POST,
-		HttpMethod.PUT,
-		HttpMethod.DELETE,
-		HttpMethod.PATCH,
-		HttpMethod.HEAD,
-		HttpMethod.OPTIONS,
-		HttpMethod.TRACE
-);
+	private static final Set<HttpMethod> ALL_HTTP_METHODS = Set.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT,
+			HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.TRACE);
 
-private static final Map<String, Set<HttpMethod>> PUBLIC_PATHS = Map.ofEntries(
-		Map.entry("/", ALL_HTTP_METHODS),
-		Map.entry("/api", ALL_HTTP_METHODS),
-		Map.entry("/api/", ALL_HTTP_METHODS),
+	private static final Map<String, Set<HttpMethod>> PUBLIC_PATHS = Map.ofEntries(Map.entry("/", ALL_HTTP_METHODS),
+			Map.entry("/api", ALL_HTTP_METHODS), Map.entry("/api/", ALL_HTTP_METHODS),
 
-		// Dummy
-		Map.entry("/api/dummy", Set.of(HttpMethod.GET)),
-		Map.entry("/api/dummy/**", Set.of(HttpMethod.GET)),
+			// Dummy
+			Map.entry("/api/dummy", Set.of(HttpMethod.GET)), Map.entry("/api/dummy/**", Set.of(HttpMethod.GET)),
 
-		// Swagger and API docs
-		Map.entry("/v3/api-docs/**", Set.of(HttpMethod.GET)),
-		Map.entry("/swagger-ui/**", Set.of(HttpMethod.GET)),
-		Map.entry("/swagger-ui.html", Set.of(HttpMethod.GET)),
-		Map.entry("/api/docs", Set.of(HttpMethod.GET)),
-		Map.entry("/docs/**", Set.of(HttpMethod.GET)),
-		Map.entry("/docs", Set.of(HttpMethod.GET)),
-		Map.entry("/api/docs/**", Set.of(HttpMethod.GET)),
-		Map.entry("/api/swagger-ui/**", Set.of(HttpMethod.GET)),
+			// Swagger and API docs
+			Map.entry("/v3/api-docs/**", Set.of(HttpMethod.GET)), Map.entry("/swagger-ui/**", Set.of(HttpMethod.GET)),
+			Map.entry("/swagger-ui.html", Set.of(HttpMethod.GET)), Map.entry("/api/docs", Set.of(HttpMethod.GET)),
+			Map.entry("/docs/**", Set.of(HttpMethod.GET)), Map.entry("/docs", Set.of(HttpMethod.GET)),
+			Map.entry("/api/docs/**", Set.of(HttpMethod.GET)), Map.entry("/api/swagger-ui/**", Set.of(HttpMethod.GET)),
 
-		// Users - Auth
-		Map.entry("/api/users/auth/**", Set.of(HttpMethod.POST)),
+			// Users - Auth
+			Map.entry("/api/users/auth/**", Set.of(HttpMethod.POST)),
 
-		// Suggestions
-		Map.entry("/api/suggestions", Set.of(HttpMethod.GET)),
+			// Suggestions
+			Map.entry("/api/suggestions", Set.of(HttpMethod.GET)),
 
-		// Sections
-		Map.entry("/api/sections", Set.of(HttpMethod.GET)),
-		Map.entry("/api/sections/**", Set.of(HttpMethod.GET)),
+			// Sections
+			Map.entry("/api/sections", Set.of(HttpMethod.GET)), Map.entry("/api/sections/**", Set.of(HttpMethod.GET)),
 
-		// Catalog
-		Map.entry("/api/catalog", Set.of(HttpMethod.GET)),
-		Map.entry("/api/catalog/**", Set.of(HttpMethod.GET))
-);
+			// Catalog
+			Map.entry("/api/catalog", Set.of(HttpMethod.GET)), Map.entry("/api/catalog/**", Set.of(HttpMethod.GET)));
 
-private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
+	private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
-private boolean isPublicPath(HttpServletRequest request) {
+	private boolean isPublicPath(HttpServletRequest request) {
 
-	String requestPath = request.getRequestURI();
-	HttpMethod requestMethod = HttpMethod.valueOf(request.getMethod());
+		String requestPath = request.getRequestURI();
+		HttpMethod requestMethod = HttpMethod.valueOf(request.getMethod());
 
-	return PUBLIC_PATHS.entrySet().stream()
-			.anyMatch(entry ->
-					PATH_MATCHER.match(entry.getKey(), requestPath)
-							&& entry.getValue().contains(requestMethod));
-}
+		return PUBLIC_PATHS.entrySet().stream().anyMatch(
+				entry -> PATH_MATCHER.match(entry.getKey(), requestPath) && entry.getValue().contains(requestMethod));
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

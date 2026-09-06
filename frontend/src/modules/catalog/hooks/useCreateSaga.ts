@@ -1,9 +1,7 @@
 import { useAuth } from "@/modules/core/context/useAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toaster } from "@/modules/core/components/toaster/toaster";
-import {
-  isApiError
-} from "@/modules/core/utils/utils";
+import { isApiError } from "@/modules/core/utils/utils";
 import { createSaga } from "../service/saga.service";
 
 export function useCreateSaga() {
@@ -35,13 +33,11 @@ export function useCreateSaga() {
       if (isApiError(error)) {
         console.error("Error al crear saga:", error.message);
         toaster.create({
-        title: "Error al crear saga",
-        description: error.message,
-        type: "error",
-      });
-    }
-      
-      
+          title: "Error al crear saga",
+          description: error.message,
+          type: "error",
+        });
+      }
     },
   });
 }

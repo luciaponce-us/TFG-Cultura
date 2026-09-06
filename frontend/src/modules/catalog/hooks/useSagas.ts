@@ -3,11 +3,11 @@ import type { Saga } from "../types";
 import { fetchAllSagas } from "../service/saga.service";
 
 export function useSagas() {
-    return useQuery<Saga[]>({
-        queryKey: ["sagas"],
-        queryFn: async () => {
-            return await fetchAllSagas();
-        },
-        placeholderData: keepPreviousData,
-    });
+  return useQuery<Saga[]>({
+    queryKey: ["sagas"],
+    queryFn: async () => {
+      return await fetchAllSagas();
+    },
+    placeholderData: keepPreviousData,
+  });
 }

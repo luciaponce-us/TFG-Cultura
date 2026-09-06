@@ -6,7 +6,7 @@ import { createBook } from "../service/book.service";
 import {
   isApiError,
   throwDeactivatedUserError,
-  isDeactivatedUserError
+  isDeactivatedUserError,
 } from "@/modules/core/utils/utils";
 
 export function useCreateBook() {

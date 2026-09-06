@@ -1,4 +1,10 @@
-import { Field, Portal, Select, Spinner, createListCollection } from "@chakra-ui/react";
+import {
+  Field,
+  Portal,
+  Select,
+  Spinner,
+  createListCollection,
+} from "@chakra-ui/react";
 
 interface CustomSelectProps extends Omit<
   React.ComponentProps<typeof Select.Root>,
@@ -28,45 +34,43 @@ export const CustomSelect = ({
   return (
     <Field.Root invalid={!!error}>
       <Select.Root
-      collection={optionsList}
-      size="sm"
-      w="100%"
-      disabled={loading}
-      {...props}
+        collection={optionsList}
+        size="sm"
+        w="100%"
+        disabled={loading}
+        {...props}
       >
         <Select.HiddenSelect />
         <Select.Label>{label}</Select.Label>
         <Select.Control>
           <Select.Trigger>
-            <Select.ValueText placeholder={loading ? "Cargando..." : placeholder} />
+            <Select.ValueText
+              placeholder={loading ? "Cargando..." : placeholder}
+            />
           </Select.Trigger>
           <Select.IndicatorGroup>
-            {loading ? (
-              <Spinner size="xs" />
-            ) : (
-              <Select.Indicator />
-            )}
+            {loading ? <Spinner size="xs" /> : <Select.Indicator />}
           </Select.IndicatorGroup>
         </Select.Control>
         <Portal>
           <Select.Positioner>
             <Select.Content>
-  {options.map((option) => (
-    <Select.Item item={option} key={option.value}>
-      {option.label}
-      <Select.ItemIndicator />
-    </Select.Item>
-  ))}
+              {options.map((option) => (
+                <Select.Item item={option} key={option.value}>
+                  {option.label}
+                  <Select.ItemIndicator />
+                </Select.Item>
+              ))}
 
-  {onCreate && (
-    <Select.Item
-      item={{ label: "Crear nuevo", value: "__create_new__" }}
-      onClick={onCreate}
-    >
-      {onCreateLabel}
-    </Select.Item>
-  )}
-</Select.Content>
+              {onCreate && (
+                <Select.Item
+                  item={{ label: "Crear nuevo", value: "__create_new__" }}
+                  onClick={onCreate}
+                >
+                  {onCreateLabel}
+                </Select.Item>
+              )}
+            </Select.Content>
           </Select.Positioner>
         </Portal>
       </Select.Root>

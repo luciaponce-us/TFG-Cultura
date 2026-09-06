@@ -11,16 +11,13 @@ import { SAGA_ROUTES } from "../routes";
 
 export async function fetchAllSagas(): Promise<Saga[]> {
   const res = await fetchWithTimeout(SAGA_ROUTES.GET_ALL_SAGAS, {
-    method: "GET"
+    method: "GET",
   });
 
   return handleResponse<Saga[]>(res);
 }
 
-export async function createSaga(
-  token: string,
-  name: string
-): Promise<Saga> {
+export async function createSaga(token: string, name: string): Promise<Saga> {
   const res = await fetchWithTimeout(SAGA_ROUTES.GET_ALL_SAGAS, {
     method: "POST",
     headers: { ...jsonHeaders, ...authHeaders(token) },

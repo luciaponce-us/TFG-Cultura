@@ -15,10 +15,7 @@ export function CreateSagaDialog({
   setSaga?: (sagaName: string) => void;
 }) {
   const [sagaName, setSagaName] = useState<string>("");
-  const {
-    mutateAsync: createSaga,
-    error: error,
-  } = useCreateSaga();
+  const { mutateAsync: createSaga, error: error } = useCreateSaga();
 
   async function handleSubmit() {
     if (!sagaName) {

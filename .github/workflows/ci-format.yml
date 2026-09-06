@@ -1,0 +1,54 @@
+name: Format CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - "frontend/**"
+  pull_request:
+    branches: ["main", "develop"]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Format backend with Spotless
+        working-directory: backend
+        run: ./mvnw spotless:apply
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Format frontend with Prettier
+        working-directory: frontend
+        run: npx prettier --write .
+
+      - name: Auto-commit formatting changes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "style: 🎨 apply Prettier and Spotless formatting"

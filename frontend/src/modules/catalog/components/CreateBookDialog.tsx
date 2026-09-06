@@ -196,8 +196,8 @@ export function CreateBookDialog({
           acceptsFutureDates={false}
         />
 
-        {/* TODO: Implement section selection */}
-        {/* TODO: Implement categories selection */}
+        {/* TODO: Implement section selection. */}
+        {/* TODO: Implement categories selection. */}
       </FormDialog>
       <CreateSagaDialog
         isOpen={sagaDialogOpen}
