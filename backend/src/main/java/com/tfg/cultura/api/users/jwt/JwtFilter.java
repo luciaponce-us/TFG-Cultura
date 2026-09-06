@@ -9,7 +9,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
@@ -33,9 +38,73 @@ public class JwtFilter extends OncePerRequestFilter {
 		this.userDetailsService = userDetailsService;
 	}
 
+private static final Set<HttpMethod> ALL_HTTP_METHODS = Set.of(
+		HttpMethod.GET,
+		HttpMethod.POST,
+		HttpMethod.PUT,
+		HttpMethod.DELETE,
+		HttpMethod.PATCH,
+		HttpMethod.HEAD,
+		HttpMethod.OPTIONS,
+		HttpMethod.TRACE
+);
+
+private static final Map<String, Set<HttpMethod>> PUBLIC_PATHS = Map.ofEntries(
+		Map.entry("/", ALL_HTTP_METHODS),
+		Map.entry("/api", ALL_HTTP_METHODS),
+		Map.entry("/api/", ALL_HTTP_METHODS),
+
+		// Dummy
+		Map.entry("/api/dummy", Set.of(HttpMethod.GET)),
+		Map.entry("/api/dummy/**", Set.of(HttpMethod.GET)),
+
+		// Swagger and API docs
+		Map.entry("/v3/api-docs/**", Set.of(HttpMethod.GET)),
+		Map.entry("/swagger-ui/**", Set.of(HttpMethod.GET)),
+		Map.entry("/swagger-ui.html", Set.of(HttpMethod.GET)),
+		Map.entry("/api/docs", Set.of(HttpMethod.GET)),
+		Map.entry("/docs/**", Set.of(HttpMethod.GET)),
+		Map.entry("/docs", Set.of(HttpMethod.GET)),
+		Map.entry("/api/docs/**", Set.of(HttpMethod.GET)),
+		Map.entry("/api/swagger-ui/**", Set.of(HttpMethod.GET)),
+
+		// Users - Auth
+		Map.entry("/api/users/auth/**", Set.of(HttpMethod.POST)),
+
+		// Suggestions
+		Map.entry("/api/suggestions", Set.of(HttpMethod.GET)),
+
+		// Sections
+		Map.entry("/api/sections", Set.of(HttpMethod.GET)),
+		Map.entry("/api/sections/**", Set.of(HttpMethod.GET)),
+
+		// Catalog
+		Map.entry("/api/catalog", Set.of(HttpMethod.GET)),
+		Map.entry("/api/catalog/**", Set.of(HttpMethod.GET))
+);
+
+private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
+
+private boolean isPublicPath(HttpServletRequest request) {
+
+	String requestPath = request.getRequestURI();
+	HttpMethod requestMethod = HttpMethod.valueOf(request.getMethod());
+
+	return PUBLIC_PATHS.entrySet().stream()
+			.anyMatch(entry ->
+					PATH_MATCHER.match(entry.getKey(), requestPath)
+							&& entry.getValue().contains(requestMethod));
+}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
+
+		if (isPublicPath(request)) {
+			log.debug("[JWT] Acceso a ruta pública {} sin autenticación", request.getRequestURI());
+			filterChain.doFilter(request, response);
+			return;
+		}
 
 		String authHeader = request.getHeader("Authorization");
 		String path = request.getRequestURI();
