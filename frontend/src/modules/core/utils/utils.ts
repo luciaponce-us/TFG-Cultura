@@ -1,6 +1,7 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
-import { ApiError } from "../types";
+import type { ApiError } from "../types";
+import {ApiException} from "../types";
 import { useBreakpointValue } from "@chakra-ui/react/hooks";
 import { toaster } from "../components";
 
@@ -10,44 +11,59 @@ export const authHeaders = (token: string) => ({
 });
 const REQUEST_TIMEOUT_MS = 12000;
 
-export async function handleResponse<T>(res: Response): Promise<T> {
-  const contentType = res.headers.get("content-type") ?? "";
+export async function handleResponse<T>(
+  response: Response,
+): Promise<T> {
+  const text = await response.text();
 
-  if (!res.ok) {
-    let message = `Error ${res.status}`;
-    let errors: { [key: string]: string } = {};
-
-    try {
-      if (contentType.includes("application/json")) {
-        const data: unknown = await res.json();
-
-        if (typeof data === "object" && data !== null) {
-          const d = data as Partial<ApiError>;
-          message = d.message || message;
-          errors = d.errors || {};
-        }
-      } else {
-        const text = await res.text();
-        message = text || message;
-      }
-    } catch {
-      // ignore parsing errors
+  if (!response.ok) {
+    if (!text) {
+      throw new ApiException(
+        response.status,
+        getDefaultErrorMessage(response.status),
+      );
     }
-    const apiError = new ApiError(message, res.status, errors);
 
-    throw apiError;
+    const data: unknown = JSON.parse(text);
+    const error = data as ApiError;
+
+    throw new ApiException(
+      error.status,
+      error.message,
+      error.errors,
+      error.timestamp,
+    );
   }
 
-  if (!contentType.includes("application/json")) {
-    // Respuesta en formano no json
-    const text = await res.text();
-    return text as unknown as T;
+  if (!text) {
+    return undefined as T;
   }
 
-  const text = await res.text();
-  if (!text) return {} as T;
+  const contentType = response.headers.get("Content-Type");
 
-  return JSON.parse(text) as T;
+  if (contentType?.includes("application/json")) {
+    const data: unknown = JSON.parse(text);
+    return data as T;
+  }
+
+  return text as T; // Se devuelve el token como texto plano al iniciar sesión
+}
+
+function getDefaultErrorMessage(status: number): string {
+  switch (status) {
+    case 401:
+      return "No estás autenticado.";
+    case 403:
+      return "No tienes permisos para realizar esta acción.";
+    case 404:
+      return "El recurso solicitado no existe.";
+    case 409:
+      return "La operación entra en conflicto con el estado actual.";
+    case 500:
+      return "Se ha producido un error interno del servidor.";
+    default:
+      return "Se ha producido un error inesperado.";
+  }
 }
 
 export async function fetchWithTimeout(
@@ -55,18 +71,25 @@ export async function fetchWithTimeout(
   init: RequestInit,
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    REQUEST_TIMEOUT_MS,
+  );
 
   try {
-    return await fetch(input, { ...init, signal: controller.signal });
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      const message =
-        "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.";
-      throw new ApiError(message, 500);
-    } else {
-      throw error;
+      throw new ApiException(
+        408,
+        "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.",
+      );
     }
+
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
@@ -77,8 +100,7 @@ export function isApiError(err: unknown): err is ApiError {
   return (
     typeof err === "object" &&
     "status" in err &&
-    "message" in err &&
-    "timestamp" in err
+    "message" in err
   );
 }
 
