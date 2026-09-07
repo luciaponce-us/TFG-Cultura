@@ -33,7 +33,7 @@ class CategoryControllerTest extends BaseControllerTest {
 	@Mock
 	private CategoryDeletingService categoryDeletingService;
 
-	private static final String BASE_URL = "/api/catalog/categories";
+	private static final String BASE_URL = "/api/categories";
 	private static final String CATEGORY_URL = BASE_URL + "/{id}";
 
 	private Category category;
