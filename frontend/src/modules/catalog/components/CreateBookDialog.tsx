@@ -45,10 +45,11 @@ export function CreateBookDialog({
     isError: isSagasError,
   } = useSagas();
 
-  const sagasOptions : { value: string; label: string }[] = sagas?.map((saga) => ({
-    value: saga.name,
-    label: saga.name,
-  })) || [];
+  const sagasOptions: { value: string; label: string }[] =
+    sagas?.map((saga) => ({
+      value: saga.name,
+      label: saga.name,
+    })) || [];
 
   const {
     data: sections,
@@ -56,10 +57,11 @@ export function CreateBookDialog({
     isError: isSectionsError,
   } = useSections();
 
-  const sectionsOptions : { value: string; label: string }[] = sections?.map((section) => ({
-    value: section.id,
-    label: section.name,
-  })) || [];
+  const sectionsOptions: { value: string; label: string }[] =
+    sections?.map((section) => ({
+      value: section.id,
+      label: section.name,
+    })) || [];
 
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
 
@@ -222,7 +224,6 @@ export function CreateBookDialog({
           acceptsFutureDates={false}
         />
 
-        
         {/* TODO: Implement categories selection. */}
       </FormDialog>
       <CreateSagaDialog
