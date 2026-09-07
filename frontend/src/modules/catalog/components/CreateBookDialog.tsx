@@ -24,6 +24,7 @@ import {
 import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
 import { CreateSagaDialog } from "./";
 import { useSections } from "@/modules/sections/hooks";
+import { useCategories } from "@/modules/categories/hooks";
 
 export function CreateBookDialog({
   isOpen,
@@ -63,6 +64,17 @@ export function CreateBookDialog({
       label: section.name,
     })) || [];
 
+  const {
+    data: categories,
+    isLoading: isCategoriesLoading,
+    isError: isCategoriesError,
+  } = useCategories();
+  const categoriesOptions: { value: string; label: string }[] =
+    categories?.map((category) => ({
+      value: category.id,
+      label: category.name,
+    })) || [];
+
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
 
   const handleTypeChange = ({ value }: { value: string[] }) =>
@@ -76,6 +88,9 @@ export function CreateBookDialog({
 
   const handleSectionChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "sectionId", form, setErrors, setForm);
+
+  const handleCategoriesChange = ({ value }: { value: string[] }) =>
+    setForm((prev) => ({ ...prev, categoriesIds: value }));
 
   async function handleSubmit() {
     const errors = validateBookForm(form, token);
@@ -105,6 +120,7 @@ export function CreateBookDialog({
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH_ITEM.NAME}
         />
+
         <CustomInput
           label="Autor"
           name="author"
@@ -114,6 +130,7 @@ export function CreateBookDialog({
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH_BOOK.AUTHOR}
         />
+
         <CustomSelect
           label="Saga"
           name="saga"
@@ -125,6 +142,19 @@ export function CreateBookDialog({
           error={isSagasError ? "Error al cargar las sagas" : null}
           onCreate={() => setSagaDialogOpen(true)}
         />
+
+        <CustomSelect
+          label="Categorías"
+          name="categories"
+          options={categoriesOptions}
+          placeholder="Selecciona las categorías del libro"
+          onValueChange={handleCategoriesChange}
+          value={form.categoriesIds || []}
+          loading={isCategoriesLoading}
+          error={isCategoriesError ? "Error al cargar las categorías" : null}
+          multiple
+        />
+
         <CustomInput
           label="Sinopsis"
           name="description"
@@ -135,6 +165,7 @@ export function CreateBookDialog({
           maxInputHeight="125px"
           maxLength={MAX_LENGTH_ITEM.DESCRIPTION}
         />
+
         <CustomSelect
           label="Tipo de libro"
           name="type"
@@ -143,6 +174,7 @@ export function CreateBookDialog({
           placeholder="Selecciona el tipo de libro"
           defaultValue={[form?.type]}
         />
+
         <CustomSelect
           label="Sección"
           name="section"
@@ -153,6 +185,7 @@ export function CreateBookDialog({
           loading={isSectionsLoading}
           error={isSectionsError ? "Error al cargar las secciones" : null}
         />
+
         <CustomInput
           label="ISBN"
           name="isbn"
@@ -162,11 +195,13 @@ export function CreateBookDialog({
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH_BOOK.ISBN}
         />
+
         <Separator />
         <Heading as="h2" size="md" mt={4}>
           {" "}
           Estado de conservación y disponibilidad{" "}
         </Heading>
+
         <CustomSelect
           label="Estado de conservación"
           name="condition"
@@ -177,6 +212,7 @@ export function CreateBookDialog({
           onValueChange={handleConditionChange}
           defaultValue={[form?.condition]}
         />
+
         <CustomInput
           label="Comentarios"
           name="comments"
@@ -185,6 +221,7 @@ export function CreateBookDialog({
           maxInputHeight="125px"
           maxLength={MAX_LENGTH_ITEM.COMMENTS}
         />
+
         <CustomSwitch
           checked={form.loanAvailable}
           onChange={(checked) => {
@@ -192,6 +229,7 @@ export function CreateBookDialog({
           }}
           label="Disponible para préstamo"
         />
+
         <CustomSwitch
           checked={form.publicated}
           onChange={(checked) => {
@@ -199,6 +237,7 @@ export function CreateBookDialog({
           }}
           label="Visible en el catálogo"
         />
+
         <CustomNumberInput
           label="Número de copias"
           defaultValue={form.copies}
@@ -212,10 +251,12 @@ export function CreateBookDialog({
             }));
           }}
         />
+
         <Heading as="h2" size="md" mt={4}>
           {" "}
           Información sobre la compra{" "}
         </Heading>
+
         <CustomDateInput
           label="Fecha de compra"
           value={form.purchasedAt}
@@ -223,8 +264,6 @@ export function CreateBookDialog({
           onChange={(e) => setForm((prev) => ({ ...prev, purchasedAt: e }))}
           acceptsFutureDates={false}
         />
-
-        {/* TODO: Implement categories selection. */}
       </FormDialog>
       <CreateSagaDialog
         isOpen={sagaDialogOpen}
