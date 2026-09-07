@@ -1,1 +1,1 @@
-export { useCategories } from './useCategories';
+export { useCategories } from "./useCategories";
