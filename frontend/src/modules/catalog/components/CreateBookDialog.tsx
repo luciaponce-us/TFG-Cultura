@@ -23,6 +23,7 @@ import {
 } from "../validations/book.validations";
 import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
 import { CreateSagaDialog } from "./";
+import { useSections } from "@/modules/sections/hooks";
 
 export function CreateBookDialog({
   isOpen,
@@ -44,6 +45,22 @@ export function CreateBookDialog({
     isError: isSagasError,
   } = useSagas();
 
+  const sagasOptions : { value: string; label: string }[] = sagas?.map((saga) => ({
+    value: saga.name,
+    label: saga.name,
+  })) || [];
+
+  const {
+    data: sections,
+    isLoading: isSectionsLoading,
+    isError: isSectionsError,
+  } = useSections();
+
+  const sectionsOptions : { value: string; label: string }[] = sections?.map((section) => ({
+    value: section.id,
+    label: section.name,
+  })) || [];
+
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
 
   const handleTypeChange = ({ value }: { value: string[] }) =>
@@ -51,6 +68,12 @@ export function CreateBookDialog({
 
   const handleConditionChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "condition", form, setErrors, setForm);
+
+  const handleSagaChange = ({ value }: { value: string[] }) =>
+    handleSelectChange(value, "sagaName", form, setErrors, setForm);
+
+  const handleSectionChange = ({ value }: { value: string[] }) =>
+    handleSelectChange(value, "sectionId", form, setErrors, setForm);
 
   async function handleSubmit() {
     const errors = validateBookForm(form, token);
@@ -92,16 +115,9 @@ export function CreateBookDialog({
         <CustomSelect
           label="Saga"
           name="saga"
-          options={
-            sagas?.map((saga) => ({
-              value: saga.name,
-              label: saga.name,
-            })) || []
-          }
+          options={sagasOptions}
           placeholder="Selecciona la saga a la que pertenece el libro"
-          onValueChange={({ value }: { value: string[] }) => {
-            setForm((prev) => ({ ...prev, sagaName: value[0] || "" }));
-          }}
+          onValueChange={handleSagaChange}
           value={form.sagaName ? [form.sagaName] : []}
           loading={isSagasLoading}
           error={isSagasError ? "Error al cargar las sagas" : null}
@@ -124,6 +140,16 @@ export function CreateBookDialog({
           onValueChange={handleTypeChange}
           placeholder="Selecciona el tipo de libro"
           defaultValue={[form?.type]}
+        />
+        <CustomSelect
+          label="Sección"
+          name="section"
+          options={sectionsOptions}
+          placeholder="Selecciona la sección a la que pertenece el libro"
+          onValueChange={handleSectionChange}
+          value={form.sectionId ? [form.sectionId] : []}
+          loading={isSectionsLoading}
+          error={isSectionsError ? "Error al cargar las secciones" : null}
         />
         <CustomInput
           label="ISBN"
@@ -196,7 +222,7 @@ export function CreateBookDialog({
           acceptsFutureDates={false}
         />
 
-        {/* TODO: Implement section selection. */}
+        
         {/* TODO: Implement categories selection. */}
       </FormDialog>
       <CreateSagaDialog
