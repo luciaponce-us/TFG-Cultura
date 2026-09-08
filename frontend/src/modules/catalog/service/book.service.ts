@@ -38,11 +38,23 @@ export async function fetchAllBooks(
 export async function createBook(
   token: string,
   book: BookCreateRequest,
+  image: File | null,
 ): Promise<Book> {
+  const formData = new FormData();
+
+  formData.append(
+    "item",
+    new Blob([JSON.stringify(book)], { type: "application/json" }),
+  );
+
+  if (image) {
+    formData.append("image", image);
+  }
+
   const res = await fetchWithTimeout(BOOK_ROUTES.GET_ALL_BOOKS, {
     method: "POST",
     headers: token ? authHeaders(token) : {},
-    body: JSON.stringify(book),
+    body: formData,
   });
 
   return handleResponse<Book>(res);
