@@ -1,3 +1,6 @@
+import type { Category } from "@/modules/categories/types";
+import type { SectionReference } from "@/modules/sections/types";
+
 export interface FiltersGetAllItems {
   nameContains?: string;
   categories?: string[];
@@ -27,17 +30,6 @@ export interface Item {
   createdAt: string; // LocalDateTime
 }
 
-export interface SectionReference {
-  id: string;
-  name: string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  color: string;
-}
-
 export const ITEM_CONDITIONS = [
   "PERFECT",
   "MINOR_DAMAGE",
@@ -57,7 +49,6 @@ export const ITEM_CONDITIONS_OPTIONS = [
 export interface ItemCreateRequest {
   name: string;
   description: string;
-  imageUrl: string;
   condition: ItemCondition;
   comments: string;
   loanAvailable: boolean;
@@ -90,7 +81,6 @@ export interface ItemCreateRequestErrors {
 const initialItemErrors: ItemCreateRequestErrors = {
   name: "",
   description: "",
-  imageUrl: "",
   condition: "",
   comments: "",
   loanAvailable: "",
@@ -134,13 +124,12 @@ export interface BookCreateRequest extends ItemCreateRequest {
   author: string;
   isbn: string;
   type: BookType;
-  sagaName: string;
+  sagaName?: string;
 }
 
 export const INITIAL_BOOK: BookCreateRequest = {
   name: "",
   description: "",
-  imageUrl: "",
   condition: "PERFECT",
   comments: "",
   loanAvailable: true,
