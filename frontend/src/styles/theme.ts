@@ -1,5 +1,16 @@
 import { createSystem, defaultConfig } from "@chakra-ui/react";
 
+const COLORS = {
+  PRINCIPAL: "#4B759D",
+  SECUNDARIO: "#DEAC0F",
+  ROJO: "#9D4B4B",
+  VERDE: "#4B9D79",
+  BACKGROUND: "#F9FAFB",
+  TEXT_HEADER: "#223151",
+  TEXT_BODY: "#1E1E1E",
+  TEXT_SECONDARY: "#757575"
+}
+
 export const system = createSystem(defaultConfig, {
   theme: {
     tokens: {
@@ -25,21 +36,21 @@ export const system = createSystem(defaultConfig, {
         },
 
         secundario: {
-          500: { value: "#DEAC0F" },
+          500: { value: COLORS.SECUNDARIO },
         },
 
         rojo: {
-          500: { value: "#9D4B4B" },
+          500: { value: COLORS.ROJO },
           600: { value: "#7E3E3E" },
         },
 
         verde: {
-          500: { value: "#4B9D79" },
+          500: { value: COLORS.VERDE },
           600: { value: "#3E7E62" },
         },
 
         background: {
-          50: { value: "#F9FAFB" },
+          50: { value: COLORS.BACKGROUND },
         },
 
         border: {
@@ -47,9 +58,9 @@ export const system = createSystem(defaultConfig, {
           default: { value: "#D1D5DB" },
         },
         text: {
-          header: { value: "223151" },
-          body: { value: "#1E1E1E" },
-          secondary: { value: "#757575" },
+          header: { value: COLORS.TEXT_HEADER },
+          body: { value: COLORS.TEXT_BODY },
+          secondary: { value: COLORS.TEXT_SECONDARY },
           button: { value: "#F5F5F5" },
         },
       },
@@ -81,12 +92,15 @@ export const system = createSystem(defaultConfig, {
       bgRepeat: "no-repeat",
     },
     h1: {
-      color: "#223151",
+      color: COLORS.TEXT_HEADER,
+    },
+    h2: {
+      color: COLORS.TEXT_HEADER,
     },
     secondary: {
       fontFamily: "body",
       fontSize: "xs",
-      color: "#757575",
+      color: COLORS.TEXT_SECONDARY,
     },
   },
 });
