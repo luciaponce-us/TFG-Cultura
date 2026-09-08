@@ -34,11 +34,15 @@ function validateAuthor(value: string): string | undefined {
 
 function validateIsbn(value: string): string | undefined {
   if (!value || value.trim() === "") return "El ISBN es obligatorio.";
-  const clean = value.replace(/[-\s]/g, "");
+  const clean = cleanIsbn(value);
   if (!/^(\d{10}|\d{13})$/.test(clean) && !/^(\d{9}[\dXx])$/.test(clean)) {
     return "El ISBN no es válido.";
   }
   return undefined;
+}
+
+export function cleanIsbn(value: string): string {
+  return value.replace(/[-\s]/g, "");
 }
 
 function validateType(value: string): string | undefined {
@@ -46,7 +50,7 @@ function validateType(value: string): string | undefined {
   return undefined;
 }
 
-function validateSagaName(value: string): string | undefined {
+function validateSagaName(value?: string): string | undefined {
   if (value && value.trim().length > MAX_LENGTH.SAGA_NAME) {
     return (
       "La saga no puede superar los " + MAX_LENGTH.SAGA_NAME + " caracteres."
