@@ -7,7 +7,11 @@ import {
   ITEM_CONDITIONS_OPTIONS,
 } from "../types";
 import { useCreateBook, useSagas } from "../hooks";
-import { handleChange, handleSelectChange, isApiError } from "@/modules/core/utils/utils";
+import {
+  handleChange,
+  handleSelectChange,
+  isApiError,
+} from "@/modules/core/utils/utils";
 import {
   Heading,
   HStack,
@@ -52,13 +56,12 @@ export function CreateBookDialog({
   const [errors, setErrors] =
     useState<BookCreateRequestErrors>(INITIAL_BOOK_ERRORS);
   const [image, setImage] = useState<File | null>(null);
-  const { mutateAsync: createBook, isPending: submitting, isError: isCreateBookError, error: createBookError } = useCreateBook(
-    form,
-    image,
-    setErrors,
-    setIsOpen
-  );
-  
+  const {
+    mutateAsync: createBook,
+    isPending: submitting,
+    isError: isCreateBookError,
+    error: createBookError,
+  } = useCreateBook(form, image, setErrors, setIsOpen);
 
   const {
     data: sagas,
@@ -123,7 +126,11 @@ export function CreateBookDialog({
       setIsOpen(false);
     } else {
       console.error("Error al crear libro:", createBookError);
-      if(isApiError(createBookError) && createBookError.errors && Object.keys(createBookError.errors).length > 0) {
+      if (
+        isApiError(createBookError) &&
+        createBookError.errors &&
+        Object.keys(createBookError.errors).length > 0
+      ) {
         setErrors(createBookError.errors);
       }
     }
@@ -135,10 +142,16 @@ export function CreateBookDialog({
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         title="Crear libro"
-        handleSubmit={async ()=> await handleSubmit()}
+        handleSubmit={async () => await handleSubmit()}
         submitButtonText="Crear"
       >
-        <HStack align="stretch" w="100%" maxW="100%" maxH="200px" mb={image? "60px":""}>
+        <HStack
+          align="stretch"
+          w="100%"
+          maxW="100%"
+          maxH="200px"
+          mb={image ? "60px" : ""}
+        >
           <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
             <Image
               src={image ? URL.createObjectURL(image) : BOOK_PLACEHOLDER}
@@ -239,7 +252,7 @@ export function CreateBookDialog({
           error={
             isSectionsError
               ? "Error al cargar las secciones"
-              : errors.sectionId ?? ""
+              : (errors.sectionId ?? "")
           }
         />
 

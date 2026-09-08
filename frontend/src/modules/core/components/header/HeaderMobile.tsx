@@ -49,7 +49,9 @@ export function HeaderMobile() {
           >
             <IconMenu2 style={{ width: 40, height: 40 }} />
           </IconButton>
-          <Heading fontSize="xl" color="principal.50">Cultura ETSII</Heading>
+          <Heading fontSize="xl" color="principal.50">
+            Cultura ETSII
+          </Heading>
         </Flex>
         <Flex align="center" gap={4}>
           <HeaderSearchBar />

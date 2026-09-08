@@ -25,7 +25,9 @@ export const HeaderLogo = () => {
           p={2}
         />
       </Box>
-      <Heading fontSize="xl" color="principal.50">Cultura ETSII</Heading>
+      <Heading fontSize="xl" color="principal.50">
+        Cultura ETSII
+      </Heading>
     </Flex>
   );
 };

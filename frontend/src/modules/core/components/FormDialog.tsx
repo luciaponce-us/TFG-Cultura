@@ -64,10 +64,7 @@ export function FormDialog({
             <CustomButton onClick={() => setIsOpen(false)} color="rojo">
               Cancelar
             </CustomButton>
-            <CustomButton
-              loading={loadingSubmit}
-              type="submit"
-            >
+            <CustomButton loading={loadingSubmit} type="submit">
               {submitButtonText}
             </CustomButton>
           </Dialog.Footer>

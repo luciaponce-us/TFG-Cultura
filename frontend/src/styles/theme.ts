@@ -8,8 +8,8 @@ const COLORS = {
   BACKGROUND: "#F9FAFB",
   TEXT_HEADER: "#223151",
   TEXT_BODY: "#1E1E1E",
-  TEXT_SECONDARY: "#757575"
-}
+  TEXT_SECONDARY: "#757575",
+};
 
 export const system = createSystem(defaultConfig, {
   theme: {
