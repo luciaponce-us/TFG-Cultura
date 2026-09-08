@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 interface CustomButtonProps extends ButtonProps {
   children: ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
   color?: string;
   isPagination?: boolean;
 }
@@ -18,6 +18,11 @@ export const CustomButton = ({
   if (color === "transparent") {
     return (
       <Button
+        whiteSpace="normal"
+        wordBreak="break-word"
+        h="auto"
+        minH="40px"
+        minW={0}
         bg="transparent"
         color="principal.800"
         borderRadius="full"
@@ -39,6 +44,12 @@ export const CustomButton = ({
 
   return (
     <Button
+      whiteSpace="normal"
+      wordBreak="break-word"
+      h="auto"
+      minH="40px"
+      minW={0}
+      maxW="100%"
       bg={`${color}.500`}
       color="white"
       borderRadius="full"
