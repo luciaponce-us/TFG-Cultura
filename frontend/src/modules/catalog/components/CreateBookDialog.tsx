@@ -7,8 +7,15 @@ import {
   ITEM_CONDITIONS_OPTIONS,
 } from "../types";
 import { useCreateBook, useSagas } from "../hooks";
-import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import { Heading, Separator } from "@chakra-ui/react";
+import { handleChange, handleSelectChange, isApiError } from "@/modules/core/utils/utils";
+import {
+  Heading,
+  HStack,
+  Separator,
+  VStack,
+  Image,
+  Box,
+} from "@chakra-ui/react";
 import {
   CustomInput,
   CustomSelect,
@@ -16,6 +23,7 @@ import {
   CustomNumberInput,
   CustomDateInput,
   FormDialog,
+  UploadBox,
 } from "@/modules/core/components";
 import {
   MAX_LENGTH as MAX_LENGTH_BOOK,
@@ -26,19 +34,31 @@ import { CreateSagaDialog } from "./";
 import { useSections } from "@/modules/sections/hooks";
 import { useCategories } from "@/modules/categories/hooks";
 
+const BOOK_PLACEHOLDER =
+  "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/book_placeholder.jpg";
+
+interface CreateBookDialogProps {
+  readonly isOpen: boolean;
+  readonly setIsOpen: (isOpen: boolean) => void;
+  readonly token?: string | null;
+}
+
 export function CreateBookDialog({
   isOpen,
   setIsOpen,
   token,
-}: {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  token?: string | null;
-}) {
+}: CreateBookDialogProps) {
   const [form, setForm] = useState<BookCreateRequest>(INITIAL_BOOK);
-  const { mutateAsync: createBook } = useCreateBook();
   const [errors, setErrors] =
     useState<BookCreateRequestErrors>(INITIAL_BOOK_ERRORS);
+  const [image, setImage] = useState<File | null>(null);
+  const { mutateAsync: createBook, isPending: submitting, isError: isCreateBookError, error: createBookError } = useCreateBook(
+    form,
+    image,
+    setErrors,
+    setIsOpen
+  );
+  
 
   const {
     data: sagas,
@@ -95,11 +115,18 @@ export function CreateBookDialog({
   async function handleSubmit() {
     const errors = validateBookForm(form, token);
     setErrors(errors);
-    if (Object.keys(errors).length > 0) {
+    if (Object.values(errors).some(Boolean)) {
       return;
     }
-    await createBook(form);
-    setIsOpen(false);
+    await createBook();
+    if (!isCreateBookError) {
+      setIsOpen(false);
+    } else {
+      console.error("Error al crear libro:", createBookError);
+      if(isApiError(createBookError) && createBookError.errors && Object.keys(createBookError.errors).length > 0) {
+        setErrors(createBookError.errors);
+      }
+    }
   }
 
   return (
@@ -108,12 +135,37 @@ export function CreateBookDialog({
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         title="Crear libro"
-        handleSubmit={handleSubmit}
+        handleSubmit={async ()=> await handleSubmit()}
         submitButtonText="Crear"
       >
+        <HStack align="stretch" w="100%" maxW="100%" maxH="200px" mb={image? "60px":""}>
+          <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
+            <Image
+              src={image ? URL.createObjectURL(image) : BOOK_PLACEHOLDER}
+              alt="Foto del libro"
+              w="100%"
+              h="100%"
+              objectFit="cover"
+              borderRadius="md"
+            />
+          </Box>
+          <VStack flex={1} minW={0}>
+            <UploadBox
+              text={
+                <>
+                  Arrastra la <b>foto del libro</b>
+                </>
+              }
+              secondaryText="JPG o PNG, tamaño no superior a 2MB"
+              fileType="image/*"
+              onFileChange={setImage}
+              disabled={submitting}
+            />
+          </VStack>
+        </HStack>
         <CustomInput
           label="Título"
-          name="title"
+          name="name"
           placeholder="Introduce el título..."
           required
           error={errors.name ?? ""}
@@ -137,7 +189,7 @@ export function CreateBookDialog({
           options={sagasOptions}
           placeholder="Selecciona la saga a la que pertenece el libro"
           onValueChange={handleSagaChange}
-          value={form.sagaName ? [form.sagaName] : []}
+          value={form.sagaName ? [form.sagaName] : undefined}
           loading={isSagasLoading}
           error={isSagasError ? "Error al cargar las sagas" : null}
           onCreate={() => setSagaDialogOpen(true)}
@@ -180,10 +232,15 @@ export function CreateBookDialog({
           name="section"
           options={sectionsOptions}
           placeholder="Selecciona la sección a la que pertenece el libro"
+          required
           onValueChange={handleSectionChange}
           value={form.sectionId ? [form.sectionId] : []}
           loading={isSectionsLoading}
-          error={isSectionsError ? "Error al cargar las secciones" : null}
+          error={
+            isSectionsError
+              ? "Error al cargar las secciones"
+              : errors.sectionId ?? ""
+          }
         />
 
         <CustomInput
@@ -238,19 +295,7 @@ export function CreateBookDialog({
           label="Visible en el catálogo"
         />
 
-        <CustomNumberInput
-          label="Número de copias"
-          defaultValue={form.copies}
-          min={1}
-          max={10}
-          onChange={(value: number) => {
-            setForm((prev) => ({
-              ...prev,
-              copies: value,
-              availableCopies: value,
-            }));
-          }}
-        />
+        <Separator />
 
         <Heading as="h2" size="md" mt={4}>
           {" "}
@@ -264,6 +309,38 @@ export function CreateBookDialog({
           onChange={(e) => setForm((prev) => ({ ...prev, purchasedAt: e }))}
           acceptsFutureDates={false}
         />
+        <HStack>
+          <CustomNumberInput
+            label="Número de copias"
+            defaultValue={form.copies}
+            min={1}
+            max={10}
+            onChange={(value: number) => {
+              setForm((prev) => ({
+                ...prev,
+                copies: value,
+                availableCopies: value,
+              }));
+            }}
+          />
+
+          <CustomNumberInput
+            label="Precio de compra"
+            defaultValue={form.price}
+            min={0}
+            max={1000}
+            step={0.01}
+            allowMouseWheel
+            disabled={submitting}
+            onChange={(value: number) => {
+              setForm((prev) => ({
+                ...prev,
+                price: value,
+              }));
+            }}
+            isEuros
+          />
+        </HStack>
       </FormDialog>
       <CreateSagaDialog
         isOpen={sagaDialogOpen}
