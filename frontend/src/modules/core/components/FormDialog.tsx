@@ -65,7 +65,6 @@ export function FormDialog({
               Cancelar
             </CustomButton>
             <CustomButton
-              onClick={() => void handleSubmit()}
               loading={loadingSubmit}
               type="submit"
             >
