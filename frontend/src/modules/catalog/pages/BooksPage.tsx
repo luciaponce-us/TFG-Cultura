@@ -18,7 +18,7 @@ import { CreateBookDialog } from "../components";
 
 export function BooksPage() {
   const { token, isAdmin } = useAuth();
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(true); // TODO: Change to false when the dialog is implemented
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     ...FILTERS_GET_ALL_ITEMS_DEFAULT,
   });
@@ -109,7 +109,7 @@ export function BooksPage() {
       >
         <Heading as="h1">Libros</Heading>
 
-        {!isAdmin && ( // TODO: Invert this condition when the dialog is implemented
+        {isAdmin && (
           <CustomButton
             onClick={() => {
               setIsCreateDialogOpen(true);
