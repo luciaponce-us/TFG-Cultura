@@ -10,6 +10,18 @@ import { BOOK_ROUTES } from "../routes";
 
 import type { Paginated } from "@/modules/core/types";
 
+function removeEmptyFields<T extends object>(value: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => {
+      if (fieldValue === null || fieldValue === undefined || fieldValue === "") {
+        return false;
+      }
+
+      return !Array.isArray(fieldValue) || fieldValue.length > 0;
+    }),
+  ) as Partial<T>;
+}
+
 export async function fetchAllBooks(
   page: number = 0,
   size: number = 10,
@@ -44,7 +56,9 @@ export async function createBook(
 
   formData.append(
     "item",
-    new Blob([JSON.stringify(book)], { type: "application/json" }),
+    new Blob([JSON.stringify(removeEmptyFields(book))], {
+      type: "application/json",
+    }),
   );
 
   if (image) {

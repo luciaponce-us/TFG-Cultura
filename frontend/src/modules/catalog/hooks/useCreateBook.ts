@@ -26,18 +26,7 @@ export function useCreateBook(
         return;
       }
 
-      const cleanedIsbn = bookData.isbn.replace(/[-\s]/g, "");
-      const cleanedSagaName = bookData.sagaName?.trim();
-      const { sagaName: _sagaName, ...bookWithoutSagaName } = bookData;
-      const payload = cleanedSagaName
-        ? {
-            ...bookWithoutSagaName,
-            isbn: cleanedIsbn,
-            sagaName: cleanedSagaName,
-          }
-        : { ...bookWithoutSagaName, isbn: cleanedIsbn };
-
-      await createBook(token, payload, image);
+      await createBook(token, bookData, image);
     },
     onSuccess: async () => {
       toaster.create({
@@ -54,8 +43,16 @@ export function useCreateBook(
       if (isApiError(error)) {
         if (error.errors && Object.keys(error.errors).length > 0) {
           setErrors(error.errors);
+          
+          toaster.create({
+            title: "Error al crear libro",
+            description: "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
+            type: "error",
+          });
+
           return;
         }
+        
         toaster.create({
           title: "Error al crear libro",
           description: error.message,

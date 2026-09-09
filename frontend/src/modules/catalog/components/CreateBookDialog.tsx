@@ -6,11 +6,10 @@ import {
   INITIAL_BOOK_ERRORS,
   ITEM_CONDITIONS_OPTIONS,
 } from "../types";
-import { useCreateBook, useSagas } from "../hooks";
+import { useCreateBook } from "../hooks";
 import {
   handleChange,
   handleSelectChange,
-  isApiError,
 } from "@/modules/core/utils/utils";
 import {
   Heading,
@@ -31,12 +30,13 @@ import {
 } from "@/modules/core/components";
 import {
   MAX_LENGTH as MAX_LENGTH_BOOK,
+  cleanIsbn,
   validateBookForm,
 } from "../validations/book.validations";
 import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
-import { CreateSagaDialog } from "./";
-import { useSections } from "@/modules/sections/hooks";
-import { useCategories } from "@/modules/categories/hooks";
+import { CreateSagaDialog, SagaSelect } from "./";
+import { CategoriesSelect } from "@/modules/categories/components";
+import { SectionSelect } from "@/modules/sections/components";
 
 const BOOK_PLACEHOLDER =
   "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/book_placeholder.jpg";
@@ -59,44 +59,8 @@ export function CreateBookDialog({
   const {
     mutateAsync: createBook,
     isPending: submitting,
-    isError: isCreateBookError,
-    error: createBookError,
+    isError: isCreateBookError
   } = useCreateBook(form, image, setErrors, setIsOpen);
-
-  const {
-    data: sagas,
-    isLoading: isSagasLoading,
-    isError: isSagasError,
-  } = useSagas();
-
-  const sagasOptions: { value: string; label: string }[] =
-    sagas?.map((saga) => ({
-      value: saga.name,
-      label: saga.name,
-    })) || [];
-
-  const {
-    data: sections,
-    isLoading: isSectionsLoading,
-    isError: isSectionsError,
-  } = useSections();
-
-  const sectionsOptions: { value: string; label: string }[] =
-    sections?.map((section) => ({
-      value: section.id,
-      label: section.name,
-    })) || [];
-
-  const {
-    data: categories,
-    isLoading: isCategoriesLoading,
-    isError: isCategoriesError,
-  } = useCategories();
-  const categoriesOptions: { value: string; label: string }[] =
-    categories?.map((category) => ({
-      value: category.id,
-      label: category.name,
-    })) || [];
 
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
 
@@ -105,15 +69,6 @@ export function CreateBookDialog({
 
   const handleConditionChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "condition", form, setErrors, setForm);
-
-  const handleSagaChange = ({ value }: { value: string[] }) =>
-    handleSelectChange(value, "sagaName", form, setErrors, setForm);
-
-  const handleSectionChange = ({ value }: { value: string[] }) =>
-    handleSelectChange(value, "sectionId", form, setErrors, setForm);
-
-  const handleCategoriesChange = ({ value }: { value: string[] }) =>
-    setForm((prev) => ({ ...prev, categoriesIds: value }));
 
   async function handleSubmit() {
     const errors = validateBookForm(form, token);
@@ -124,15 +79,6 @@ export function CreateBookDialog({
     await createBook();
     if (!isCreateBookError) {
       setIsOpen(false);
-    } else {
-      console.error("Error al crear libro:", createBookError);
-      if (
-        isApiError(createBookError) &&
-        createBookError.errors &&
-        Object.keys(createBookError.errors).length > 0
-      ) {
-        setErrors(createBookError.errors);
-      }
     }
   }
 
@@ -196,29 +142,14 @@ export function CreateBookDialog({
           maxLength={MAX_LENGTH_BOOK.AUTHOR}
         />
 
-        <CustomSelect
-          label="Saga"
-          name="saga"
-          options={sagasOptions}
-          placeholder="Selecciona la saga a la que pertenece el libro"
-          onValueChange={handleSagaChange}
-          value={form.sagaName ? [form.sagaName] : undefined}
-          loading={isSagasLoading}
-          error={isSagasError ? "Error al cargar las sagas" : null}
-          onCreate={() => setSagaDialogOpen(true)}
+        <SagaSelect
+          form={form}
+          setErrors={setErrors}
+          setForm={setForm}
+          onCreateSaga={() => setSagaDialogOpen(true)}
         />
 
-        <CustomSelect
-          label="Categorías"
-          name="categories"
-          options={categoriesOptions}
-          placeholder="Selecciona las categorías del libro"
-          onValueChange={handleCategoriesChange}
-          value={form.categoriesIds || []}
-          loading={isCategoriesLoading}
-          error={isCategoriesError ? "Error al cargar las categorías" : null}
-          multiple
-        />
+        <CategoriesSelect form={form} setForm={setForm} />
 
         <CustomInput
           label="Sinopsis"
@@ -240,20 +171,11 @@ export function CreateBookDialog({
           defaultValue={[form?.type]}
         />
 
-        <CustomSelect
-          label="Sección"
-          name="section"
-          options={sectionsOptions}
-          placeholder="Selecciona la sección a la que pertenece el libro"
-          required
-          onValueChange={handleSectionChange}
-          value={form.sectionId ? [form.sectionId] : []}
-          loading={isSectionsLoading}
-          error={
-            isSectionsError
-              ? "Error al cargar las secciones"
-              : (errors.sectionId ?? "")
-          }
+        <SectionSelect
+          form={form}
+          setForm={setForm}
+          errors={errors}
+          setErrors={setErrors}
         />
 
         <CustomInput
@@ -262,8 +184,13 @@ export function CreateBookDialog({
           placeholder="Ej.: 1234567890123"
           required
           error={errors.isbn ?? ""}
-          onChange={(e) => handleChange(e, form, setErrors, setForm)}
-          maxLength={MAX_LENGTH_BOOK.ISBN}
+          onChange={(e) => {
+            e.target.value = cleanIsbn(e.target.value).slice(
+              0,
+              MAX_LENGTH_BOOK.ISBN,
+            );
+            handleChange(e, form, setErrors, setForm);
+          }}
         />
 
         <Separator />
@@ -322,6 +249,7 @@ export function CreateBookDialog({
           onChange={(e) => setForm((prev) => ({ ...prev, purchasedAt: e }))}
           acceptsFutureDates={false}
         />
+
         <HStack>
           <CustomNumberInput
             label="Número de copias"
