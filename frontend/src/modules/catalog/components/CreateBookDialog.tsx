@@ -7,10 +7,7 @@ import {
   ITEM_CONDITIONS_OPTIONS,
 } from "../types";
 import { useCreateBook } from "../hooks";
-import {
-  handleChange,
-  handleSelectChange,
-} from "@/modules/core/utils/utils";
+import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import {
   Heading,
   HStack,
@@ -59,7 +56,7 @@ export function CreateBookDialog({
   const {
     mutateAsync: createBook,
     isPending: submitting,
-    isError: isCreateBookError
+    isError: isCreateBookError,
   } = useCreateBook(form, image, setErrors, setIsOpen);
 
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);

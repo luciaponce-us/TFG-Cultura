@@ -78,7 +78,6 @@ export const CustomSelect = ({
                   {onCreateLabel}
                 </Select.Item>
               )}
-
             </Select.Content>
           </Select.Positioner>
         </Portal>

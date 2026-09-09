@@ -87,8 +87,7 @@ class BookServiceTest {
 
 	@Test
 	void should_allow_book_without_saga() {
-		BookRequest request = BookRequest.builder().author("Asimov").isbn("978...")
-				.type(BookType.NOVEL).build();
+		BookRequest request = BookRequest.builder().author("Asimov").isbn("978...").type(BookType.NOVEL).build();
 		Book book = new Book();
 
 		service.fillSpecificFields(book, request);

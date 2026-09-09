@@ -13,7 +13,11 @@ import type { Paginated } from "@/modules/core/types";
 function removeEmptyFields<T extends object>(value: T): Partial<T> {
   return Object.fromEntries(
     Object.entries(value).filter(([, fieldValue]) => {
-      if (fieldValue === null || fieldValue === undefined || fieldValue === "") {
+      if (
+        fieldValue === null ||
+        fieldValue === undefined ||
+        fieldValue === ""
+      ) {
         return false;
       }
 

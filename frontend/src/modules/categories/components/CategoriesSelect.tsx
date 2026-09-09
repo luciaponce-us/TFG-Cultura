@@ -10,10 +10,7 @@ interface CategoriesSelectProps {
 
 // FIXME: Add onCreateCategory functionality to allow creating new categories from the select component
 
-export function CategoriesSelect({
-  form,
-  setForm
-}: CategoriesSelectProps) {
+export function CategoriesSelect({ form, setForm }: CategoriesSelectProps) {
   const {
     data: categories,
     isLoading: isCategoriesLoading,
