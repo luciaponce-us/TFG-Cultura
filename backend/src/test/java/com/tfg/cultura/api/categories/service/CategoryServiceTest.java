@@ -122,6 +122,14 @@ class CategoryServiceTest {
 	}
 
 	@Test
+	void should_return_empty_set_when_category_ids_are_null() {
+		Set<Category> result = service.findCategoriesByIds(null);
+
+		assertTrue(result.isEmpty());
+		verify(categoryRepository, never()).findById(any());
+	}
+
+	@Test
 	void should_return_all_categories_sorted_by_name() {
 
 		List<Category> categories = List.of(category, anotherCategory);

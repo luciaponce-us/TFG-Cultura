@@ -47,6 +47,10 @@ public class CategoryService {
 
 	public Set<Category> findCategoriesByIds(Set<String> ids) throws CategoryNotFoundException {
 		Set<Category> categories = new HashSet<>();
+		if (ids == null) {
+			return categories;
+		}
+
 		for (String id : ids) {
 			categories.add(findCategoryById(id));
 		}
