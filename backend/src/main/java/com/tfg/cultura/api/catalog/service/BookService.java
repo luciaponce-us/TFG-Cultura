@@ -61,7 +61,8 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 
 	@Override
 	protected void fillSpecificFields(Book item, BookRequest request) {
-		Saga saga = sagaService.findByName(request.getSagaName());
+		String sagaName = request.getSagaName();
+		Saga saga = sagaName == null || sagaName.isBlank() ? null : sagaService.findByName(sagaName);
 
 		item.setAuthor(sanitize(request.getAuthor()));
 		item.setIsbn(sanitize(request.getIsbn()));

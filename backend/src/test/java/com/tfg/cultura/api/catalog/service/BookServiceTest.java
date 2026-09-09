@@ -2,9 +2,11 @@ package com.tfg.cultura.api.catalog.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
@@ -81,6 +83,18 @@ class BookServiceTest {
 		assertEquals(saga, book.getSaga());
 
 		verify(sagaService).findByName("Fundación");
+	}
+
+	@Test
+	void should_allow_book_without_saga() {
+		BookRequest request = BookRequest.builder().author("Asimov").isbn("978...")
+				.type(BookType.NOVEL).build();
+		Book book = new Book();
+
+		service.fillSpecificFields(book, request);
+
+		assertNull(book.getSaga());
+		verifyNoInteractions(sagaService);
 	}
 
 	@Test
