@@ -5,6 +5,7 @@ import {
   Spinner,
   createListCollection,
 } from "@chakra-ui/react";
+import { IconPlus } from "@tabler/icons-react";
 
 interface CustomSelectProps extends Omit<
   React.ComponentProps<typeof Select.Root>,
@@ -14,6 +15,7 @@ interface CustomSelectProps extends Omit<
   placeholder: string;
   options: { label: string; value: string }[];
   error?: string | null;
+  required?: boolean;
   loading?: boolean;
   onCreate?: () => void; // Optional callback for creating a new option
   onCreateLabel?: string; // Optional label for the "create new" option
@@ -24,15 +26,16 @@ export const CustomSelect = ({
   placeholder,
   options,
   error,
+  required = false,
   loading = false,
   onCreate,
-  onCreateLabel = "Crear nuevo",
+  onCreateLabel = "Crear nuevo...",
   ...props
 }: CustomSelectProps) => {
   const optionsList = createListCollection({ items: options });
 
   return (
-    <Field.Root invalid={!!error}>
+    <Field.Root invalid={!!error} required={required}>
       <Select.Root
         collection={optionsList}
         size="sm"
@@ -41,7 +44,9 @@ export const CustomSelect = ({
         {...props}
       >
         <Select.HiddenSelect />
-        <Select.Label>{label}</Select.Label>
+        <Select.Label>
+          {label} {required && <Field.RequiredIndicator />}
+        </Select.Label>
         <Select.Control>
           <Select.Trigger>
             <Select.ValueText
@@ -49,6 +54,7 @@ export const CustomSelect = ({
             />
           </Select.Trigger>
           <Select.IndicatorGroup>
+            {!required && <Select.ClearTrigger />}
             {loading ? <Spinner size="xs" /> : <Select.Indicator />}
           </Select.IndicatorGroup>
         </Select.Control>
@@ -66,10 +72,13 @@ export const CustomSelect = ({
                 <Select.Item
                   item={{ label: "Crear nuevo", value: "__create_new__" }}
                   onClick={onCreate}
+                  justifyContent="start"
                 >
+                  <IconPlus />
                   {onCreateLabel}
                 </Select.Item>
               )}
+
             </Select.Content>
           </Select.Positioner>
         </Portal>
