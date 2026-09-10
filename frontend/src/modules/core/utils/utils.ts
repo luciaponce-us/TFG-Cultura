@@ -2,7 +2,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import type { ApiError } from "../types";
 import { ApiException } from "../types";
-import { useBreakpointValue } from "@chakra-ui/react/hooks";
+import { useBreakpointValue } from "@chakra-ui/react";
 import { toaster } from "../components";
 
 export const jsonHeaders = { "Content-Type": "application/json" };
