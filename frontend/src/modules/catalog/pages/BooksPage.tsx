@@ -16,7 +16,7 @@ import type { Book, BookType, FiltersGetAllItems as Filters } from "../types";
 import { useBooks } from "../hooks/useBooks";
 import { CreateBookDialog } from "../components";
 
-const BOOK_TYPES : BookType[] = ["NOVEL", "ENCYCLOPEDIA"];
+const BOOK_TYPES: BookType[] = ["NOVEL", "ENCYCLOPEDIA"];
 
 export function BooksPage() {
   const { token, isAdmin } = useAuth();

@@ -167,8 +167,8 @@ class BookControllerTest extends BaseControllerTest {
 		when(bookService.getAllBooksByTypeAndNameContains(Set.of(BookType.MANGA), null, null, PageRequest.of(0, 10)))
 				.thenReturn(page);
 
-		mockMvc.perform(get(BASE_URL + "/type/MANGA").param("page", "0").param("size", "10"))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1));
+		mockMvc.perform(get(BASE_URL + "/type/MANGA").param("page", "0").param("size", "10")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()").value(1));
 
 		verify(bookService).getAllBooksByTypeAndNameContains(Set.of(BookType.MANGA), null, null, PageRequest.of(0, 10));
 	}

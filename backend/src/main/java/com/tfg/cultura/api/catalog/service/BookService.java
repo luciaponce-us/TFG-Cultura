@@ -16,7 +16,6 @@ import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +30,7 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 	private final AppProperties appProperties;
 
 	public BookService(BookRepository bookRepository, SectionService sectionService, CategoryService categoryService,
-			FileService fileService, SagaService sagaService,  AppProperties appProperties) {
+			FileService fileService, SagaService sagaService, AppProperties appProperties) {
 		super(bookRepository, sectionService, categoryService, fileService, BookResponse::new);
 		this.sagaService = sagaService;
 		this.appProperties = appProperties;

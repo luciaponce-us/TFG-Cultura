@@ -29,12 +29,12 @@ public class BookController extends AbstractItemController<BookRequest, BookResp
 
 	@GetMapping("/types/{types}")
 	public ResponseEntity<Page<BookResponse>> getAllBooksByType(@PathVariable Set<BookType> types,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String nameContains, @RequestParam(required = false) Set<String> categoryIds) {
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+			@RequestParam(required = false) String nameContains,
+			@RequestParam(required = false) Set<String> categoryIds) {
 		Page<BookResponse> response = service.getAllBooksByTypeAndNameContains(types, nameContains, categoryIds,
 				PageRequest.of(page, size));
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.body(response);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
 }
