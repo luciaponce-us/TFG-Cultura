@@ -1,5 +1,5 @@
-import type { Item, ItemCreateRequest, ItemCreateRequestErrors } from "./";
-import { initialItemErrors } from "./";
+import type { Item, ItemRequest, ItemErrors } from "./";
+import { INITIAL_ITEM, INITIAL_ITEM_ERRORS } from "./";
 
 export interface Book extends Item {
   author: string;
@@ -26,41 +26,30 @@ export const BOOK_TYPES_OPTIONS = [
   { value: "ROL", label: "Rol" },
 ];
 
-export interface BookCreateRequest extends ItemCreateRequest {
+export interface BookRequest extends ItemRequest {
   author: string;
   isbn: string;
   type: BookType;
   sagaName?: string;
 }
 
-export const INITIAL_BOOK: BookCreateRequest = {
-  name: "",
-  description: "",
-  condition: "PERFECT",
-  comments: "",
-  loanAvailable: true,
-  publicated: true,
-  purchasedAt: "",
-  price: 0,
-  copies: 1,
-  availableCopies: 1,
-  sectionId: "",
-  categoriesIds: [],
+export const INITIAL_BOOK: BookRequest = {
+  ...INITIAL_ITEM,
   author: "",
   isbn: "",
   type: "NOVEL",
   sagaName: "",
 };
 
-export interface BookCreateRequestErrors extends ItemCreateRequestErrors {
+export interface BookErrors extends ItemErrors {
   author?: string;
   isbn?: string;
   type?: string;
   sagaName?: string;
 }
 
-export const INITIAL_BOOK_ERRORS: BookCreateRequestErrors = {
-  ...initialItemErrors,
+export const INITIAL_BOOK_ERRORS: BookErrors = {
+  ...INITIAL_ITEM_ERRORS,
   author: "",
   isbn: "",
   type: "",

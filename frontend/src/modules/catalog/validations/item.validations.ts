@@ -1,4 +1,4 @@
-import type { ItemCreateRequest, ItemCreateRequestErrors } from "../types";
+import type { ItemRequest, ItemErrors } from "../types";
 
 export const MAX_LENGTH = {
   NAME: 50,
@@ -7,9 +7,9 @@ export const MAX_LENGTH = {
 };
 
 export function validateItemForm(
-  form: ItemCreateRequest,
+  form: ItemRequest,
   token?: string | null,
-): ItemCreateRequestErrors {
+): ItemErrors {
   return {
     name: validateName(form.name),
     description: validateDescription(form.description),

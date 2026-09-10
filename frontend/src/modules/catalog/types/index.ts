@@ -46,7 +46,22 @@ export const ITEM_CONDITIONS_OPTIONS = [
   { value: "SEVERE_DAMAGE", label: "Daño severo" },
 ];
 
-export interface ItemCreateRequest {
+export const INITIAL_ITEM: ItemRequest = {
+  	name: "",
+	description: "",
+	condition: "PERFECT",
+	comments: "",
+	loanAvailable: true,
+	publicated: true,
+	purchasedAt: "",
+	price: 0,
+	copies: 1,
+	availableCopies: 1,
+	sectionId: "",
+	categoriesIds: []
+}
+
+export interface ItemRequest {
   name: string;
   description: string;
   condition: ItemCondition;
@@ -61,7 +76,7 @@ export interface ItemCreateRequest {
   categoriesIds: string[];
 }
 
-export interface ItemCreateRequestErrors {
+export interface ItemErrors {
   name?: string;
   description?: string;
   imageUrl?: string;
@@ -78,7 +93,7 @@ export interface ItemCreateRequestErrors {
   general?: string;
 }
 
-export const initialItemErrors: ItemCreateRequestErrors = {
+export const INITIAL_ITEM_ERRORS: ItemErrors = {
   name: "",
   description: "",
   condition: "",

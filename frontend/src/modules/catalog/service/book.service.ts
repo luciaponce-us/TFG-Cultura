@@ -4,7 +4,7 @@ import {
   authHeaders,
 } from "@/modules/core/utils/utils";
 
-import type { Book, BookCreateRequest, BookType } from "../types/book";
+import type { Book, BookRequest, BookType } from "../types/book";
 
 import { BOOK_ROUTES } from "../routes";
 
@@ -54,7 +54,7 @@ export async function fetchAllBooks(
 
 export async function createBook(
   token: string,
-  book: BookCreateRequest,
+  book: BookRequest,
   image: File | null,
 ): Promise<Book> {
   const formData = new FormData();
@@ -70,7 +70,7 @@ export async function createBook(
     formData.append("image", image);
   }
 
-  const res = await fetchWithTimeout(BOOK_ROUTES.GET_ALL_BOOKS, {
+  const res = await fetchWithTimeout(BOOK_ROUTES.GET_ALL, {
     method: "POST",
     headers: token ? authHeaders(token) : {},
     body: formData,
