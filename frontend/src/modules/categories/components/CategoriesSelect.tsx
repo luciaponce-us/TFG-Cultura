@@ -1,19 +1,19 @@
-import type { BookCreateRequest } from "@/modules/catalog/types";
+import type { ItemRequest } from "@/modules/catalog/types";
 import { CustomSelect } from "@/modules/core/components";
 import type { Dispatch, SetStateAction } from "react";
 import { useCategories } from "../hooks";
 
-interface CategoriesSelectProps {
-  form: BookCreateRequest;
-  setForm: Dispatch<SetStateAction<BookCreateRequest>>;
+interface CategoriesSelectProps<T extends ItemRequest> {
+  form: T;
+  setForm: Dispatch<SetStateAction<T>>;
   onCreateCategory?: () => void;
 }
 
-export function CategoriesSelect({
+export function CategoriesSelect<T extends ItemRequest>({
   form,
   setForm,
   onCreateCategory,
-}: CategoriesSelectProps) {
+}: CategoriesSelectProps<T>) {
   const {
     data: categories,
     isLoading: isCategoriesLoading,

@@ -1,25 +1,21 @@
 import { CustomSelect } from "@/modules/core/components";
 import { useSections } from "../hooks";
-import { handleSelectChange } from "@/modules/core/utils/utils";
-import type {
-  BookCreateRequest,
-  BookCreateRequestErrors,
-} from "@/modules/catalog/types";
+import type { ItemErrors, ItemRequest } from "@/modules/catalog/types";
 import type { Dispatch, SetStateAction } from "react";
 
-interface SectionSelectProps {
-  form: BookCreateRequest;
-  setForm: Dispatch<SetStateAction<BookCreateRequest>>;
-  errors: BookCreateRequestErrors;
-  setErrors: Dispatch<SetStateAction<BookCreateRequestErrors>>;
+interface SectionSelectProps<T extends ItemRequest, E extends ItemErrors> {
+  form: T;
+  setForm: Dispatch<SetStateAction<T>>;
+  errors: E;
+  setErrors: Dispatch<SetStateAction<E>>;
 }
 
-export function SectionSelect({
+export function SectionSelect<T extends ItemRequest, E extends ItemErrors>({
   form,
   setForm,
   errors,
   setErrors,
-}: SectionSelectProps) {
+}: SectionSelectProps<T, E>) {
   const {
     data: sections,
     isLoading: isSectionsLoading,
@@ -31,8 +27,10 @@ export function SectionSelect({
       value: section.id,
       label: section.name,
     })) || [];
-  const handleSectionChange = ({ value }: { value: string[] }) =>
-    handleSelectChange(value, "sectionId", form, setErrors, setForm);
+  const handleSectionChange = ({ value }: { value: string[] }) => {
+    setErrors({} as E);
+    setForm((previous) => ({ ...previous, sectionId: value[0] ?? "" }));
+  };
 
   return (
     <CustomSelect

@@ -1,22 +1,21 @@
 import { CustomSelect } from "@/modules/core/components";
 import { useSagas } from "../hooks";
-import { handleSelectChange } from "@/modules/core/utils/utils";
 import type { Dispatch, SetStateAction } from "react";
-import type { BookErrors, BookRequest } from "../types/book";
+import type { ItemErrors, ItemRequest } from "../types";
 
-interface SagaSelectProps {
-  form: BookRequest;
-  setErrors: Dispatch<SetStateAction<BookErrors>>;
-  setForm: Dispatch<SetStateAction<BookRequest>>;
+interface SagaSelectProps<T extends ItemRequest & { sagaName?: string }, E extends ItemErrors & { sagaName?: string }> {
+  form: T;
+  setErrors: Dispatch<SetStateAction<E>>;
+  setForm: Dispatch<SetStateAction<T>>;
   onCreateSaga: () => void;
 }
 
-export function SagaSelect({
+export function SagaSelect<T extends ItemRequest & { sagaName?: string }, E extends ItemErrors & { sagaName?: string }>({
   form,
   setErrors,
   setForm,
   onCreateSaga,
-}: SagaSelectProps) {
+}: SagaSelectProps<T, E>) {
   const {
     data: sagas,
     isLoading: isSagasLoading,
@@ -29,8 +28,10 @@ export function SagaSelect({
       label: saga.name,
     })) || [];
 
-  const handleSagaChange = ({ value }: { value: string[] }) =>
-    handleSelectChange(value, "sagaName", form, setErrors, setForm);
+  const handleSagaChange = ({ value }: { value: string[] }) => {
+    setErrors({} as E);
+    setForm((previous) => ({ ...previous, sagaName: value[0] ?? "" }));
+  };
 
   return (
     <CustomSelect
