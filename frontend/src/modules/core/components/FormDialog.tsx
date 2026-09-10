@@ -1,4 +1,4 @@
-import { Dialog, Heading, VStack } from "@chakra-ui/react";
+import { Dialog, Heading, Portal, VStack } from "@chakra-ui/react";
 import { CustomButton } from "./CustomButton";
 import { useState } from "react";
 
@@ -32,44 +32,46 @@ export function FormDialog({
   };
   return (
     <Dialog.Root open={isOpen}>
-      <Dialog.Backdrop />
-      <Dialog.Positioner>
-        <Dialog.Content
-          maxH="80vh"
-          overflow="hidden"
-          borderRadius="xl"
-          bg="background"
-          as="form"
-          onSubmit={(e) => void onSubmit(e)}
-        >
-          <Dialog.CloseTrigger />
-          <Dialog.Header>
-            <Dialog.Title>
-              <Heading as="h1">{title}</Heading>
-            </Dialog.Title>
-          </Dialog.Header>
-          <Dialog.Body>
-            <VStack
-              overflowY="scroll"
-              maxH="60vh"
-              align="stretch"
-              gap={4}
-              px={4}
-              py={2}
-            >
-              {children}
-            </VStack>
-          </Dialog.Body>
-          <Dialog.Footer>
-            <CustomButton onClick={() => setIsOpen(false)} color="rojo">
-              Cancelar
-            </CustomButton>
-            <CustomButton loading={loadingSubmit} type="submit">
-              {submitButtonText}
-            </CustomButton>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog.Positioner>
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content
+            maxH="80vh"
+            overflow="hidden"
+            borderRadius="xl"
+            bg="background"
+            as="form"
+            onSubmit={(e) => void onSubmit(e)}
+          >
+            <Dialog.CloseTrigger />
+            <Dialog.Header>
+              <Dialog.Title>
+                <Heading as="h1">{title}</Heading>
+              </Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <VStack
+                overflowY="scroll"
+                maxH="60vh"
+                align="stretch"
+                gap={4}
+                px={4}
+                py={2}
+              >
+                {children}
+              </VStack>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <CustomButton onClick={() => setIsOpen(false)} color="rojo">
+                Cancelar
+              </CustomButton>
+              <CustomButton loading={loadingSubmit} type="submit">
+                {submitButtonText}
+              </CustomButton>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
     </Dialog.Root>
   );
 }
