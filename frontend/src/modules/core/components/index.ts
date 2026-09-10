@@ -6,6 +6,7 @@ export { CustomAlert } from "./CustomAlert";
 export { CustomAvatar } from "./CustomAvatar";
 export { CustomAvatarGroup } from "./CustomAvatarGroup";
 export { CustomButton } from "./CustomButton";
+export { CustomColorPicker } from "./CustomColorPicker";
 export { CustomDateInput } from "./CustomDateInput";
 export { CustomInput } from "./CustomInput";
 export { CustomNumberInput } from "./CustomNumberInput";
