@@ -15,3 +15,8 @@ export const MOVIE_ROUTES = {
   GET_ALL: `${API_BASE_URL}/api/catalog/movies`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/movies/${id}`,
 };
+
+export const SERIES_ROUTES = {
+  GET_ALL: `${API_BASE_URL}/api/catalog/series`,
+  GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/series/${id}`,
+};

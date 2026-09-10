@@ -4,3 +4,5 @@ export { useSagas } from "./useSagas";
 export { useCreateSaga } from "./useCreateSaga";
 export { useMovies } from "./useMovies";
 export { useCreateMovie } from "./useCreateMovie";
+export { useSeries } from "./useSeries";
+export { useCreateSeries } from "./useCreateSeries";
