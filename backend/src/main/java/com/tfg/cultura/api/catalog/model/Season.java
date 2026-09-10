@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor 
+@AllArgsConstructor
 public class Season {
 
 	@Min(value = 0, message = "El número de temporada debe ser mayor o igual a 0")

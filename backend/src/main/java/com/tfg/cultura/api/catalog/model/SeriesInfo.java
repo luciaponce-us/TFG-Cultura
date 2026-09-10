@@ -17,7 +17,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor 
+@AllArgsConstructor
 public class SeriesInfo {
 	@Past(message = "La fecha de lanzamiento debe ser una fecha pasada")
 	@NotNull(message = "La fecha de estreno es obligatoria")

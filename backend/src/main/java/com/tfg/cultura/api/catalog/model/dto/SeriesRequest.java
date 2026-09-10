@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor 
+@AllArgsConstructor
 @SuperBuilder
 public class SeriesRequest extends ItemRequest {
 	@NotNull(message = "El formato es obligatorio")

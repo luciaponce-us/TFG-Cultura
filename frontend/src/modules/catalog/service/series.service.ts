@@ -23,12 +23,9 @@ export async function fetchAllSeries(
     queryParams += `&categories=${categories.join(",")}`;
   }
 
-  const res = await fetchWithTimeout(
-    `${SERIES_ROUTES.GET_ALL}${queryParams}`,
-    {
-      method: "GET",
-    },
-  );
+  const res = await fetchWithTimeout(`${SERIES_ROUTES.GET_ALL}${queryParams}`, {
+    method: "GET",
+  });
 
   return handleResponse<Paginated<Series>>(res);
 }

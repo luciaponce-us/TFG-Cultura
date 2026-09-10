@@ -66,10 +66,7 @@ export default function App() {
                 path="/catalogo/mangas-y-comics"
                 element={<MangasAndComicsPage />}
               />
-              <Route
-                path="/catalogo/peliculas"
-                element={<MoviesPage />}
-              />
+              <Route path="/catalogo/peliculas" element={<MoviesPage />} />
               <Route path="/catalogo/series" element={<SeriesPage />} />
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/perfil/editar" element={<EditProfilePage />} />

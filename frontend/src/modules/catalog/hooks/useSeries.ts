@@ -8,12 +8,7 @@ export function useSeries(page: number, filters: Filters) {
   return useQuery<Paginated<Series>>({
     queryKey: ["series", page, filters],
     queryFn: async () => {
-      return fetchAllSeries(
-        page,
-        12,
-        filters.nameContains,
-        filters.categories,
-      );
+      return fetchAllSeries(page, 12, filters.nameContains, filters.categories);
     },
     placeholderData: keepPreviousData,
   });

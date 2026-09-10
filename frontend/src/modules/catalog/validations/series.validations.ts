@@ -19,7 +19,11 @@ export function validateSeriesForm(
         ? undefined
         : "El número de discos debe ser al menos 1.",
     releaseDate: validateReleaseDate(form.releaseDate),
-    purchasedAt: validatePurchasedAt(form.purchasedAt, form.releaseDate, base.purchasedAt),
+    purchasedAt: validatePurchasedAt(
+      form.purchasedAt,
+      form.releaseDate,
+      base.purchasedAt,
+    ),
     numberOfSeasons: validateNumberOfSeasons(form.numberOfSeasons),
     status: form.status ? undefined : "El estado de la serie es obligatorio.",
     seasons: validateSeasons(form),
