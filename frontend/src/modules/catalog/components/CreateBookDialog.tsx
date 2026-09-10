@@ -32,7 +32,7 @@ import {
 } from "../validations/book.validations";
 import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
 import { CreateSagaDialog, SagaSelect } from "./";
-import { CategoriesSelect } from "@/modules/categories/components";
+import { CategoriesSelect, CreateCategoryDialog } from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
 
 const BOOK_PLACEHOLDER =
@@ -60,6 +60,7 @@ export function CreateBookDialog({
   } = useCreateBook(form, image, setErrors, setIsOpen);
 
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
   const handleTypeChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "type", form, setErrors, setForm);
@@ -146,7 +147,11 @@ export function CreateBookDialog({
           onCreateSaga={() => setSagaDialogOpen(true)}
         />
 
-        <CategoriesSelect form={form} setForm={setForm} />
+        <CategoriesSelect
+          form={form}
+          setForm={setForm}
+          onCreateCategory={() => setCategoryDialogOpen(true)}
+        />
 
         <CustomInput
           label="Sinopsis"
@@ -285,6 +290,16 @@ export function CreateBookDialog({
         setIsOpen={setSagaDialogOpen}
         setSaga={(sagaName) =>
           setForm((prev) => ({ ...prev, sagaName: sagaName }))
+        }
+      />
+      <CreateCategoryDialog
+        isOpen={categoryDialogOpen}
+        setIsOpen={setCategoryDialogOpen}
+        onCategoryCreated={(category) =>
+          setForm((prev) => ({
+            ...prev,
+            categoriesIds: [...prev.categoriesIds, category.id],
+          }))
         }
       />
     </>

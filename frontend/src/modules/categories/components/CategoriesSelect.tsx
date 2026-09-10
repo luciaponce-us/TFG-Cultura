@@ -6,11 +6,10 @@ import { useCategories } from "../hooks";
 interface CategoriesSelectProps {
   form: BookCreateRequest;
   setForm: Dispatch<SetStateAction<BookCreateRequest>>;
+  onCreateCategory?: () => void;
 }
 
-// FIXME: Add onCreateCategory functionality to allow creating new categories from the select component
-
-export function CategoriesSelect({ form, setForm }: CategoriesSelectProps) {
+export function CategoriesSelect({ form, setForm, onCreateCategory }: CategoriesSelectProps) {
   const {
     data: categories,
     isLoading: isCategoriesLoading,
@@ -35,6 +34,8 @@ export function CategoriesSelect({ form, setForm }: CategoriesSelectProps) {
       loading={isCategoriesLoading}
       error={isCategoriesError ? "Error al cargar las categorías" : null}
       multiple
+      onCreate={onCreateCategory}
+      onCreateLabel="Crear nueva categoría"
     />
   );
 }
