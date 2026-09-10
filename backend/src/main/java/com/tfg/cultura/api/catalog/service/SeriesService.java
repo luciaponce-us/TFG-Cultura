@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.catalog.service;
 
+import com.tfg.cultura.api.catalog.exception.series.InvalidNumberOfSeasonsException;
+import com.tfg.cultura.api.catalog.exception.series.PurchasedAtBeforeReleaseDateException;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.catalog.model.SeriesInfo;
 import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
@@ -33,14 +35,14 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 	}
 
 	@Override
-	protected void validate(Series item) {
-		checkPurchaseAtAfterReleaseDate(item);
+	protected void validate(Series item) throws PurchasedAtBeforeReleaseDateException, InvalidNumberOfSeasonsException {
+		checkPurchasedAtAfterReleaseDate(item);
 		checkNumberOfSeasons(item);
 	}
 
-	private void checkPurchaseAtAfterReleaseDate(Series item) {
+	private void checkPurchasedAtAfterReleaseDate(Series item) {
 		if (item.getPurchasedAt() != null && item.getPurchasedAt().isBefore(item.getSeriesInfo().getReleaseDate())) {
-			throw new IllegalArgumentException("La fecha de compra no puede ser anterior a la fecha de estreno");
+			throw new PurchasedAtBeforeReleaseDateException();
 		}
 	}
 
@@ -48,8 +50,7 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 		Integer higherSeason = item.getSeasons().stream().mapToInt(season -> season.getSeasonNumber()).max().orElse(0);
 		Integer maxSeason = item.getSeriesInfo().getNumberOfSeasons();
 		if (higherSeason > maxSeason) {
-			throw new IllegalArgumentException(
-					"El número de temporadas debe ser menor o igual al número de temporadas en la información de la serie");
+			throw new InvalidNumberOfSeasonsException(higherSeason, maxSeason);
 		}
 	}
 
