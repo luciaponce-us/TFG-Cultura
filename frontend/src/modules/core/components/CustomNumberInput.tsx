@@ -9,6 +9,7 @@ interface CustomNumberInputProps extends Omit<
   label: string;
   min?: number;
   max?: number;
+  required?: boolean;
   error?: string;
   isEuros?: boolean;
 }
@@ -20,12 +21,15 @@ export function CustomNumberInput({
   error,
   min,
   max,
+  required = false,
   isEuros = false,
   ...props
 }: CustomNumberInputProps) {
   return (
-    <Field.Root invalid={!!error}>
-      <Field.Label>{label}</Field.Label>
+    <Field.Root invalid={!!error} required={required}>
+      <Field.Label>
+        {label} {required && <Field.RequiredIndicator />}
+      </Field.Label>
       <HStack>
         <NumberInput.Root
           defaultValue={defaultValue as unknown as string}
