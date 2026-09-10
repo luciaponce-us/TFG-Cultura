@@ -1,4 +1,5 @@
-import type { BookType, FiltersGetAllItems as Filters } from "../types";
+import type { FiltersGetAllItems as Filters } from "../types";
+import type { BookType } from "../types/book";
 import { useBooks } from "../hooks/useBooks";
 import { CreateBookDialog } from "../components";
 import { ItemsPage } from "./ItemsPage";

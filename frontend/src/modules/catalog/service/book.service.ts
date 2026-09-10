@@ -4,7 +4,7 @@ import {
   authHeaders,
 } from "@/modules/core/utils/utils";
 
-import type { Book, BookCreateRequest, BookType } from "../types";
+import type { Book, BookCreateRequest, BookType } from "../types/book";
 
 import { BOOK_ROUTES } from "../routes";
 
