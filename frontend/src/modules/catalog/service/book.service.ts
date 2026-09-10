@@ -8,13 +8,12 @@ import type { Book, BookRequest, BookType } from "../types/book";
 import { BOOK_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
 
-
 export async function fetchAllBooks(
   page: number = 0,
   size: number = 10,
   types: BookType[],
   nameContains?: string,
-  categories?: string[]
+  categories?: string[],
 ): Promise<Paginated<Book>> {
   let queryParams = `?page=${page}&size=${size}`;
 
@@ -26,7 +25,7 @@ export async function fetchAllBooks(
   const res = await fetchWithTimeout(
     `${BOOK_ROUTES.GET_ALL_BY_TYPE(types)}${queryParams}`,
     {
-      method: "GET"
+      method: "GET",
     },
   );
 

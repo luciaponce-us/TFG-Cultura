@@ -3,19 +3,20 @@ import { useSagas } from "../hooks";
 import type { Dispatch, SetStateAction } from "react";
 import type { ItemErrors, ItemRequest } from "../types";
 
-interface SagaSelectProps<T extends ItemRequest & { sagaName?: string }, E extends ItemErrors & { sagaName?: string }> {
+interface SagaSelectProps<
+  T extends ItemRequest & { sagaName?: string },
+  E extends ItemErrors & { sagaName?: string },
+> {
   form: T;
   setErrors: Dispatch<SetStateAction<E>>;
   setForm: Dispatch<SetStateAction<T>>;
   onCreateSaga: () => void;
 }
 
-export function SagaSelect<T extends ItemRequest & { sagaName?: string }, E extends ItemErrors & { sagaName?: string }>({
-  form,
-  setErrors,
-  setForm,
-  onCreateSaga,
-}: SagaSelectProps<T, E>) {
+export function SagaSelect<
+  T extends ItemRequest & { sagaName?: string },
+  E extends ItemErrors & { sagaName?: string },
+>({ form, setErrors, setForm, onCreateSaga }: SagaSelectProps<T, E>) {
   const {
     data: sagas,
     isLoading: isSagasLoading,

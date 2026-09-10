@@ -10,7 +10,8 @@ export function MoviesPage() {
       loadText="Cargando películas..."
       errorText={{
         title: "Error al cargar las películas",
-        description: "No se pudieron cargar las películas. Inténtalo de nuevo más tarde.",
+        description:
+          "No se pudieron cargar las películas. Inténtalo de nuevo más tarde.",
       }}
       emptyText="No hay películas disponibles."
       createText="Crear película"

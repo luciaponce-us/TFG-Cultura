@@ -13,7 +13,7 @@ export async function fetchAllMovies(
   page: number = 0,
   size: number = 10,
   nameContains?: string,
-  categories?: string[]
+  categories?: string[],
 ): Promise<Paginated<Movie>> {
   let queryParams = `?page=${page}&size=${size}`;
 
@@ -22,12 +22,9 @@ export async function fetchAllMovies(
   if (categories && categories.length > 0)
     queryParams += `&categories=${categories.join(",")}`;
 
-  const res = await fetchWithTimeout(
-    `${MOVIE_ROUTES.GET_ALL}${queryParams}`,
-    {
-      method: "GET"
-    },
-  );
+  const res = await fetchWithTimeout(`${MOVIE_ROUTES.GET_ALL}${queryParams}`, {
+    method: "GET",
+  });
 
   return handleResponse<Paginated<Movie>>(res);
 }
@@ -35,7 +32,7 @@ export async function fetchAllMovies(
 export async function createMovie(
   token: string,
   movie: MovieRequest,
-  image: File | null
+  image: File | null,
 ): Promise<Movie> {
   const formData = new FormData();
 

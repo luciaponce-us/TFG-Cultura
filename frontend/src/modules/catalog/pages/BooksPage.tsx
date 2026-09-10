@@ -6,10 +6,7 @@ import { ItemsPage } from "./ItemsPage";
 
 const BOOK_TYPES: BookType[] = ["NOVEL", "ENCYCLOPEDIA"];
 
-function useBooksForPage(
-  page: number,
-  filters: Filters,
-) {
+function useBooksForPage(page: number, filters: Filters) {
   return useBooks(page, filters, BOOK_TYPES);
 }
 

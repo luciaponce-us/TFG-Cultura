@@ -47,19 +47,19 @@ export const ITEM_CONDITIONS_OPTIONS = [
 ];
 
 export const INITIAL_ITEM: ItemRequest = {
-  	name: "",
-	description: "",
-	condition: "PERFECT",
-	comments: "",
-	loanAvailable: true,
-	publicated: true,
-	purchasedAt: "",
-	price: 0,
-	copies: 1,
-	availableCopies: 1,
-	sectionId: "",
-	categoriesIds: []
-}
+  name: "",
+  description: "",
+  condition: "PERFECT",
+  comments: "",
+  loanAvailable: true,
+  publicated: true,
+  purchasedAt: "",
+  price: 0,
+  copies: 1,
+  availableCopies: 1,
+  sectionId: "",
+  categoriesIds: [],
+};
 
 export interface ItemRequest {
   name: string;
@@ -107,7 +107,3 @@ export const INITIAL_ITEM_ERRORS: ItemErrors = {
   sectionId: "",
   categoriesIds: "",
 };
-
-
-
-

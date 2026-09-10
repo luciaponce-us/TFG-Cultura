@@ -1,22 +1,14 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { FiltersGetAllItems as Filters } from "../types";
-import type {Movie} from "../types/movie";
+import type { Movie } from "../types/movie";
 import type { Paginated } from "@/modules/core/types";
 import { fetchAllMovies } from "../service/movie.service";
 
-export function useMovies(
-  page: number,
-  filters: Filters
-) {
+export function useMovies(page: number, filters: Filters) {
   return useQuery<Paginated<Movie>>({
     queryKey: ["movies", page, filters],
     queryFn: async () => {
-      return fetchAllMovies(
-        page,
-        12,
-        filters.nameContains,
-        filters.categories
-      );
+      return fetchAllMovies(page, 12, filters.nameContains, filters.categories);
     },
     placeholderData: keepPreviousData,
   });

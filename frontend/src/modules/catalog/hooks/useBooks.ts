@@ -1,14 +1,10 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { FiltersGetAllItems as Filters } from "../types";
-import type {Book, BookType} from "../types/book";
+import type { Book, BookType } from "../types/book";
 import type { Paginated } from "@/modules/core/types";
 import { fetchAllBooks } from "../service/book.service";
 
-export function useBooks(
-  page: number,
-  filters: Filters,
-  types: BookType[],
-) {
+export function useBooks(page: number, filters: Filters, types: BookType[]) {
   return useQuery<Paginated<Book>>({
     queryKey: ["books", page, filters],
     queryFn: async () => {
@@ -17,7 +13,7 @@ export function useBooks(
         12,
         types,
         filters.nameContains,
-        filters.categories
+        filters.categories,
       );
     },
     placeholderData: keepPreviousData,

@@ -21,10 +21,7 @@ interface ItemsPageProps<
   T extends { id: string; name?: string },
   TFilters extends Filters = Filters,
 > {
-  getAllHook: (
-    page: number,
-    filters: TFilters,
-  ) => UseQueryResult<Paginated<T>>;
+  getAllHook: (page: number, filters: TFilters) => UseQueryResult<Paginated<T>>;
   initialFilters?: TFilters;
   renderItem?: (item: T) => React.ReactNode;
   title: string;

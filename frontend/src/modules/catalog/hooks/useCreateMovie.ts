@@ -19,7 +19,8 @@ export function useCreateMovie(
       if (!token) {
         toaster.create({
           title: "Inicia sesión para crear películas",
-          description: "Necesitas iniciar sesión para crear una nueva película.",
+          description:
+            "Necesitas iniciar sesión para crear una nueva película.",
           type: "error",
         });
         return;
