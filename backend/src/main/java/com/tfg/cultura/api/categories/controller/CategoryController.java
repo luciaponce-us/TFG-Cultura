@@ -1,6 +1,7 @@
 package com.tfg.cultura.api.categories.controller;
 
 import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
 import com.tfg.cultura.api.categories.service.CategoryDeletingService;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +29,8 @@ public class CategoryController {
 	private final CategoryDeletingService categoryDeletingService;
 
 	@PostMapping
-	public ResponseEntity<Category> createCategory(@RequestParam String name) {
-		Category category = categoryService.createCategory(name);
+	public ResponseEntity<Category> createCategory(@RequestBody CategoryRequest request) {
+		Category category = categoryService.createCategory(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(category);
 	}
 
@@ -39,8 +41,8 @@ public class CategoryController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Category> updateCategory(@PathVariable String id, @RequestParam String name) {
-		Category updatedCategory = categoryService.updateCategory(id, name);
+	public ResponseEntity<Category> updateCategory(@PathVariable String id, @RequestBody CategoryRequest request) {
+		Category updatedCategory = categoryService.updateCategory(id, request);
 		return ResponseEntity.status(HttpStatus.OK).body(updatedCategory);
 	}
 

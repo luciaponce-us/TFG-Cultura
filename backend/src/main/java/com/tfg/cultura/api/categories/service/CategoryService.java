@@ -3,6 +3,7 @@ package com.tfg.cultura.api.categories.service;
 import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
 import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
 import com.tfg.cultura.api.categories.repository.CategoryRepository;
 import java.util.HashSet;
 import java.util.List;
@@ -23,14 +24,21 @@ public class CategoryService {
 
 	// CREATE
 
-	public Category createCategory(String name) throws CategoryAlreadyExistsException {
+	public Category createCategory(CategoryRequest request) throws CategoryAlreadyExistsException {
+		String name = request.getName();
+		String color = request.getColor();
+
 		boolean exists = categoryRepository.existsByName(name);
 		if (exists) {
 			logger.error("Ya existe una categoría con el nombre: {}", name);
 			throw new CategoryAlreadyExistsException(name);
 		}
 
-		Category category = Category.builder().name(name).build();
+		Category category = Category.builder()
+				.name(name)
+				.color(color)
+				.build();
+
 		return categoryRepository.save(category);
 	}
 
@@ -63,9 +71,10 @@ public class CategoryService {
 
 	// UPDATE
 
-	public Category updateCategory(String id, String name) throws CategoryNotFoundException {
+	public Category updateCategory(String id, CategoryRequest request) throws CategoryNotFoundException {
 		Category category = findCategoryById(id);
-		category.setName(name);
+		category.setName(request.getName());
+		category.setColor(request.getColor());
 		return categoryRepository.save(category);
 	}
 
