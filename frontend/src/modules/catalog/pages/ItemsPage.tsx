@@ -1,21 +1,36 @@
 import { useAuth } from "@/modules/core/context/useAuth";
 import { useState } from "react";
-import { FILTERS_GET_ALL_ITEMS_DEFAULT, type FiltersGetAllItems as Filters } from "../types";
+import {
+  FILTERS_GET_ALL_ITEMS_DEFAULT,
+  type FiltersGetAllItems as Filters,
+} from "../types";
 import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { Grid, Heading, Link, VStack } from "@chakra-ui/react";
-import { CustomButton, CustomPagination, CustomSearchBar, SideBar } from "@/modules/core/components";
+import {
+  CustomButton,
+  CustomPagination,
+  CustomSearchBar,
+  SideBar,
+} from "@/modules/core/components";
 import { IconPlus } from "@tabler/icons-react";
 import type { Paginated } from "@/modules/core/types";
 import type { UseQueryResult } from "@tanstack/react-query";
 
-interface ItemsPageProps<T extends { id: string; name?: string }, TFilters extends Filters = Filters> {
-  getAllHook: (token: string | null | undefined, page: number, filters: TFilters) => UseQueryResult<Paginated<T>>;
+interface ItemsPageProps<
+  T extends { id: string; name?: string },
+  TFilters extends Filters = Filters,
+> {
+  getAllHook: (
+    token: string | null | undefined,
+    page: number,
+    filters: TFilters,
+  ) => UseQueryResult<Paginated<T>>;
   initialFilters?: TFilters;
   renderItem?: (item: T) => React.ReactNode;
   title: string;
   loadText: string;
-  errorText: {title: string; description: string};
+  errorText: { title: string; description: string };
   emptyText: string;
   createText?: string;
   CreateDialogComponent?: React.ComponentType<{
@@ -25,7 +40,10 @@ interface ItemsPageProps<T extends { id: string; name?: string }, TFilters exten
   }>;
 }
 
-export function ItemsPage<T extends { id: string; name?: string }, TFilters extends Filters = Filters>({
+export function ItemsPage<
+  T extends { id: string; name?: string },
+  TFilters extends Filters = Filters,
+>({
   getAllHook,
   initialFilters = FILTERS_GET_ALL_ITEMS_DEFAULT as TFilters,
   renderItem = (item) => <TextSecondary>{item.name}</TextSecondary>,
@@ -40,7 +58,12 @@ export function ItemsPage<T extends { id: string; name?: string }, TFilters exte
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [filters, setFilters] = useState<TFilters>(initialFilters);
   const [page, setPage] = useState<number>(0);
-  const { data: paginatedItems, isLoading, error, isError } = getAllHook(token, page, filters);
+  const {
+    data: paginatedItems,
+    isLoading,
+    error,
+    isError,
+  } = getAllHook(token, page, filters);
 
   const content = paginatedItems?.content;
 

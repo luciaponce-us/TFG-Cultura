@@ -27,6 +27,6 @@ export function BooksPage() {
       emptyText="No hay libros disponibles."
       createText="Crear libro"
       CreateDialogComponent={CreateBookDialog}
-      />
+    />
   );
 }
