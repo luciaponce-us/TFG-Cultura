@@ -5,7 +5,6 @@ import type { Paginated } from "@/modules/core/types";
 import { fetchAllBooks } from "../service/book.service";
 
 export function useBooks(
-  token: string | null,
   page: number,
   filters: Filters,
   types: BookType[],
@@ -18,8 +17,7 @@ export function useBooks(
         12,
         types,
         filters.nameContains,
-        filters.categories,
-        token,
+        filters.categories
       );
     },
     placeholderData: keepPreviousData,

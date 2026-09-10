@@ -22,7 +22,6 @@ interface ItemsPageProps<
   TFilters extends Filters = Filters,
 > {
   getAllHook: (
-    token: string | null | undefined,
     page: number,
     filters: TFilters,
   ) => UseQueryResult<Paginated<T>>;
@@ -63,7 +62,7 @@ export function ItemsPage<
     isLoading,
     error,
     isError,
-  } = getAllHook(token, page, filters);
+  } = getAllHook(page, filters);
 
   const content = paginatedItems?.content;
 

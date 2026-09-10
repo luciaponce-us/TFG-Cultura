@@ -14,8 +14,7 @@ export async function fetchAllBooks(
   size: number = 10,
   types: BookType[],
   nameContains?: string,
-  categories?: string[],
-  token?: string | null,
+  categories?: string[]
 ): Promise<Paginated<Book>> {
   let queryParams = `?page=${page}&size=${size}`;
 
@@ -27,8 +26,7 @@ export async function fetchAllBooks(
   const res = await fetchWithTimeout(
     `${BOOK_ROUTES.GET_ALL_BY_TYPE(types)}${queryParams}`,
     {
-      method: "GET",
-      headers: token ? authHeaders(token) : {},
+      method: "GET"
     },
   );
 

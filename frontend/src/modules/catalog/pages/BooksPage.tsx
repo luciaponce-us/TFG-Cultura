@@ -7,11 +7,10 @@ import { ItemsPage } from "./ItemsPage";
 const BOOK_TYPES: BookType[] = ["NOVEL", "ENCYCLOPEDIA"];
 
 function useBooksForPage(
-  token: string | null | undefined,
   page: number,
   filters: Filters,
 ) {
-  return useBooks(token ?? null, page, filters, BOOK_TYPES);
+  return useBooks(page, filters, BOOK_TYPES);
 }
 
 export function BooksPage() {
