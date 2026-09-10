@@ -22,7 +22,7 @@ export const MAIN_MENU_LINKS: NavLink[] = [
 
 export const CATALOG_SUBMENU_LINKS: NavLink[] = [
   { icon: null, title: "Libros", href: "/catalogo/libros" },
-  { icon: null, title: "Manga y cómics", href: "/catalogo/manga-y-comics" },
+  { icon: null, title: "Mangas y cómics", href: "/catalogo/mangas-y-comics" },
   { icon: null, title: "Películas", href: "/catalogo/peliculas" },
   { icon: null, title: "Series", href: "/catalogo/series" },
   { icon: null, title: "Juegos de mesa", href: "/catalogo/juegos-de-mesa" },
