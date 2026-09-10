@@ -153,3 +153,19 @@ export const handleSelectChange = <
 export function useIsMobile() {
   return useBreakpointValue({ base: true, md: false });
 }
+
+export function removeEmptyFields<T extends object>(value: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => {
+      if (
+        fieldValue === null ||
+        fieldValue === undefined ||
+        fieldValue === ""
+      ) {
+        return false;
+      }
+
+      return !Array.isArray(fieldValue) || fieldValue.length > 0;
+    }),
+  ) as Partial<T>;
+}
