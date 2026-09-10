@@ -1,4 +1,4 @@
-import type { BookCreateRequest, BookCreateRequestErrors } from "../types";
+import type { BookRequest, BookErrors } from "../types/book";
 import { validateItemForm } from "./item.validations";
 
 export const MAX_LENGTH = {
@@ -8,9 +8,9 @@ export const MAX_LENGTH = {
 };
 
 export function validateBookForm(
-  form: BookCreateRequest,
+  form: BookRequest,
   token?: string | null,
-): BookCreateRequestErrors {
+): BookErrors {
   const base = validateItemForm(form, token);
 
   return {

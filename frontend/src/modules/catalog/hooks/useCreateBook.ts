@@ -1,12 +1,12 @@
 import { useAuth } from "@/modules/core/context/useAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { BookCreateRequest } from "../types";
+import type { BookRequest } from "../types/book";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { createBook } from "../service/book.service";
 import { isApiError, isFieldError } from "@/modules/core/utils/utils";
 
 export function useCreateBook(
-  bookData: BookCreateRequest,
+  bookData: BookRequest,
   image: File | null,
   setErrors: (errors: Record<string, string>) => void,
   setIsOpen: (isOpen: boolean) => void,

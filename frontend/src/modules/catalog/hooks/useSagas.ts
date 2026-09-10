@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import type { Saga } from "../types";
+import type { Saga } from "../types/saga";
 import { fetchAllSagas } from "../service/saga.service";
 
 export function useSagas() {

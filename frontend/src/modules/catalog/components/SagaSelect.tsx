@@ -2,12 +2,12 @@ import { CustomSelect } from "@/modules/core/components";
 import { useSagas } from "../hooks";
 import { handleSelectChange } from "@/modules/core/utils/utils";
 import type { Dispatch, SetStateAction } from "react";
-import type { BookCreateRequest, BookCreateRequestErrors } from "../types";
+import type { BookErrors, BookRequest } from "../types/book";
 
 interface SagaSelectProps {
-  form: BookCreateRequest;
-  setErrors: Dispatch<SetStateAction<BookCreateRequestErrors>>;
-  setForm: Dispatch<SetStateAction<BookCreateRequest>>;
+  form: BookRequest;
+  setErrors: Dispatch<SetStateAction<BookErrors>>;
+  setForm: Dispatch<SetStateAction<BookRequest>>;
   onCreateSaga: () => void;
 }
 

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import type { BookCreateRequest, BookCreateRequestErrors } from "../types";
+import type { BookErrors, BookRequest } from "../types/book";
 import {
-  BOOK_TYPES_OPTIONS,
-  INITIAL_BOOK,
-  INITIAL_BOOK_ERRORS,
   ITEM_CONDITIONS_OPTIONS,
 } from "../types";
+import {BOOK_TYPES_OPTIONS,
+  INITIAL_BOOK,
+  INITIAL_BOOK_ERRORS } from "../types/book";
 import { useCreateBook } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import {
@@ -52,9 +52,8 @@ export function CreateBookDialog({
   setIsOpen,
   token,
 }: CreateBookDialogProps) {
-  const [form, setForm] = useState<BookCreateRequest>(INITIAL_BOOK);
-  const [errors, setErrors] =
-    useState<BookCreateRequestErrors>(INITIAL_BOOK_ERRORS);
+  const [form, setForm] = useState<BookRequest>(INITIAL_BOOK);
+  const [errors, setErrors] = useState<BookErrors>(INITIAL_BOOK_ERRORS);
   const [image, setImage] = useState<File | null>(null);
   const {
     mutateAsync: createBook,

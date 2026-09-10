@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import type { Book, BookType, FiltersGetAllItems as Filters } from "../types";
+import type { FiltersGetAllItems as Filters } from "../types";
+import type {Book, BookType} from "../types/book";
 import type { Paginated } from "@/modules/core/types";
 import { fetchAllBooks } from "../service/book.service";
 

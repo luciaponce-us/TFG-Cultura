@@ -5,7 +5,7 @@ import {
   authHeaders,
 } from "@/modules/core/utils/utils";
 
-import type { Saga } from "../types";
+import type { Saga } from "../types/saga";
 
 import { SAGA_ROUTES } from "../routes";
 
