@@ -4,7 +4,7 @@ import {
   authHeaders,
 } from "@/modules/core/utils/utils";
 
-import type { Book, BookCreateRequest } from "../types";
+import type { Book, BookCreateRequest, BookType } from "../types";
 
 import { BOOK_ROUTES } from "../routes";
 
@@ -29,6 +29,7 @@ function removeEmptyFields<T extends object>(value: T): Partial<T> {
 export async function fetchAllBooks(
   page: number = 0,
   size: number = 10,
+  types: BookType[],
   nameContains?: string,
   categories?: string[],
   token?: string | null,
@@ -41,7 +42,7 @@ export async function fetchAllBooks(
     queryParams += `&categories=${categories.join(",")}`;
 
   const res = await fetchWithTimeout(
-    `${BOOK_ROUTES.GET_ALL_BOOKS}${queryParams}`,
+    `${BOOK_ROUTES.GET_ALL_BY_TYPE(types)}${queryParams}`,
     {
       method: "GET",
       headers: token ? authHeaders(token) : {},

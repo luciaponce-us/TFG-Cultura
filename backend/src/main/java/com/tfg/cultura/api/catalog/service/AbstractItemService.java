@@ -33,7 +33,7 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 
 	protected final R repository;
 	private final SectionService sectionService;
-	private final CategoryService categoryService;
+	protected final CategoryService categoryService;
 	private final FileService fileService;
 	private final Function<T, RES> mapper;
 

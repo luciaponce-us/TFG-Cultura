@@ -19,12 +19,14 @@ import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
+import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.service.BookService;
 import com.tfg.cultura.api.core.factory.FileFactory;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -156,6 +158,19 @@ class BookControllerTest extends BaseControllerTest {
 				.andExpect(jsonPath("$.number").value(0));
 
 		verify(bookService).getAll(PageRequest.of(0, 10), null, null);
+	}
+
+	@Test
+	void should_get_books_by_type() throws Exception {
+		Page<BookResponse> page = new PageImpl<>(List.of(bookResponse), PageRequest.of(0, 10), 1);
+
+		when(bookService.getAllBooksByTypeAndNameContains(Set.of(BookType.MANGA), null, null, PageRequest.of(0, 10)))
+				.thenReturn(page);
+
+		mockMvc.perform(get(BASE_URL + "/type/MANGA").param("page", "0").param("size", "10"))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1));
+
+		verify(bookService).getAllBooksByTypeAndNameContains(Set.of(BookType.MANGA), null, null, PageRequest.of(0, 10));
 	}
 
 	// ====================== DELETE ======================

@@ -12,9 +12,11 @@ import { useState } from "react";
 
 import { FILTERS_GET_ALL_ITEMS_DEFAULT } from "../types";
 
-import type { Book, FiltersGetAllItems as Filters } from "../types";
+import type { Book, BookType, FiltersGetAllItems as Filters } from "../types";
 import { useBooks } from "../hooks/useBooks";
 import { CreateBookDialog } from "../components";
+
+const BOOK_TYPES : BookType[] = ["NOVEL", "ENCYCLOPEDIA"];
 
 export function BooksPage() {
   const { token, isAdmin } = useAuth();
@@ -28,7 +30,7 @@ export function BooksPage() {
     isLoading,
     error,
     isError,
-  } = useBooks(token, page, filters);
+  } = useBooks(token, page, filters, BOOK_TYPES);
 
   const books: Book[] | undefined = paginatedBooks?.content;
 
