@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { BookCreateRequest } from "../types";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { createBook } from "../service/book.service";
-import { isApiError } from "@/modules/core/utils/utils";
+import { isApiError, isFieldError } from "@/modules/core/utils/utils";
 
 export function useCreateBook(
   bookData: BookCreateRequest,
@@ -41,7 +41,7 @@ export function useCreateBook(
       console.error("Error al crear libro:", error);
 
       if (isApiError(error)) {
-        if (error.errors && Object.keys(error.errors).length > 0) {
+        if (isFieldError(error)) {
           setErrors(error.errors);
 
           toaster.create({

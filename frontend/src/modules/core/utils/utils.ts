@@ -95,6 +95,13 @@ export function isApiError(err: unknown): err is ApiError {
   return typeof err === "object" && "status" in err && "message" in err;
 }
 
+export function isFieldError(
+  err: unknown,
+): err is ApiError & { errors: Record<string, string> } {
+  if (!isApiError(err)) return false;
+  return err.errors !== undefined && Object.keys(err.errors).length > 0;
+}
+
 export function isDeactivatedUserError(err: unknown): boolean {
   if (!isApiError(err)) return false;
   return err.status === 403 && err.message.includes("desactivado");
