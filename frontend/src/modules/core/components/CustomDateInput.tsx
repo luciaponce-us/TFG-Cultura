@@ -55,19 +55,21 @@ export function CustomDateInput({
   };
 
   return (
-    <DateInput.Root
-      value={dateValue}
-      defaultValue={todayDateValue}
-      onValueChange={handleValueChange}
-      locale="es-ES"
-      invalid={!!error || !validateDate(dateValue?.[0] ?? null)}
-    >
-      <DateInput.Label>{label}</DateInput.Label>
-      <DateInput.Control>
-        <DateInput.Segments />
-      </DateInput.Control>
-      <DateInput.HiddenInput />
+    <Field.Root invalid={!!error || !validateDate(dateValue?.[0] ?? null)}>
+      <DateInput.Root
+        value={dateValue}
+        defaultValue={todayDateValue}
+        onValueChange={handleValueChange}
+        locale="es-ES"
+        invalid={!!error || !validateDate(dateValue?.[0] ?? null)}
+      >
+        <DateInput.Label>{label}</DateInput.Label>
+        <DateInput.Control>
+          <DateInput.Segments />
+        </DateInput.Control>
+        <DateInput.HiddenInput />
+      </DateInput.Root>
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
-    </DateInput.Root>
+    </Field.Root>
   );
 }
