@@ -171,8 +171,7 @@ class CategoryServiceTest {
 		when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
 
 		CategoryRequest request = CategoryRequest.builder().name("Science Fiction").color(category.getColor()).build();
-		assertThrows(CategoryNotFoundException.class,
-				() -> service.updateCategory(category.getId(), request));
+		assertThrows(CategoryNotFoundException.class, () -> service.updateCategory(category.getId(), request));
 
 		verify(categoryRepository).findById(category.getId());
 		verify(categoryRepository, never()).save(any());

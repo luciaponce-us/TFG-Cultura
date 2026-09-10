@@ -9,7 +9,11 @@ interface CategoriesSelectProps {
   onCreateCategory?: () => void;
 }
 
-export function CategoriesSelect({ form, setForm, onCreateCategory }: CategoriesSelectProps) {
+export function CategoriesSelect({
+  form,
+  setForm,
+  onCreateCategory,
+}: CategoriesSelectProps) {
   const {
     data: categories,
     isLoading: isCategoriesLoading,

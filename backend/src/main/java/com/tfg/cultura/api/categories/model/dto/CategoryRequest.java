@@ -16,7 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class CategoryRequest {
-    @NotBlank(message = "El nombre es obligatorio")
+	@NotBlank(message = "El nombre es obligatorio")
 	@Size(min = 3, max = 20, message = "El nombre debe tener entre 3 y 20 caracteres")
 	private String name;
 

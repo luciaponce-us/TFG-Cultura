@@ -34,10 +34,7 @@ public class CategoryService {
 			throw new CategoryAlreadyExistsException(name);
 		}
 
-		Category category = Category.builder()
-				.name(name)
-				.color(color)
-				.build();
+		Category category = Category.builder().name(name).color(color).build();
 
 		return categoryRepository.save(category);
 	}

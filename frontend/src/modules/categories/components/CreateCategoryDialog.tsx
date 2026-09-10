@@ -5,7 +5,11 @@ import {
   type CategoryCreateRequest,
   type CategoryFormErrors,
 } from "../types";
-import { CustomColorPicker, CustomInput, FormDialog } from "@/modules/core/components";
+import {
+  CustomColorPicker,
+  CustomInput,
+  FormDialog,
+} from "@/modules/core/components";
 import { useCreateCategory } from "../hooks";
 import { handleChange } from "@/modules/core/utils/utils";
 

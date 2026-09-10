@@ -1,7 +1,7 @@
 package com.tfg.cultura.api.categories.controller;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -61,8 +61,7 @@ class CategoryControllerTest extends BaseControllerTest {
 	void should_create_category_successfully() throws Exception {
 		when(categoryService.createCategory(any(CategoryRequest.class))).thenReturn(category);
 
-		mockMvc.perform(
-				post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(categoryRequest)))
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(categoryRequest)))
 				.andExpect(status().isCreated()).andExpect(jsonPath("$.id").value(category.getId()))
 				.andExpect(jsonPath("$.name").value(category.getName()))
 				.andExpect(jsonPath("$.color").value(category.getColor()));
@@ -75,8 +74,7 @@ class CategoryControllerTest extends BaseControllerTest {
 		when(categoryService.createCategory(any(CategoryRequest.class)))
 				.thenThrow(new CategoryAlreadyExistsException(category.getName()));
 
-		mockMvc.perform(
-				post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(categoryRequest)))
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(categoryRequest)))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());
 
 		verify(categoryService).createCategory(any(CategoryRequest.class));
@@ -132,9 +130,8 @@ class CategoryControllerTest extends BaseControllerTest {
 
 		CategoryRequest updateRequest = CategoryRequest.builder().name("Updated Category").color("#000000").build();
 
-		mockMvc.perform(put(CATEGORY_URL, "99").contentType(MediaType.APPLICATION_JSON)
-				.content(toJson(updateRequest))).andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.message").exists());
+		mockMvc.perform(put(CATEGORY_URL, "99").contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
+				.andExpect(status().isNotFound()).andExpect(jsonPath("$.message").exists());
 
 		verify(categoryService).updateCategory(eq("99"), any(CategoryRequest.class));
 	}

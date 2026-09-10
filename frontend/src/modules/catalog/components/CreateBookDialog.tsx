@@ -32,7 +32,10 @@ import {
 } from "../validations/book.validations";
 import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
 import { CreateSagaDialog, SagaSelect } from "./";
-import { CategoriesSelect, CreateCategoryDialog } from "@/modules/categories/components";
+import {
+  CategoriesSelect,
+  CreateCategoryDialog,
+} from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
 
 const BOOK_PLACEHOLDER =
