@@ -1,17 +1,10 @@
 import type { FiltersGetAllItems as Filters } from "../types";
-import type {BookType} from "../types/book";
 import { useBooks } from "../hooks";
 import { CreateBookDialog } from "../components";
 import { ItemsPage } from "./ItemsPage";
 
-const BOOK_TYPES: BookType[] = ["MANGA", "COMIC"];
-
-function useBooksForPage(
-  token: string | null | undefined,
-  page: number,
-  filters: Filters,
-) {
-  return useBooks(token ?? null, page, filters, BOOK_TYPES);
+function useBooksForPage(page: number, filters: Filters) {
+  return useBooks(page, filters, ["MANGA", "COMIC"]);
 }
 
 export function MangasAndComicsPage() {
