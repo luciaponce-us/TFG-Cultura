@@ -6,13 +6,18 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import java.time.LocalDate;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor 
 public class SeriesInfo {
 	@Past(message = "La fecha de lanzamiento debe ser una fecha pasada")
 	@NotNull(message = "La fecha de estreno es obligatoria")
