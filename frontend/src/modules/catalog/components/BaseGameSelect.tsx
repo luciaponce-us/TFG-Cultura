@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { HStack, Text, VStack } from "@chakra-ui/react";
-import { CustomButton, CustomSearchBar, CustomSelect } from "@/modules/core/components";
+import {
+  CustomButton,
+  CustomSearchBar,
+  CustomSelect,
+} from "@/modules/core/components";
 import { useBoardGames } from "../hooks";
 import type { BoardGameRequest } from "../types/boardgame";
 
@@ -25,8 +29,11 @@ export function BaseGameSelect({
 
   const baseGameOptions =
     data?.content
-      .filter((boardGame) => !boardGame.isExpansion && boardGame.baseGame === null)
-      .map((boardGame) => ({ value: boardGame.id, label: boardGame.name })) ?? [];
+      .filter(
+        (boardGame) => !boardGame.isExpansion && boardGame.baseGame === null,
+      )
+      .map((boardGame) => ({ value: boardGame.id, label: boardGame.name })) ??
+    [];
 
   return (
     <VStack align="stretch" gap={3} w="100%">

@@ -8,7 +8,12 @@ export function useBoardGames(page: number, filters: Filters) {
   return useQuery<Paginated<BoardGame>>({
     queryKey: ["boardgames", page, filters],
     queryFn: async () => {
-      return fetchAllBoardGames(page, 12, filters.nameContains, filters.categories);
+      return fetchAllBoardGames(
+        page,
+        12,
+        filters.nameContains,
+        filters.categories,
+      );
     },
     placeholderData: keepPreviousData,
   });

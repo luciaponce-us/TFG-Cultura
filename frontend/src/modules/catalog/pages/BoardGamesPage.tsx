@@ -17,7 +17,12 @@ export function BoardGamesPage() {
       emptyText="No hay juegos de mesa disponibles."
       createText="Crear juego de mesa"
       CreateDialogComponent={CreateBoardGameDialog}
-      renderItem={(item) => (<Text>{item.name}{item.isExpansion && ` - Juego base: ${item.baseGame?.name}`}</Text>)}
+      renderItem={(item) => (
+        <Text>
+          {item.name}
+          {item.isExpansion && ` - Juego base: ${item.baseGame?.name}`}
+        </Text>
+      )}
     />
   );
 }

@@ -9,7 +9,14 @@ import {
 import { ITEM_CONDITIONS_OPTIONS } from "../types";
 import { useCreateBoardGame } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import { Heading, HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
+import {
+  Heading,
+  HStack,
+  Separator,
+  VStack,
+  Image,
+  Box,
+} from "@chakra-ui/react";
 import {
   CustomInput,
   CustomSelect,
@@ -20,11 +27,12 @@ import {
   UploadBox,
   toaster,
 } from "@/modules/core/components";
-import {
-  MAX_LENGTH as MAX_LENGTH_ITEM,
-} from "../validations/item.validations";
+import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
 import { validateBoardGameForm } from "../validations/boardgame.validations";
-import { CategoriesSelect, CreateCategoryDialog } from "@/modules/categories/components";
+import {
+  CategoriesSelect,
+  CreateCategoryDialog,
+} from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
 import { BaseGameSelect } from "./BaseGameSelect";
 import type { BoardGame } from "../types/boardgame";
@@ -48,14 +56,12 @@ export function CreateBoardGameDialog({
   allowBaseGame = true,
 }: CreateBoardGameDialogProps) {
   const [form, setForm] = useState<BoardGameRequest>(INITIAL_BOARD_GAME);
-  const [errors, setErrors] = useState<BoardGameErrors>(INITIAL_BOARD_GAME_ERRORS);
-  const [image, setImage] = useState<File | null>(null);
-  const { mutateAsync: createBoardGame, isPending: submitting } = useCreateBoardGame(
-    form,
-    image,
-    setErrors,
-    setIsOpen,
+  const [errors, setErrors] = useState<BoardGameErrors>(
+    INITIAL_BOARD_GAME_ERRORS,
   );
+  const [image, setImage] = useState<File | null>(null);
+  const { mutateAsync: createBoardGame, isPending: submitting } =
+    useCreateBoardGame(form, image, setErrors, setIsOpen);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [baseGameDialogOpen, setBaseGameDialogOpen] = useState(false);
 
@@ -93,7 +99,13 @@ export function CreateBoardGameDialog({
         handleSubmit={handleSubmit}
         submitButtonText="Crear"
       >
-        <HStack align="stretch" w="100%" maxW="100%" maxH="200px" mb={image ? "60px" : ""}>
+        <HStack
+          align="stretch"
+          w="100%"
+          maxW="100%"
+          maxH="200px"
+          mb={image ? "60px" : ""}
+        >
           <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
             <Image
               src={image ? URL.createObjectURL(image) : BOARD_GAME_PLACEHOLDER}
@@ -106,7 +118,11 @@ export function CreateBoardGameDialog({
           </Box>
           <VStack flex={1} minW={0}>
             <UploadBox
-              text={<>Arrastra la <b>foto del juego de mesa</b></>}
+              text={
+                <>
+                  Arrastra la <b>foto del juego de mesa</b>
+                </>
+              }
               secondaryText="JPG o PNG, tamaño no superior a 2MB"
               fileType="image/*"
               onFileChange={setImage}
@@ -155,7 +171,9 @@ export function CreateBoardGameDialog({
             min={1}
             required
             error={errors.minPlayers}
-            onChange={(value) => setForm((prev) => ({ ...prev, minPlayers: value }))}
+            onChange={(value) =>
+              setForm((prev) => ({ ...prev, minPlayers: value }))
+            }
           />
           <CustomNumberInput
             label="Jugadores máximos"
@@ -163,7 +181,9 @@ export function CreateBoardGameDialog({
             min={1}
             required
             error={errors.maxPlayers}
-            onChange={(value) => setForm((prev) => ({ ...prev, maxPlayers: value }))}
+            onChange={(value) =>
+              setForm((prev) => ({ ...prev, maxPlayers: value }))
+            }
           />
         </HStack>
         <CustomNumberInput
@@ -172,7 +192,9 @@ export function CreateBoardGameDialog({
           min={1}
           required
           error={errors.playTime}
-          onChange={(value) => setForm((prev) => ({ ...prev, playTime: value }))}
+          onChange={(value) =>
+            setForm((prev) => ({ ...prev, playTime: value }))
+          }
         />
         <CustomSelect
           label="Complejidad"
@@ -195,7 +217,12 @@ export function CreateBoardGameDialog({
           required
           multiple
         />
-        <SectionSelect form={form} setForm={setForm} errors={errors} setErrors={setErrors} />
+        <SectionSelect
+          form={form}
+          setForm={setForm}
+          errors={errors}
+          setErrors={setErrors}
+        />
 
         <Separator />
         <Heading as="h2" size="md" mt={4}>
@@ -223,12 +250,16 @@ export function CreateBoardGameDialog({
         />
         <CustomSwitch
           checked={form.loanAvailable}
-          onChange={(checked) => setForm((prev) => ({ ...prev, loanAvailable: checked }))}
+          onChange={(checked) =>
+            setForm((prev) => ({ ...prev, loanAvailable: checked }))
+          }
           label="Disponible para préstamo"
         />
         <CustomSwitch
           checked={form.publicated}
-          onChange={(checked) => setForm((prev) => ({ ...prev, publicated: checked }))}
+          onChange={(checked) =>
+            setForm((prev) => ({ ...prev, publicated: checked }))
+          }
           label="Visible en el catálogo"
         />
 
@@ -240,7 +271,9 @@ export function CreateBoardGameDialog({
           label="Fecha de compra"
           value={form.purchasedAt}
           error={errors.purchasedAt ?? ""}
-          onChange={(value) => setForm((prev) => ({ ...prev, purchasedAt: value }))}
+          onChange={(value) =>
+            setForm((prev) => ({ ...prev, purchasedAt: value }))
+          }
           acceptsFutureDates={false}
         />
         <HStack>
@@ -252,7 +285,11 @@ export function CreateBoardGameDialog({
             required
             error={errors.copies}
             onChange={(value) =>
-              setForm((prev) => ({ ...prev, copies: value, availableCopies: value }))
+              setForm((prev) => ({
+                ...prev,
+                copies: value,
+                availableCopies: value,
+              }))
             }
           />
           <CustomNumberInput

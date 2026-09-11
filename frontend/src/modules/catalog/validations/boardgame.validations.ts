@@ -23,14 +23,19 @@ export function validateBoardGameForm(
   };
 }
 
-function validatePositiveInteger(value: number, label: string): string | undefined {
+function validatePositiveInteger(
+  value: number,
+  label: string,
+): string | undefined {
   if (!Number.isInteger(value) || value < 1) {
     return `El ${label} debe ser al menos 1.`;
   }
   return undefined;
 }
 
-function validateComplexity(value: BoardGameRequest["complexity"]): string | undefined {
+function validateComplexity(
+  value: BoardGameRequest["complexity"],
+): string | undefined {
   return COMPLEXITIES.includes(value)
     ? undefined
     : "La complejidad seleccionada no es válida.";
@@ -50,7 +55,10 @@ function validateMaxPlayers(
   minPlayers: number,
   maxPlayers: number,
 ): string | undefined {
-  const positiveError = validatePositiveInteger(maxPlayers, "máximo de jugadores");
+  const positiveError = validatePositiveInteger(
+    maxPlayers,
+    "máximo de jugadores",
+  );
   if (positiveError) return positiveError;
   if (maxPlayers < minPlayers) {
     return "El máximo de jugadores no puede ser menor que el mínimo.";
