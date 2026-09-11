@@ -7,12 +7,14 @@ interface CategoriesSelectProps<T extends ItemRequest> {
   form: T;
   setForm: Dispatch<SetStateAction<T>>;
   onCreateCategory?: () => void;
+  error?: string;
 }
 
 export function CategoriesSelect<T extends ItemRequest>({
   form,
   setForm,
   onCreateCategory,
+  error,
 }: CategoriesSelectProps<T>) {
   const {
     data: categories,
@@ -36,7 +38,7 @@ export function CategoriesSelect<T extends ItemRequest>({
       onValueChange={handleCategoriesChange}
       value={form.categoriesIds || []}
       loading={isCategoriesLoading}
-      error={isCategoriesError ? "Error al cargar las categorías" : null}
+      error={isCategoriesError ? "Error al cargar las categorías" : error}
       multiple
       onCreate={onCreateCategory}
       onCreateLabel="Crear nueva categoría"

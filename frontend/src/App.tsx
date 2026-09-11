@@ -32,6 +32,7 @@ import {
   MangasAndComicsPage,
   MoviesPage,
   SeriesPage,
+  BoardGamesPage,
 } from "@/modules/catalog/pages";
 
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
@@ -68,6 +69,10 @@ export default function App() {
               />
               <Route path="/catalogo/peliculas" element={<MoviesPage />} />
               <Route path="/catalogo/series" element={<SeriesPage />} />
+              <Route
+                path="/catalogo/juegos-de-mesa"
+                element={<BoardGamesPage />}
+              />
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/perfil/editar" element={<EditProfilePage />} />
               <Route

@@ -153,6 +153,7 @@ export function CreateBookDialog({
           form={form}
           setForm={setForm}
           onCreateCategory={() => setCategoryDialogOpen(true)}
+          error={errors.categoriesIds}
         />
 
         <CustomInput

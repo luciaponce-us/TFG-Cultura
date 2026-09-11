@@ -6,3 +6,5 @@ export { useMovies } from "./useMovies";
 export { useCreateMovie } from "./useCreateMovie";
 export { useSeries } from "./useSeries";
 export { useCreateSeries } from "./useCreateSeries";
+export { useBoardGames } from "./useBoardGames";
+export { useCreateBoardGame } from "./useCreateBoardGame";

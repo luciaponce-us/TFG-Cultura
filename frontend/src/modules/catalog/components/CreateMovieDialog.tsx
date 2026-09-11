@@ -144,6 +144,7 @@ export function CreateMovieDialog({
           form={form}
           setForm={setForm}
           onCreateCategory={() => setCategoryDialogOpen(true)}
+          error={errors.categoriesIds}
         />
         <CustomInput
           label="Sinopsis"
