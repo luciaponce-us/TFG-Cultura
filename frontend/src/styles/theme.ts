@@ -1,6 +1,6 @@
 import { createSystem, defaultConfig } from "@chakra-ui/react";
 
-const COLORS = {
+export const COLORS = {
   PRINCIPAL: "#4B759D",
   SECUNDARIO: "#DEAC0F",
   ROJO: "#9D4B4B",
