@@ -33,6 +33,7 @@ import {
   MoviesPage,
   SeriesPage,
   BoardGamesPage,
+  CatalogPage,
 } from "@/modules/catalog/pages";
 
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
@@ -62,6 +63,7 @@ export default function App() {
                 element={<SuggestionsPage mySuggestions />}
               />
               {/* CATÁLOGO */}
+              <Route path="/catalogo" element={<CatalogPage />} />
               <Route path="/catalogo/libros" element={<BooksPage />} />
               <Route
                 path="/catalogo/mangas-y-comics"
