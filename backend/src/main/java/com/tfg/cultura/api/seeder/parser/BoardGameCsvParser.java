@@ -42,14 +42,15 @@ public class BoardGameCsvParser extends ItemCsvParser {
 
 		return builder.minPlayers(parseInteger(parts[14])).maxPlayers(parseInteger(parts[15]))
 				.playTime(parseInteger(parts[16])).complexity(Complexity.valueOf(parts[17])).types(types)
-				.baseGame(getBaseGame(parts[16], baseGamesByName)).build();
+				.baseGame(getBaseGame(parts[19], baseGamesByName)).build();
 	}
 
 	private BoardGame getBaseGame(String baseGameId, Map<String, BoardGame> baseGamesByName) {
-		if (baseGameId == null || baseGameId.isEmpty() || baseGamesByName == null) {
+		String cleanedBaseGameName = parseNullableString(baseGameId);
+		if (cleanedBaseGameName == null || baseGamesByName == null) {
 			return null;
 		}
-		return baseGamesByName.get(baseGameId);
+		return baseGamesByName.get(cleanedBaseGameName);
 	}
 
 }
