@@ -80,7 +80,10 @@ export default function App() {
               />
               <Route path="/catalogo/rol" element={<RolSagasPage />} />
               <Route path="/catalogo/rol/:sagaId" element={<RolSagaPage />} />
-              <Route path="/catalogo/videojuegos" element={<VideoGamesPage />} />
+              <Route
+                path="/catalogo/videojuegos"
+                element={<VideoGamesPage />}
+              />
               {/* PERFIL */}
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/perfil/editar" element={<EditProfilePage />} />

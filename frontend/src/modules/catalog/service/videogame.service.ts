@@ -1,7 +1,4 @@
-import {
-  fetchWithTimeout,
-  handleResponse
-} from "@/modules/core/utils/utils";
+import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
 
 import { VIDEOGAME_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
@@ -18,7 +15,7 @@ export async function fetchAllVideoGames(
   if (nameContains)
     queryParams += `&nameContains=${encodeURIComponent(nameContains)}`;
 
-    if (categories && categories.length > 0)
+  if (categories && categories.length > 0)
     queryParams += `&categories=${categories.join(",")}`;
 
   const res = await fetchWithTimeout(

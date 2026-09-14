@@ -14,7 +14,11 @@ export function VideoGamesPage() {
           "No se pudieron cargar los videojuegos. Inténtalo de nuevo más tarde.",
       }}
       emptyText="No hay videojuegos disponibles."
-      renderItem={(videogame) => <div>{videogame.name} - {parsePlatform(videogame.platform)}</div>}
+      renderItem={(videogame) => (
+        <div>
+          {videogame.name} - {parsePlatform(videogame.platform)}
+        </div>
+      )}
     />
   );
 }
