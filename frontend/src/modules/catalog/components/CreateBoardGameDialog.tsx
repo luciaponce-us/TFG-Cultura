@@ -222,6 +222,7 @@ export function CreateBoardGameDialog({
           setForm={setForm}
           errors={errors}
           setErrors={setErrors}
+          defaultValueText="Juegos de mesa"
         />
 
         <Separator />

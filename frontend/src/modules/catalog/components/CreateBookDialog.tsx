@@ -45,12 +45,14 @@ interface CreateBookDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
   readonly token?: string | null;
+  readonly sectionDefaultValue?: string;
 }
 
 export function CreateBookDialog({
   isOpen,
   setIsOpen,
   token,
+  sectionDefaultValue,
 }: CreateBookDialogProps) {
   const [form, setForm] = useState<BookRequest>(INITIAL_BOOK);
   const [errors, setErrors] = useState<BookErrors>(INITIAL_BOOK_ERRORS);
@@ -181,6 +183,7 @@ export function CreateBookDialog({
           setForm={setForm}
           errors={errors}
           setErrors={setErrors}
+          defaultValueText={sectionDefaultValue}
         />
 
         <CustomInput

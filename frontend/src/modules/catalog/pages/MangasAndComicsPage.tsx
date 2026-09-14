@@ -21,6 +21,7 @@ export function MangasAndComicsPage() {
       emptyText="No hay mangas ni cómics disponibles."
       createText="Crear manga o cómic"
       CreateDialogComponent={CreateBookDialog}
+      sectionDefaultValue="Manga"
     />
   );
 }

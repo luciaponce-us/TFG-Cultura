@@ -29,10 +29,12 @@ interface ItemsPageProps<
   errorText: { title: string; description: string };
   emptyText: string;
   createText?: string;
+  sectionDefaultValue?: string;
   CreateDialogComponent?: React.ComponentType<{
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
     token?: string | null;
+    sectionDefaultValue?: string;
   }>;
 }
 
@@ -49,6 +51,7 @@ export function ItemsPage<
   emptyText,
   createText,
   CreateDialogComponent,
+  sectionDefaultValue,
 }: ItemsPageProps<T, TFilters>) {
   const { token, isAdmin } = useAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -164,6 +167,7 @@ export function ItemsPage<
           isOpen={isCreateDialogOpen}
           setIsOpen={setIsCreateDialogOpen}
           token={token}
+          sectionDefaultValue={sectionDefaultValue}
         />
       )}
     </Grid>

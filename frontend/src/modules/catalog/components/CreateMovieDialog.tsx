@@ -197,6 +197,7 @@ export function CreateMovieDialog({
           setForm={setForm}
           errors={errors}
           setErrors={setErrors}
+          defaultValueText="Arte"
         />
 
         <Separator />
