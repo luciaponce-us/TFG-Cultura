@@ -1,7 +1,12 @@
 import type { Paginated } from "@/modules/core/types";
-import type { RolSaga } from "../types/rolgame";
+import type { RolSaga, RolSagaRequest } from "../types/rolgame";
 import { ROL_SAGA_ROUTES } from "../routes";
-import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
+import {
+  fetchWithTimeout,
+  handleResponse,
+  authHeaders,
+  removeEmptyFields,
+} from "@/modules/core/utils/utils";
 
 export async function fetchAllRolSagas(
   page: number = 0,
@@ -19,5 +24,34 @@ export async function fetchRolSagaById(sagaId: string): Promise<RolSaga> {
     method: "GET",
   });
 
+  return handleResponse<RolSaga>(res);
+}
+
+export async function createRolSaga(
+  request: RolSagaRequest,
+  token: string,
+  image: File | null,
+): Promise<RolSaga> {
+  const formData = new FormData();
+
+  formData.append(
+    "rolSaga",
+    new Blob([JSON.stringify(removeEmptyFields(request))], {
+      type: "application/json",
+    }),
+  );
+
+  if (image) {
+    formData.append("image", image);
+  }
+
+  const res = await fetchWithTimeout(ROL_SAGA_ROUTES.GET_ALL, {
+    method: "POST",
+    headers: {
+      ...authHeaders(token),
+    },
+    body: formData,
+  });
+  
   return handleResponse<RolSaga>(res);
 }

@@ -104,6 +104,7 @@ export interface RolSagaErrors {
   recommendedPlayers?: string;
   sectionId?: string;
   categoriesIds?: string;
+  general?: string;
 }
 
 export const INITIAL_ROL_SAGA_ERRORS: RolSagaErrors = {

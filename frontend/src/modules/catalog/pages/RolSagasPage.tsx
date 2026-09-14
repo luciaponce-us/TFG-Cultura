@@ -1,8 +1,12 @@
 import { Flex, Heading, Link } from "@chakra-ui/react";
 import { useRolSagas } from "../hooks";
-import { TextSecondary } from "@/modules/core/components";
+import { CustomButton, TextSecondary } from "@/modules/core/components";
+import { useState } from "react";
+import { CreateRolSagaDialog } from "../components/CreateRolSagaDialog";
+import { IconPlus } from "@tabler/icons-react";
 
 export function RolSagasPage() {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { data: rolSagas, isLoading, isError } = useRolSagas();
 
   let content;
@@ -40,6 +44,7 @@ export function RolSagasPage() {
   }
 
   return (
+    <>
     <Flex
       bg="background"
       borderRadius="xl"
@@ -51,7 +56,13 @@ export function RolSagasPage() {
       gap={6}
     >
       <Heading as="h1">Juegos de rol</Heading>
+      <CustomButton onClick={() => setIsCreateDialogOpen(true)}><IconPlus/>Crear nueva saga de rol</CustomButton>
       {content}
     </Flex>
+    <CreateRolSagaDialog
+      isOpen={isCreateDialogOpen}
+      setIsOpen={setIsCreateDialogOpen}
+    />
+    </>
   );
 }

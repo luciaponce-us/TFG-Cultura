@@ -12,3 +12,4 @@ export { useRolGamesBySaga } from "./useRolGamesBySaga";
 export { useRolSagas } from "./useRolSagas";
 export { useRolSaga } from "./useRolSaga";
 export { useVideogames } from "./useVideogames";
+export { useCreateRolSaga } from "./useCreateRolSaga";

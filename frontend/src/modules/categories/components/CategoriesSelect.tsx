@@ -2,15 +2,16 @@ import type { ItemRequest } from "@/modules/catalog/types";
 import { CustomSelect } from "@/modules/core/components";
 import type { Dispatch, SetStateAction } from "react";
 import { useCategories } from "../hooks";
+import type { RolSagaRequest } from "@/modules/catalog/types/rolgame";
 
-interface CategoriesSelectProps<T extends ItemRequest> {
+interface CategoriesSelectProps<T extends ItemRequest | RolSagaRequest> {
   form: T;
   setForm: Dispatch<SetStateAction<T>>;
   onCreateCategory?: () => void;
   error?: string;
 }
 
-export function CategoriesSelect<T extends ItemRequest>({
+export function CategoriesSelect<T extends ItemRequest | RolSagaRequest>({
   form,
   setForm,
   onCreateCategory,
