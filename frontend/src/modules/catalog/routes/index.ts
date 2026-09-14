@@ -29,7 +29,8 @@ export const BOARDGAME_ROUTES = {
 export const ROLGAME_ROUTES = {
   GET_ALL: `${API_BASE_URL}/api/catalog/rol-games`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/rol-games/${id}`,
-  GET_BY_SAGA_ID: (sagaId: string) => `${API_BASE_URL}/api/catalog/rol-games/saga/${sagaId}`
+  GET_BY_SAGA_ID: (sagaId: string) =>
+    `${API_BASE_URL}/api/catalog/rol-games/saga/${sagaId}`,
 };
 
 export const ROL_SAGA_ROUTES = {

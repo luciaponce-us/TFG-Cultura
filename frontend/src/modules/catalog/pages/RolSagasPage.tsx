@@ -30,9 +30,7 @@ export function RolSagasPage() {
                 {rolSaga.name}
               </Heading>
               <p>{rolSaga.description}</p>
-              <Link href={`/catalogo/rol/${rolSaga.id}`}>
-                Ver detalles
-              </Link>
+              <Link href={`/catalogo/rol/${rolSaga.id}`}>Ver detalles</Link>
             </Flex>
           ))}
         </Flex>

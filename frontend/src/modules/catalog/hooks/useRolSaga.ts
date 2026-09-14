@@ -6,8 +6,8 @@ export function useRolSaga(sagaId: string) {
   return useQuery<RolSaga>({
     queryKey: ["rol-saga", sagaId],
     queryFn: async () => {
-        return await fetchRolSagaById(sagaId);
+      return await fetchRolSagaById(sagaId);
     },
-    placeholderData: keepPreviousData
+    placeholderData: keepPreviousData,
   });
 }
