@@ -6,3 +6,4 @@ export { BoardGamesPage } from "./BoardGamesPage";
 export { CatalogPage } from "./CatalogPage";
 export { RolSagasPage } from "./RolSagasPage";
 export { RolSagaPage } from "./RolSagaPage";
+export { VideoGamesPage } from "./VideoGamesPage";

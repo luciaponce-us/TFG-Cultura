@@ -37,3 +37,8 @@ export const ROL_SAGA_ROUTES = {
   GET_ALL: `${API_BASE_URL}/api/catalog/rol-sagas`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/rol-sagas/${id}`,
 };
+
+export const VIDEOGAME_ROUTES = {
+  GET_ALL: `${API_BASE_URL}/api/catalog/videogames`,
+  GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/videogames/${id}`,
+};

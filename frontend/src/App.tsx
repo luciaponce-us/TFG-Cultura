@@ -36,6 +36,7 @@ import {
   CatalogPage,
   RolSagasPage,
   RolSagaPage,
+  VideoGamesPage,
 } from "@/modules/catalog/pages";
 
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
@@ -79,8 +80,11 @@ export default function App() {
               />
               <Route path="/catalogo/rol" element={<RolSagasPage />} />
               <Route path="/catalogo/rol/:sagaId" element={<RolSagaPage />} />
+              <Route path="/catalogo/videojuegos" element={<VideoGamesPage />} />
+              {/* PERFIL */}
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/perfil/editar" element={<EditProfilePage />} />
+              {/* ADMIN */}
               <Route
                 path="/admin"
                 element={withRoleProtection(AdminPanel, MANAGEMENT_ROLES)}
