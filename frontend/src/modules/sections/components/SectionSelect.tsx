@@ -3,9 +3,15 @@ import { useSections } from "../hooks";
 import { useEffect } from "react";
 import type { ItemErrors, ItemRequest } from "@/modules/catalog/types";
 import type { Dispatch, SetStateAction } from "react";
-import type { RolSagaErrors, RolSagaRequest } from "@/modules/catalog/types/rolgame";
+import type {
+  RolSagaErrors,
+  RolSagaRequest,
+} from "@/modules/catalog/types/rolgame";
 
-interface SectionSelectProps<T extends ItemRequest | RolSagaRequest, E extends ItemErrors | RolSagaErrors> {
+interface SectionSelectProps<
+  T extends ItemRequest | RolSagaRequest,
+  E extends ItemErrors | RolSagaErrors,
+> {
   form: T;
   setForm: Dispatch<SetStateAction<T>>;
   errors: E;
@@ -13,7 +19,10 @@ interface SectionSelectProps<T extends ItemRequest | RolSagaRequest, E extends I
   defaultValueText?: string;
 }
 
-export function SectionSelect<T extends ItemRequest | RolSagaRequest, E extends ItemErrors | RolSagaErrors>({
+export function SectionSelect<
+  T extends ItemRequest | RolSagaRequest,
+  E extends ItemErrors | RolSagaErrors,
+>({
   form,
   setForm,
   errors,
@@ -33,7 +42,9 @@ export function SectionSelect<T extends ItemRequest | RolSagaRequest, E extends 
     })) || [];
   const defaultSection = defaultValueText
     ? sectionsOptions.find((option) =>
-        option.label.toLocaleLowerCase().includes(defaultValueText.toLocaleLowerCase()),
+        option.label
+          .toLocaleLowerCase()
+          .includes(defaultValueText.toLocaleLowerCase()),
       )
     : undefined;
 

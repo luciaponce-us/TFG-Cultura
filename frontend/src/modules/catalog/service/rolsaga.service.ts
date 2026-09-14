@@ -52,6 +52,6 @@ export async function createRolSaga(
     },
     body: formData,
   });
-  
+
   return handleResponse<RolSaga>(res);
 }

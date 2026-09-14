@@ -45,24 +45,27 @@ export function RolSagasPage() {
 
   return (
     <>
-    <Flex
-      bg="background"
-      borderRadius="xl"
-      boxShadow="lg"
-      p={6}
-      direction="column"
-      align="center"
-      justify="flex-start"
-      gap={6}
-    >
-      <Heading as="h1">Juegos de rol</Heading>
-      <CustomButton onClick={() => setIsCreateDialogOpen(true)}><IconPlus/>Crear nueva saga de rol</CustomButton>
-      {content}
-    </Flex>
-    <CreateRolSagaDialog
-      isOpen={isCreateDialogOpen}
-      setIsOpen={setIsCreateDialogOpen}
-    />
+      <Flex
+        bg="background"
+        borderRadius="xl"
+        boxShadow="lg"
+        p={6}
+        direction="column"
+        align="center"
+        justify="flex-start"
+        gap={6}
+      >
+        <Heading as="h1">Juegos de rol</Heading>
+        <CustomButton onClick={() => setIsCreateDialogOpen(true)}>
+          <IconPlus />
+          Crear nueva saga de rol
+        </CustomButton>
+        {content}
+      </Flex>
+      <CreateRolSagaDialog
+        isOpen={isCreateDialogOpen}
+        setIsOpen={setIsCreateDialogOpen}
+      />
     </>
   );
 }

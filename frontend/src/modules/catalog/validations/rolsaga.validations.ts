@@ -50,7 +50,8 @@ function validateName(name: string): string | undefined {
 }
 
 function validateDescription(description: string): string | undefined {
-  if (!description || description.trim() === "") return "La descripción es obligatoria.";
+  if (!description || description.trim() === "")
+    return "La descripción es obligatoria.";
   if (description.length > MAX_LENGTH.DESCRIPTION) {
     return `La descripción no puede tener más de ${MAX_LENGTH.DESCRIPTION} caracteres.`;
   }
