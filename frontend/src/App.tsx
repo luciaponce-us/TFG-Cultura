@@ -34,6 +34,8 @@ import {
   SeriesPage,
   BoardGamesPage,
   CatalogPage,
+  RolSagasPage,
+  RolSagaPage,
 } from "@/modules/catalog/pages";
 
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
@@ -75,6 +77,8 @@ export default function App() {
                 path="/catalogo/juegos-de-mesa"
                 element={<BoardGamesPage />}
               />
+              <Route path="/catalogo/rol" element={<RolSagasPage />} />
+              <Route path="/catalogo/rol/:sagaId" element={<RolSagaPage />} />
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/perfil/editar" element={<EditProfilePage />} />
               <Route
