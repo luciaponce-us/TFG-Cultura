@@ -1,14 +1,14 @@
 import { useAuth } from "@/modules/core/context/useAuth";
-import type { RolSagaErrors, RolSagaRequest } from "../types/rolgame";
+import type { RolGameRequest } from "../types/rolgame";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createRolSaga } from "../service/rolsaga.service";
+import { createRolGame } from "../service/rolgame.service";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { isApiError, isFieldError } from "@/modules/core/utils/utils";
 
-export function useCreateRolSaga(
-  request: RolSagaRequest,
+export function useCreateRolGame(
+  request: RolGameRequest,
   image: File | null,
-  setErrors: (errors: RolSagaErrors) => void,
+  setErrors: (errors: Record<string, string>) => void,
   setIsOpen: (isOpen: boolean) => void,
 ) {
   const { token } = useAuth();
@@ -18,33 +18,35 @@ export function useCreateRolSaga(
     mutationFn: async () => {
       if (!token) {
         toaster.create({
-          title: "Inicia sesión para crear sagas de rol",
+          title: "Inicia sesión para crear juegos de rol",
           description:
-            "Necesitas iniciar sesión para crear una nueva saga de rol.",
+            "Necesitas iniciar sesión para crear un nuevo juego de rol.",
           type: "error",
         });
         return;
       }
 
-      await createRolSaga(request, token, image);
+      return createRolGame(token, request, image);
     },
-    onSuccess: async () => {
+    onSuccess: async (rolGame) => {
       toaster.create({
-        title: "Saga de rol creada",
-        description: "La saga de rol se ha creado correctamente.",
+        title: "Juego de rol creado",
+        description: "El juego de rol se ha creado correctamente.",
+        type: "success",
       });
 
-      await queryClient.invalidateQueries({ queryKey: ["rolsagas"] });
+      await queryClient.invalidateQueries({ queryKey: ["rolgames"] });
       setIsOpen(false);
+      return rolGame;
     },
     onError: (error: Error) => {
-      console.error("Error al crear saga de rol:", error);
+      console.error("Error al crear juego de rol:", error);
 
       if (isApiError(error)) {
         if (isFieldError(error)) {
           setErrors(error.errors);
           toaster.create({
-            title: "Error al crear saga de rol",
+            title: "Error al crear juego de rol",
             description:
               "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
             type: "error",
@@ -53,11 +55,10 @@ export function useCreateRolSaga(
         }
 
         toaster.create({
-          title: "Error al crear saga de rol",
+          title: "Error al crear juego de rol",
           description: error.message,
           type: "error",
         });
-        return;
       }
     },
   });

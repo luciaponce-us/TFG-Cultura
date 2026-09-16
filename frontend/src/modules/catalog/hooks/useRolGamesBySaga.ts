@@ -4,7 +4,7 @@ import { fetchAllRolGamesBySagaId } from "../service/rolgame.service";
 
 export function useRolGamesBySaga(sagaId: string) {
   return useQuery<RolGame[]>({
-    queryKey: ["rolGamesBySaga", sagaId],
+    queryKey: ["rolgames", sagaId],
     queryFn: async () => {
       return fetchAllRolGamesBySagaId(sagaId);
     },

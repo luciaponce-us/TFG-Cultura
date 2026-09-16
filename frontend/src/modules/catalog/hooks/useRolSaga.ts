@@ -4,7 +4,7 @@ import { fetchRolSagaById } from "../service/rolsaga.service";
 
 export function useRolSaga(sagaId: string) {
   return useQuery<RolSaga>({
-    queryKey: ["rol-saga", sagaId],
+    queryKey: ["rolsaga", sagaId],
     queryFn: async () => {
       return await fetchRolSagaById(sagaId);
     },

@@ -5,7 +5,7 @@ import { fetchAllRolSagas } from "../service/rolsaga.service";
 
 export function useRolSagas(page: number = 0, size: number = 10) {
   return useQuery<Paginated<RolSaga>>({
-    queryKey: ["rol-sagas", page, size],
+    queryKey: ["rolsagas", page, size],
     queryFn: async () => {
       return await fetchAllRolSagas(page, size);
     },

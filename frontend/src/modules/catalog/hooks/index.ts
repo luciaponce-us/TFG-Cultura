@@ -13,3 +13,4 @@ export { useRolSagas } from "./useRolSagas";
 export { useRolSaga } from "./useRolSaga";
 export { useVideogames } from "./useVideogames";
 export { useCreateRolSaga } from "./useCreateRolSaga";
+export { useCreateRolGame } from "./useCreateRolGame";

@@ -7,8 +7,7 @@ export const MAX_LENGTH = {
 };
 
 export function validateItemForm(
-  form: ItemRequest,
-  token?: string | null,
+  form: ItemRequest
 ): ItemErrors {
   return {
     name: validateName(form.name),
@@ -23,7 +22,6 @@ export function validateItemForm(
     availableCopies: validateAvailableCopies(form.availableCopies),
     sectionId: validateSectionId(form.sectionId),
     categoriesIds: validateCategoriesIds(form.categoriesIds),
-    general: token ? undefined : "Necesitas estar logueado para crear un item.",
   };
 }
 
