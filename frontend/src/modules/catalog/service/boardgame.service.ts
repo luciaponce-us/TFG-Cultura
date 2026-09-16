@@ -1,7 +1,7 @@
 import type { Paginated } from "@/modules/core/types";
 import { BOARDGAME_ROUTES } from "../routes";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
-import { fetchAllItems, createItem } from "./item.service";
+import { fetchAllItems, createItem, updateItem, fetchItemById } from "./item.service";
 
 export async function fetchAllBoardGames(
   page: number = 0,
@@ -18,6 +18,12 @@ export async function fetchAllBoardGames(
   );
 }
 
+export async function fetchBoardGameById(
+  boardGameId: string,
+): Promise<BoardGame> {
+  return fetchItemById<BoardGame>(BOARDGAME_ROUTES, boardGameId);
+}
+
 export async function createBoardGame(
   token: string,
   boardGame: BoardGameRequest,
@@ -26,6 +32,21 @@ export async function createBoardGame(
   return createItem<BoardGame, BoardGameRequest>(
     BOARDGAME_ROUTES,
     token,
+    boardGame,
+    image,
+  );
+}
+
+export async function updateBoardGame(
+  token: string,
+  boardGameId: string,
+  boardGame: BoardGameRequest,
+  image: File | null,
+): Promise<BoardGame> {
+  return updateItem<BoardGame, BoardGameRequest>(
+    BOARDGAME_ROUTES,
+    token,
+    boardGameId,
     boardGame,
     image,
   );

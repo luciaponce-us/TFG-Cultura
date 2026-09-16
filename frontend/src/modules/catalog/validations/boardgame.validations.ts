@@ -5,13 +5,20 @@ import {
   type BoardGameErrors,
   type BoardGameRequest,
 } from "../types/boardgame";
-import { validateItemForm } from "./item.validations";
+import { validateItemForm, MAX_LENGTH as MAX_LENGTH_ITEM } from "./item.validations";
+import type { Dispatch, SetStateAction } from "react";
+import { toaster } from "@/modules/core/components/toaster/toaster";
+
+export const MAX_LENGTH = {
+  ...MAX_LENGTH_ITEM
+}
 
 export function validateBoardGameForm(
-  form: BoardGameRequest
-): BoardGameErrors {
+  form: BoardGameRequest,
+  setErrors: Dispatch<SetStateAction<BoardGameErrors>>,
+): void {
   const base = validateItemForm(form);
-  const errors: BoardGameErrors = {
+  let errors: BoardGameErrors = {
     ...base,
     minPlayers: validatePositiveInteger(form.minPlayers, "mínimo de jugadores"),
     maxPlayers: validateMaxPlayers(form.minPlayers, form.maxPlayers),
@@ -21,7 +28,16 @@ export function validateBoardGameForm(
     baseGameId: validateBaseGameId(form.baseGameId),
   };
 
-  return removeEmptyFields(errors);
+  errors = removeEmptyFields(errors);
+  setErrors(errors);
+  if (Object.values(errors).some(Boolean)) {
+    toaster.create({
+      title: "Error al crear juego de mesa",
+      description:
+        "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
+      type: "error",
+    });
+  }
 }
 
 function validatePositiveInteger(

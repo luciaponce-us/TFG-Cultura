@@ -1,13 +1,14 @@
 import { useState } from "react";
-import type { BoardGameErrors, BoardGameRequest } from "../types/boardgame";
 import {
   BOARD_GAME_TYPES_OPTIONS,
   COMPLEXITIES_OPTIONS,
-  INITIAL_BOARD_GAME,
   INITIAL_BOARD_GAME_ERRORS,
+  type BoardGame,
+  type BoardGameErrors,
+  type BoardGameRequest,
 } from "../types/boardgame";
 import { ITEM_CONDITIONS_OPTIONS } from "../types";
-import { useCreateBoardGame } from "../hooks";
+import { useBoardGame, useBoardGameForm, useCreateBoardGame, useUpdateBoardGame } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import {
   Heading,
@@ -25,17 +26,14 @@ import {
   CustomDateInput,
   FormDialog,
   UploadBox,
-  toaster,
 } from "@/modules/core/components";
-import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
-import { validateBoardGameForm } from "../validations/boardgame.validations";
+import { validateBoardGameForm, MAX_LENGTH } from "../validations/boardgame.validations";
 import {
   CategoriesSelect,
   CreateCategoryDialog,
 } from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
 import { BaseGameSelect } from "./BaseGameSelect";
-import type { BoardGame } from "../types/boardgame";
 
 const BOARD_GAME_PLACEHOLDER =
   "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/boardgame_placeholder.jpg";
@@ -45,6 +43,7 @@ interface CreateBoardGameDialogProps {
   readonly setIsOpen: (isOpen: boolean) => void;
   readonly onCreated?: (boardGame: BoardGame) => void;
   readonly allowBaseGame?: boolean;
+  readonly boardGameId?: string;
 }
 
 export function CreateBoardGameDialog({
@@ -52,14 +51,19 @@ export function CreateBoardGameDialog({
   setIsOpen,
   onCreated,
   allowBaseGame = true,
+  boardGameId,
 }: CreateBoardGameDialogProps) {
-  const [form, setForm] = useState<BoardGameRequest>(INITIAL_BOARD_GAME);
+  const { data: boardGameToUpdate } = useBoardGame(boardGameId);
+  const { form, setForm } = useBoardGameForm(boardGameId, boardGameToUpdate);
   const [errors, setErrors] = useState<BoardGameErrors>(
     INITIAL_BOARD_GAME_ERRORS,
   );
   const [image, setImage] = useState<File | null>(null);
   const { mutateAsync: createBoardGame, isPending: submitting } =
     useCreateBoardGame(form, image, setErrors, setIsOpen);
+  const { mutateAsync: updateBoardGame, isPending: updating } =
+    useUpdateBoardGame(boardGameId, form, image, setErrors, setIsOpen);
+  const loading = boardGameId ? updating : submitting;
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [baseGameDialogOpen, setBaseGameDialogOpen] = useState(false);
 
@@ -71,20 +75,15 @@ export function CreateBoardGameDialog({
     setForm((prev) => ({ ...prev, types: value as BoardGameRequest["types"] }));
 
   async function handleSubmit() {
-    const validationErrors = validateBoardGameForm(form);
-    setErrors(validationErrors);
-    if (Object.values(validationErrors).some(Boolean)) {
-      toaster.create({
-        title: "Error al crear juego de mesa",
-        description:
-          "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
-        type: "error",
-      });
-      return;
-    }
-    const createdBoardGame = await createBoardGame();
-    if (createdBoardGame) {
-      onCreated?.(createdBoardGame);
+    validateBoardGameForm(form, setErrors);
+    
+    if (boardGameId) {
+      await updateBoardGame();
+    } else {
+      const createdBoardGame = await createBoardGame();
+      if (createdBoardGame) {
+        onCreated?.(createdBoardGame);
+      }
     }
   }
 
@@ -93,9 +92,9 @@ export function CreateBoardGameDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title="Crear juego de mesa"
+        title={boardGameToUpdate ? `Editando ${boardGameToUpdate.name}` : "Crear juego de mesa"}
         handleSubmit={handleSubmit}
-        submitButtonText="Crear"
+        submitButtonText={boardGameId ? "Actualizar" : "Crear"}
       >
         <HStack
           align="stretch"
@@ -124,7 +123,7 @@ export function CreateBoardGameDialog({
               secondaryText="JPG o PNG, tamaño no superior a 2MB"
               fileType="image/*"
               onFileChange={setImage}
-              disabled={submitting}
+              disabled={loading}
             />
           </VStack>
         </HStack>
@@ -136,7 +135,8 @@ export function CreateBoardGameDialog({
           required
           error={errors.name ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
-          maxLength={MAX_LENGTH_ITEM.NAME}
+          maxLength={MAX_LENGTH.NAME}
+          defaultValue={form.name}
         />
         <CategoriesSelect
           form={form}
@@ -149,10 +149,11 @@ export function CreateBoardGameDialog({
           name="description"
           placeholder="Proporciona una descripción del juego de mesa"
           error={errors.description ?? ""}
+          defaultValue={form.description}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           textarea
           maxInputHeight="125px"
-          maxLength={MAX_LENGTH_ITEM.DESCRIPTION}
+          maxLength={MAX_LENGTH.DESCRIPTION}
         />
         {allowBaseGame && (
           <BaseGameSelect
@@ -243,9 +244,10 @@ export function CreateBoardGameDialog({
           placeholder="Añade comentarios sobre el estado de conservación"
           textarea
           maxInputHeight="125px"
-          maxLength={MAX_LENGTH_ITEM.COMMENTS}
+          maxLength={MAX_LENGTH.COMMENTS}
           error={errors.comments ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
+          defaultValue={form.comments}
         />
         <CustomSwitch
           checked={form.loanAvailable}
@@ -298,7 +300,7 @@ export function CreateBoardGameDialog({
             max={1000}
             step={0.01}
             allowMouseWheel
-            disabled={submitting}
+            disabled={loading}
             error={errors.price}
             onChange={(value) => setForm((prev) => ({ ...prev, price: value }))}
             isEuros
