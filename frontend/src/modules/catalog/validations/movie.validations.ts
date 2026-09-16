@@ -1,3 +1,4 @@
+import { removeEmptyFields } from "@/modules/core/utils/utils";
 import type { MovieRequest, MovieErrors } from "../types/movie";
 import { validateItemForm } from "./item.validations";
 
@@ -7,12 +8,10 @@ export const MAX_LENGTH = {
 };
 
 export function validateMovieForm(
-  form: MovieRequest,
-  token?: string | null,
+  form: MovieRequest
 ): MovieErrors {
-  const base = validateItemForm(form, token);
-
-  return {
+  const base = validateItemForm(form);
+  const errors: MovieErrors = {
     ...base,
     format: form.format ? undefined : "El formato es obligatorio.",
     numberOfDiscs: validateNumberOfDiscs(form.numberOfDiscs),
@@ -20,6 +19,8 @@ export function validateMovieForm(
     trailerUrl: validateTrailerUrl(form.trailerUrl),
     sagaName: validateSagaName(form.sagaName),
   };
+
+  return removeEmptyFields(errors);
 }
 
 function validateNumberOfDiscs(value: number): string | undefined {

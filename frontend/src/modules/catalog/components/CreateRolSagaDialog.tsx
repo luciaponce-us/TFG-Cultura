@@ -25,7 +25,6 @@ import {
   validateRolSagaForm,
 } from "../validations/rolsaga.validations";
 import { SectionSelect } from "@/modules/sections/components";
-import { useAuth } from "@/modules/core/context/useAuth";
 
 interface CreateRolSagaDialogProps {
   readonly isOpen: boolean;
@@ -39,7 +38,6 @@ export function CreateRolSagaDialog({
   isOpen,
   setIsOpen,
 }: CreateRolSagaDialogProps) {
-  const { token } = useAuth();
   const [form, setForm] = useState<RolSagaRequest>(INITIAL_ROL_SAGA);
   const [image, setImage] = useState<File | null>(null);
   const [errors, setErrors] = useState<RolSagaErrors>(INITIAL_ROL_SAGA_ERRORS);
@@ -58,7 +56,7 @@ export function CreateRolSagaDialog({
   }
 
   async function handleSubmit() {
-    const errors = validateRolSagaForm(form, token);
+    const errors = validateRolSagaForm(form);
     console.error("RolSagaForm errors:", errors);
 
     if (Object.keys(errors).length > 0) {

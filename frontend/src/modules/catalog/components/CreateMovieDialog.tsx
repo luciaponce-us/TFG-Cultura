@@ -44,13 +44,11 @@ const MOVIE_PLACEHOLDER =
 interface CreateMovieDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
-  readonly token?: string | null;
 }
 
 export function CreateMovieDialog({
   isOpen,
-  setIsOpen,
-  token,
+  setIsOpen
 }: CreateMovieDialogProps) {
   const [form, setForm] = useState<MovieRequest>(INITIAL_MOVIE);
   const [errors, setErrors] = useState<MovieErrors>(INITIAL_MOVIE_ERRORS);
@@ -70,7 +68,7 @@ export function CreateMovieDialog({
     handleSelectChange(value, "condition", form, setErrors, setForm);
 
   async function handleSubmit() {
-    const validationErrors = validateMovieForm(form, token);
+    const validationErrors = validateMovieForm(form);
     setErrors(validationErrors);
     if (Object.values(validationErrors).some(Boolean)) {
       toaster.create({

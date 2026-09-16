@@ -7,6 +7,7 @@ import type {
   RolGameErrors,
   RolGameRequest,
 } from "../types/rolgame";
+import { removeEmptyFields } from "@/modules/core/utils/utils";
 
 export const MAX_LENGTH = {
   ...MAX_LENGTH_ITEM,
@@ -20,9 +21,7 @@ export function validateRolGameForm(form: RolGameRequest): RolGameErrors {
     sagaId: validateSagaId(form.sagaId),
   };
 
-  return Object.fromEntries(
-    Object.entries(errors).filter(([, error]) => error !== undefined),
-  );
+  return removeEmptyFields(errors);
 }
 
 function validateType(value: RolBookType): string | undefined {

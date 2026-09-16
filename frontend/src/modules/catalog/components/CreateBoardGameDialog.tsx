@@ -43,7 +43,6 @@ const BOARD_GAME_PLACEHOLDER =
 interface CreateBoardGameDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
-  readonly token?: string | null;
   readonly onCreated?: (boardGame: BoardGame) => void;
   readonly allowBaseGame?: boolean;
 }
@@ -51,7 +50,6 @@ interface CreateBoardGameDialogProps {
 export function CreateBoardGameDialog({
   isOpen,
   setIsOpen,
-  token,
   onCreated,
   allowBaseGame = true,
 }: CreateBoardGameDialogProps) {
@@ -73,7 +71,7 @@ export function CreateBoardGameDialog({
     setForm((prev) => ({ ...prev, types: value as BoardGameRequest["types"] }));
 
   async function handleSubmit() {
-    const validationErrors = validateBoardGameForm(form, token);
+    const validationErrors = validateBoardGameForm(form);
     setErrors(validationErrors);
     if (Object.values(validationErrors).some(Boolean)) {
       toaster.create({
@@ -321,7 +319,6 @@ export function CreateBoardGameDialog({
         <CreateBoardGameDialog
           isOpen={baseGameDialogOpen}
           setIsOpen={setBaseGameDialogOpen}
-          token={token}
           allowBaseGame={false}
           onCreated={(boardGame) => {
             setForm((prev) => ({ ...prev, baseGameId: boardGame.id }));

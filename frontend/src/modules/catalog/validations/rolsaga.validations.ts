@@ -4,6 +4,7 @@ import {
   type RolSagaErrors,
   type RolSagaRequest,
 } from "../types/rolgame";
+import { removeEmptyFields } from "@/modules/core/utils/utils";
 
 export const MAX_LENGTH = {
   NAME: 120,
@@ -15,8 +16,7 @@ export const MAX_LENGTH = {
 };
 
 export function validateRolSagaForm(
-  form: RolSagaRequest,
-  token?: string | null,
+  form: RolSagaRequest
 ): RolSagaErrors {
   const errors: RolSagaErrors = {
     name: validateName(form.name),
@@ -25,15 +25,10 @@ export function validateRolSagaForm(
     characterSheetUrl: validateCharacterSheetUrl(form.characterSheetUrl),
     dice: validateDice(form.dice),
     recommendedPlayers: validateRecommendedPlayers(form.recommendedPlayers),
-    gameMaster: validateGameMaster(form.gameMaster),
-    general: !token
-      ? "Debes iniciar sesión para crear una saga de juegos de rol."
-      : undefined,
+    gameMaster: validateGameMaster(form.gameMaster)
   };
 
-  return Object.fromEntries(
-    Object.entries(errors).filter(([, error]) => error !== undefined),
-  );
+  return removeEmptyFields(errors);
 }
 
 function validateName(name: string): string | undefined {

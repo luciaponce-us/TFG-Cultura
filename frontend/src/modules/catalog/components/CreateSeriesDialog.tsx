@@ -48,13 +48,11 @@ const SERIES_PLACEHOLDER =
 interface CreateSeriesDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
-  readonly token?: string | null;
 }
 
 export function CreateSeriesDialog({
   isOpen,
-  setIsOpen,
-  token,
+  setIsOpen
 }: CreateSeriesDialogProps) {
   const [form, setForm] = useState<SeriesRequest>(INITIAL_SERIES);
   const [errors, setErrors] = useState<SeriesErrors>(INITIAL_SERIES_ERRORS);
@@ -103,7 +101,7 @@ export function CreateSeriesDialog({
   }
 
   async function handleSubmit() {
-    const validationErrors = validateSeriesForm(form, token);
+    const validationErrors = validateSeriesForm(form);
     setErrors(validationErrors);
     if (Object.values(validationErrors).some(Boolean)) {
       toaster.create({

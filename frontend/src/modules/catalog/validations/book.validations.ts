@@ -1,3 +1,4 @@
+import { removeEmptyFields } from "@/modules/core/utils/utils";
 import type { BookRequest, BookErrors } from "../types/book";
 import { validateItemForm } from "./item.validations";
 
@@ -8,18 +9,18 @@ export const MAX_LENGTH = {
 };
 
 export function validateBookForm(
-  form: BookRequest,
-  token?: string | null,
+  form: BookRequest
 ): BookErrors {
-  const base = validateItemForm(form, token);
-
-  return {
+  const base = validateItemForm(form);
+  const errors: BookErrors = {
     ...base,
     author: validateAuthor(form.author),
     isbn: validateIsbn(form.isbn),
     type: validateType(form.type),
     sagaName: validateSagaName(form.sagaName),
   };
+
+  return removeEmptyFields(errors);
 }
 
 function validateAuthor(value: string): string | undefined {

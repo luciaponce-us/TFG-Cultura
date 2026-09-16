@@ -8,6 +8,7 @@ import type {
   VideoGameRequest,
 } from "../types/videogame";
 import { isPastOrPresentDate } from "@/modules/core/utils/validations.utils";
+import { removeEmptyFields } from "@/modules/core/utils/utils";
 
 export const MAX_LENGTH = {
   ...MAX_LENGTH_ITEM,
@@ -23,9 +24,7 @@ export function validateVideoGameForm(form: VideoGameRequest): VideoGameErrors {
     trailerUrl: validateTrailerUrl(form.trailerUrl),
   };
 
-  return Object.fromEntries(
-    Object.entries(errors).filter(([, error]) => error !== undefined),
-  );
+  return removeEmptyFields(errors);
 }
 
 function validatePlatform(value: Platform): string | undefined {

@@ -1,3 +1,4 @@
+import { removeEmptyFields } from "@/modules/core/utils/utils";
 import type { SeriesErrors, SeriesRequest } from "../types/series";
 import { validateItemForm } from "./item.validations";
 
@@ -6,12 +7,10 @@ export const MAX_LENGTH = {
 };
 
 export function validateSeriesForm(
-  form: SeriesRequest,
-  token?: string | null,
+  form: SeriesRequest
 ): SeriesErrors {
-  const base = validateItemForm(form, token);
-
-  return {
+  const base = validateItemForm(form);
+  const errors: SeriesErrors = {
     ...base,
     format: form.format ? undefined : "El formato es obligatorio.",
     numberOfDiscs:
@@ -28,6 +27,8 @@ export function validateSeriesForm(
     status: form.status ? undefined : "El estado de la serie es obligatorio.",
     seasons: validateSeasons(form),
   };
+
+  return removeEmptyFields(errors);
 }
 
 function validateReleaseDate(value: string): string | undefined {

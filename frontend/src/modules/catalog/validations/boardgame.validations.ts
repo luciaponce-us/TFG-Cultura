@@ -1,3 +1,4 @@
+import { removeEmptyFields } from "@/modules/core/utils/utils";
 import {
   BOARD_GAME_TYPES,
   COMPLEXITIES,
@@ -7,12 +8,10 @@ import {
 import { validateItemForm } from "./item.validations";
 
 export function validateBoardGameForm(
-  form: BoardGameRequest,
-  token?: string | null,
+  form: BoardGameRequest
 ): BoardGameErrors {
-  const base = validateItemForm(form, token);
-
-  return {
+  const base = validateItemForm(form);
+  const errors: BoardGameErrors = {
     ...base,
     minPlayers: validatePositiveInteger(form.minPlayers, "mínimo de jugadores"),
     maxPlayers: validateMaxPlayers(form.minPlayers, form.maxPlayers),
@@ -21,6 +20,8 @@ export function validateBoardGameForm(
     types: validateTypes(form.types),
     baseGameId: validateBaseGameId(form.baseGameId),
   };
+
+  return removeEmptyFields(errors);
 }
 
 function validatePositiveInteger(

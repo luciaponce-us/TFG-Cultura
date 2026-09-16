@@ -44,14 +44,12 @@ const BOOK_PLACEHOLDER =
 interface CreateBookDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
-  readonly token?: string | null;
   readonly sectionDefaultValue?: string;
 }
 
 export function CreateBookDialog({
   isOpen,
   setIsOpen,
-  token,
   sectionDefaultValue,
 }: CreateBookDialogProps) {
   const [form, setForm] = useState<BookRequest>(INITIAL_BOOK);
@@ -73,7 +71,7 @@ export function CreateBookDialog({
     handleSelectChange(value, "condition", form, setErrors, setForm);
 
   async function handleSubmit() {
-    const errors = validateBookForm(form, token);
+    const errors = validateBookForm(form);
     setErrors(errors);
     if (Object.values(errors).some(Boolean)) {
       return;
