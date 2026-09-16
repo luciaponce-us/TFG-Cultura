@@ -51,7 +51,7 @@ interface CreateSeriesDialogProps {
 
 export function CreateSeriesDialog({
   isOpen,
-  setIsOpen
+  setIsOpen,
 }: CreateSeriesDialogProps) {
   const [form, setForm] = useState<SeriesRequest>(INITIAL_SERIES);
   const [errors, setErrors] = useState<SeriesErrors>(INITIAL_SERIES_ERRORS);

@@ -6,9 +6,7 @@ export const MAX_LENGTH = {
   TRAILER_URL: 500,
 };
 
-export function validateSeriesForm(
-  form: SeriesRequest
-): SeriesErrors {
+export function validateSeriesForm(form: SeriesRequest): SeriesErrors {
   const base = validateItemForm(form);
   const errors: SeriesErrors = {
     ...base,

@@ -5,13 +5,16 @@ import {
   type BoardGameErrors,
   type BoardGameRequest,
 } from "../types/boardgame";
-import { validateItemForm, MAX_LENGTH as MAX_LENGTH_ITEM } from "./item.validations";
+import {
+  validateItemForm,
+  MAX_LENGTH as MAX_LENGTH_ITEM,
+} from "./item.validations";
 import type { Dispatch, SetStateAction } from "react";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 
 export const MAX_LENGTH = {
-  ...MAX_LENGTH_ITEM
-}
+  ...MAX_LENGTH_ITEM,
+};
 
 export function validateBoardGameForm(
   form: BoardGameRequest,

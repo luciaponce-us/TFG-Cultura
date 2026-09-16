@@ -7,13 +7,7 @@ import {
 } from "../types/book";
 import { useCreateBook } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import {
-  HStack,
-  Separator,
-  VStack,
-  Image,
-  Box,
-} from "@chakra-ui/react";
+import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
 import {
   CustomInput,
   CustomSelect,

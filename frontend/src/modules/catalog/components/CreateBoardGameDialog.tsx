@@ -7,15 +7,14 @@ import {
   type BoardGameErrors,
   type BoardGameRequest,
 } from "../types/boardgame";
-import { useBoardGame, useBoardGameForm, useCreateBoardGame, useUpdateBoardGame } from "../hooks";
-import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import {
-  HStack,
-  Separator,
-  VStack,
-  Image,
-  Box,
-} from "@chakra-ui/react";
+  useBoardGame,
+  useBoardGameForm,
+  useCreateBoardGame,
+  useUpdateBoardGame,
+} from "../hooks";
+import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
+import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
 import {
   CustomInput,
   CustomSelect,
@@ -23,7 +22,10 @@ import {
   FormDialog,
   UploadBox,
 } from "@/modules/core/components";
-import { validateBoardGameForm, MAX_LENGTH } from "../validations/boardgame.validations";
+import {
+  validateBoardGameForm,
+  MAX_LENGTH,
+} from "../validations/boardgame.validations";
 import {
   CategoriesSelect,
   CreateCategoryDialog,
@@ -71,7 +73,7 @@ export function CreateBoardGameDialog({
 
   async function handleSubmit() {
     validateBoardGameForm(form, setErrors);
-    
+
     if (boardGameId) {
       await updateBoardGame();
     } else {
@@ -87,7 +89,11 @@ export function CreateBoardGameDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title={boardGameToUpdate ? `Editando ${boardGameToUpdate.name}` : "Crear juego de mesa"}
+        title={
+          boardGameToUpdate
+            ? `Editando ${boardGameToUpdate.name}`
+            : "Crear juego de mesa"
+        }
         handleSubmit={handleSubmit}
         submitButtonText={boardGameId ? "Actualizar" : "Crear"}
       >

@@ -15,9 +15,7 @@ export const MAX_LENGTH = {
   RECOMMENDED_PLAYERS: 50,
 };
 
-export function validateRolSagaForm(
-  form: RolSagaRequest
-): RolSagaErrors {
+export function validateRolSagaForm(form: RolSagaRequest): RolSagaErrors {
   const errors: RolSagaErrors = {
     name: validateName(form.name),
     description: validateDescription(form.description),
@@ -25,7 +23,7 @@ export function validateRolSagaForm(
     characterSheetUrl: validateCharacterSheetUrl(form.characterSheetUrl),
     dice: validateDice(form.dice),
     recommendedPlayers: validateRecommendedPlayers(form.recommendedPlayers),
-    gameMaster: validateGameMaster(form.gameMaster)
+    gameMaster: validateGameMaster(form.gameMaster),
   };
 
   return removeEmptyFields(errors);

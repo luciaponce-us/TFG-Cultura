@@ -7,13 +7,7 @@ import {
 } from "../types/movie";
 import { useCreateMovie } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import {
-  HStack,
-  Separator,
-  VStack,
-  Image,
-  Box,
-} from "@chakra-ui/react";
+import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
 import {
   CustomInput,
   CustomSelect,
@@ -46,7 +40,7 @@ interface CreateMovieDialogProps {
 
 export function CreateMovieDialog({
   isOpen,
-  setIsOpen
+  setIsOpen,
 }: CreateMovieDialogProps) {
   const [form, setForm] = useState<MovieRequest>(INITIAL_MOVIE);
   const [errors, setErrors] = useState<MovieErrors>(INITIAL_MOVIE_ERRORS);

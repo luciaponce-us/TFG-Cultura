@@ -7,9 +7,7 @@ export const MAX_LENGTH = {
   SAGA_NAME: 50,
 };
 
-export function validateMovieForm(
-  form: MovieRequest
-): MovieErrors {
+export function validateMovieForm(form: MovieRequest): MovieErrors {
   const base = validateItemForm(form);
   const errors: MovieErrors = {
     ...base,

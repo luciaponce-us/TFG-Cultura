@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { useCreateRolGame, useRolSaga } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import {
-  HStack,
-  Separator,
-  VStack,
-  Image,
-  Box,
-} from "@chakra-ui/react";
+import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
 import {
   CustomInput,
   CustomSelect,

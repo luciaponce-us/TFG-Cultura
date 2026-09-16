@@ -1,7 +1,12 @@
 import type { Paginated } from "@/modules/core/types";
 import { BOARDGAME_ROUTES } from "../routes";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
-import { fetchAllItems, createItem, updateItem, fetchItemById } from "./item.service";
+import {
+  fetchAllItems,
+  createItem,
+  updateItem,
+  fetchItemById,
+} from "./item.service";
 
 export async function fetchAllBoardGames(
   page: number = 0,

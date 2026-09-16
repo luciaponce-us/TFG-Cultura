@@ -8,9 +8,7 @@ export const MAX_LENGTH = {
   SAGA_NAME: 50,
 };
 
-export function validateBookForm(
-  form: BookRequest
-): BookErrors {
+export function validateBookForm(form: BookRequest): BookErrors {
   const base = validateItemForm(form);
   const errors: BookErrors = {
     ...base,
