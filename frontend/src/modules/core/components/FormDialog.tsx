@@ -9,6 +9,7 @@ interface FormDialogProps {
   children: React.ReactNode;
   handleSubmit: () => Promise<void>;
   submitButtonText: string;
+  resetForm?: () => void;
 }
 
 export function FormDialog({
@@ -18,6 +19,7 @@ export function FormDialog({
   children,
   handleSubmit,
   submitButtonText,
+  resetForm,
 }: FormDialogProps) {
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const onSubmit = async (e: React.SubmitEvent<HTMLElement>) => {
@@ -62,7 +64,15 @@ export function FormDialog({
               </VStack>
             </Dialog.Body>
             <Dialog.Footer>
-              <CustomButton onClick={() => setIsOpen(false)} color="rojo">
+              <CustomButton
+                onClick={() => {
+                  if (resetForm) {
+                    resetForm();
+                  }
+                  setIsOpen(false);
+                }}
+                color="rojo"
+              >
                 Cancelar
               </CustomButton>
               <CustomButton loading={loadingSubmit} type="submit">

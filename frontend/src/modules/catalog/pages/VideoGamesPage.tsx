@@ -1,3 +1,4 @@
+import { CreateVideoGameDialog } from "../components";
 import { useVideogames } from "../hooks";
 import { parsePlatform } from "../utils/videogames.utils";
 import { ItemsPage } from "./ItemsPage";
@@ -19,6 +20,8 @@ export function VideoGamesPage() {
           {videogame.name} - {parsePlatform(videogame.platform)}
         </div>
       )}
+      CreateDialogComponent={CreateVideoGameDialog}
+      createText="Crear videojuego"
     />
   );
 }

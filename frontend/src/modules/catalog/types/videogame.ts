@@ -28,7 +28,7 @@ export const PLATFORMS = [
 
 export type Platform = (typeof PLATFORMS)[number];
 
-export const PLATFORMS_OPTIONS = [
+export const PLATFORM_OPTIONS = [
   { value: "N_SWITCH_2", label: "Nintendo Switch 2" },
   { value: "N_SWITCH", label: "Nintendo Switch" },
   { value: "QUEST", label: "Oculus Quest" },
@@ -55,8 +55,9 @@ export interface VideoGameRequest extends ItemRequest {
 
 export const INITIAL_VIDEO_GAME: VideoGameRequest = {
   ...INITIAL_ITEM,
-  platform: "PC",
-  releaseDate: "",
+  loanAvailable: false,
+  platform: null as unknown as Platform,
+  releaseDate: new Date().toISOString().split("T")[0],
   trailerUrl: "",
 };
 

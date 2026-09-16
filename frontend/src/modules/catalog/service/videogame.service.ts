@@ -1,8 +1,8 @@
-import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
+import { authHeaders, fetchWithTimeout, handleResponse, removeEmptyFields } from "@/modules/core/utils/utils";
 
 import { VIDEOGAME_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
-import type { VideoGame } from "../types/videogame";
+import type { VideoGame, VideoGameRequest } from "../types/videogame";
 
 export async function fetchAllVideoGames(
   page: number = 0,
@@ -26,4 +26,26 @@ export async function fetchAllVideoGames(
   );
 
   return handleResponse<Paginated<VideoGame>>(res);
+}
+
+export async function createVideoGame(request: VideoGameRequest, image: File | null, token: string): Promise<VideoGame> {
+  const formData = new FormData();
+  formData.append(
+    "item",
+    new Blob([JSON.stringify(removeEmptyFields(request))], {
+      type: "application/json",
+    }),
+  );
+
+  if (image) {
+    formData.append("image", image);
+  }
+
+  const res = await fetchWithTimeout(VIDEOGAME_ROUTES.GET_ALL, {
+    method: "POST",
+    headers: {...authHeaders(token)},
+    body: formData,
+  });
+
+  return handleResponse<VideoGame>(res);
 }

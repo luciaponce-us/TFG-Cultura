@@ -35,7 +35,7 @@ export function CategoriesSelect<T extends ItemRequest | RolSagaRequest>({
       label="Categorías"
       name="categories"
       options={categoriesOptions}
-      placeholder="Selecciona las categorías del libro"
+      placeholder="Selecciona las categorías del ítem"
       onValueChange={handleCategoriesChange}
       value={form.categoriesIds || []}
       loading={isCategoriesLoading}

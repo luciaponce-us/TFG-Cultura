@@ -53,7 +53,7 @@ export const INITIAL_ITEM: ItemRequest = {
   comments: "",
   loanAvailable: true,
   publicated: true,
-  purchasedAt: "",
+  purchasedAt: new Date().toISOString().split("T")[0],
   price: 0,
   copies: 1,
   availableCopies: 1,

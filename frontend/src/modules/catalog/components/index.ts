@@ -5,3 +5,4 @@ export { CreateMovieDialog } from "./CreateMovieDialog";
 export { CreateSeriesDialog } from "./CreateSeriesDialog";
 export { CreateBoardGameDialog } from "./CreateBoardGameDialog";
 export { CreateRolGameDialog } from "./CreateRolGameDialog";
+export { CreateVideoGameDialog } from "./CreateVideoGameDialog";
