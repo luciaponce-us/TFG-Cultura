@@ -107,3 +107,10 @@ export const INITIAL_ITEM_ERRORS: ItemErrors = {
   sectionId: "",
   categoriesIds: "",
 };
+
+export interface ItemRoutes {
+  BASE: string;
+  GET_ALL_BY_TYPE?: (types: string[]) => string;
+  GET_BY_ID: (id: string) => string;
+  GET_BY_SAGA_ID?: (sagaId: string) => string;
+}

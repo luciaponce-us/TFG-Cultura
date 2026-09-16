@@ -10,7 +10,7 @@ import type { Saga } from "../types/saga";
 import { SAGA_ROUTES } from "../routes";
 
 export async function fetchAllSagas(): Promise<Saga[]> {
-  const res = await fetchWithTimeout(SAGA_ROUTES.GET_ALL, {
+  const res = await fetchWithTimeout(SAGA_ROUTES.BASE, {
     method: "GET",
   });
 
@@ -18,7 +18,7 @@ export async function fetchAllSagas(): Promise<Saga[]> {
 }
 
 export async function createSaga(token: string, name: string): Promise<Saga> {
-  const res = await fetchWithTimeout(SAGA_ROUTES.GET_ALL, {
+  const res = await fetchWithTimeout(SAGA_ROUTES.BASE, {
     method: "POST",
     headers: { ...jsonHeaders, ...authHeaders(token) },
     body: name,

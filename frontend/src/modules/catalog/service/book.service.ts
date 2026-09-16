@@ -1,12 +1,11 @@
 import {
   fetchWithTimeout,
-  handleResponse,
-  authHeaders,
-  removeEmptyFields,
+  handleResponse
 } from "@/modules/core/utils/utils";
 import type { Book, BookRequest, BookType } from "../types/book";
 import { BOOK_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
+import { createItem } from "./item.service";
 
 export async function fetchAllBooks(
   page: number = 0,
@@ -37,24 +36,10 @@ export async function createBook(
   book: BookRequest,
   image: File | null,
 ): Promise<Book> {
-  const formData = new FormData();
-
-  formData.append(
-    "item",
-    new Blob([JSON.stringify(removeEmptyFields(book))], {
-      type: "application/json",
-    }),
+  return createItem<Book, BookRequest>(
+    BOOK_ROUTES,
+    token,
+    book,
+    image
   );
-
-  if (image) {
-    formData.append("image", image);
-  }
-
-  const res = await fetchWithTimeout(BOOK_ROUTES.GET_ALL, {
-    method: "POST",
-    headers: token ? authHeaders(token) : {},
-    body: formData,
-  });
-
-  return handleResponse<Book>(res);
 }

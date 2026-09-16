@@ -13,7 +13,7 @@ export async function fetchAllRolSagas(
   size: number = 10,
 ): Promise<Paginated<RolSaga>> {
   const queryParams = `?page=${page}&size=${size}`;
-  const res = await fetchWithTimeout(ROL_SAGA_ROUTES.GET_ALL + queryParams, {
+  const res = await fetchWithTimeout(ROL_SAGA_ROUTES.BASE + queryParams, {
     method: "GET",
   });
   return handleResponse<Paginated<RolSaga>>(res);
@@ -45,7 +45,7 @@ export async function createRolSaga(
     formData.append("image", image);
   }
 
-  const res = await fetchWithTimeout(ROL_SAGA_ROUTES.GET_ALL, {
+  const res = await fetchWithTimeout(ROL_SAGA_ROUTES.BASE, {
     method: "POST",
     headers: {
       ...authHeaders(token),

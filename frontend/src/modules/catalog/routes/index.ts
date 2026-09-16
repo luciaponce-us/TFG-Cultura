@@ -1,44 +1,52 @@
 import { API_BASE_URL } from "@/modules/core/utils/utils";
+import type { ItemRoutes } from "../types";
 
-export const BOOK_ROUTES = {
-  GET_ALL: `${API_BASE_URL}/api/catalog/books`,
+interface BookRoutes extends ItemRoutes {
+  GET_ALL_BY_TYPE: (types: string[]) => string;
+}
+
+export const BOOK_ROUTES: BookRoutes = {
+  BASE: `${API_BASE_URL}/api/catalog/books`,
   GET_ALL_BY_TYPE: (types: string[]) =>
     `${API_BASE_URL}/api/catalog/books/types/${types.join(",")}`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/books/${id}`,
 };
 
 export const SAGA_ROUTES = {
-  GET_ALL: `${API_BASE_URL}/api/catalog/sagas`,
+  BASE: `${API_BASE_URL}/api/catalog/sagas`,
 };
 
-export const MOVIE_ROUTES = {
-  GET_ALL: `${API_BASE_URL}/api/catalog/movies`,
+export const MOVIE_ROUTES : ItemRoutes = {
+  BASE: `${API_BASE_URL}/api/catalog/movies`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/movies/${id}`,
 };
 
-export const SERIES_ROUTES = {
-  GET_ALL: `${API_BASE_URL}/api/catalog/series`,
+export const SERIES_ROUTES : ItemRoutes = {
+  BASE: `${API_BASE_URL}/api/catalog/series`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/series/${id}`,
 };
-
-export const BOARDGAME_ROUTES = {
-  GET_ALL: `${API_BASE_URL}/api/catalog/board-games`,
+export const BOARDGAME_ROUTES : ItemRoutes = {
+  BASE: `${API_BASE_URL}/api/catalog/board-games`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/board-games/${id}`,
 };
 
-export const ROLGAME_ROUTES = {
-  GET_ALL: `${API_BASE_URL}/api/catalog/rol-games`,
+interface RolGameRoutes extends ItemRoutes {
+  GET_BY_SAGA_ID: (sagaId: string) => string;
+}
+
+export const ROLGAME_ROUTES : RolGameRoutes = {
+  BASE: `${API_BASE_URL}/api/catalog/rol-games`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/rol-games/${id}`,
   GET_BY_SAGA_ID: (sagaId: string) =>
     `${API_BASE_URL}/api/catalog/rol-games/saga/${sagaId}`,
 };
 
 export const ROL_SAGA_ROUTES = {
-  GET_ALL: `${API_BASE_URL}/api/catalog/rol-sagas`,
+  BASE: `${API_BASE_URL}/api/catalog/rol-sagas`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/rol-sagas/${id}`,
 };
 
-export const VIDEOGAME_ROUTES = {
-  GET_ALL: `${API_BASE_URL}/api/catalog/videogames`,
+export const VIDEOGAME_ROUTES : ItemRoutes = {
+  BASE: `${API_BASE_URL}/api/catalog/videogames`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/videogames/${id}`,
 };

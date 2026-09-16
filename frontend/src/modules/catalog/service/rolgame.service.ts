@@ -1,12 +1,11 @@
 import {
-  authHeaders,
   fetchWithTimeout,
   handleResponse,
-  removeEmptyFields,
 } from "@/modules/core/utils/utils";
 
 import { ROLGAME_ROUTES } from "../routes";
 import type { RolGame, RolGameRequest } from "../types/rolgame";
+import { createItem } from "./item.service";
 
 export async function fetchAllRolGamesBySagaId(
   sagaId: string,
@@ -23,24 +22,10 @@ export async function createRolGame(
   rolGame: RolGameRequest,
   image: File | null,
 ): Promise<RolGame> {
-  const formData = new FormData();
-
-  formData.append(
-    "item",
-    new Blob([JSON.stringify(removeEmptyFields(rolGame))], {
-      type: "application/json",
-    }),
+  return createItem<RolGame, RolGameRequest>(
+    ROLGAME_ROUTES,
+    token,
+    rolGame,
+    image
   );
-
-  if (image) {
-    formData.append("image", image);
-  }
-
-  const res = await fetchWithTimeout(ROLGAME_ROUTES.GET_ALL, {
-    method: "POST",
-    headers: authHeaders(token),
-    body: formData,
-  });
-
-  return handleResponse<RolGame>(res);
 }
