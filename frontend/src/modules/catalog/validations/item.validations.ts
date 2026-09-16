@@ -6,9 +6,7 @@ export const MAX_LENGTH = {
   COMMENTS: 280,
 };
 
-export function validateItemForm(
-  form: ItemRequest
-): ItemErrors {
+export function validateItemForm(form: ItemRequest): ItemErrors {
   return {
     name: validateName(form.name),
     description: validateDescription(form.description),

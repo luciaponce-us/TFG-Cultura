@@ -83,174 +83,177 @@ export function CreateRolGameDialog({
   }
 
   return (
-      <FormDialog
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        title="Crear juego de rol"
-        handleSubmit={async () => await handleSubmit()}
-        submitButtonText="Crear"
+    <FormDialog
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      title="Crear juego de rol"
+      handleSubmit={async () => await handleSubmit()}
+      submitButtonText="Crear"
+    >
+      <HStack
+        align="stretch"
+        w="100%"
+        maxW="100%"
+        maxH="200px"
+        mb={image ? "60px" : ""}
       >
-        <HStack
-          align="stretch"
-          w="100%"
-          maxW="100%"
-          maxH="200px"
-          mb={image ? "60px" : ""}
-        >
-          <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
-            <Image
-              src={image ? URL.createObjectURL(image) : BOOK_PLACEHOLDER}
-              alt="Foto del juego de rol"
-              w="100%"
-              h="100%"
-              objectFit="cover"
-              borderRadius="md"
-            />
-          </Box>
-          <VStack flex={1} minW={0}>
-            <UploadBox
-              text={
-                <>
-                  Arrastra la <b>foto del juego de rol</b>
-                </>
-              }
-              secondaryText="JPG o PNG, tamaño no superior a 2MB"
-              fileType="image/*"
-              onFileChange={setImage}
-              disabled={submitting}
-            />
-          </VStack>
-        </HStack>
-        <CustomInput
-          label="Nombre del libro"
-          name="name"
-          placeholder="Introduce el nombre del libro del juego de rol..."
-          required
-          error={errors.name ?? ""}
-          onChange={(e) => handleChange(e, form, setErrors, setForm)}
-          maxLength={MAX_LENGTH.NAME}
-        />
-
-        <CustomSelect
-            label="Saga"
-            options={rolSaga ? [{ value: rolSaga.id, label: rolSaga.name }] : []}
-            placeholder="Cargando..."
-            defaultValue={[form?.sagaId]}
-            disabled
-            required
+        <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
+          <Image
+            src={image ? URL.createObjectURL(image) : BOOK_PLACEHOLDER}
+            alt="Foto del juego de rol"
+            w="100%"
+            h="100%"
+            objectFit="cover"
+            borderRadius="md"
           />
-          <TextSecondary>La saga se asignará automáticamente según la página en la que te encuentres.</TextSecondary>
-
-        <CustomSelect
-          label="Tipo de libro del juego de rol"
-          name="type"
-          options={ROL_BOOK_TYPES_OPTIONS}
-          onValueChange={handleTypeChange}
-          placeholder="Selecciona el tipo de libro de juego de rol"
-          defaultValue={[form?.type]}
-        />
-
-        <CustomInput
-          label="Descripción"
-          name="description"
-          placeholder="Introduce la descripción del libro del juego de rol..."
-          error={errors.description ?? ""}
-          onChange={(e) => handleChange(e, form, setErrors, setForm)}
-          textarea
-          maxInputHeight="125px"
-          maxLength={MAX_LENGTH.DESCRIPTION}
-        />
-
-        <Separator />
-        <Heading as="h2" size="md" mt={4}>
-          {" "}
-          Estado de conservación y disponibilidad{" "}
-        </Heading>
-
-        <CustomSelect
-          label="Estado de conservación"
-          name="condition"
-          options={ITEM_CONDITIONS_OPTIONS}
-          placeholder="Introduce el estado de conservación del libro"
-          required
-          error={errors.condition ?? ""}
-          onValueChange={handleConditionChange}
-          defaultValue={[form?.condition]}
-        />
-
-        <CustomInput
-          label="Comentarios"
-          name="comments"
-          placeholder="Añade comentarios sobre el estado de conservación del libro"
-          textarea
-          maxInputHeight="125px"
-          maxLength={MAX_LENGTH.COMMENTS}
-        />
-
-        <CustomSwitch
-          checked={form.loanAvailable}
-          onChange={(checked) => {
-            setForm((prev) => ({ ...prev, loanAvailable: checked }));
-          }}
-          label="Disponible para préstamo"
-        />
-
-        <CustomSwitch
-          checked={form.publicated}
-          onChange={(checked) => {
-            setForm((prev) => ({ ...prev, publicated: checked }));
-          }}
-          label="Visible en el catálogo"
-        />
-
-        <Separator />
-
-        <Heading as="h2" size="md" mt={4}>
-          {" "}
-          Información sobre la compra{" "}
-        </Heading>
-
-        <CustomDateInput
-          label="Fecha de compra"
-          value={form.purchasedAt}
-          error={errors.purchasedAt ?? ""}
-          onChange={(e) => setForm((prev) => ({ ...prev, purchasedAt: e }))}
-          acceptsFutureDates={false}
-        />
-
-        <HStack>
-          <CustomNumberInput
-            label="Número de copias"
-            defaultValue={form.copies}
-            min={1}
-            max={10}
-            required
-            onChange={(value: number) => {
-              setForm((prev) => ({
-                ...prev,
-                copies: value,
-                availableCopies: value,
-              }));
-            }}
-          />
-
-          <CustomNumberInput
-            label="Precio de compra"
-            defaultValue={form.price}
-            min={0}
-            max={1000}
-            step={0.01}
-            allowMouseWheel
+        </Box>
+        <VStack flex={1} minW={0}>
+          <UploadBox
+            text={
+              <>
+                Arrastra la <b>foto del juego de rol</b>
+              </>
+            }
+            secondaryText="JPG o PNG, tamaño no superior a 2MB"
+            fileType="image/*"
+            onFileChange={setImage}
             disabled={submitting}
-            onChange={(value: number) => {
-              setForm((prev) => ({
-                ...prev,
-                price: value,
-              }));
-            }}
-            isEuros
           />
-        </HStack>
-      </FormDialog>
+        </VStack>
+      </HStack>
+      <CustomInput
+        label="Nombre del libro"
+        name="name"
+        placeholder="Introduce el nombre del libro del juego de rol..."
+        required
+        error={errors.name ?? ""}
+        onChange={(e) => handleChange(e, form, setErrors, setForm)}
+        maxLength={MAX_LENGTH.NAME}
+      />
+
+      <CustomSelect
+        label="Saga"
+        options={rolSaga ? [{ value: rolSaga.id, label: rolSaga.name }] : []}
+        placeholder="Cargando..."
+        defaultValue={[form?.sagaId]}
+        disabled
+        required
+      />
+      <TextSecondary>
+        La saga se asignará automáticamente según la página en la que te
+        encuentres.
+      </TextSecondary>
+
+      <CustomSelect
+        label="Tipo de libro del juego de rol"
+        name="type"
+        options={ROL_BOOK_TYPES_OPTIONS}
+        onValueChange={handleTypeChange}
+        placeholder="Selecciona el tipo de libro de juego de rol"
+        defaultValue={[form?.type]}
+      />
+
+      <CustomInput
+        label="Descripción"
+        name="description"
+        placeholder="Introduce la descripción del libro del juego de rol..."
+        error={errors.description ?? ""}
+        onChange={(e) => handleChange(e, form, setErrors, setForm)}
+        textarea
+        maxInputHeight="125px"
+        maxLength={MAX_LENGTH.DESCRIPTION}
+      />
+
+      <Separator />
+      <Heading as="h2" size="md" mt={4}>
+        {" "}
+        Estado de conservación y disponibilidad{" "}
+      </Heading>
+
+      <CustomSelect
+        label="Estado de conservación"
+        name="condition"
+        options={ITEM_CONDITIONS_OPTIONS}
+        placeholder="Introduce el estado de conservación del libro"
+        required
+        error={errors.condition ?? ""}
+        onValueChange={handleConditionChange}
+        defaultValue={[form?.condition]}
+      />
+
+      <CustomInput
+        label="Comentarios"
+        name="comments"
+        placeholder="Añade comentarios sobre el estado de conservación del libro"
+        textarea
+        maxInputHeight="125px"
+        maxLength={MAX_LENGTH.COMMENTS}
+      />
+
+      <CustomSwitch
+        checked={form.loanAvailable}
+        onChange={(checked) => {
+          setForm((prev) => ({ ...prev, loanAvailable: checked }));
+        }}
+        label="Disponible para préstamo"
+      />
+
+      <CustomSwitch
+        checked={form.publicated}
+        onChange={(checked) => {
+          setForm((prev) => ({ ...prev, publicated: checked }));
+        }}
+        label="Visible en el catálogo"
+      />
+
+      <Separator />
+
+      <Heading as="h2" size="md" mt={4}>
+        {" "}
+        Información sobre la compra{" "}
+      </Heading>
+
+      <CustomDateInput
+        label="Fecha de compra"
+        value={form.purchasedAt}
+        error={errors.purchasedAt ?? ""}
+        onChange={(e) => setForm((prev) => ({ ...prev, purchasedAt: e }))}
+        acceptsFutureDates={false}
+      />
+
+      <HStack>
+        <CustomNumberInput
+          label="Número de copias"
+          defaultValue={form.copies}
+          min={1}
+          max={10}
+          required
+          onChange={(value: number) => {
+            setForm((prev) => ({
+              ...prev,
+              copies: value,
+              availableCopies: value,
+            }));
+          }}
+        />
+
+        <CustomNumberInput
+          label="Precio de compra"
+          defaultValue={form.price}
+          min={0}
+          max={1000}
+          step={0.01}
+          allowMouseWheel
+          disabled={submitting}
+          onChange={(value: number) => {
+            setForm((prev) => ({
+              ...prev,
+              price: value,
+            }));
+          }}
+          isEuros
+        />
+      </HStack>
+    </FormDialog>
   );
 }
