@@ -6,13 +6,18 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class VideoGameRequest extends ItemRequest {
 
 	@NotNull(message = "La plataforma es obligatoria")
