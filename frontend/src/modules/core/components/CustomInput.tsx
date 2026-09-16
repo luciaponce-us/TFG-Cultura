@@ -17,6 +17,7 @@ interface InputFieldProps {
   defaultValue?: string;
   textarea?: boolean;
   maxInputHeight?: string;
+  disabled?: boolean;
 }
 
 export const CustomInput = ({
@@ -32,6 +33,7 @@ export const CustomInput = ({
   defaultValue,
   textarea = false,
   maxInputHeight,
+  disabled = false,
 }: InputFieldProps) => {
   const [show, setShow] = useState(false);
   const [length, setLength] = useState(defaultValue?.length ?? 0);
@@ -50,6 +52,7 @@ export const CustomInput = ({
     focusRingColor: "principal.600",
     defaultValue,
     maxLength,
+    disabled,
   };
   return (
     <Field.Root invalid={!!error} required={required}>

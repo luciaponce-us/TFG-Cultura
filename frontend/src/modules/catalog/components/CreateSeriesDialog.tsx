@@ -18,7 +18,6 @@ import {
   CustomInput,
   CustomNumberInput,
   CustomSelect,
-  CustomSwitch,
   FormDialog,
   UploadBox,
   toaster,
@@ -28,7 +27,6 @@ import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import { useCreateSeries } from "../hooks";
 import { FORMATS_OPTIONS } from "../types/movie";
-import { ITEM_CONDITIONS_OPTIONS } from "../types";
 import {
   INITIAL_SERIES,
   INITIAL_SERIES_ERRORS,
@@ -41,6 +39,7 @@ import {
   MAX_LENGTH as MAX_LENGTH_SERIES,
   validateSeriesForm,
 } from "../validations/series.validations";
+import { AdminItemInfoForm } from "./AdminItemInfoForm";
 
 const SERIES_PLACEHOLDER =
   "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/movie_placeholder.jpg";
@@ -69,8 +68,6 @@ export function CreateSeriesDialog({
     handleSelectChange(value, "format", form, setErrors, setForm);
   const handleStatusChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "status", form, setErrors, setForm);
-  const handleConditionChange = ({ value }: { value: string[] }) =>
-    handleSelectChange(value, "condition", form, setErrors, setForm);
 
   function addSeason() {
     setForm((previous) => ({
@@ -325,84 +322,13 @@ export function CreateSeriesDialog({
         />
 
         <Separator />
-        <Heading as="h2" size="md" mt={4}>
-          Estado de conservación y disponibilidad
-        </Heading>
-        <CustomSelect
-          label="Estado de conservación"
-          name="condition"
-          options={ITEM_CONDITIONS_OPTIONS}
-          onValueChange={handleConditionChange}
-          placeholder="Selecciona el estado de conservación"
-          value={[form.condition]}
-          error={errors.condition ?? ""}
-          required
+        <AdminItemInfoForm
+          form={form}
+          setForm={setForm}
+          errors={errors}
+          setErrors={setErrors}
+          loading={submitting}
         />
-        <CustomInput
-          label="Comentarios"
-          name="comments"
-          placeholder="Añade comentarios sobre el estado de conservación"
-          textarea
-          maxInputHeight="125px"
-          maxLength={MAX_LENGTH_ITEM.COMMENTS}
-          onChange={(event) => handleChange(event, form, setErrors, setForm)}
-        />
-        <CustomSwitch
-          checked={form.loanAvailable}
-          onChange={(checked) =>
-            setForm((previous) => ({ ...previous, loanAvailable: checked }))
-          }
-          label="Disponible para préstamo"
-        />
-        <CustomSwitch
-          checked={form.publicated}
-          onChange={(checked) =>
-            setForm((previous) => ({ ...previous, publicated: checked }))
-          }
-          label="Visible en el catálogo"
-        />
-        <Separator />
-        <Heading as="h2" size="md" mt={4}>
-          Información sobre la compra
-        </Heading>
-        <CustomDateInput
-          label="Fecha de compra"
-          value={form.purchasedAt}
-          error={errors.purchasedAt ?? ""}
-          onChange={(value) =>
-            setForm((previous) => ({ ...previous, purchasedAt: value }))
-          }
-          acceptsFutureDates={false}
-        />
-        <HStack>
-          <CustomNumberInput
-            label="Número de copias"
-            defaultValue={form.copies}
-            min={1}
-            max={10}
-            required
-            onChange={(value: number) =>
-              setForm((previous) => ({
-                ...previous,
-                copies: value,
-                availableCopies: value,
-              }))
-            }
-          />
-          <CustomNumberInput
-            label="Precio de compra"
-            defaultValue={form.price}
-            min={0}
-            max={1000}
-            step={0.01}
-            allowMouseWheel
-            disabled={submitting}
-            onChange={(value: number) =>
-              setForm((previous) => ({ ...previous, price: value }))
-            }
-            isEuros
-          />
-        </HStack>
       </FormDialog>
       <CreateCategoryDialog
         isOpen={categoryDialogOpen}

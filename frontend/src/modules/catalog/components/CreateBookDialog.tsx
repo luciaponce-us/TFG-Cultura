@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { BookErrors, BookRequest } from "../types/book";
-import { ITEM_CONDITIONS_OPTIONS } from "../types";
 import {
   BOOK_TYPES_OPTIONS,
   INITIAL_BOOK,
@@ -9,7 +8,6 @@ import {
 import { useCreateBook } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import {
-  Heading,
   HStack,
   Separator,
   VStack,
@@ -19,9 +17,6 @@ import {
 import {
   CustomInput,
   CustomSelect,
-  CustomSwitch,
-  CustomNumberInput,
-  CustomDateInput,
   FormDialog,
   UploadBox,
 } from "@/modules/core/components";
@@ -37,6 +32,7 @@ import {
   CreateCategoryDialog,
 } from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
+import { AdminItemInfoForm } from "./AdminItemInfoForm";
 
 const BOOK_PLACEHOLDER =
   "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/book_placeholder.jpg";
@@ -66,9 +62,6 @@ export function CreateBookDialog({
 
   const handleTypeChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "type", form, setErrors, setForm);
-
-  const handleConditionChange = ({ value }: { value: string[] }) =>
-    handleSelectChange(value, "condition", form, setErrors, setForm);
 
   async function handleSubmit() {
     const errors = validateBookForm(form);
@@ -200,95 +193,13 @@ export function CreateBookDialog({
         />
 
         <Separator />
-        <Heading as="h2" size="md" mt={4}>
-          {" "}
-          Estado de conservación y disponibilidad{" "}
-        </Heading>
-
-        <CustomSelect
-          label="Estado de conservación"
-          name="condition"
-          options={ITEM_CONDITIONS_OPTIONS}
-          placeholder="Introduce el estado de conservación del libro"
-          required
-          error={errors.condition ?? ""}
-          onValueChange={handleConditionChange}
-          defaultValue={[form?.condition]}
+        <AdminItemInfoForm
+          form={form}
+          setForm={setForm}
+          errors={errors}
+          setErrors={setErrors}
+          loading={submitting}
         />
-
-        <CustomInput
-          label="Comentarios"
-          name="comments"
-          placeholder="Añade comentarios sobre el estado de conservación del libro"
-          textarea
-          maxInputHeight="125px"
-          maxLength={MAX_LENGTH_ITEM.COMMENTS}
-        />
-
-        <CustomSwitch
-          checked={form.loanAvailable}
-          onChange={(checked) => {
-            setForm((prev) => ({ ...prev, loanAvailable: checked }));
-          }}
-          label="Disponible para préstamo"
-        />
-
-        <CustomSwitch
-          checked={form.publicated}
-          onChange={(checked) => {
-            setForm((prev) => ({ ...prev, publicated: checked }));
-          }}
-          label="Visible en el catálogo"
-        />
-
-        <Separator />
-
-        <Heading as="h2" size="md" mt={4}>
-          {" "}
-          Información sobre la compra{" "}
-        </Heading>
-
-        <CustomDateInput
-          label="Fecha de compra"
-          value={form.purchasedAt}
-          error={errors.purchasedAt ?? ""}
-          onChange={(e) => setForm((prev) => ({ ...prev, purchasedAt: e }))}
-          acceptsFutureDates={false}
-        />
-
-        <HStack>
-          <CustomNumberInput
-            label="Número de copias"
-            defaultValue={form.copies}
-            min={1}
-            max={10}
-            required
-            onChange={(value: number) => {
-              setForm((prev) => ({
-                ...prev,
-                copies: value,
-                availableCopies: value,
-              }));
-            }}
-          />
-
-          <CustomNumberInput
-            label="Precio de compra"
-            defaultValue={form.price}
-            min={0}
-            max={1000}
-            step={0.01}
-            allowMouseWheel
-            disabled={submitting}
-            onChange={(value: number) => {
-              setForm((prev) => ({
-                ...prev,
-                price: value,
-              }));
-            }}
-            isEuros
-          />
-        </HStack>
       </FormDialog>
       <CreateSagaDialog
         isOpen={sagaDialogOpen}

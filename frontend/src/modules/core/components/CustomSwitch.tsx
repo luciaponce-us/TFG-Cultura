@@ -4,10 +4,12 @@ export function CustomSwitch({
   checked,
   onChange,
   label,
+  disabled = false,
 }: {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label: string;
+  disabled?: boolean;
 }) {
   return (
     <Switch.Root
@@ -17,6 +19,7 @@ export function CustomSwitch({
       }}
       size="md"
       mt={2}
+      disabled={disabled}
     >
       <Switch.HiddenInput />
 

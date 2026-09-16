@@ -5,11 +5,9 @@ import {
   INITIAL_MOVIE,
   INITIAL_MOVIE_ERRORS,
 } from "../types/movie";
-import { ITEM_CONDITIONS_OPTIONS } from "../types";
 import { useCreateMovie } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import {
-  Heading,
   HStack,
   Separator,
   VStack,
@@ -19,7 +17,6 @@ import {
 import {
   CustomInput,
   CustomSelect,
-  CustomSwitch,
   CustomNumberInput,
   CustomDateInput,
   FormDialog,
@@ -37,6 +34,7 @@ import {
   CreateCategoryDialog,
 } from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
+import { AdminItemInfoForm } from "./AdminItemInfoForm";
 
 const MOVIE_PLACEHOLDER =
   "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/movie_placeholder.jpg";
@@ -64,8 +62,6 @@ export function CreateMovieDialog({
 
   const handleFormatChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "format", form, setErrors, setForm);
-  const handleConditionChange = ({ value }: { value: string[] }) =>
-    handleSelectChange(value, "condition", form, setErrors, setForm);
 
   async function handleSubmit() {
     const validationErrors = validateMovieForm(form);
@@ -199,84 +195,13 @@ export function CreateMovieDialog({
         />
 
         <Separator />
-        <Heading as="h2" size="md" mt={4}>
-          Estado de conservación y disponibilidad
-        </Heading>
-        <CustomSelect
-          label="Estado de conservación"
-          name="condition"
-          options={ITEM_CONDITIONS_OPTIONS}
-          placeholder="Introduce el estado de conservación de la película"
-          required
-          error={errors.condition ?? ""}
-          onValueChange={handleConditionChange}
-          value={[form.condition]}
+        <AdminItemInfoForm
+          form={form}
+          setForm={setForm}
+          errors={errors}
+          setErrors={setErrors}
+          loading={submitting}
         />
-        <CustomInput
-          label="Comentarios"
-          name="comments"
-          placeholder="Añade comentarios sobre el estado de conservación"
-          textarea
-          maxInputHeight="125px"
-          maxLength={MAX_LENGTH_ITEM.COMMENTS}
-          onChange={(e) => handleChange(e, form, setErrors, setForm)}
-        />
-        <CustomSwitch
-          checked={form.loanAvailable}
-          onChange={(checked) =>
-            setForm((prev) => ({ ...prev, loanAvailable: checked }))
-          }
-          label="Disponible para préstamo"
-        />
-        <CustomSwitch
-          checked={form.publicated}
-          onChange={(checked) =>
-            setForm((prev) => ({ ...prev, publicated: checked }))
-          }
-          label="Visible en el catálogo"
-        />
-        <Separator />
-        <Heading as="h2" size="md" mt={4}>
-          Información sobre la compra
-        </Heading>
-        <CustomDateInput
-          label="Fecha de compra"
-          value={form.purchasedAt}
-          error={errors.purchasedAt ?? ""}
-          onChange={(value) =>
-            setForm((prev) => ({ ...prev, purchasedAt: value }))
-          }
-          acceptsFutureDates={false}
-        />
-        <HStack>
-          <CustomNumberInput
-            label="Número de copias"
-            defaultValue={form.copies}
-            min={1}
-            max={10}
-            required
-            onChange={(value: number) =>
-              setForm((prev) => ({
-                ...prev,
-                copies: value,
-                availableCopies: value,
-              }))
-            }
-          />
-          <CustomNumberInput
-            label="Precio de compra"
-            defaultValue={form.price}
-            min={0}
-            max={1000}
-            step={0.01}
-            allowMouseWheel
-            disabled={submitting}
-            onChange={(value: number) =>
-              setForm((prev) => ({ ...prev, price: value }))
-            }
-            isEuros
-          />
-        </HStack>
       </FormDialog>
       <CreateSagaDialog
         isOpen={sagaDialogOpen}

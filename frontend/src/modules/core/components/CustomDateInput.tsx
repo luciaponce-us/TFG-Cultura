@@ -11,12 +11,14 @@ export function CustomDateInput({
   value,
   onChange,
   acceptsFutureDates = true,
+  disabled = false,
 }: {
   label: string;
   error?: string;
   value: string;
   onChange: (value: string) => void;
   acceptsFutureDates?: boolean;
+  disabled?: boolean;
 }) {
   const dateValue: DateValue[] | undefined = value
     ? [parseDate(value)]
@@ -61,6 +63,7 @@ export function CustomDateInput({
         defaultValue={todayDateValue}
         onValueChange={handleValueChange}
         locale="es-ES"
+        disabled={disabled}
         invalid={!!error || !validateDate(dateValue?.[0] ?? null)}
       >
         <DateInput.Label>{label}</DateInput.Label>
