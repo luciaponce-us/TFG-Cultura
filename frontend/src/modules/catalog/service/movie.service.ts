@@ -14,7 +14,7 @@ export async function fetchAllMovies(
     page,
     size,
     nameContains,
-    categories
+    categories,
   );
 }
 
@@ -23,10 +23,5 @@ export async function createMovie(
   movie: MovieRequest,
   image: File | null,
 ): Promise<Movie> {
-  return createItem<Movie, MovieRequest>(
-    MOVIE_ROUTES,
-    token,
-    movie,
-    image
-  );
+  return createItem<Movie, MovieRequest>(MOVIE_ROUTES, token, movie, image);
 }

@@ -24,12 +24,9 @@ export async function fetchAllItems<T extends Item>(
     queryParams += `&categories=${categories.join(",")}`;
   }
 
-  const res = await fetchWithTimeout(
-    `${routes.BASE}${queryParams}`,
-    {
-      method: "GET",
-    },
-  );
+  const res = await fetchWithTimeout(`${routes.BASE}${queryParams}`, {
+    method: "GET",
+  });
 
   return handleResponse<Paginated<T>>(res);
 }

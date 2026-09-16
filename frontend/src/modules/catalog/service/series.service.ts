@@ -9,7 +9,13 @@ export async function fetchAllSeries(
   nameContains?: string,
   categories?: string[],
 ): Promise<Paginated<Series>> {
-  return fetchAllItems<Series>(SERIES_ROUTES, page, size, nameContains, categories);
+  return fetchAllItems<Series>(
+    SERIES_ROUTES,
+    page,
+    size,
+    nameContains,
+    categories,
+  );
 }
 
 export async function createSeries(
@@ -17,10 +23,5 @@ export async function createSeries(
   series: SeriesRequest,
   image: File | null,
 ): Promise<Series> {
-  return createItem<Series, SeriesRequest>(
-    SERIES_ROUTES,
-    token,
-    series,
-    image
-  );
+  return createItem<Series, SeriesRequest>(SERIES_ROUTES, token, series, image);
 }

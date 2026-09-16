@@ -16,16 +16,16 @@ export const SAGA_ROUTES = {
   BASE: `${API_BASE_URL}/api/catalog/sagas`,
 };
 
-export const MOVIE_ROUTES : ItemRoutes = {
+export const MOVIE_ROUTES: ItemRoutes = {
   BASE: `${API_BASE_URL}/api/catalog/movies`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/movies/${id}`,
 };
 
-export const SERIES_ROUTES : ItemRoutes = {
+export const SERIES_ROUTES: ItemRoutes = {
   BASE: `${API_BASE_URL}/api/catalog/series`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/series/${id}`,
 };
-export const BOARDGAME_ROUTES : ItemRoutes = {
+export const BOARDGAME_ROUTES: ItemRoutes = {
   BASE: `${API_BASE_URL}/api/catalog/board-games`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/board-games/${id}`,
 };
@@ -34,7 +34,7 @@ interface RolGameRoutes extends ItemRoutes {
   GET_BY_SAGA_ID: (sagaId: string) => string;
 }
 
-export const ROLGAME_ROUTES : RolGameRoutes = {
+export const ROLGAME_ROUTES: RolGameRoutes = {
   BASE: `${API_BASE_URL}/api/catalog/rol-games`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/rol-games/${id}`,
   GET_BY_SAGA_ID: (sagaId: string) =>
@@ -46,7 +46,7 @@ export const ROL_SAGA_ROUTES = {
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/rol-sagas/${id}`,
 };
 
-export const VIDEOGAME_ROUTES : ItemRoutes = {
+export const VIDEOGAME_ROUTES: ItemRoutes = {
   BASE: `${API_BASE_URL}/api/catalog/videogames`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/videogames/${id}`,
 };

@@ -1,7 +1,4 @@
-import {
-  fetchWithTimeout,
-  handleResponse
-} from "@/modules/core/utils/utils";
+import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
 import type { Book, BookRequest, BookType } from "../types/book";
 import { BOOK_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
@@ -36,10 +33,5 @@ export async function createBook(
   book: BookRequest,
   image: File | null,
 ): Promise<Book> {
-  return createItem<Book, BookRequest>(
-    BOOK_ROUTES,
-    token,
-    book,
-    image
-  );
+  return createItem<Book, BookRequest>(BOOK_ROUTES, token, book, image);
 }

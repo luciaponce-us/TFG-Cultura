@@ -1,10 +1,7 @@
 import type { Paginated } from "@/modules/core/types";
 import { BOARDGAME_ROUTES } from "../routes";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
-import {
-  fetchAllItems,
-  createItem,
-} from "./item.service";
+import { fetchAllItems, createItem } from "./item.service";
 
 export async function fetchAllBoardGames(
   page: number = 0,
@@ -17,7 +14,7 @@ export async function fetchAllBoardGames(
     page,
     size,
     nameContains,
-    categories
+    categories,
   );
 }
 
@@ -30,7 +27,6 @@ export async function createBoardGame(
     BOARDGAME_ROUTES,
     token,
     boardGame,
-    image
+    image,
   );
 }
-

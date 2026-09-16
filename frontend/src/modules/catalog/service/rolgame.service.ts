@@ -1,7 +1,4 @@
-import {
-  fetchWithTimeout,
-  handleResponse,
-} from "@/modules/core/utils/utils";
+import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
 
 import { ROLGAME_ROUTES } from "../routes";
 import type { RolGame, RolGameRequest } from "../types/rolgame";
@@ -26,6 +23,6 @@ export async function createRolGame(
     ROLGAME_ROUTES,
     token,
     rolGame,
-    image
+    image,
   );
 }
