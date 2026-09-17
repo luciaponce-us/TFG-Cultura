@@ -5,9 +5,11 @@ import { HStack, Text } from "@chakra-ui/react";
 import { CustomButton } from "@/modules/core/components";
 import { IconPencil } from "@tabler/icons-react";
 import { useState } from "react";
+import { useAuth } from "@/modules/core/context/useAuth";
 
 export function BoardGamesPage() {
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingBoardGameId, setEditingBoardGameId] = useState<string | null>(null);
+  const { isAdmin } = useAuth();
   return (
     <ItemsPage
       getAllHook={useBoardGames}
@@ -28,15 +30,23 @@ export function BoardGamesPage() {
               {item.name}
               {item.isExpansion && ` - Juego base: ${item.baseGame?.name}`}
             </Text>
-            <CustomButton onClick={() => setIsEditOpen(true)}>
-              <IconPencil />
-            </CustomButton>
+            {isAdmin && (
+              <CustomButton onClick={() => setEditingBoardGameId(item.id)}>
+                <IconPencil />
+              </CustomButton>
+            )}
           </HStack>
-          <CreateBoardGameDialog
-            isOpen={isEditOpen}
-            setIsOpen={setIsEditOpen}
-            boardGameId={item.id}
-          />
+          {editingBoardGameId === item.id && editingBoardGameId != undefined && (
+            <CreateBoardGameDialog
+              isOpen={true}
+              setIsOpen={(isOpen) => {
+                if (!isOpen) {
+                  setEditingBoardGameId(null);
+                }
+              }}
+              boardGameId={item.id}
+            />
+          )}
         </>
       )}
     />
