@@ -42,6 +42,7 @@ export function SagaSelect<
       placeholder="Selecciona la saga a la que pertenece el libro"
       onValueChange={handleSagaChange}
       value={form.sagaName ? [form.sagaName] : []}
+      defaultValue={form.sagaName ? [form.sagaName] : []}
       loading={isSagasLoading}
       error={isSagasError ? "Error al cargar las sagas" : null}
       onCreate={onCreateSaga}

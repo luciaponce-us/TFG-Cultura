@@ -38,6 +38,7 @@ export function CategoriesSelect<T extends ItemRequest | RolSagaRequest>({
       placeholder="Selecciona las categorías del ítem"
       onValueChange={handleCategoriesChange}
       value={form.categoriesIds || []}
+      defaultValue={form.categoriesIds || []}
       loading={isCategoriesLoading}
       error={isCategoriesError ? "Error al cargar las categorías" : error}
       multiple

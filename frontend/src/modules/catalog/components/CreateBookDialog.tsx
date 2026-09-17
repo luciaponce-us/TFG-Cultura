@@ -1,11 +1,7 @@
 import { useState } from "react";
-import type { BookErrors, BookRequest } from "../types/book";
-import {
-  BOOK_TYPES_OPTIONS,
-  INITIAL_BOOK,
-  INITIAL_BOOK_ERRORS,
-} from "../types/book";
-import { useCreateBook } from "../hooks";
+import type { BookErrors } from "../types/book";
+import { BOOK_TYPES_OPTIONS, INITIAL_BOOK_ERRORS } from "../types/book";
+import { useCreateBook, useBook, useBookForm } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
 import {
@@ -35,14 +31,18 @@ interface CreateBookDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
   readonly sectionDefaultValue?: string;
+  readonly bookId?: string;
 }
 
 export function CreateBookDialog({
   isOpen,
   setIsOpen,
   sectionDefaultValue,
+  bookId,
 }: CreateBookDialogProps) {
-  const [form, setForm] = useState<BookRequest>(INITIAL_BOOK);
+  console.log("CreateBookDialog rendered with bookId:", bookId);
+  const { data: bookToUpdate } = useBook(bookId);
+  const { form, setForm } = useBookForm(bookId, bookToUpdate);
   const [errors, setErrors] = useState<BookErrors>(INITIAL_BOOK_ERRORS);
   const [image, setImage] = useState<File | null>(null);
   const {
@@ -74,7 +74,7 @@ export function CreateBookDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title="Crear libro"
+        title={bookId ? `Editando "${bookToUpdate?.name || "libro"}"` : "Crear libro"}
         handleSubmit={async () => await handleSubmit()}
         submitButtonText="Crear"
       >
@@ -117,6 +117,7 @@ export function CreateBookDialog({
           error={errors.name ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH_ITEM.NAME}
+          defaultValue={form.name}
         />
 
         <CustomInput
@@ -126,6 +127,7 @@ export function CreateBookDialog({
           required
           error={errors.author ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
+          defaultValue={form.author}
           maxLength={MAX_LENGTH_BOOK.AUTHOR}
         />
 
@@ -152,6 +154,7 @@ export function CreateBookDialog({
           textarea
           maxInputHeight="125px"
           maxLength={MAX_LENGTH_ITEM.DESCRIPTION}
+          defaultValue={form.description}
         />
 
         <CustomSelect
@@ -184,6 +187,7 @@ export function CreateBookDialog({
             );
             handleChange(e, form, setErrors, setForm);
           }}
+          defaultValue={form.isbn}
         />
 
         <Separator />

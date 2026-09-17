@@ -1,5 +1,6 @@
 import type { Item, ItemRequest } from "../types";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
+import type { Book, BookRequest } from "../types/book";
 
 function toRequest(item: Item): ItemRequest {
   return {
@@ -28,5 +29,16 @@ export function toBoardGameRequest(boardGame: BoardGame): BoardGameRequest {
     complexity: boardGame.complexity,
     types: boardGame.types,
     baseGameId: boardGame.baseGame ? boardGame.baseGame.id : undefined,
+  };
+}
+
+export function toBookRequest(book: Book): BookRequest {
+  const itemRequest = toRequest(book);
+  return {
+    ...itemRequest,
+      author: book.author,
+      isbn: book.isbn,
+      type: book.type,
+      sagaName: book.saga? book.saga : undefined,
   };
 }
