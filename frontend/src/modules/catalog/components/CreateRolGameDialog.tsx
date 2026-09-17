@@ -48,14 +48,15 @@ export function CreateRolGameDialog({
   const { form, setForm } = useRolGameForm(itemId, sagaId, rolGameToEdit);
   const [errors, setErrors] = useState<RolGameErrors>(INITIAL_ROL_GAME_ERRORS);
   const [image, setImage] = useState<File | null>(null);
-  const {
-    mutateAsync: createRolGame,
-    isPending: submitting
-  } = useCreateRolGame(form, image, setErrors, setIsOpen);
-  const {
-    mutateAsync: updateRolGame,
-    isPending: updating
-  } = useUpdateRolGame(itemId, form, image, setErrors, setIsOpen);
+  const { mutateAsync: createRolGame, isPending: submitting } =
+    useCreateRolGame(form, image, setErrors, setIsOpen);
+  const { mutateAsync: updateRolGame, isPending: updating } = useUpdateRolGame(
+    itemId,
+    form,
+    image,
+    setErrors,
+    setIsOpen,
+  );
   const loading = submitting || updating;
 
   const { data: rolSaga } = useRolSaga(sagaId);
@@ -67,7 +68,7 @@ export function CreateRolGameDialog({
     validateRolGameForm(form, setErrors);
 
     if (errors != INITIAL_ROL_GAME_ERRORS) return;
-    
+
     if (itemId) {
       await updateRolGame();
     } else {

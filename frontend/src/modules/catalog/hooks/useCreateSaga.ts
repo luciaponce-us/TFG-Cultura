@@ -5,7 +5,9 @@ import { isApiError } from "@/modules/core/utils/utils";
 import { createSaga } from "../service/saga.service";
 import type { Dispatch, SetStateAction } from "react";
 
-export function useCreateSaga(setError: Dispatch<SetStateAction<string | null>>) {
+export function useCreateSaga(
+  setError: Dispatch<SetStateAction<string | null>>,
+) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
 

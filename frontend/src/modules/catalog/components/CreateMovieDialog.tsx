@@ -9,8 +9,15 @@ import {
   CustomSelect,
   FormDialog,
 } from "@/modules/core/components";
-import { handleChange, handleSelectChange, PLACEHOLDER } from "@/modules/core/utils/utils";
-import { CategoriesSelect, CreateCategoryDialog } from "@/modules/categories/components";
+import {
+  handleChange,
+  handleSelectChange,
+  PLACEHOLDER,
+} from "@/modules/core/utils/utils";
+import {
+  CategoriesSelect,
+  CreateCategoryDialog,
+} from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
 
 import {
@@ -30,7 +37,12 @@ import {
   MAX_LENGTH,
   validateMovieForm,
 } from "../validations/movie.validations";
-import { AdminItemInfoForm, CreateSagaDialog, ItemImageInput, SagaSelect } from "./";
+import {
+  AdminItemInfoForm,
+  CreateSagaDialog,
+  ItemImageInput,
+  SagaSelect,
+} from "./";
 
 export function CreateMovieDialog({
   isOpen,
@@ -41,14 +53,19 @@ export function CreateMovieDialog({
   const { form, setForm } = useMovieForm(itemId, movieToUpdate);
   const [errors, setErrors] = useState<MovieErrors>(INITIAL_MOVIE_ERRORS);
   const [image, setImage] = useState<File | null>(null);
-  const {
-    mutateAsync: createMovie,
-    isPending: submitting
-  } = useCreateMovie(form, image, setErrors, setIsOpen);
-  const {
-    mutateAsync: updateMovie,
-    isPending: updating
-  } = useUpdateMovie(itemId, form, image, setErrors, setIsOpen);
+  const { mutateAsync: createMovie, isPending: submitting } = useCreateMovie(
+    form,
+    image,
+    setErrors,
+    setIsOpen,
+  );
+  const { mutateAsync: updateMovie, isPending: updating } = useUpdateMovie(
+    itemId,
+    form,
+    image,
+    setErrors,
+    setIsOpen,
+  );
   const loading = submitting || updating;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
@@ -58,7 +75,7 @@ export function CreateMovieDialog({
 
   async function handleSubmit() {
     validateMovieForm(form, setErrors);
-    
+
     if (errors != INITIAL_MOVIE_ERRORS) return;
 
     if (itemId) {

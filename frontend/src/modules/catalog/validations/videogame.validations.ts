@@ -17,7 +17,10 @@ export const MAX_LENGTH = {
   TRAILER_URL: 280,
 };
 
-export function validateVideoGameForm(form: VideoGameRequest, setErrors: Dispatch<SetStateAction<VideoGameErrors>>): void {
+export function validateVideoGameForm(
+  form: VideoGameRequest,
+  setErrors: Dispatch<SetStateAction<VideoGameErrors>>,
+): void {
   const base = validateItemForm(form);
   let errors: VideoGameErrors = {
     ...base,

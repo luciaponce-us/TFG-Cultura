@@ -8,9 +8,16 @@ import {
   CustomSelect,
   FormDialog,
 } from "@/modules/core/components";
-import { CategoriesSelect, CreateCategoryDialog } from "@/modules/categories/components";
+import {
+  CategoriesSelect,
+  CreateCategoryDialog,
+} from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
-import { handleChange, handleSelectChange, PLACEHOLDER } from "@/modules/core/utils/utils";
+import {
+  handleChange,
+  handleSelectChange,
+  PLACEHOLDER,
+} from "@/modules/core/utils/utils";
 
 import { useCreateVideoGame } from "../hooks";
 import {
@@ -21,7 +28,10 @@ import {
   type VideoGameRequest,
 } from "../types/videogame";
 import type { CreateItemDialogProps } from "../types";
-import { MAX_LENGTH, validateVideoGameForm } from "../validations/videogame.validations";
+import {
+  MAX_LENGTH,
+  validateVideoGameForm,
+} from "../validations/videogame.validations";
 import { AdminItemInfoForm, ItemImageInput } from "./";
 
 export function CreateVideoGameDialog({

@@ -1,13 +1,7 @@
 import { useState } from "react";
 
 import { IconPlus, IconTrash } from "@tabler/icons-react";
-import {
-  Box,
-  Heading,
-  HStack,
-  Separator,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Heading, HStack, Separator, VStack } from "@chakra-ui/react";
 
 import {
   CategoriesSelect,
@@ -23,7 +17,11 @@ import {
   FormDialog,
   TextSecondary,
 } from "@/modules/core/components";
-import { handleChange, handleSelectChange, PLACEHOLDER } from "@/modules/core/utils/utils";
+import {
+  handleChange,
+  handleSelectChange,
+  PLACEHOLDER,
+} from "@/modules/core/utils/utils";
 
 import { useCreateSeries } from "../hooks";
 import {
@@ -34,7 +32,10 @@ import {
   type SeriesErrors,
   type SeriesRequest,
 } from "../types/series";
-import { MAX_LENGTH, validateSeriesForm } from "../validations/series.validations";
+import {
+  MAX_LENGTH,
+  validateSeriesForm,
+} from "../validations/series.validations";
 import type { CreateItemDialogProps } from "../types";
 import { ItemImageInput, AdminItemInfoForm } from "./";
 
@@ -87,7 +88,7 @@ export function CreateSeriesDialog({
   }
 
   async function handleSubmit() {
-    validateSeriesForm(form,setErrors);
+    validateSeriesForm(form, setErrors);
     if (errors != INITIAL_SERIES_ERRORS) return;
     await createSeries();
   }

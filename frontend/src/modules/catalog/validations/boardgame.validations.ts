@@ -32,7 +32,7 @@ export function validateBoardGameForm(
   };
 
   errors = removeEmptyFields(errors);
-  
+
   if (Object.values(errors).some(Boolean)) {
     setErrors(errors);
     toaster.create({

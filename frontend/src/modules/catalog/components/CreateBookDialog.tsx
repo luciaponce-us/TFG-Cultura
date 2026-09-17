@@ -48,14 +48,19 @@ export function CreateBookDialog({
   const { form, setForm } = useBookForm(itemId, bookToUpdate);
   const [errors, setErrors] = useState<BookErrors>(INITIAL_BOOK_ERRORS);
   const [image, setImage] = useState<File | null>(null);
-  const {
-    mutateAsync: createBook,
-    isPending: submitting
-  } = useCreateBook(form, image, setErrors, setIsOpen);
-  const {
-    mutateAsync: updateBook,
-    isPending: updating
-  } = useUpdateBook(itemId, form, image, setErrors, setIsOpen);
+  const { mutateAsync: createBook, isPending: submitting } = useCreateBook(
+    form,
+    image,
+    setErrors,
+    setIsOpen,
+  );
+  const { mutateAsync: updateBook, isPending: updating } = useUpdateBook(
+    itemId,
+    form,
+    image,
+    setErrors,
+    setIsOpen,
+  );
 
   const loading = submitting || updating;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);

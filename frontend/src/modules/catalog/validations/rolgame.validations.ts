@@ -15,7 +15,10 @@ export const MAX_LENGTH = {
   ...MAX_LENGTH_ITEM,
 };
 
-export function validateRolGameForm(form: RolGameRequest, setErrors: Dispatch<SetStateAction<RolGameErrors>>): void {
+export function validateRolGameForm(
+  form: RolGameRequest,
+  setErrors: Dispatch<SetStateAction<RolGameErrors>>,
+): void {
   const base = validateItemForm(form);
   let errors: RolGameErrors = {
     ...base,
@@ -24,7 +27,7 @@ export function validateRolGameForm(form: RolGameRequest, setErrors: Dispatch<Se
   };
 
   errors = removeEmptyFields(errors);
-  
+
   if (Object.values(errors).some(Boolean)) {
     setErrors(errors);
     toaster.create({

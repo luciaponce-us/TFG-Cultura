@@ -17,7 +17,10 @@ export const MAX_LENGTH = {
   RECOMMENDED_PLAYERS: 50,
 };
 
-export function validateRolSagaForm(form: RolSagaRequest, setErrors: Dispatch<SetStateAction<RolSagaErrors>>): void {
+export function validateRolSagaForm(
+  form: RolSagaRequest,
+  setErrors: Dispatch<SetStateAction<RolSagaErrors>>,
+): void {
   let errors: RolSagaErrors = {
     name: validateName(form.name),
     description: validateDescription(form.description),
@@ -31,14 +34,14 @@ export function validateRolSagaForm(form: RolSagaRequest, setErrors: Dispatch<Se
   setErrors(errors);
 
   if (Object.keys(errors).length > 0) {
-        setErrors(errors);
-        toaster.create({
-          title: "Error al crear saga de rol",
-          description:
-            "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
-          type: "error",
-        });
-      }
+    setErrors(errors);
+    toaster.create({
+      title: "Error al crear saga de rol",
+      description:
+        "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
+      type: "error",
+    });
+  }
 }
 
 function validateName(name: string): string | undefined {
