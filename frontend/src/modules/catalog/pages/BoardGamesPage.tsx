@@ -1,17 +1,9 @@
 import { useBoardGames } from "../hooks";
 import { CreateBoardGameDialog } from "../components";
 import { ItemsPage } from "./ItemsPage";
-import { HStack, Text } from "@chakra-ui/react";
-import { CustomButton } from "@/modules/core/components";
-import { IconPencil } from "@tabler/icons-react";
-import { useState } from "react";
-import { useAuth } from "@/modules/core/context/useAuth";
 
 export function BoardGamesPage() {
-  const [editingBoardGameId, setEditingBoardGameId] = useState<string | null>(
-    null,
-  );
-  const { isAdmin } = useAuth();
+
   return (
     <ItemsPage
       getAllHook={useBoardGames}
@@ -25,33 +17,6 @@ export function BoardGamesPage() {
       emptyText="No hay juegos de mesa disponibles."
       createText="Crear juego de mesa"
       CreateDialogComponent={CreateBoardGameDialog}
-      renderItem={(item) => (
-        <>
-          <HStack>
-            <Text>
-              {item.name}
-              {item.isExpansion && ` - Juego base: ${item.baseGame?.name}`}
-            </Text>
-            {isAdmin && (
-              <CustomButton onClick={() => setEditingBoardGameId(item.id)}>
-                <IconPencil />
-              </CustomButton>
-            )}
-          </HStack>
-          {editingBoardGameId === item.id &&
-            editingBoardGameId != undefined && (
-              <CreateBoardGameDialog
-                isOpen={true}
-                setIsOpen={(isOpen) => {
-                  if (!isOpen) {
-                    setEditingBoardGameId(null);
-                  }
-                }}
-                boardGameId={item.id}
-              />
-            )}
-        </>
-      )}
     />
   );
 }

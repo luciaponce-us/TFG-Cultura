@@ -31,18 +31,17 @@ interface CreateBookDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
   readonly sectionDefaultValue?: string;
-  readonly bookId?: string;
+  readonly itemId?: string;
 }
 
 export function CreateBookDialog({
   isOpen,
   setIsOpen,
   sectionDefaultValue,
-  bookId,
+  itemId,
 }: CreateBookDialogProps) {
-  console.log("CreateBookDialog rendered with bookId:", bookId);
-  const { data: bookToUpdate } = useBook(bookId);
-  const { form, setForm } = useBookForm(bookId, bookToUpdate);
+  const { data: bookToUpdate } = useBook(itemId);
+  const { form, setForm } = useBookForm(itemId, bookToUpdate);
   const [errors, setErrors] = useState<BookErrors>(INITIAL_BOOK_ERRORS);
   const [image, setImage] = useState<File | null>(null);
   const {
@@ -50,7 +49,7 @@ export function CreateBookDialog({
     isPending: submitting,
     isError: isCreateBookError,
   } = useCreateBook(form, image, setErrors, setIsOpen);
-  const {mutateAsync: updateBook, isPending: updating, isError: isUpdateBookError} = useUpdateBook(bookId, form, image, setErrors, setIsOpen);
+  const {mutateAsync: updateBook, isPending: updating, isError: isUpdateBookError} = useUpdateBook(itemId, form, image, setErrors, setIsOpen);
 
   const loading = submitting || updating;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
@@ -65,7 +64,7 @@ export function CreateBookDialog({
     if (Object.values(errors).some(Boolean)) {
       return;
     }
-    if (bookId) {
+    if (itemId) {
       await updateBook();
       if(!isUpdateBookError) {
         setIsOpen(false);
@@ -84,10 +83,10 @@ export function CreateBookDialog({
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         title={
-          bookId ? `Editando "${bookToUpdate?.name || "libro"}"` : "Crear libro"
+          itemId ? `Editando "${bookToUpdate?.name || "libro"}"` : "Crear libro"
         }
         handleSubmit={async () => await handleSubmit()}
-        submitButtonText={bookId ? "Actualizar" : "Crear"}
+        submitButtonText={itemId ? "Actualizar" : "Crear"}
       >
         <HStack
           align="stretch"

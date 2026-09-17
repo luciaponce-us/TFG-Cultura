@@ -42,7 +42,7 @@ interface CreateBoardGameDialogProps {
   readonly setIsOpen: (isOpen: boolean) => void;
   readonly onCreated?: (boardGame: BoardGame) => void;
   readonly allowBaseGame?: boolean;
-  readonly boardGameId?: string;
+  readonly itemId?: string;
 }
 
 export function CreateBoardGameDialog({
@@ -50,10 +50,10 @@ export function CreateBoardGameDialog({
   setIsOpen,
   onCreated,
   allowBaseGame = true,
-  boardGameId,
+  itemId,
 }: CreateBoardGameDialogProps) {
-  const { data: boardGameToUpdate } = useBoardGame(boardGameId);
-  const { form, setForm } = useBoardGameForm(boardGameId, boardGameToUpdate);
+  const { data: boardGameToUpdate } = useBoardGame(itemId);
+  const { form, setForm } = useBoardGameForm(itemId, boardGameToUpdate);
   const [errors, setErrors] = useState<BoardGameErrors>(
     INITIAL_BOARD_GAME_ERRORS,
   );
@@ -61,8 +61,8 @@ export function CreateBoardGameDialog({
   const { mutateAsync: createBoardGame, isPending: submitting } =
     useCreateBoardGame(form, image, setErrors, setIsOpen);
   const { mutateAsync: updateBoardGame, isPending: updating } =
-    useUpdateBoardGame(boardGameId, form, image, setErrors, setIsOpen);
-  const loading = boardGameId ? updating : submitting;
+    useUpdateBoardGame(itemId, form, image, setErrors, setIsOpen);
+  const loading = itemId ? updating : submitting;
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [baseGameDialogOpen, setBaseGameDialogOpen] = useState(false);
 
@@ -74,7 +74,7 @@ export function CreateBoardGameDialog({
   async function handleSubmit() {
     validateBoardGameForm(form, setErrors);
 
-    if (boardGameId) {
+    if (itemId) {
       await updateBoardGame();
     } else {
       const createdBoardGame = await createBoardGame();
@@ -95,7 +95,7 @@ export function CreateBoardGameDialog({
             : "Crear juego de mesa"
         }
         handleSubmit={handleSubmit}
-        submitButtonText={boardGameId ? "Actualizar" : "Crear"}
+        submitButtonText={itemId ? "Actualizar" : "Crear"}
       >
         <HStack
           align="stretch"

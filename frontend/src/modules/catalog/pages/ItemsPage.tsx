@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   FILTERS_GET_ALL_ITEMS_DEFAULT,
   type FiltersGetAllItems as Filters,
+  type Item,
 } from "../types";
 import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
 import { toaster } from "@/modules/core/components/toaster/toaster";
@@ -16,6 +17,7 @@ import {
 import { IconPlus } from "@tabler/icons-react";
 import type { Paginated } from "@/modules/core/types";
 import type { UseQueryResult } from "@tanstack/react-query";
+import { ItemCard } from "../components";
 
 interface ItemsPageProps<
   T extends { id: string; name?: string },
@@ -23,7 +25,6 @@ interface ItemsPageProps<
 > {
   getAllHook: (page: number, filters: TFilters) => UseQueryResult<Paginated<T>>;
   initialFilters?: TFilters;
-  renderItem?: (item: T) => React.ReactNode;
   title: string;
   loadText: string;
   errorText: { title: string; description: string };
@@ -39,12 +40,11 @@ interface ItemsPageProps<
 }
 
 export function ItemsPage<
-  T extends { id: string; name?: string },
+  T extends Item,
   TFilters extends Filters = Filters,
 >({
   getAllHook,
   initialFilters = FILTERS_GET_ALL_ITEMS_DEFAULT as TFilters,
-  renderItem = (item) => <TextSecondary>{item.name}</TextSecondary>,
   title,
   loadText,
   errorText,
@@ -87,7 +87,11 @@ export function ItemsPage<
     return (
       <VStack align="stretch" gap={4} w="100%">
         {content?.map((item) => (
-          <div key={item.id}>{renderItem(item)}</div>
+          <ItemCard
+            key={item.id}
+            item={item}
+            CreateItemDialog={CreateDialogComponent!}
+          />
         ))}
       </VStack>
     );
