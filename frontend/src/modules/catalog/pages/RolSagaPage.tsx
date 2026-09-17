@@ -41,25 +41,27 @@ export function RolSagaPage() {
           <Flex direction="column" gap={4} width="100%">
             {rolGames.map((rolGame) => (
               <HStack
-              key={rolGame.id}
+                key={rolGame.id}
                 p={4}
                 borderRadius="md"
                 boxShadow="md"
-                bg="white" justify="space-between">
-              <VStack
-                align="stretch"
+                bg="white"
+                justify="space-between"
               >
-                <Heading as="h2" size="md">
-                  {rolGame.name}
-                </Heading>
-                <p>{rolGame.description}</p>
-              </VStack>
-              <CustomButton onClick={() => {
-                setIsCreateRolGameOpen(true);
-                setRolGameToEditId(rolGame.id);
-              }}>
-                <IconPencil/>
-              </CustomButton>
+                <VStack align="stretch">
+                  <Heading as="h2" size="md">
+                    {rolGame.name}
+                  </Heading>
+                  <p>{rolGame.description}</p>
+                </VStack>
+                <CustomButton
+                  onClick={() => {
+                    setIsCreateRolGameOpen(true);
+                    setRolGameToEditId(rolGame.id);
+                  }}
+                >
+                  <IconPencil />
+                </CustomButton>
               </HStack>
             ))}
           </Flex>

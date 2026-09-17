@@ -29,7 +29,8 @@ export function useUpdateRolGame(
       if (!token) {
         toaster.create({
           title: "Inicia sesión para actualizar juegos de rol",
-          description: "Necesitas iniciar sesión para actualizar un juego de rol.",
+          description:
+            "Necesitas iniciar sesión para actualizar un juego de rol.",
           type: "error",
         });
         return;

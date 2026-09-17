@@ -1,11 +1,15 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { toRolGameRequest } from "../../utils/item.utils";
-import { INITIAL_ROL_GAME, type RolGame, type RolGameRequest } from "../../types/rolgame";
+import {
+  INITIAL_ROL_GAME,
+  type RolGame,
+  type RolGameRequest,
+} from "../../types/rolgame";
 import { useSectionNameContains } from "@/modules/sections/hooks/useSectionNameContains";
 
 export function useRolGameForm(
   rolGameId: string | undefined,
-    sagaId: string,
+  sagaId: string,
   rolGameToUpdate?: RolGame,
 ): { form: RolGameRequest; setForm: Dispatch<SetStateAction<RolGameRequest>> } {
   const [formOverride, setFormOverride] = useState<{
@@ -14,8 +18,9 @@ export function useRolGameForm(
   }>();
 
   const sectionId = useSectionNameContains("rol")?.id;
-  const loadedForm = rolGameToUpdate ? toRolGameRequest(rolGameToUpdate) : { ...INITIAL_ROL_GAME, sagaId: sagaId,
-    sectionId: sectionId };
+  const loadedForm = rolGameToUpdate
+    ? toRolGameRequest(rolGameToUpdate)
+    : { ...INITIAL_ROL_GAME, sagaId: sagaId, sectionId: sectionId };
 
   const form =
     formOverride?.rolGameId === rolGameId && formOverride !== undefined
@@ -25,7 +30,8 @@ export function useRolGameForm(
   const setForm: Dispatch<SetStateAction<RolGameRequest>> = (nextForm) => {
     setFormOverride((currentOverride) => {
       const currentForm =
-        currentOverride?.rolGameId === rolGameId && currentOverride !== undefined
+        currentOverride?.rolGameId === rolGameId &&
+        currentOverride !== undefined
           ? currentOverride.value
           : loadedForm;
 
