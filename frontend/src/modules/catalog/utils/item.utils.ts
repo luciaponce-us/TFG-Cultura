@@ -2,6 +2,7 @@ import type { Item, ItemRequest } from "../types";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
 import type { Book, BookRequest } from "../types/book";
 import type { Movie, MovieRequest } from "../types/movie";
+import type { RolGame, RolGameRequest } from "../types/rolgame";
 
 function toRequest(item: Item): ItemRequest {
   return {
@@ -54,5 +55,14 @@ export function toMovieRequest(movie: Movie): MovieRequest {
     releaseDate: movie.releaseDate,
     trailerUrl: movie.trailerUrl,
     sagaName: movie.saga ? movie.saga.name : undefined,
+  };
+}
+
+export function toRolGameRequest(rolGame: RolGame): RolGameRequest {
+  const itemRequest = toRequest(rolGame);
+  return {
+    ...itemRequest,
+    sagaId: rolGame.saga.id,
+    type: rolGame.type,
   };
 }

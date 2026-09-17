@@ -29,7 +29,10 @@ export { useCreateSeries } from "./useCreateSeries";
 
 // ROLGAME
 export { useRolGamesBySaga } from "./useRolGamesBySaga";
+export { useRolGame } from "./useRolGame";
 export { useCreateRolGame } from "./useCreateRolGame";
+export { useUpdateRolGame } from "./useUpdateRolGame";
+export { useRolGameForm } from "./form/useRolGameForm";
 
 // ROLSAGA
 export { useRolSagas } from "./useRolSagas";

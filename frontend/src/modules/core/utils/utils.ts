@@ -169,3 +169,14 @@ export function removeEmptyFields<T extends object>(value: T): Partial<T> {
     }),
   ) as Partial<T>;
 }
+
+export const PLACEHOLDER = {
+  BOOK: "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/book_placeholder.jpg",
+  MOVIE: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/movie_placeholder.png",
+  SERIES: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/movie_placeholder.png",
+  VIDEOGAME: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/movie_placeholder.png",
+  BOARDGAME: "https://res.cloudinary.com/dubz79y98/image/upload/v1787070899/boardgame_placeholder.jpg",
+  ROLGAME: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/book_placeholder.png",
+  ROLSAGA: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/book_placeholder.png",
+  AVATAR: "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder.png",
+};

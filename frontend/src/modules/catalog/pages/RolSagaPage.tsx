@@ -1,16 +1,17 @@
 import { useParams } from "react-router-dom";
 import { useRolGamesBySaga, useRolSaga } from "../hooks";
-import { Flex, Heading } from "@chakra-ui/react";
+import { Flex, Heading, HStack, VStack } from "@chakra-ui/react";
 import { CustomButton } from "@/modules/core/components";
 import { useState } from "react";
 import { CreateRolGameDialog } from "../components";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPencil, IconPlus } from "@tabler/icons-react";
 
 export function RolSagaPage() {
   const { sagaId } = useParams<{ sagaId: string }>();
   const { data: rolSaga, isLoading: isRolSagaLoading } = useRolSaga(sagaId!);
   const { data: rolGames, isLoading } = useRolGamesBySaga(sagaId!);
   const [isCreateRolGameOpen, setIsCreateRolGameOpen] = useState(false);
+  const [rolGameToEditId, setRolGameToEditId] = useState<string | null>(null);
 
   if (isLoading || isRolSagaLoading || !rolSaga) {
     return <div>Cargando...</div>;
@@ -39,19 +40,27 @@ export function RolSagaPage() {
         {rolGames && rolGames.length > 0 ? (
           <Flex direction="column" gap={4} width="100%">
             {rolGames.map((rolGame) => (
-              <Flex
-                key={rolGame.id}
+              <HStack
+              key={rolGame.id}
                 p={4}
                 borderRadius="md"
                 boxShadow="md"
-                bg="white"
-                direction="column"
+                bg="white" justify="space-between">
+              <VStack
+                align="stretch"
               >
                 <Heading as="h2" size="md">
                   {rolGame.name}
                 </Heading>
                 <p>{rolGame.description}</p>
-              </Flex>
+              </VStack>
+              <CustomButton onClick={() => {
+                setIsCreateRolGameOpen(true);
+                setRolGameToEditId(rolGame.id);
+              }}>
+                <IconPencil/>
+              </CustomButton>
+              </HStack>
             ))}
           </Flex>
         ) : (
@@ -62,6 +71,7 @@ export function RolSagaPage() {
         isOpen={isCreateRolGameOpen}
         setIsOpen={setIsCreateRolGameOpen}
         sagaId={sagaId!}
+        itemId={rolGameToEditId ?? undefined}
       />
     </>
   );

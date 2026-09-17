@@ -18,6 +18,7 @@ import { IconPlus } from "@tabler/icons-react";
 import type { Paginated } from "@/modules/core/types";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { ItemCard } from "../components";
+import type { CreateItemDialogProps } from "../types/props";
 
 interface ItemsPageProps<
   T extends { id: string; name?: string },
@@ -31,12 +32,7 @@ interface ItemsPageProps<
   emptyText: string;
   createText?: string;
   sectionDefaultValue?: string;
-  CreateDialogComponent?: React.ComponentType<{
-    isOpen: boolean;
-    setIsOpen: (isOpen: boolean) => void;
-    token?: string | null;
-    sectionDefaultValue?: string;
-  }>;
+  CreateDialogComponent?: React.ComponentType<CreateItemDialogProps>;
 }
 
 export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
@@ -50,7 +46,7 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
   CreateDialogComponent,
   sectionDefaultValue,
 }: ItemsPageProps<T, TFilters>) {
-  const { token, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [filters, setFilters] = useState<TFilters>(initialFilters);
   const [page, setPage] = useState<number>(0);
@@ -167,7 +163,6 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
         <CreateDialogComponent
           isOpen
           setIsOpen={setIsCreateDialogOpen}
-          token={token}
           sectionDefaultValue={sectionDefaultValue}
         />
       )}
