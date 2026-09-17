@@ -60,7 +60,11 @@ export function CreateMovieDialog({
     isError: updateError,
   } = useUpdateMovie(itemId, form, image, setErrors, setIsOpen);
   const loading = submitting || updating;
-  const imageSrc = image ? URL.createObjectURL(image) : movieToUpdate? movieToUpdate.imageUrl : MOVIE_PLACEHOLDER
+  const imageSrc = image
+    ? URL.createObjectURL(image)
+    : movieToUpdate
+      ? movieToUpdate.imageUrl
+      : MOVIE_PLACEHOLDER;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
@@ -97,7 +101,9 @@ export function CreateMovieDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title={movieToUpdate ? `Editando "${movieToUpdate.name}"` : "Crear película"}
+        title={
+          movieToUpdate ? `Editando "${movieToUpdate.name}"` : "Crear película"
+        }
         handleSubmit={handleSubmit}
         submitButtonText={movieToUpdate ? "Actualizar" : "Crear"}
       >

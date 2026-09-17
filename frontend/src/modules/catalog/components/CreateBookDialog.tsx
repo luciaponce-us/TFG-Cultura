@@ -49,7 +49,11 @@ export function CreateBookDialog({
     isPending: submitting,
     isError: isCreateBookError,
   } = useCreateBook(form, image, setErrors, setIsOpen);
-  const {mutateAsync: updateBook, isPending: updating, isError: isUpdateBookError} = useUpdateBook(itemId, form, image, setErrors, setIsOpen);
+  const {
+    mutateAsync: updateBook,
+    isPending: updating,
+    isError: isUpdateBookError,
+  } = useUpdateBook(itemId, form, image, setErrors, setIsOpen);
 
   const loading = submitting || updating;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
@@ -66,14 +70,14 @@ export function CreateBookDialog({
     }
     if (itemId) {
       await updateBook();
-      if(!isUpdateBookError) {
+      if (!isUpdateBookError) {
         setIsOpen(false);
       }
     } else {
       await createBook();
       if (!isCreateBookError) {
-      setIsOpen(false);
-    }
+        setIsOpen(false);
+      }
     }
   }
 

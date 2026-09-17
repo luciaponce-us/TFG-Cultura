@@ -39,10 +39,7 @@ interface ItemsPageProps<
   }>;
 }
 
-export function ItemsPage<
-  T extends Item,
-  TFilters extends Filters = Filters,
->({
+export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
   getAllHook,
   initialFilters = FILTERS_GET_ALL_ITEMS_DEFAULT as TFilters,
   title,

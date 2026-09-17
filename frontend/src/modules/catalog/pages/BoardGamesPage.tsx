@@ -3,7 +3,6 @@ import { CreateBoardGameDialog } from "../components";
 import { ItemsPage } from "./ItemsPage";
 
 export function BoardGamesPage() {
-
   return (
     <ItemsPage
       getAllHook={useBoardGames}
