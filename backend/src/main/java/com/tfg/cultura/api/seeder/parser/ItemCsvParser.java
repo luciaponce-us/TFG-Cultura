@@ -19,7 +19,7 @@ public abstract class ItemCsvParser extends CsvParser {
 		Set<Category> categories = getCategories(parseList(parts[13]), categoriesByName);
 		Section section = getSection(parseNullableString(parts[12]), sectionsByName);
 
-		builder.name(clean(parts[0])).description(clean(parts[1])).imageUrl(parseNullableString(parts[2]))
+		builder.name(clean(parts[0])).description(parseNullableString(parts[1])).imageUrl(parseNullableString(parts[2]))
 				.condition(ItemCondition.valueOf(clean(parts[3]))).comments(parseNullableString(parts[4]))
 				.loanAvailable(Boolean.parseBoolean(parts[5])).publicated(Boolean.parseBoolean(parts[6]))
 				.purchasedAt(parseLocalDate(parts[7])).price(BigDecimal.valueOf(Double.parseDouble(clean(parts[8]))))
