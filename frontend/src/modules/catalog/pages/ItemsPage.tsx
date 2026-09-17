@@ -162,9 +162,9 @@ export function ItemsPage<
           />
         )}
       </VStack>
-      {CreateDialogComponent && (
+      {CreateDialogComponent && isCreateDialogOpen && (
         <CreateDialogComponent
-          isOpen={isCreateDialogOpen}
+          isOpen
           setIsOpen={setIsCreateDialogOpen}
           token={token}
           sectionDefaultValue={sectionDefaultValue}
