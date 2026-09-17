@@ -8,7 +8,9 @@ import { useState } from "react";
 import { useAuth } from "@/modules/core/context/useAuth";
 
 export function BoardGamesPage() {
-  const [editingBoardGameId, setEditingBoardGameId] = useState<string | null>(null);
+  const [editingBoardGameId, setEditingBoardGameId] = useState<string | null>(
+    null,
+  );
   const { isAdmin } = useAuth();
   return (
     <ItemsPage
@@ -36,17 +38,18 @@ export function BoardGamesPage() {
               </CustomButton>
             )}
           </HStack>
-          {editingBoardGameId === item.id && editingBoardGameId != undefined && (
-            <CreateBoardGameDialog
-              isOpen={true}
-              setIsOpen={(isOpen) => {
-                if (!isOpen) {
-                  setEditingBoardGameId(null);
-                }
-              }}
-              boardGameId={item.id}
-            />
-          )}
+          {editingBoardGameId === item.id &&
+            editingBoardGameId != undefined && (
+              <CreateBoardGameDialog
+                isOpen={true}
+                setIsOpen={(isOpen) => {
+                  if (!isOpen) {
+                    setEditingBoardGameId(null);
+                  }
+                }}
+                boardGameId={item.id}
+              />
+            )}
         </>
       )}
     />

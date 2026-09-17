@@ -1,7 +1,7 @@
 import { useAuth } from "@/modules/core/context/useAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toaster } from "@/modules/core/components";
-import { updateBook} from "../service/book.service";
+import { updateBook } from "../service/book.service";
 import { isApiError, isFieldError } from "@/modules/core/utils/utils";
 import type { BookRequest } from "../types/book";
 
@@ -29,8 +29,7 @@ export function useUpdateBook(
       if (!token) {
         toaster.create({
           title: "Inicia sesión para actualizar libros",
-          description:
-            "Necesitas iniciar sesión para actualizar un libro.",
+          description: "Necesitas iniciar sesión para actualizar un libro.",
           type: "error",
         });
         return;

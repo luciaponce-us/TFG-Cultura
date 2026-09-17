@@ -29,8 +29,8 @@ public class BooksCsvParser extends ItemCsvParser {
 
 		fillItemFields(builder, parts, categoriesByName, sectionsByName);
 
-		return builder.author(parseNullableString(parts[14])).isbn(parseNullableString(parts[15])).type(BookType.valueOf(clean(parts[16])))
-				.saga(getSaga(parts[17], sagasByName)).build();
+		return builder.author(parseNullableString(parts[14])).isbn(parseNullableString(parts[15]))
+				.type(BookType.valueOf(clean(parts[16]))).saga(getSaga(parts[17], sagasByName)).build();
 	}
 
 }

@@ -1,9 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
-import {
-  INITIAL_BOOK,
-  type Book,
-  type BookRequest,
-} from "../../types/book";
+import { INITIAL_BOOK, type Book, type BookRequest } from "../../types/book";
 import { toBookRequest } from "../../utils/item.utils";
 
 export function useBookForm(
@@ -15,9 +11,7 @@ export function useBookForm(
     value: BookRequest;
   }>();
 
-  const loadedForm = bookToUpdate
-    ? toBookRequest(bookToUpdate)
-    : INITIAL_BOOK;
+  const loadedForm = bookToUpdate ? toBookRequest(bookToUpdate) : INITIAL_BOOK;
 
   const form =
     formOverride?.bookId === bookId && formOverride !== undefined
@@ -27,8 +21,7 @@ export function useBookForm(
   const setForm: Dispatch<SetStateAction<BookRequest>> = (nextForm) => {
     setFormOverride((currentOverride) => {
       const currentForm =
-        currentOverride?.bookId === bookId &&
-        currentOverride !== undefined
+        currentOverride?.bookId === bookId && currentOverride !== undefined
           ? currentOverride.value
           : loadedForm;
 

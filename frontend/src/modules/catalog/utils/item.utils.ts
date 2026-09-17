@@ -36,9 +36,9 @@ export function toBookRequest(book: Book): BookRequest {
   const itemRequest = toRequest(book);
   return {
     ...itemRequest,
-      author: book.author,
-      isbn: book.isbn,
-      type: book.type,
-      sagaName: book.saga? book.saga : undefined,
+    author: book.author,
+    isbn: book.isbn,
+    type: book.type,
+    sagaName: book.saga ? book.saga : undefined,
   };
 }

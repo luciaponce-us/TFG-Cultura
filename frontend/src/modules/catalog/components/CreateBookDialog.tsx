@@ -74,7 +74,9 @@ export function CreateBookDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title={bookId ? `Editando "${bookToUpdate?.name || "libro"}"` : "Crear libro"}
+        title={
+          bookId ? `Editando "${bookToUpdate?.name || "libro"}"` : "Crear libro"
+        }
         handleSubmit={async () => await handleSubmit()}
         submitButtonText="Crear"
       >
