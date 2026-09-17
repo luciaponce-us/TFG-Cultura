@@ -3,7 +3,7 @@ import { fetchBoardGameById } from "../service/boardgame.service";
 
 export function useBoardGame(boardGameId: string | undefined) {
   return useQuery({
-    queryKey: ["boardgame", boardGameId],
+    queryKey: ["boardgames", boardGameId],
     queryFn: async () => {
       if (!boardGameId) {
         return undefined;
