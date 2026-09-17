@@ -1,31 +1,27 @@
 import { useState } from "react";
 import { useCreateSaga } from "../hooks";
-import { toaster } from "@/modules/core/components/toaster/toaster";
 import { CustomInput, FormDialog } from "@/modules/core/components";
-import { MAX_LENGTH } from "../validations/item.validations";
 import { isApiError } from "@/modules/core/utils/utils";
+import { validateSagaName, MAX_LENGTH } from "../validations/saga.validations";
+
+interface CreateSagaDialogProps {
+  readonly isOpen: boolean;
+  readonly setIsOpen: (isOpen: boolean) => void;
+  readonly setSaga?: (sagaName: string) => void;
+}
 
 export function CreateSagaDialog({
   isOpen,
   setIsOpen,
   setSaga,
-}: {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  setSaga?: (sagaName: string) => void;
-}) {
+}: CreateSagaDialogProps) {
   const [sagaName, setSagaName] = useState<string>("");
-  const { mutateAsync: createSaga, error: error } = useCreateSaga();
+  const [error, setError] = useState<string | null>(null);
+  const { mutateAsync: createSaga } = useCreateSaga(setError);
 
   async function handleSubmit() {
-    if (!sagaName) {
-      toaster.create({
-        title: "Error al crear saga",
-        description: "El nombre de la saga no puede estar vacío.",
-        type: "error",
-      });
-      return;
-    }
+    validateSagaName(sagaName, setError);
+    if (error) return;
     await createSaga(sagaName);
     setSaga?.(sagaName);
     setIsOpen(false);
@@ -38,6 +34,9 @@ export function CreateSagaDialog({
       title="Crear saga"
       handleSubmit={handleSubmit}
       submitButtonText="Crear"
+      resetForm={() => {
+        setSagaName("");
+      }}
     >
       <CustomInput
         label="Nombre de la saga"
@@ -45,7 +44,7 @@ export function CreateSagaDialog({
         placeholder="Introduce el nombre de la saga..."
         required
         maxLength={MAX_LENGTH.NAME}
-        onChange={(e) => setSagaName(e.target.value)}
+        onChange={(e) => setSagaName(e.target.value.trim())}
         error={isApiError(error) ? error.errors?.name : ""}
       />
     </FormDialog>

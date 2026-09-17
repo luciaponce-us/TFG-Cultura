@@ -1,16 +1,25 @@
 import { removeEmptyFields } from "@/modules/core/utils/utils";
 import type { BookRequest, BookErrors } from "../types/book";
-import { validateItemForm } from "./item.validations";
+import {
+  validateItemForm,
+  MAX_LENGTH as MAX_LENGTH_ITEM,
+} from "./item.validations";
+import type { Dispatch, SetStateAction } from "react";
+import { toaster } from "@/modules/core/components/toaster/toaster";
 
 export const MAX_LENGTH = {
+  ...MAX_LENGTH_ITEM,
   AUTHOR: 100,
   ISBN: 13,
   SAGA_NAME: 50,
 };
 
-export function validateBookForm(form: BookRequest): BookErrors {
+export function validateBookForm(
+  form: BookRequest,
+  setErrors: Dispatch<SetStateAction<BookErrors>>,
+): void {
   const base = validateItemForm(form);
-  const errors: BookErrors = {
+  let errors: BookErrors = {
     ...base,
     author: validateAuthor(form.author),
     isbn: validateIsbn(form.isbn),
@@ -18,7 +27,17 @@ export function validateBookForm(form: BookRequest): BookErrors {
     sagaName: validateSagaName(form.sagaName),
   };
 
-  return removeEmptyFields(errors);
+  errors = removeEmptyFields(errors);
+  
+  if (Object.values(errors).some(Boolean)) {
+    setErrors(errors);
+    toaster.create({
+      title: "Error al crear libro",
+      description:
+        "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
+      type: "error",
+    });
+  }
 }
 
 function validateAuthor(value: string): string | undefined {

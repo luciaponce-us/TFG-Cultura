@@ -1,58 +1,47 @@
 import { useState } from "react";
+
+import { IconPlus, IconTrash } from "@tabler/icons-react";
 import {
   Box,
   Heading,
   HStack,
-  Image,
   Separator,
   VStack,
 } from "@chakra-ui/react";
+
 import {
   CategoriesSelect,
   CreateCategoryDialog,
 } from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
 import {
-  CustomDateInput,
   CustomButton,
+  CustomDateInput,
   CustomInput,
   CustomNumberInput,
   CustomSelect,
   FormDialog,
-  UploadBox,
-  toaster,
   TextSecondary,
 } from "@/modules/core/components";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
-import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
+import { handleChange, handleSelectChange, PLACEHOLDER } from "@/modules/core/utils/utils";
+
 import { useCreateSeries } from "../hooks";
-import { FORMATS_OPTIONS } from "../types/movie";
 import {
+  FORMATS_OPTIONS,
   INITIAL_SERIES,
   INITIAL_SERIES_ERRORS,
   SERIES_STATUSES_OPTIONS,
   type SeriesErrors,
   type SeriesRequest,
 } from "../types/series";
-import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
-import {
-  MAX_LENGTH as MAX_LENGTH_SERIES,
-  validateSeriesForm,
-} from "../validations/series.validations";
-import { AdminItemInfoForm } from "./AdminItemInfoForm";
-
-const SERIES_PLACEHOLDER =
-  "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/movie_placeholder.jpg";
-
-interface CreateSeriesDialogProps {
-  readonly isOpen: boolean;
-  readonly setIsOpen: (isOpen: boolean) => void;
-}
+import { MAX_LENGTH, validateSeriesForm } from "../validations/series.validations";
+import type { CreateItemDialogProps } from "../types";
+import { ItemImageInput, AdminItemInfoForm } from "./";
 
 export function CreateSeriesDialog({
   isOpen,
   setIsOpen,
-}: CreateSeriesDialogProps) {
+}: CreateItemDialogProps) {
   const [form, setForm] = useState<SeriesRequest>(INITIAL_SERIES);
   const [errors, setErrors] = useState<SeriesErrors>(INITIAL_SERIES_ERRORS);
   const [image, setImage] = useState<File | null>(null);
@@ -98,16 +87,8 @@ export function CreateSeriesDialog({
   }
 
   async function handleSubmit() {
-    const validationErrors = validateSeriesForm(form);
-    setErrors(validationErrors);
-    if (Object.values(validationErrors).some(Boolean)) {
-      toaster.create({
-        title: "Error al crear serie",
-        description: "Corrige los errores del formulario e inténtalo de nuevo.",
-        type: "error",
-      });
-      return;
-    }
+    validateSeriesForm(form,setErrors);
+    if (errors != INITIAL_SERIES_ERRORS) return;
     await createSeries();
   }
 
@@ -119,32 +100,18 @@ export function CreateSeriesDialog({
         title="Crear serie"
         handleSubmit={handleSubmit}
         submitButtonText="Crear"
+        resetForm={() => {
+          setForm(INITIAL_SERIES);
+          setErrors(INITIAL_SERIES_ERRORS);
+          setImage(null);
+        }}
       >
-        <HStack align="stretch" w="100%" maxH="200px" mb={image ? "60px" : ""}>
-          <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
-            <Image
-              src={image ? URL.createObjectURL(image) : SERIES_PLACEHOLDER}
-              alt="Foto de la serie"
-              w="100%"
-              h="100%"
-              objectFit="cover"
-              borderRadius="md"
-            />
-          </Box>
-          <VStack flex={1} minW={0}>
-            <UploadBox
-              text={
-                <>
-                  Arrastra la <b>foto de la serie</b>
-                </>
-              }
-              secondaryText="JPG o PNG, tamaño no superior a 2MB"
-              fileType="image/*"
-              onFileChange={setImage}
-              disabled={submitting}
-            />
-          </VStack>
-        </HStack>
+        <ItemImageInput
+          image={image}
+          setImage={setImage}
+          loading={submitting}
+          placeholder={PLACEHOLDER.SERIES}
+        />
 
         <CustomInput
           label="Título"
@@ -153,7 +120,7 @@ export function CreateSeriesDialog({
           required
           error={errors.name ?? ""}
           onChange={(event) => handleChange(event, form, setErrors, setForm)}
-          maxLength={MAX_LENGTH_ITEM.NAME}
+          maxLength={MAX_LENGTH.NAME}
         />
         <CategoriesSelect
           form={form}
@@ -169,7 +136,7 @@ export function CreateSeriesDialog({
           onChange={(event) => handleChange(event, form, setErrors, setForm)}
           textarea
           maxInputHeight="240px"
-          maxLength={MAX_LENGTH_ITEM.DESCRIPTION}
+          maxLength={MAX_LENGTH.DESCRIPTION}
         />
         <CustomSelect
           label="Formato"
@@ -296,7 +263,7 @@ export function CreateSeriesDialog({
                 label="Tráiler de la temporada"
                 name={`seasonTrailerUrl-${index}`}
                 placeholder="https://www.youtube.com/embed/..."
-                maxLength={MAX_LENGTH_SERIES.TRAILER_URL}
+                maxLength={MAX_LENGTH.TRAILER_URL}
                 defaultValue={season.trailerUrl ?? ""}
                 onChange={(event) =>
                   setForm((previous) => ({

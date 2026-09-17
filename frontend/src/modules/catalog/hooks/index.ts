@@ -41,3 +41,4 @@ export { useCreateRolSaga } from "./useCreateRolSaga";
 
 // VIDEOGAME
 export { useVideogames } from "./useVideogames";
+export { useCreateVideoGame } from "./useCreateVideoGame";

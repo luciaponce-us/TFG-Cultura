@@ -1,15 +1,24 @@
 import { removeEmptyFields } from "@/modules/core/utils/utils";
 import type { MovieRequest, MovieErrors } from "../types/movie";
-import { validateItemForm } from "./item.validations";
+import {
+  validateItemForm,
+  MAX_LENGTH as MAX_LENGTH_ITEM,
+} from "./item.validations";
+import type { Dispatch, SetStateAction } from "react";
+import { toaster } from "@/modules/core/components/toaster/toaster";
 
 export const MAX_LENGTH = {
+  ...MAX_LENGTH_ITEM,
   TRAILER_URL: 500,
   SAGA_NAME: 50,
 };
 
-export function validateMovieForm(form: MovieRequest): MovieErrors {
+export function validateMovieForm(
+  form: MovieRequest,
+  setErrors: Dispatch<SetStateAction<MovieErrors>>,
+): void {
   const base = validateItemForm(form);
-  const errors: MovieErrors = {
+  let errors: MovieErrors = {
     ...base,
     format: form.format ? undefined : "El formato es obligatorio.",
     numberOfDiscs: validateNumberOfDiscs(form.numberOfDiscs),
@@ -18,7 +27,17 @@ export function validateMovieForm(form: MovieRequest): MovieErrors {
     sagaName: validateSagaName(form.sagaName),
   };
 
-  return removeEmptyFields(errors);
+  errors = removeEmptyFields(errors);
+  
+  if (Object.values(errors).some(Boolean)) {
+    setErrors(errors);
+    toaster.create({
+      title: "Error al crear película",
+      description:
+        "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
+      type: "error",
+    });
+  }
 }
 
 function validateNumberOfDiscs(value: number): string | undefined {

@@ -114,3 +114,5 @@ export interface ItemRoutes {
   GET_BY_ID: (id: string) => string;
   GET_BY_SAGA_ID?: (sagaId: string) => string;
 }
+
+export type {CreateItemDialogProps} from "./props";

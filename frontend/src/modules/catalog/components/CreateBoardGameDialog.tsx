@@ -1,48 +1,49 @@
 import { useState } from "react";
+
+import { HStack, Separator } from "@chakra-ui/react";
+
 import {
-  BOARD_GAME_TYPES_OPTIONS,
-  COMPLEXITIES_OPTIONS,
-  INITIAL_BOARD_GAME_ERRORS,
-  type BoardGame,
-  type BoardGameErrors,
-  type BoardGameRequest,
-} from "../types/boardgame";
+  CustomInput,
+  CustomNumberInput,
+  CustomSelect,
+  FormDialog,
+} from "@/modules/core/components";
+import {
+  handleChange,
+  handleSelectChange,
+  PLACEHOLDER,
+} from "@/modules/core/utils/utils";
+import {
+  CategoriesSelect,
+  CreateCategoryDialog,
+} from "@/modules/categories/components";
+import { SectionSelect } from "@/modules/sections/components";
+
 import {
   useBoardGame,
   useBoardGameForm,
   useCreateBoardGame,
   useUpdateBoardGame,
 } from "../hooks";
-import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
 import {
-  CustomInput,
-  CustomSelect,
-  CustomNumberInput,
-  FormDialog,
-  UploadBox,
-} from "@/modules/core/components";
+  BOARD_GAME_TYPES_OPTIONS,
+  COMPLEXITIES_OPTIONS,
+  INITIAL_BOARD_GAME,
+  INITIAL_BOARD_GAME_ERRORS,
+  type BoardGame,
+  type BoardGameErrors,
+  type BoardGameRequest,
+} from "../types/boardgame";
+import type { CreateItemDialogProps } from "../types";
 import {
-  validateBoardGameForm,
   MAX_LENGTH,
+  validateBoardGameForm,
 } from "../validations/boardgame.validations";
-import {
-  CategoriesSelect,
-  CreateCategoryDialog,
-} from "@/modules/categories/components";
-import { SectionSelect } from "@/modules/sections/components";
-import { BaseGameSelect } from "./BaseGameSelect";
-import { AdminItemInfoForm } from "./AdminItemInfoForm";
+import { AdminItemInfoForm, BaseGameSelect, ItemImageInput } from ".";
 
-const BOARD_GAME_PLACEHOLDER =
-  "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/boardgame_placeholder.jpg";
-
-interface CreateBoardGameDialogProps {
-  readonly isOpen: boolean;
-  readonly setIsOpen: (isOpen: boolean) => void;
+interface CreateBoardGameDialogProps extends CreateItemDialogProps {
   readonly onCreated?: (boardGame: BoardGame) => void;
   readonly allowBaseGame?: boolean;
-  readonly itemId?: string;
 }
 
 export function CreateBoardGameDialog({
@@ -74,6 +75,8 @@ export function CreateBoardGameDialog({
   async function handleSubmit() {
     validateBoardGameForm(form, setErrors);
 
+    if (errors != INITIAL_BOARD_GAME_ERRORS) return;
+
     if (itemId) {
       await updateBoardGame();
     } else {
@@ -96,38 +99,18 @@ export function CreateBoardGameDialog({
         }
         handleSubmit={handleSubmit}
         submitButtonText={itemId ? "Actualizar" : "Crear"}
+        resetForm={() => {
+          setForm(INITIAL_BOARD_GAME);
+          setErrors(INITIAL_BOARD_GAME_ERRORS);
+          setImage(null);
+        }}
       >
-        <HStack
-          align="stretch"
-          w="100%"
-          maxW="100%"
-          maxH="200px"
-          mb={image ? "60px" : ""}
-        >
-          <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
-            <Image
-              src={image ? URL.createObjectURL(image) : BOARD_GAME_PLACEHOLDER}
-              alt="Foto del juego de mesa"
-              w="100%"
-              h="100%"
-              objectFit="cover"
-              borderRadius="md"
-            />
-          </Box>
-          <VStack flex={1} minW={0}>
-            <UploadBox
-              text={
-                <>
-                  Arrastra la <b>foto del juego de mesa</b>
-                </>
-              }
-              secondaryText="JPG o PNG, tamaño no superior a 2MB"
-              fileType="image/*"
-              onFileChange={setImage}
-              disabled={loading}
-            />
-          </VStack>
-        </HStack>
+        <ItemImageInput
+          image={image}
+          setImage={setImage}
+          loading={loading}
+          placeholder={PLACEHOLDER.BOARDGAME}
+        />
 
         <CustomInput
           label="Título"

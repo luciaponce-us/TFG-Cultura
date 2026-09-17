@@ -1,4 +1,15 @@
 import { useState } from "react";
+
+import {
+  CustomInput,
+  CustomSelect,
+  FormDialog,
+} from "@/modules/core/components";
+import { handleChange, handleSelectChange, PLACEHOLDER } from "@/modules/core/utils/utils";
+import { CategoriesSelect, CreateCategoryDialog } from "@/modules/categories/components";
+import { SectionSelect } from "@/modules/sections/components";
+
+import { useCreateRolSaga } from "../hooks";
 import {
   GAME_MASTERS_OPTIONS,
   INITIAL_ROL_SAGA,
@@ -6,33 +17,13 @@ import {
   type RolSagaErrors,
   type RolSagaRequest,
 } from "../types/rolgame";
-import { useCreateRolSaga } from "../hooks";
-import { FormDialog } from "@/modules/core/components/FormDialog";
-import { Box, HStack, VStack, Image } from "@chakra-ui/react";
-import {
-  CustomInput,
-  CustomSelect,
-  toaster,
-  UploadBox,
-} from "@/modules/core/components";
-import {
-  CategoriesSelect,
-  CreateCategoryDialog,
-} from "@/modules/categories/components";
-import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import {
-  MAX_LENGTH,
-  validateRolSagaForm,
-} from "../validations/rolsaga.validations";
-import { SectionSelect } from "@/modules/sections/components";
+import { MAX_LENGTH, validateRolSagaForm } from "../validations/rolsaga.validations";
+import { ItemImageInput } from "./";
 
 interface CreateRolSagaDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
 }
-
-const ROL_SAGA_PLACEHOLDER =
-  "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/boardgame_placeholder.jpg";
 
 export function CreateRolSagaDialog({
   isOpen,
@@ -56,20 +47,8 @@ export function CreateRolSagaDialog({
   }
 
   async function handleSubmit() {
-    const errors = validateRolSagaForm(form);
-    console.error("RolSagaForm errors:", errors);
-
-    if (Object.keys(errors).length > 0) {
-      setErrors(errors);
-      toaster.create({
-        title: "Error al crear saga de rol",
-        description:
-          "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
-        type: "error",
-      });
-      return;
-    }
-
+    validateRolSagaForm(form, setErrors);
+    if (errors != INITIAL_ROL_SAGA_ERRORS) return;
     await createRolSaga();
   }
 
@@ -81,38 +60,18 @@ export function CreateRolSagaDialog({
         title="Crear saga de juegos de rol"
         handleSubmit={handleSubmit}
         submitButtonText="Crear"
+        resetForm={() => {
+          setForm(INITIAL_ROL_SAGA);
+          setErrors(INITIAL_ROL_SAGA_ERRORS);
+          setImage(null);
+        }}
       >
-        <HStack
-          align="stretch"
-          w="100%"
-          maxW="100%"
-          maxH="200px"
-          mb={image ? "60px" : ""}
-        >
-          <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
-            <Image
-              src={image ? URL.createObjectURL(image) : ROL_SAGA_PLACEHOLDER}
-              alt="Foto de la saga de juegos de rol"
-              w="100%"
-              h="100%"
-              objectFit="cover"
-              borderRadius="md"
-            />
-          </Box>
-          <VStack flex={1} minW={0}>
-            <UploadBox
-              text={
-                <>
-                  Arrastra la <b>foto de la saga de juegos de rol</b>
-                </>
-              }
-              secondaryText="JPG o PNG, tamaño no superior a 2MB"
-              fileType="image/*"
-              onFileChange={setImage}
-              disabled={submitting}
-            />
-          </VStack>
-        </HStack>
+        <ItemImageInput
+          image={image}
+          setImage={setImage}
+          loading={submitting}
+          placeholder={PLACEHOLDER.ROLSAGA}
+        />
 
         <CustomInput
           label="Nombre"

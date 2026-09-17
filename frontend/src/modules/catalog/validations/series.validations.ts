@@ -1,14 +1,23 @@
 import { removeEmptyFields } from "@/modules/core/utils/utils";
 import type { SeriesErrors, SeriesRequest } from "../types/series";
-import { validateItemForm } from "./item.validations";
+import {
+  validateItemForm,
+  MAX_LENGTH as MAX_LENGTH_ITEM,
+} from "./item.validations";
+import type { Dispatch, SetStateAction } from "react";
+import { toaster } from "@/modules/core/components/toaster/toaster";
 
 export const MAX_LENGTH = {
+  ...MAX_LENGTH_ITEM,
   TRAILER_URL: 500,
 };
 
-export function validateSeriesForm(form: SeriesRequest): SeriesErrors {
+export function validateSeriesForm(
+  form: SeriesRequest,
+  setErrors: Dispatch<SetStateAction<SeriesErrors>>,
+): void {
   const base = validateItemForm(form);
-  const errors: SeriesErrors = {
+  let errors: SeriesErrors = {
     ...base,
     format: form.format ? undefined : "El formato es obligatorio.",
     numberOfDiscs:
@@ -26,7 +35,17 @@ export function validateSeriesForm(form: SeriesRequest): SeriesErrors {
     seasons: validateSeasons(form),
   };
 
-  return removeEmptyFields(errors);
+  errors = removeEmptyFields(errors);
+
+  if (Object.keys(errors).length > 0) {
+    setErrors(errors);
+    toaster.create({
+      title: "Error al crear serie",
+      description:
+        "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
+      type: "error",
+    });
+  }
 }
 
 function validateReleaseDate(value: string): string | undefined {

@@ -1,70 +1,55 @@
 import { useState } from "react";
-import type { MovieErrors } from "../types/movie";
-import { FORMATS_OPTIONS, INITIAL_MOVIE_ERRORS } from "../types/movie";
+
+import { Separator } from "@chakra-ui/react";
+
+import {
+  CustomDateInput,
+  CustomInput,
+  CustomNumberInput,
+  CustomSelect,
+  FormDialog,
+} from "@/modules/core/components";
+import { handleChange, handleSelectChange, PLACEHOLDER } from "@/modules/core/utils/utils";
+import { CategoriesSelect, CreateCategoryDialog } from "@/modules/categories/components";
+import { SectionSelect } from "@/modules/sections/components";
+
 import {
   useCreateMovie,
   useMovie,
   useMovieForm,
   useUpdateMovie,
 } from "../hooks";
-import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
 import {
-  CustomInput,
-  CustomSelect,
-  CustomNumberInput,
-  CustomDateInput,
-  FormDialog,
-  UploadBox,
-  toaster,
-} from "@/modules/core/components";
-import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
+  FORMATS_OPTIONS,
+  INITIAL_MOVIE,
+  INITIAL_MOVIE_ERRORS,
+  type MovieErrors,
+} from "../types/movie";
+import type { CreateItemDialogProps } from "../types";
 import {
-  MAX_LENGTH as MAX_LENGTH_MOVIE,
+  MAX_LENGTH,
   validateMovieForm,
 } from "../validations/movie.validations";
-import { CreateSagaDialog, SagaSelect } from "./";
-import {
-  CategoriesSelect,
-  CreateCategoryDialog,
-} from "@/modules/categories/components";
-import { SectionSelect } from "@/modules/sections/components";
-import { AdminItemInfoForm } from "./AdminItemInfoForm";
-
-const MOVIE_PLACEHOLDER =
-  "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/movie_placeholder.jpg";
-
-interface CreateMovieDialogProps {
-  readonly isOpen: boolean;
-  readonly setIsOpen: (isOpen: boolean) => void;
-  readonly itemId?: string;
-}
+import { AdminItemInfoForm, CreateSagaDialog, ItemImageInput, SagaSelect } from "./";
 
 export function CreateMovieDialog({
   isOpen,
   setIsOpen,
   itemId,
-}: CreateMovieDialogProps) {
+}: CreateItemDialogProps) {
   const { data: movieToUpdate } = useMovie(itemId);
   const { form, setForm } = useMovieForm(itemId, movieToUpdate);
   const [errors, setErrors] = useState<MovieErrors>(INITIAL_MOVIE_ERRORS);
   const [image, setImage] = useState<File | null>(null);
   const {
     mutateAsync: createMovie,
-    isPending: submitting,
-    isError: createError,
+    isPending: submitting
   } = useCreateMovie(form, image, setErrors, setIsOpen);
   const {
     mutateAsync: updateMovie,
-    isPending: updating,
-    isError: updateError,
+    isPending: updating
   } = useUpdateMovie(itemId, form, image, setErrors, setIsOpen);
   const loading = submitting || updating;
-  const imageSrc = image
-    ? URL.createObjectURL(image)
-    : movieToUpdate
-      ? movieToUpdate.imageUrl
-      : MOVIE_PLACEHOLDER;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
@@ -72,27 +57,14 @@ export function CreateMovieDialog({
     handleSelectChange(value, "format", form, setErrors, setForm);
 
   async function handleSubmit() {
-    const validationErrors = validateMovieForm(form);
-    setErrors(validationErrors);
-    if (Object.values(validationErrors).some(Boolean)) {
-      toaster.create({
-        title: `Error al ${itemId ? "editar" : "crear"} película`,
-        description:
-          "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
-        type: "error",
-      });
-      return;
-    }
+    validateMovieForm(form, setErrors);
+    
+    if (errors != INITIAL_MOVIE_ERRORS) return;
+
     if (itemId) {
       await updateMovie();
-      if (!updateError) {
-        setIsOpen(false);
-      }
     } else {
       await createMovie();
-      if (!createError) {
-        setIsOpen(false);
-      }
     }
   }
 
@@ -106,38 +78,18 @@ export function CreateMovieDialog({
         }
         handleSubmit={handleSubmit}
         submitButtonText={movieToUpdate ? "Actualizar" : "Crear"}
+        resetForm={() => {
+          setForm(INITIAL_MOVIE);
+          setErrors(INITIAL_MOVIE_ERRORS);
+          setImage(null);
+        }}
       >
-        <HStack
-          align="stretch"
-          w="100%"
-          maxW="100%"
-          maxH="200px"
-          mb={image ? "60px" : ""}
-        >
-          <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
-            <Image
-              src={imageSrc}
-              alt="Foto de la película"
-              w="100%"
-              h="100%"
-              objectFit="cover"
-              borderRadius="md"
-            />
-          </Box>
-          <VStack flex={1} minW={0}>
-            <UploadBox
-              text={
-                <>
-                  Arrastra la <b>foto de la película</b>
-                </>
-              }
-              secondaryText="JPG o PNG, tamaño no superior a 2MB"
-              fileType="image/*"
-              onFileChange={setImage}
-              disabled={loading}
-            />
-          </VStack>
-        </HStack>
+        <ItemImageInput
+          image={image}
+          setImage={setImage}
+          loading={loading}
+          placeholder={PLACEHOLDER.MOVIE}
+        />
 
         <CustomInput
           label="Título"
@@ -146,7 +98,7 @@ export function CreateMovieDialog({
           required
           error={errors.name ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
-          maxLength={MAX_LENGTH_ITEM.NAME}
+          maxLength={MAX_LENGTH.NAME}
           defaultValue={form.name}
         />
         <SagaSelect
@@ -169,7 +121,7 @@ export function CreateMovieDialog({
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           textarea
           maxInputHeight="240px"
-          maxLength={MAX_LENGTH_ITEM.DESCRIPTION}
+          maxLength={MAX_LENGTH.DESCRIPTION}
         />
         <CustomSelect
           label="Formato"
@@ -205,7 +157,7 @@ export function CreateMovieDialog({
           placeholder="https://www.youtube.com/embed/..."
           error={errors.trailerUrl ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
-          maxLength={MAX_LENGTH_MOVIE.TRAILER_URL}
+          maxLength={MAX_LENGTH.TRAILER_URL}
         />
         <SectionSelect
           form={form}

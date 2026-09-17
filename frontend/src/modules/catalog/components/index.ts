@@ -7,3 +7,6 @@ export { CreateBoardGameDialog } from "./CreateBoardGameDialog";
 export { CreateRolGameDialog } from "./CreateRolGameDialog";
 export { CreateVideoGameDialog } from "./CreateVideoGameDialog";
 export { ItemCard } from "./ItemCard";
+export { ItemImageInput } from "./ItemImageInput";
+export { AdminItemInfoForm } from "./AdminItemInfoForm";
+export { BaseGameSelect } from "./BaseGameSelect";

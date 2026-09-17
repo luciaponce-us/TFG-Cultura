@@ -32,8 +32,9 @@ export function validateBoardGameForm(
   };
 
   errors = removeEmptyFields(errors);
-  setErrors(errors);
+  
   if (Object.values(errors).some(Boolean)) {
+    setErrors(errors);
     toaster.create({
       title: "Error al crear juego de mesa",
       description:

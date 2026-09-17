@@ -76,3 +76,5 @@ export const INITIAL_SERIES_ERRORS: SeriesErrors = {
   status: "",
   seasons: "",
 };
+
+export {FORMATS_OPTIONS} from "./movie";

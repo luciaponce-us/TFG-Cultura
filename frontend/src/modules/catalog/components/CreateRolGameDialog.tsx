@@ -1,4 +1,19 @@
 import { useState } from "react";
+
+import { Separator } from "@chakra-ui/react";
+
+import {
+  CustomInput,
+  CustomSelect,
+  FormDialog,
+  TextSecondary,
+} from "@/modules/core/components";
+import {
+  handleChange,
+  handleSelectChange,
+  PLACEHOLDER,
+} from "@/modules/core/utils/utils";
+
 import {
   useCreateRolGame,
   useRolGame,
@@ -7,29 +22,17 @@ import {
   useUpdateRolGame,
 } from "../hooks";
 import {
-  handleChange,
-  handleSelectChange,
-  PLACEHOLDER,
-} from "@/modules/core/utils/utils";
-import { Separator } from "@chakra-ui/react";
-import {
-  CustomInput,
-  CustomSelect,
-  FormDialog,
-  TextSecondary,
-} from "@/modules/core/components";
-import {
+  INITIAL_ROL_GAME,
   INITIAL_ROL_GAME_ERRORS,
   ROL_BOOK_TYPES_OPTIONS,
   type RolGameErrors,
 } from "../types/rolgame";
+import type { CreateItemDialogProps } from "../types";
 import {
   MAX_LENGTH,
   validateRolGameForm,
 } from "../validations/rolgame.validations";
-import { AdminItemInfoForm } from "./AdminItemInfoForm";
-import type { CreateItemDialogProps } from "../types/props";
-import { ItemImageInput } from "./ItemImageInput";
+import { AdminItemInfoForm, ItemImageInput } from "./";
 
 interface CreateRolGameDialogProps extends CreateItemDialogProps {
   readonly sagaId: string;
@@ -47,13 +50,11 @@ export function CreateRolGameDialog({
   const [image, setImage] = useState<File | null>(null);
   const {
     mutateAsync: createRolGame,
-    isPending: submitting,
-    isError: isCreateRolGameError,
+    isPending: submitting
   } = useCreateRolGame(form, image, setErrors, setIsOpen);
   const {
     mutateAsync: updateRolGame,
-    isPending: updating,
-    isError: isUpdateRolGameError,
+    isPending: updating
   } = useUpdateRolGame(itemId, form, image, setErrors, setIsOpen);
   const loading = submitting || updating;
 
@@ -63,19 +64,14 @@ export function CreateRolGameDialog({
     handleSelectChange(value, "type", form, setErrors, setForm);
 
   async function handleSubmit() {
-    const errors = validateRolGameForm(form);
-    console.error("Validation errors:", errors);
-    setErrors(errors);
-    if (Object.values(errors).some(Boolean)) {
-      return;
-    }
+    validateRolGameForm(form, setErrors);
+
+    if (errors != INITIAL_ROL_GAME_ERRORS) return;
+    
     if (itemId) {
       await updateRolGame();
     } else {
       await createRolGame();
-    }
-    if (!isCreateRolGameError && !isUpdateRolGameError) {
-      setIsOpen(false);
     }
   }
 
@@ -88,6 +84,11 @@ export function CreateRolGameDialog({
       }
       handleSubmit={async () => await handleSubmit()}
       submitButtonText={itemId ? "Actualizar" : "Crear"}
+      resetForm={() => {
+        setForm(INITIAL_ROL_GAME);
+        setErrors(INITIAL_ROL_GAME_ERRORS);
+        setImage(null);
+      }}
     >
       <ItemImageInput
         image={image}

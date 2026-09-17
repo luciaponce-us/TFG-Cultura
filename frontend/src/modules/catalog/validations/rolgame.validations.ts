@@ -8,20 +8,32 @@ import type {
   RolGameRequest,
 } from "../types/rolgame";
 import { removeEmptyFields } from "@/modules/core/utils/utils";
+import type { Dispatch, SetStateAction } from "react";
+import { toaster } from "@/modules/core/components/toaster/toaster";
 
 export const MAX_LENGTH = {
   ...MAX_LENGTH_ITEM,
 };
 
-export function validateRolGameForm(form: RolGameRequest): RolGameErrors {
+export function validateRolGameForm(form: RolGameRequest, setErrors: Dispatch<SetStateAction<RolGameErrors>>): void {
   const base = validateItemForm(form);
-  const errors: RolGameErrors = {
+  let errors: RolGameErrors = {
     ...base,
     type: validateType(form.type),
     sagaId: validateSagaId(form.sagaId),
   };
 
-  return removeEmptyFields(errors);
+  errors = removeEmptyFields(errors);
+  
+  if (Object.values(errors).some(Boolean)) {
+    setErrors(errors);
+    toaster.create({
+      title: "Error al crear juego de rol",
+      description:
+        "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
+      type: "error",
+    });
+  }
 }
 
 function validateType(value: RolBookType): string | undefined {

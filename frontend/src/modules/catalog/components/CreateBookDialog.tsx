@@ -1,58 +1,60 @@
 import { useState } from "react";
-import type { BookErrors } from "../types/book";
-import { BOOK_TYPES_OPTIONS, INITIAL_BOOK_ERRORS } from "../types/book";
-import { useCreateBook, useBook, useBookForm, useUpdateBook } from "../hooks";
-import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
+
+import { Separator } from "@chakra-ui/react";
+
 import {
   CustomInput,
   CustomSelect,
   FormDialog,
-  UploadBox,
 } from "@/modules/core/components";
 import {
-  MAX_LENGTH as MAX_LENGTH_BOOK,
-  cleanIsbn,
-  validateBookForm,
-} from "../validations/book.validations";
-import { MAX_LENGTH as MAX_LENGTH_ITEM } from "../validations/item.validations";
-import { CreateSagaDialog, SagaSelect } from "./";
+  handleChange,
+  handleSelectChange,
+  PLACEHOLDER,
+} from "@/modules/core/utils/utils";
 import {
   CategoriesSelect,
   CreateCategoryDialog,
 } from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
-import { AdminItemInfoForm } from "./AdminItemInfoForm";
 
-const BOOK_PLACEHOLDER =
-  "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/book_placeholder.jpg";
-
-interface CreateBookDialogProps {
-  readonly isOpen: boolean;
-  readonly setIsOpen: (isOpen: boolean) => void;
-  readonly sectionDefaultValue?: string;
-  readonly itemId?: string;
-}
+import { useBook, useBookForm, useCreateBook, useUpdateBook } from "../hooks";
+import {
+  BOOK_TYPES_OPTIONS,
+  INITIAL_BOOK,
+  INITIAL_BOOK_ERRORS,
+  type BookErrors,
+} from "../types/book";
+import type { CreateItemDialogProps } from "../types";
+import {
+  MAX_LENGTH,
+  cleanIsbn,
+  validateBookForm,
+} from "../validations/book.validations";
+import {
+  AdminItemInfoForm,
+  CreateSagaDialog,
+  ItemImageInput,
+  SagaSelect,
+} from "./";
 
 export function CreateBookDialog({
   isOpen,
   setIsOpen,
   sectionDefaultValue,
   itemId,
-}: CreateBookDialogProps) {
+}: CreateItemDialogProps) {
   const { data: bookToUpdate } = useBook(itemId);
   const { form, setForm } = useBookForm(itemId, bookToUpdate);
   const [errors, setErrors] = useState<BookErrors>(INITIAL_BOOK_ERRORS);
   const [image, setImage] = useState<File | null>(null);
   const {
     mutateAsync: createBook,
-    isPending: submitting,
-    isError: isCreateBookError,
+    isPending: submitting
   } = useCreateBook(form, image, setErrors, setIsOpen);
   const {
     mutateAsync: updateBook,
-    isPending: updating,
-    isError: isUpdateBookError,
+    isPending: updating
   } = useUpdateBook(itemId, form, image, setErrors, setIsOpen);
 
   const loading = submitting || updating;
@@ -63,21 +65,14 @@ export function CreateBookDialog({
     handleSelectChange(value, "type", form, setErrors, setForm);
 
   async function handleSubmit() {
-    const errors = validateBookForm(form);
-    setErrors(errors);
-    if (Object.values(errors).some(Boolean)) {
-      return;
-    }
+    validateBookForm(form, setErrors);
+
+    if (errors != INITIAL_BOOK_ERRORS) return;
+
     if (itemId) {
       await updateBook();
-      if (!isUpdateBookError) {
-        setIsOpen(false);
-      }
     } else {
       await createBook();
-      if (!isCreateBookError) {
-        setIsOpen(false);
-      }
     }
   }
 
@@ -91,38 +86,19 @@ export function CreateBookDialog({
         }
         handleSubmit={async () => await handleSubmit()}
         submitButtonText={itemId ? "Actualizar" : "Crear"}
+        resetForm={() => {
+          setForm(INITIAL_BOOK);
+          setErrors(INITIAL_BOOK_ERRORS);
+          setImage(null);
+        }}
       >
-        <HStack
-          align="stretch"
-          w="100%"
-          maxW="100%"
-          maxH="200px"
-          mb={image ? "60px" : ""}
-        >
-          <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
-            <Image
-              src={image ? URL.createObjectURL(image) : BOOK_PLACEHOLDER}
-              alt="Foto del libro"
-              w="100%"
-              h="100%"
-              objectFit="cover"
-              borderRadius="md"
-            />
-          </Box>
-          <VStack flex={1} minW={0}>
-            <UploadBox
-              text={
-                <>
-                  Arrastra la <b>foto del libro</b>
-                </>
-              }
-              secondaryText="JPG o PNG, tamaño no superior a 2MB"
-              fileType="image/*"
-              onFileChange={setImage}
-              disabled={loading}
-            />
-          </VStack>
-        </HStack>
+        <ItemImageInput
+          image={image}
+          setImage={setImage}
+          loading={loading}
+          placeholder={PLACEHOLDER.BOOK}
+        />
+
         <CustomInput
           label="Título"
           name="name"
@@ -130,7 +106,7 @@ export function CreateBookDialog({
           required
           error={errors.name ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
-          maxLength={MAX_LENGTH_ITEM.NAME}
+          maxLength={MAX_LENGTH.NAME}
           defaultValue={form.name}
         />
 
@@ -142,7 +118,7 @@ export function CreateBookDialog({
           error={errors.author ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           defaultValue={form.author}
-          maxLength={MAX_LENGTH_BOOK.AUTHOR}
+          maxLength={MAX_LENGTH.AUTHOR}
         />
 
         <SagaSelect
@@ -167,7 +143,7 @@ export function CreateBookDialog({
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           textarea
           maxInputHeight="240px"
-          maxLength={MAX_LENGTH_ITEM.DESCRIPTION}
+          maxLength={MAX_LENGTH.DESCRIPTION}
           defaultValue={form.description}
         />
 
@@ -197,7 +173,7 @@ export function CreateBookDialog({
           onChange={(e) => {
             e.target.value = cleanIsbn(e.target.value).slice(
               0,
-              MAX_LENGTH_BOOK.ISBN,
+              MAX_LENGTH.ISBN,
             );
             handleChange(e, form, setErrors, setForm);
           }}

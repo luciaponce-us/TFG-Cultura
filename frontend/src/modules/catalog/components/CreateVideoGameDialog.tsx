@@ -1,19 +1,18 @@
 import { useState } from "react";
-import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
-import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
+
+import { Separator } from "@chakra-ui/react";
+
 import {
+  CustomDateInput,
   CustomInput,
   CustomSelect,
-  CustomDateInput,
   FormDialog,
-  UploadBox,
-  toaster,
 } from "@/modules/core/components";
-import {
-  CategoriesSelect,
-  CreateCategoryDialog,
-} from "@/modules/categories/components";
+import { CategoriesSelect, CreateCategoryDialog } from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
+import { handleChange, handleSelectChange, PLACEHOLDER } from "@/modules/core/utils/utils";
+
+import { useCreateVideoGame } from "../hooks";
 import {
   INITIAL_VIDEO_GAME,
   INITIAL_VIDEO_GAME_ERRORS,
@@ -21,25 +20,14 @@ import {
   type VideoGameErrors,
   type VideoGameRequest,
 } from "../types/videogame";
-import { useCreateVideoGame } from "../hooks/useCreateVideoGame";
-import {
-  MAX_LENGTH,
-  validateVideoGameForm,
-} from "../validations/videogame.validations";
-import { AdminItemInfoForm } from "./AdminItemInfoForm";
-
-const VIDEOGAME_PLACEHOLDER =
-  "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/movie_placeholder.jpg";
-
-interface CreateVideoGameDialogProps {
-  readonly isOpen: boolean;
-  readonly setIsOpen: (isOpen: boolean) => void;
-}
+import type { CreateItemDialogProps } from "../types";
+import { MAX_LENGTH, validateVideoGameForm } from "../validations/videogame.validations";
+import { AdminItemInfoForm, ItemImageInput } from "./";
 
 export function CreateVideoGameDialog({
   isOpen,
   setIsOpen,
-}: CreateVideoGameDialogProps) {
+}: CreateItemDialogProps) {
   const [form, setForm] = useState<VideoGameRequest>(INITIAL_VIDEO_GAME);
   const [errors, setErrors] = useState<VideoGameErrors>(
     INITIAL_VIDEO_GAME_ERRORS,
@@ -53,17 +41,8 @@ export function CreateVideoGameDialog({
     handleSelectChange(value, "platform", form, setErrors, setForm);
 
   async function handleSubmit() {
-    const validationErrors = validateVideoGameForm(form);
-    setErrors(validationErrors);
-    if (Object.values(validationErrors).some(Boolean)) {
-      toaster.create({
-        title: "Error al crear videojuego",
-        description:
-          "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
-        type: "error",
-      });
-      return;
-    }
+    validateVideoGameForm(form, setErrors);
+    if (errors != INITIAL_VIDEO_GAME_ERRORS) return;
     await createVideoGame();
   }
 
@@ -81,37 +60,12 @@ export function CreateVideoGameDialog({
           setImage(null);
         }}
       >
-        <HStack
-          align="stretch"
-          w="100%"
-          maxW="100%"
-          maxH="200px"
-          mb={image ? "60px" : ""}
-        >
-          <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
-            <Image
-              src={image ? URL.createObjectURL(image) : VIDEOGAME_PLACEHOLDER}
-              alt="Foto de la película"
-              w="100%"
-              h="100%"
-              objectFit="cover"
-              borderRadius="md"
-            />
-          </Box>
-          <VStack flex={1} minW={0}>
-            <UploadBox
-              text={
-                <>
-                  Arrastra la <b>foto del videojuego</b>
-                </>
-              }
-              secondaryText="JPG o PNG, tamaño no superior a 2MB"
-              fileType="image/*"
-              onFileChange={setImage}
-              disabled={submitting}
-            />
-          </VStack>
-        </HStack>
+        <ItemImageInput
+          image={image}
+          setImage={setImage}
+          loading={submitting}
+          placeholder={PLACEHOLDER.VIDEOGAME}
+        />
 
         <CustomInput
           label="Título"

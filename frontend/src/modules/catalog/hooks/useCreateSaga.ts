@@ -3,8 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { isApiError } from "@/modules/core/utils/utils";
 import { createSaga } from "../service/saga.service";
+import type { Dispatch, SetStateAction } from "react";
 
-export function useCreateSaga() {
+export function useCreateSaga(setError: Dispatch<SetStateAction<string | null>>) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
 
@@ -37,6 +38,7 @@ export function useCreateSaga() {
           description: error.message,
           type: "error",
         });
+        setError(error.message);
       }
     },
   });
