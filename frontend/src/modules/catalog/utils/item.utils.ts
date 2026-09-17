@@ -1,6 +1,7 @@
 import type { Item, ItemRequest } from "../types";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
 import type { Book, BookRequest } from "../types/book";
+import type { Movie, MovieRequest } from "../types/movie";
 
 function toRequest(item: Item): ItemRequest {
   return {
@@ -40,5 +41,18 @@ export function toBookRequest(book: Book): BookRequest {
     isbn: book.isbn,
     type: book.type,
     sagaName: book.saga ? book.saga : undefined,
+  };
+}
+
+export function toMovieRequest(movie: Movie): MovieRequest {
+  console.log("toMovieRequest movie:", movie);
+  const itemRequest = toRequest(movie);
+  return {
+    ...itemRequest,
+    format: movie.format,
+    numberOfDiscs: movie.numberOfDiscs,
+    releaseDate: movie.releaseDate,
+    trailerUrl: movie.trailerUrl,
+    sagaName: movie.saga ? movie.saga.name : undefined,
   };
 }

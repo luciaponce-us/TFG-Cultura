@@ -18,7 +18,10 @@ export { useCreateSaga } from "./useCreateSaga";
 
 // MOVIE
 export { useMovies } from "./useMovies";
+export { useMovie } from "./useMovie";
 export { useCreateMovie } from "./useCreateMovie";
+export { useUpdateMovie } from "./useUpdateMovie";
+export { useMovieForm } from "./form/useMovieForm";
 
 // SERIES
 export { useSeries } from "./useSeries";

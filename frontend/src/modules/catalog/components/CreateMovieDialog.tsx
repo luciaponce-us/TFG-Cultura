@@ -1,11 +1,12 @@
 import { useState } from "react";
-import type { MovieErrors, MovieRequest } from "../types/movie";
+import type { MovieErrors } from "../types/movie";
+import { FORMATS_OPTIONS, INITIAL_MOVIE_ERRORS } from "../types/movie";
 import {
-  FORMATS_OPTIONS,
-  INITIAL_MOVIE,
-  INITIAL_MOVIE_ERRORS,
-} from "../types/movie";
-import { useCreateMovie } from "../hooks";
+  useCreateMovie,
+  useMovie,
+  useMovieForm,
+  useUpdateMovie,
+} from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
 import {
@@ -36,21 +37,30 @@ const MOVIE_PLACEHOLDER =
 interface CreateMovieDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
+  readonly itemId?: string;
 }
 
 export function CreateMovieDialog({
   isOpen,
   setIsOpen,
+  itemId,
 }: CreateMovieDialogProps) {
-  const [form, setForm] = useState<MovieRequest>(INITIAL_MOVIE);
+  const { data: movieToUpdate } = useMovie(itemId);
+  const { form, setForm } = useMovieForm(itemId, movieToUpdate);
   const [errors, setErrors] = useState<MovieErrors>(INITIAL_MOVIE_ERRORS);
   const [image, setImage] = useState<File | null>(null);
-  const { mutateAsync: createMovie, isPending: submitting } = useCreateMovie(
-    form,
-    image,
-    setErrors,
-    setIsOpen,
-  );
+  const {
+    mutateAsync: createMovie,
+    isPending: submitting,
+    isError: createError,
+  } = useCreateMovie(form, image, setErrors, setIsOpen);
+  const {
+    mutateAsync: updateMovie,
+    isPending: updating,
+    isError: updateError,
+  } = useUpdateMovie(itemId, form, image, setErrors, setIsOpen);
+  const loading = submitting || updating;
+  const imageSrc = image ? URL.createObjectURL(image) : movieToUpdate? movieToUpdate.imageUrl : MOVIE_PLACEHOLDER
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
@@ -62,14 +72,24 @@ export function CreateMovieDialog({
     setErrors(validationErrors);
     if (Object.values(validationErrors).some(Boolean)) {
       toaster.create({
-        title: "Error al crear película",
+        title: `Error al ${itemId ? "editar" : "crear"} película`,
         description:
           "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
         type: "error",
       });
       return;
     }
-    await createMovie();
+    if (itemId) {
+      await updateMovie();
+      if (!updateError) {
+        setIsOpen(false);
+      }
+    } else {
+      await createMovie();
+      if (!createError) {
+        setIsOpen(false);
+      }
+    }
   }
 
   return (
@@ -77,9 +97,9 @@ export function CreateMovieDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title="Crear película"
+        title={movieToUpdate ? `Editando "${movieToUpdate.name}"` : "Crear película"}
         handleSubmit={handleSubmit}
-        submitButtonText="Crear"
+        submitButtonText={movieToUpdate ? "Actualizar" : "Crear"}
       >
         <HStack
           align="stretch"
@@ -90,7 +110,7 @@ export function CreateMovieDialog({
         >
           <Box aspectRatio={2 / 3} h="auto" maxH="100%" flexShrink={0}>
             <Image
-              src={image ? URL.createObjectURL(image) : MOVIE_PLACEHOLDER}
+              src={imageSrc}
               alt="Foto de la película"
               w="100%"
               h="100%"
@@ -108,7 +128,7 @@ export function CreateMovieDialog({
               secondaryText="JPG o PNG, tamaño no superior a 2MB"
               fileType="image/*"
               onFileChange={setImage}
-              disabled={submitting}
+              disabled={loading}
             />
           </VStack>
         </HStack>
@@ -121,6 +141,7 @@ export function CreateMovieDialog({
           error={errors.name ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH_ITEM.NAME}
+          defaultValue={form.name}
         />
         <SagaSelect
           form={form}
@@ -194,7 +215,7 @@ export function CreateMovieDialog({
           setForm={setForm}
           errors={errors}
           setErrors={setErrors}
-          loading={submitting}
+          loading={loading}
         />
       </FormDialog>
       <CreateSagaDialog
