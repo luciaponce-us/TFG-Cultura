@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { BookErrors } from "../types/book";
 import { BOOK_TYPES_OPTIONS, INITIAL_BOOK_ERRORS } from "../types/book";
-import { useCreateBook, useBook, useBookForm } from "../hooks";
+import { useCreateBook, useBook, useBookForm, useUpdateBook } from "../hooks";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 import { HStack, Separator, VStack, Image, Box } from "@chakra-ui/react";
 import {
@@ -50,7 +50,9 @@ export function CreateBookDialog({
     isPending: submitting,
     isError: isCreateBookError,
   } = useCreateBook(form, image, setErrors, setIsOpen);
+  const {mutateAsync: updateBook, isPending: updating, isError: isUpdateBookError} = useUpdateBook(bookId, form, image, setErrors, setIsOpen);
 
+  const loading = submitting || updating;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
@@ -63,9 +65,16 @@ export function CreateBookDialog({
     if (Object.values(errors).some(Boolean)) {
       return;
     }
-    await createBook();
-    if (!isCreateBookError) {
+    if (bookId) {
+      await updateBook();
+      if(!isUpdateBookError) {
+        setIsOpen(false);
+      }
+    } else {
+      await createBook();
+      if (!isCreateBookError) {
       setIsOpen(false);
+    }
     }
   }
 
@@ -78,7 +87,7 @@ export function CreateBookDialog({
           bookId ? `Editando "${bookToUpdate?.name || "libro"}"` : "Crear libro"
         }
         handleSubmit={async () => await handleSubmit()}
-        submitButtonText="Crear"
+        submitButtonText={bookId ? "Actualizar" : "Crear"}
       >
         <HStack
           align="stretch"
@@ -107,7 +116,7 @@ export function CreateBookDialog({
               secondaryText="JPG o PNG, tamaño no superior a 2MB"
               fileType="image/*"
               onFileChange={setImage}
-              disabled={submitting}
+              disabled={loading}
             />
           </VStack>
         </HStack>
@@ -198,7 +207,7 @@ export function CreateBookDialog({
           setForm={setForm}
           errors={errors}
           setErrors={setErrors}
-          loading={submitting}
+          loading={loading}
         />
       </FormDialog>
       <CreateSagaDialog

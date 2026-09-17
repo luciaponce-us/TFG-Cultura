@@ -9,6 +9,7 @@ export { useBoardGameForm } from "./form/useBoardGameForm";
 export { useBooks } from "./useBooks";
 export { useBook } from "./useBook";
 export { useCreateBook } from "./useCreateBook";
+export { useUpdateBook } from "./useUpdateBook";
 export { useBookForm } from "./form/useBookForm";
 
 // SAGA
