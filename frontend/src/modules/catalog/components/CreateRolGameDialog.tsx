@@ -147,7 +147,7 @@ export function CreateRolGameDialog({
         error={errors.description ?? ""}
         onChange={(e) => handleChange(e, form, setErrors, setForm)}
         textarea
-        maxInputHeight="125px"
+        maxInputHeight="240px"
         maxLength={MAX_LENGTH.DESCRIPTION}
       />
 

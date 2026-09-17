@@ -153,7 +153,7 @@ export function CreateBoardGameDialog({
           defaultValue={form.description}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           textarea
-          maxInputHeight="125px"
+          maxInputHeight="240px"
           maxLength={MAX_LENGTH.DESCRIPTION}
         />
         {allowBaseGame && (

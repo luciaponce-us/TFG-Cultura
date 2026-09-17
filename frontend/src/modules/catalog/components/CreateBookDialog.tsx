@@ -154,7 +154,7 @@ export function CreateBookDialog({
           error={errors.description ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           textarea
-          maxInputHeight="125px"
+          maxInputHeight="240px"
           maxLength={MAX_LENGTH_ITEM.DESCRIPTION}
           defaultValue={form.description}
         />

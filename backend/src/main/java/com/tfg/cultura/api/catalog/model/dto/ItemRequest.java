@@ -29,7 +29,7 @@ public class ItemRequest {
 	@Size(min = 3, max = 50, message = "El nombre debe tener entre 3 y 50 caracteres")
 	private String name;
 
-	@Size(max = 280, message = "La descripción no puede tener más de 280 caracteres")
+	@Size(max = 500, message = "La descripción no puede tener más de 500 caracteres")
 	private String description;
 
 	@Builder.Default

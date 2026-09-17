@@ -168,7 +168,7 @@ export function CreateSeriesDialog({
           error={errors.description ?? ""}
           onChange={(event) => handleChange(event, form, setErrors, setForm)}
           textarea
-          maxInputHeight="125px"
+          maxInputHeight="240px"
           maxLength={MAX_LENGTH_ITEM.DESCRIPTION}
         />
         <CustomSelect

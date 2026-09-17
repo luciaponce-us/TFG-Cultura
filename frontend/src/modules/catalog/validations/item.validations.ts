@@ -2,7 +2,7 @@ import type { ItemRequest, ItemErrors } from "../types";
 
 export const MAX_LENGTH = {
   NAME: 50,
-  DESCRIPTION: 280,
+  DESCRIPTION: 500,
   COMMENTS: 280,
 };
 
