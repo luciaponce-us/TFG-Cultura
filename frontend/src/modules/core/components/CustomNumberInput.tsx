@@ -2,10 +2,10 @@ import { Field, HStack, NumberInput, Text } from "@chakra-ui/react";
 
 interface CustomNumberInputProps extends Omit<
   NumberInput.RootProps,
-  "defaultValue" | "onChange"
+  "defaultValue" | "onChange" | "value"
 > {
   defaultValue: number;
-  value?: string | undefined;
+  value?: number | undefined;
   onChange: (value: number) => void;
   label: string;
   min?: number;
