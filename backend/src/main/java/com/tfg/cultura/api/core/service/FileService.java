@@ -9,10 +9,13 @@ import com.tfg.cultura.api.core.exception.file.InvalidFileTypeException;
 import com.tfg.cultura.api.core.model.CustomMultipartFile;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.utils.LoggerSanitizer;
+import com.tfg.cultura.api.core.validation.enums.ResourceType;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
@@ -57,6 +60,9 @@ public class FileService {
 
 	public void deleteFile(String url) throws FileDeleteException {
 		try {
+			if (!isCloudinaryUrl(url, ResourceType.IMAGE) || !isCloudinaryUrl(url, ResourceType.RAW)) {
+				return; // No es una URL de Cloudinary, no se puede eliminar. Solo sucede con seeder
+			}
 			String publicId = extractPublicId(url);
 			cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
 		} catch (Exception e) {
@@ -180,6 +186,12 @@ public class FileService {
 		} catch (Exception e) {
 			throw new FileDeleteException(e.getMessage());
 		}
+	}
+
+	private Boolean isCloudinaryUrl(String url, ResourceType type) {
+		String resourceType = type.name().toLowerCase(Locale.ROOT);
+		String regex = "^https://res\\.cloudinary\\.com/[^/]+/(" + resourceType + ")/upload/.+";
+		return url != null && url.matches(regex);
 	}
 
 }
