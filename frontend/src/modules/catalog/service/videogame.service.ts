@@ -44,7 +44,7 @@ export async function createVideoGame(
 }
 
 export async function updateVideoGame(
-    token: string,
+  token: string,
   videoGameId: string,
   request: VideoGameRequest,
   image: File | null,
@@ -58,6 +58,9 @@ export async function updateVideoGame(
   );
 }
 
-export async function deleteVideoGame(token: string, videoGameId: string): Promise<void> {
+export async function deleteVideoGame(
+  token: string,
+  videoGameId: string,
+): Promise<void> {
   return deleteItem(VIDEOGAME_ROUTES, token, videoGameId);
 }

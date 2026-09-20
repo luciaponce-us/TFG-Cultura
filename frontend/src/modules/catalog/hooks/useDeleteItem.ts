@@ -16,16 +16,15 @@ export function useDeleteItem(id: string | undefined, type: ItemType) {
 
   return useMutation({
     mutationFn: async () => {
-        if (!token) {
-            toaster.create({
-                title: "Inicia sesión para eliminar elementos",
-                description:
-                    "Necesitas iniciar sesión para eliminar un elemento.",
-                type: "error",
-            });
-            return;
-        }
-        if (!id) return undefined;
+      if (!token) {
+        toaster.create({
+          title: "Inicia sesión para eliminar elementos",
+          description: "Necesitas iniciar sesión para eliminar un elemento.",
+          type: "error",
+        });
+        return;
+      }
+      if (!id) return undefined;
 
       switch (type) {
         case ITEM_TYPES.BOARD_GAME:
@@ -61,7 +60,7 @@ export function useDeleteItem(id: string | undefined, type: ItemType) {
           "Ocurrió un error al intentar eliminar el elemento. Por favor, inténtalo de nuevo más tarde.",
         type: "error",
       });
-    }
+    },
   });
 }
 

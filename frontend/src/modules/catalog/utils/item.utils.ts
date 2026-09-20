@@ -104,12 +104,12 @@ export function toSeriesRequest(series: Series): SeriesRequest {
   const itemRequest = toRequest(series);
   return {
     ...itemRequest,
-      format: toFormatValue(series.format),
-      numberOfDiscs: series.numberOfDiscs,
-      releaseDate: series.releaseDate,
-      numberOfSeasons: series.numberOfSeasons,
-      status: series.status,
-      seasons: series.seasons,
+    format: toFormatValue(series.format),
+    numberOfDiscs: series.numberOfDiscs,
+    releaseDate: series.releaseDate,
+    numberOfSeasons: series.numberOfSeasons,
+    status: series.status,
+    seasons: series.seasons,
   };
 }
 

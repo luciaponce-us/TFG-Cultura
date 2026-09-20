@@ -23,7 +23,12 @@ import {
   PLACEHOLDER,
 } from "@/modules/core/utils/utils";
 
-import { useCreateSeries,useSerie, useSeriesForm, useUpdateSeries } from "../hooks";
+import {
+  useCreateSeries,
+  useSerie,
+  useSeriesForm,
+  useUpdateSeries,
+} from "../hooks";
 import {
   FORMATS_OPTIONS,
   INITIAL_SERIES,
@@ -43,9 +48,14 @@ export function CreateSeriesDialog({
   setIsOpen,
   itemId,
 }: CreateItemDialogProps) {
-  const {data: seriesToUpdate, isLoading: isSeriesToEditLoading} = useSerie(itemId);
+  const { data: seriesToUpdate, isLoading: isSeriesToEditLoading } =
+    useSerie(itemId);
   console.log("seriesToUpdate", seriesToUpdate);
-  const {form, setForm} = useSeriesForm(itemId, seriesToUpdate, isSeriesToEditLoading);
+  const { form, setForm } = useSeriesForm(
+    itemId,
+    seriesToUpdate,
+    isSeriesToEditLoading,
+  );
   const [errors, setErrors] = useState<SeriesErrors>(INITIAL_SERIES_ERRORS);
   const [image, setImage] = useState<File | null>(null);
   function resetForm() {
@@ -123,7 +133,9 @@ export function CreateSeriesDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title={seriesToUpdate ? `Editando "${seriesToUpdate.name}"` : "Crear serie"}
+        title={
+          seriesToUpdate ? `Editando "${seriesToUpdate.name}"` : "Crear serie"
+        }
         handleSubmit={handleSubmit}
         submitButtonText={itemId ? "Guardar" : "Crear"}
         resetForm={resetForm}
@@ -233,11 +245,7 @@ export function CreateSeriesDialog({
               Temporadas
             </Heading>
 
-            <CustomButton
-              type="button"
-              onClick={addSeason}
-              disabled={loading}
-            >
+            <CustomButton type="button" onClick={addSeason} disabled={loading}>
               <IconPlus />
               Añadir temporada
             </CustomButton>

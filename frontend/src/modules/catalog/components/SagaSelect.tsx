@@ -17,7 +17,13 @@ interface SagaSelectProps<
 export function SagaSelect<
   T extends ItemRequest & { sagaName?: string },
   E extends ItemErrors & { sagaName?: string },
->({ form, setErrors, setForm, onCreateSaga, disabled=false }: SagaSelectProps<T, E>) {
+>({
+  form,
+  setErrors,
+  setForm,
+  onCreateSaga,
+  disabled = false,
+}: SagaSelectProps<T, E>) {
   const {
     data: sagas,
     isLoading: isSagasLoading,

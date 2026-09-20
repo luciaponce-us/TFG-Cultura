@@ -2,7 +2,12 @@ import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
 
 import { ROLGAME_ROUTES } from "../routes";
 import type { RolGame, RolGameRequest } from "../types/rolgame";
-import { createItem, deleteItem, fetchItemById, updateItem } from "./item.service";
+import {
+  createItem,
+  deleteItem,
+  fetchItemById,
+  updateItem,
+} from "./item.service";
 
 export async function fetchAllRolGamesBySagaId(
   sagaId: string,
@@ -46,6 +51,9 @@ export async function updateRolGame(
   );
 }
 
-export async function deleteRolGame(token: string, rolGameId: string): Promise<void> {
+export async function deleteRolGame(
+  token: string,
+  rolGameId: string,
+): Promise<void> {
   return deleteItem(ROLGAME_ROUTES, token, rolGameId);
 }

@@ -19,7 +19,12 @@ import {
   PLACEHOLDER,
 } from "@/modules/core/utils/utils";
 
-import { useCreateVideoGame, useUpdateVideogame, useVideogame, useVideoGameForm } from "../hooks";
+import {
+  useCreateVideoGame,
+  useUpdateVideogame,
+  useVideogame,
+  useVideoGameForm,
+} from "../hooks";
 import {
   INITIAL_VIDEO_GAME,
   INITIAL_VIDEO_GAME_ERRORS,
@@ -83,7 +88,11 @@ export function CreateVideoGameDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title={videoGameToUpdate ? `Editando "${videoGameToUpdate.name}"` : "Crear videojuego"}
+        title={
+          videoGameToUpdate
+            ? `Editando "${videoGameToUpdate.name}"`
+            : "Crear videojuego"
+        }
         handleSubmit={handleSubmit}
         submitButtonText={itemId ? "Guardar" : "Crear"}
         resetForm={resetForm}

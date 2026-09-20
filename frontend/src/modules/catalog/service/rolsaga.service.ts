@@ -86,7 +86,10 @@ export async function updateRolSaga(
   return handleResponse<RolSaga>(res);
 }
 
-export async function deleteRolSaga(token: string, sagaId: string): Promise<void> {
+export async function deleteRolSaga(
+  token: string,
+  sagaId: string,
+): Promise<void> {
   const res = await fetchWithTimeout(ROL_SAGA_ROUTES.GET_BY_ID(sagaId), {
     method: "DELETE",
     headers: {
