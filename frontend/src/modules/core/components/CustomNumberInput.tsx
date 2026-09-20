@@ -5,6 +5,7 @@ interface CustomNumberInputProps extends Omit<
   "defaultValue" | "onChange"
 > {
   defaultValue: number;
+  value?: string | undefined;
   onChange: (value: number) => void;
   label: string;
   min?: number;
@@ -16,6 +17,7 @@ interface CustomNumberInputProps extends Omit<
 
 export function CustomNumberInput({
   defaultValue,
+  value,
   onChange,
   label,
   error,
@@ -32,7 +34,9 @@ export function CustomNumberInput({
       </Field.Label>
       <HStack>
         <NumberInput.Root
-          defaultValue={defaultValue as unknown as string}
+          {...(value === undefined
+            ? { defaultValue: defaultValue as unknown as string }
+            : { value: value.toString() })}
           min={min}
           max={max}
           onValueChange={({ valueAsNumber }) => onChange(valueAsNumber)}
