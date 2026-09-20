@@ -11,6 +11,7 @@ export function useUpdateBook(
   image: File | null,
   setErrors: (errors: Record<string, string>) => void,
   setIsOpen: (isOpen: boolean) => void,
+  resetForm: () => void,
 ) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
@@ -45,6 +46,7 @@ export function useUpdateBook(
 
       await queryClient.invalidateQueries({ queryKey: ["books"] });
       setIsOpen(false);
+      resetForm();
       return book;
     },
     onError: (error) => {

@@ -44,15 +44,27 @@ export function CreateBookDialog({
   sectionDefaultValue,
   itemId,
 }: CreateItemDialogProps) {
-  const { data: bookToUpdate, isLoading: isBookToEditLoading } = useBook(itemId);
-  const { form, setForm } = useBookForm(itemId, bookToUpdate, isBookToEditLoading);
+  const { data: bookToUpdate, isLoading: isBookToEditLoading } =
+    useBook(itemId);
+  const { form, setForm } = useBookForm(
+    itemId,
+    bookToUpdate,
+    isBookToEditLoading,
+  );
   const [errors, setErrors] = useState<BookErrors>(INITIAL_BOOK_ERRORS);
   const [image, setImage] = useState<File | null>(null);
+
+  function resetForm() {
+    setForm(INITIAL_BOOK);
+    setErrors(INITIAL_BOOK_ERRORS);
+    setImage(null);
+  }
   const { mutateAsync: createBook, isPending: submitting } = useCreateBook(
     form,
     image,
     setErrors,
     setIsOpen,
+    resetForm,
   );
   const { mutateAsync: updateBook, isPending: updating } = useUpdateBook(
     itemId,
@@ -60,13 +72,8 @@ export function CreateBookDialog({
     image,
     setErrors,
     setIsOpen,
+    resetForm,
   );
-
-  function resetForm() {
-    setForm(INITIAL_BOOK);
-    setErrors(INITIAL_BOOK_ERRORS);
-    setImage(null);
-  }
 
   const loading = submitting || updating;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
@@ -74,7 +81,9 @@ export function CreateBookDialog({
 
   const handleTypeChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "type", form, setErrors, setForm);
-  const handleIsbnChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement, Element>) => {
+  const handleIsbnChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement, Element>,
+  ) => {
     e.target.value = cleanIsbn(e.target.value).slice(0, MAX_LENGTH.ISBN);
     handleChange(e, form, setErrors, setForm);
   };
