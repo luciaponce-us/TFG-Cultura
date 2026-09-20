@@ -11,12 +11,13 @@ interface SagaSelectProps<
   setErrors: Dispatch<SetStateAction<E>>;
   setForm: Dispatch<SetStateAction<T>>;
   onCreateSaga: () => void;
+  disabled?: boolean;
 }
 
 export function SagaSelect<
   T extends ItemRequest & { sagaName?: string },
   E extends ItemErrors & { sagaName?: string },
->({ form, setErrors, setForm, onCreateSaga }: SagaSelectProps<T, E>) {
+>({ form, setErrors, setForm, onCreateSaga, disabled=false }: SagaSelectProps<T, E>) {
   const {
     data: sagas,
     isLoading: isSagasLoading,
@@ -47,6 +48,7 @@ export function SagaSelect<
       error={isSagasError ? "Error al cargar las sagas" : null}
       onCreate={onCreateSaga}
       onCreateLabel="Crear nueva saga"
+      disabled={isSagasLoading || isSagasError || disabled}
     />
   );
 }

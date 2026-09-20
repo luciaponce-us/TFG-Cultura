@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 
 import { Separator } from "@chakra-ui/react";
 
@@ -44,8 +44,8 @@ export function CreateBookDialog({
   sectionDefaultValue,
   itemId,
 }: CreateItemDialogProps) {
-  const { data: bookToUpdate } = useBook(itemId);
-  const { form, setForm } = useBookForm(itemId, bookToUpdate);
+  const { data: bookToUpdate, isLoading: isBookToEditLoading } = useBook(itemId);
+  const { form, setForm } = useBookForm(itemId, bookToUpdate, isBookToEditLoading);
   const [errors, setErrors] = useState<BookErrors>(INITIAL_BOOK_ERRORS);
   const [image, setImage] = useState<File | null>(null);
   const { mutateAsync: createBook, isPending: submitting } = useCreateBook(
@@ -62,23 +62,37 @@ export function CreateBookDialog({
     setIsOpen,
   );
 
+  function resetForm() {
+    setForm(INITIAL_BOOK);
+    setErrors(INITIAL_BOOK_ERRORS);
+    setImage(null);
+  }
+
   const loading = submitting || updating;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
   const handleTypeChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "type", form, setErrors, setForm);
+  const handleIsbnChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement, Element>) => {
+    e.target.value = cleanIsbn(e.target.value).slice(0, MAX_LENGTH.ISBN);
+    handleChange(e, form, setErrors, setForm);
+  };
 
   async function handleSubmit() {
-    validateBookForm(form, setErrors);
+    const isValid = validateBookForm(form, setErrors);
 
-    if (errors != INITIAL_BOOK_ERRORS) return;
+    if (!isValid) return;
 
     if (itemId) {
       await updateBook();
     } else {
       await createBook();
     }
+  }
+
+  if (itemId && isBookToEditLoading) {
+    return null; // Esperando a que se cargue el libro a editar
   }
 
   return (
@@ -91,17 +105,14 @@ export function CreateBookDialog({
         }
         handleSubmit={async () => await handleSubmit()}
         submitButtonText={itemId ? "Actualizar" : "Crear"}
-        resetForm={() => {
-          setForm(INITIAL_BOOK);
-          setErrors(INITIAL_BOOK_ERRORS);
-          setImage(null);
-        }}
+        resetForm={resetForm}
       >
         <ItemImageInput
           image={image}
           setImage={setImage}
-          loading={loading}
+          loading={isBookToEditLoading}
           placeholder={PLACEHOLDER.BOOK}
+          disabled={loading || isBookToEditLoading}
         />
 
         <CustomInput
@@ -113,6 +124,8 @@ export function CreateBookDialog({
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.NAME}
           defaultValue={form.name}
+          value={form.name}
+          disabled={loading || isBookToEditLoading}
         />
 
         <CustomInput
@@ -124,6 +137,8 @@ export function CreateBookDialog({
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           defaultValue={form.author}
           maxLength={MAX_LENGTH.AUTHOR}
+          value={form.author}
+          disabled={loading || isBookToEditLoading}
         />
 
         <SagaSelect
@@ -131,6 +146,7 @@ export function CreateBookDialog({
           setErrors={setErrors}
           setForm={setForm}
           onCreateSaga={() => setSagaDialogOpen(true)}
+          disabled={loading || isBookToEditLoading}
         />
 
         <CategoriesSelect
@@ -138,6 +154,7 @@ export function CreateBookDialog({
           setForm={setForm}
           onCreateCategory={() => setCategoryDialogOpen(true)}
           error={errors.categoriesIds}
+          disabled={loading || isBookToEditLoading}
         />
 
         <CustomInput
@@ -150,6 +167,8 @@ export function CreateBookDialog({
           maxInputHeight="240px"
           maxLength={MAX_LENGTH.DESCRIPTION}
           defaultValue={form.description}
+          value={form.description}
+          disabled={loading || isBookToEditLoading}
         />
 
         <CustomSelect
@@ -159,6 +178,9 @@ export function CreateBookDialog({
           onValueChange={handleTypeChange}
           placeholder="Selecciona el tipo de libro"
           defaultValue={[form?.type]}
+          value={form?.type ? [form.type] : []}
+          error={errors.type ?? ""}
+          disabled={loading || isBookToEditLoading}
         />
 
         <SectionSelect
@@ -167,6 +189,7 @@ export function CreateBookDialog({
           errors={errors}
           setErrors={setErrors}
           defaultValueText={sectionDefaultValue}
+          disabled={loading || isBookToEditLoading}
         />
 
         <CustomInput
@@ -175,14 +198,10 @@ export function CreateBookDialog({
           placeholder="Ej.: 1234567890123"
           required
           error={errors.isbn ?? ""}
-          onChange={(e) => {
-            e.target.value = cleanIsbn(e.target.value).slice(
-              0,
-              MAX_LENGTH.ISBN,
-            );
-            handleChange(e, form, setErrors, setForm);
-          }}
+          onChange={handleIsbnChange}
           defaultValue={form.isbn}
+          value={form.isbn}
+          disabled={loading || isBookToEditLoading}
         />
 
         <Separator />

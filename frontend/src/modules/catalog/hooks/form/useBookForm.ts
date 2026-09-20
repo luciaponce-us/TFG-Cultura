@@ -5,6 +5,7 @@ import { toBookRequest } from "../../utils/item.utils";
 export function useBookForm(
   bookId: string | undefined,
   bookToUpdate?: Book,
+  isLoading: boolean = false,
 ): { form: BookRequest; setForm: Dispatch<SetStateAction<BookRequest>> } {
   const [formOverride, setFormOverride] = useState<{
     bookId: string | undefined;
@@ -19,6 +20,9 @@ export function useBookForm(
       : loadedForm;
 
   const setForm: Dispatch<SetStateAction<BookRequest>> = (nextForm) => {
+    if (bookId && isLoading) {
+      return; // Esperando a que se cargue el libro a editar
+    }
     setFormOverride((currentOverride) => {
       const currentForm =
         currentOverride?.bookId === bookId && currentOverride !== undefined

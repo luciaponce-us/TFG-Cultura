@@ -17,7 +17,7 @@ export const MAX_LENGTH = {
 export function validateBookForm(
   form: BookRequest,
   setErrors: Dispatch<SetStateAction<BookErrors>>,
-): void {
+): boolean {
   const base = validateItemForm(form);
   let errors: BookErrors = {
     ...base,
@@ -37,7 +37,9 @@ export function validateBookForm(
         "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
       type: "error",
     });
+    return false;
   }
+  return true;
 }
 
 function validateAuthor(value: string): string | undefined {
