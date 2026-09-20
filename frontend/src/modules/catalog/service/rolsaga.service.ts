@@ -55,3 +55,33 @@ export async function createRolSaga(
 
   return handleResponse<RolSaga>(res);
 }
+
+export async function updateRolSaga(
+  token: string,
+  sagaId: string,
+  request: RolSagaRequest,
+  image: File | null,
+): Promise<RolSaga> {
+  const formData = new FormData();
+
+  formData.append(
+    "rolSaga",
+    new Blob([JSON.stringify(removeEmptyFields(request))], {
+      type: "application/json",
+    }),
+  );
+
+  if (image) {
+    formData.append("image", image);
+  }
+
+  const res = await fetchWithTimeout(ROL_SAGA_ROUTES.GET_BY_ID(sagaId), {
+    method: "PUT",
+    headers: {
+      ...authHeaders(token),
+    },
+    body: formData,
+  });
+
+  return handleResponse<RolSaga>(res);
+}

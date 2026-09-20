@@ -20,7 +20,8 @@ export const MAX_LENGTH = {
 export function validateRolSagaForm(
   form: RolSagaRequest,
   setErrors: Dispatch<SetStateAction<RolSagaErrors>>,
-): void {
+  isUpdate: boolean = false,
+): boolean {
   let errors: RolSagaErrors = {
     name: validateName(form.name),
     description: validateDescription(form.description),
@@ -31,17 +32,19 @@ export function validateRolSagaForm(
     gameMaster: validateGameMaster(form.gameMaster),
   };
   errors = removeEmptyFields(errors);
-  setErrors(errors);
 
   if (Object.keys(errors).length > 0) {
+    console.error("Errores de validación en el formulario de saga de rol:", errors);
     setErrors(errors);
     toaster.create({
-      title: "Error al crear saga de rol",
+      title: `Error al ${isUpdate ? "editar" : "crear"} saga de rol`,
       description:
         "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
       type: "error",
     });
   }
+
+  return Object.keys(errors).length === 0;
 }
 
 function validateName(name: string): string | undefined {

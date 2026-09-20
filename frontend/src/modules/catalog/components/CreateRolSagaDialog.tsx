@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 
 import {
   CustomInput,
@@ -16,13 +16,17 @@ import {
 } from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
 
-import { useCreateRolSaga } from "../hooks";
+import {
+  useCreateRolSaga,
+  useRolSaga,
+  useRolSagaForm,
+  useUpdateRolSaga,
+} from "../hooks";
 import {
   GAME_MASTERS_OPTIONS,
   INITIAL_ROL_SAGA,
   INITIAL_ROL_SAGA_ERRORS,
   type RolSagaErrors,
-  type RolSagaRequest,
 } from "../types/rolgame";
 import {
   MAX_LENGTH,
@@ -32,23 +36,45 @@ import { ItemImageInput } from "./";
 
 interface CreateRolSagaDialogProps {
   readonly isOpen: boolean;
-  readonly setIsOpen: (isOpen: boolean) => void;
+  readonly setIsOpen: Dispatch<SetStateAction<boolean>>;
+  readonly rolSagaId?: string;
 }
 
 export function CreateRolSagaDialog({
   isOpen,
   setIsOpen,
+  rolSagaId,
 }: CreateRolSagaDialogProps) {
-  const [form, setForm] = useState<RolSagaRequest>(INITIAL_ROL_SAGA);
+  const { data: rolSagaToUpdate, isLoading: isRolSagaToEditLoading } =
+    useRolSaga(rolSagaId);
+  const { form, setForm } = useRolSagaForm(
+    rolSagaId,
+    rolSagaToUpdate,
+    isRolSagaToEditLoading,
+  );
   const [image, setImage] = useState<File | null>(null);
   const [errors, setErrors] = useState<RolSagaErrors>(INITIAL_ROL_SAGA_ERRORS);
-  const { mutateAsync: createRolSaga, isPending: submitting } =
-    useCreateRolSaga(
-      form,
-      image,
-      (errors) => setErrors(errors),
-      (isOpen) => setIsOpen(isOpen),
-    );
+    function resetForm() {
+    setForm(INITIAL_ROL_SAGA);
+    setErrors(INITIAL_ROL_SAGA_ERRORS);
+    setImage(null);
+  }
+  const { mutateAsync: createRolSaga, isPending: creating } = useCreateRolSaga(
+    form,
+    image,
+    (errors) => setErrors(errors),
+    (isOpen) => setIsOpen(isOpen),
+  );
+  const { mutateAsync: updateRolSaga, isPending: updating } = useUpdateRolSaga(
+    rolSagaId ? rolSagaId : "",
+    form,
+    image,
+    setErrors,
+    setIsOpen,
+    resetForm
+  );
+
+  const submitting = creating || updating;
 
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
@@ -57,9 +83,21 @@ export function CreateRolSagaDialog({
   }
 
   async function handleSubmit() {
-    validateRolSagaForm(form, setErrors);
-    if (errors != INITIAL_ROL_SAGA_ERRORS) return;
-    await createRolSaga();
+    const isValid = validateRolSagaForm(
+      form,
+      setErrors,
+      rolSagaId !== undefined,
+    );
+    if (!isValid) return;
+    if (rolSagaId) {
+      await updateRolSaga();
+    } else {
+      await createRolSaga();
+    }
+  }
+
+  if (rolSagaId && isRolSagaToEditLoading) {
+    return null; // Esperando a que se cargue la saga de juegos de rol a editar
   }
 
   return (
@@ -67,20 +105,21 @@ export function CreateRolSagaDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title="Crear saga de juegos de rol"
+        title={
+          rolSagaToUpdate
+            ? `Editando "${rolSagaToUpdate.name}"`
+            : "Crear saga de juegos de rol"
+        }
         handleSubmit={handleSubmit}
-        submitButtonText="Crear"
-        resetForm={() => {
-          setForm(INITIAL_ROL_SAGA);
-          setErrors(INITIAL_ROL_SAGA_ERRORS);
-          setImage(null);
-        }}
+        submitButtonText={rolSagaToUpdate ? "Guardar" : "Crear"}
+        resetForm={resetForm}
       >
         <ItemImageInput
           image={image}
           setImage={setImage}
-          loading={submitting}
-          placeholder={PLACEHOLDER.ROLSAGA}
+          loading={isRolSagaToEditLoading}
+          disabled={submitting}
+          placeholder={rolSagaToUpdate?.imageUrl || PLACEHOLDER.ROLSAGA}
         />
 
         <CustomInput
@@ -91,6 +130,9 @@ export function CreateRolSagaDialog({
           error={errors.name ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.NAME}
+          defaultValue={form.name}
+          value={form.name}
+          disabled={submitting}
         />
 
         <CustomInput
@@ -103,6 +145,9 @@ export function CreateRolSagaDialog({
           maxInputHeight="125px"
           maxLength={MAX_LENGTH.DESCRIPTION}
           required
+          defaultValue={form.description}
+          value={form.description}
+          disabled={submitting}
         />
 
         <CategoriesSelect
@@ -110,6 +155,7 @@ export function CreateRolSagaDialog({
           setForm={setForm}
           onCreateCategory={() => setCategoryDialogOpen(true)}
           error={errors.categoriesIds}
+          disabled={submitting}
         />
 
         <CustomInput
@@ -119,6 +165,9 @@ export function CreateRolSagaDialog({
           error={errors.website ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.WEBSITE}
+          defaultValue={form.website}
+          value={form.website}
+          disabled={submitting}
         />
 
         <CustomInput
@@ -128,6 +177,9 @@ export function CreateRolSagaDialog({
           error={errors.characterSheetUrl ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.CHARACTER_SHEET_URL}
+          defaultValue={form.characterSheetUrl}
+          value={form.characterSheetUrl}
+          disabled={submitting}
         />
 
         <CustomSelect
@@ -139,6 +191,8 @@ export function CreateRolSagaDialog({
           value={[form.gameMaster]}
           error={errors.gameMaster ?? ""}
           required
+          defaultValue={[form.gameMaster]}
+          disabled={submitting}
         />
 
         <CustomInput
@@ -148,6 +202,9 @@ export function CreateRolSagaDialog({
           error={errors.dice ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.DICE}
+          defaultValue={form.dice}
+          value={form.dice}
+          disabled={submitting}
         />
 
         <CustomInput
@@ -157,6 +214,9 @@ export function CreateRolSagaDialog({
           error={errors.recommendedPlayers ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.RECOMMENDED_PLAYERS}
+          defaultValue={form.recommendedPlayers}
+          value={form.recommendedPlayers}
+          disabled={submitting}
         />
 
         <SectionSelect
@@ -165,6 +225,7 @@ export function CreateRolSagaDialog({
           errors={errors}
           setErrors={setErrors}
           defaultValueText="Rol"
+          disabled={submitting}
         />
       </FormDialog>
 

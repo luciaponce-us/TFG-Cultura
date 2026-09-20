@@ -38,6 +38,8 @@ export { useRolGameForm } from "./form/useRolGameForm";
 export { useRolSagas } from "./useRolSagas";
 export { useRolSaga } from "./useRolSaga";
 export { useCreateRolSaga } from "./useCreateRolSaga";
+export { useUpdateRolSaga } from "./useUpdateRolSaga";
+export { useRolSagaForm } from "./form/useRolSagaForm";
 
 // VIDEOGAME
 export { useVideogames } from "./useVideogames";

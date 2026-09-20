@@ -1,13 +1,16 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { RolSaga } from "../types/rolgame";
 import { fetchRolSagaById } from "../service/rolsaga.service";
 
-export function useRolSaga(sagaId: string) {
-  return useQuery<RolSaga>({
+export function useRolSaga(sagaId: string | undefined) {
+  return useQuery<RolSaga | undefined>({
     queryKey: ["rolsagas", sagaId],
-    queryFn: async () => {
-      return await fetchRolSagaById(sagaId);
+    queryFn: () => {
+      if (!sagaId) {
+        return undefined;
+      }
+      return fetchRolSagaById(sagaId);
     },
-    placeholderData: keepPreviousData,
+    enabled: !!sagaId
   });
 }

@@ -1,12 +1,16 @@
-import { Flex, Heading, Link } from "@chakra-ui/react";
+import { Flex, Heading, HStack, Image, Link, VStack } from "@chakra-ui/react";
 import { useRolSagas } from "../hooks";
 import { CustomButton, TextSecondary } from "@/modules/core/components";
 import { useState } from "react";
 import { CreateRolSagaDialog } from "../components/CreateRolSagaDialog";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPencil, IconPlus } from "@tabler/icons-react";
+import { useAuth } from "@/modules/core/context/useAuth";
+import type { RolSaga } from "../types/rolgame";
+import { PLACEHOLDER } from "@/modules/core/utils/utils";
 
 export function RolSagasPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
   const { data: rolSagas, isLoading, isError } = useRolSagas();
 
   let content;
@@ -22,20 +26,7 @@ export function RolSagasPage() {
       rolSagas && rolSagas.content.length > 0 ? (
         <Flex direction="column" gap={4} width="100%">
           {rolSagas.content.map((rolSaga) => (
-            <Flex
-              key={rolSaga.id}
-              p={4}
-              borderRadius="md"
-              boxShadow="md"
-              bg="white"
-              direction="column"
-            >
-              <Heading as="h2" size="md">
-                {rolSaga.name}
-              </Heading>
-              <p>{rolSaga.description}</p>
-              <Link href={`/catalogo/rol/${rolSaga.id}`}>Ver detalles</Link>
-            </Flex>
+            <RolSagaCard rolSaga={rolSaga} />
           ))}
         </Flex>
       ) : (
@@ -66,6 +57,58 @@ export function RolSagasPage() {
         isOpen={isCreateDialogOpen}
         setIsOpen={setIsCreateDialogOpen}
       />
+    </>
+  );
+}
+
+function RolSagaCard({ rolSaga }: { rolSaga: RolSaga }) {
+  const { isAdmin } = useAuth();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  return (
+    <>
+      <HStack
+        key={rolSaga.id}
+        p={4}
+        borderRadius="md"
+        boxShadow="md"
+        bg="white"
+        justify="space-between"
+        gap={10}
+      >
+        <HStack gap={4} align="start">
+        <Image
+          src={rolSaga.imageUrl ?? PLACEHOLDER.ROLSAGA}
+          alt={rolSaga.name}
+          width="100px"
+          height="auto"
+          borderRadius="sm"
+          aspectRatio="1/1"
+        />
+        <VStack align="start" gap={1} justify="top">
+        <Heading as="h2" size="md">
+          {rolSaga.name}
+        </Heading>
+        <p>{rolSaga.description}</p>
+        <Link href={`/catalogo/rol/${rolSaga.id}`}>Ver detalles</Link>
+        </VStack>
+        </HStack>
+        {isAdmin && (
+          <CustomButton
+            onClick={() => {
+              setIsEditOpen(true);
+            }}
+          >
+            <IconPencil />
+          </CustomButton>
+        )}
+      </HStack>
+      {isEditOpen && (
+        <CreateRolSagaDialog
+          isOpen
+          setIsOpen={setIsEditOpen}
+          rolSagaId={rolSaga.id}
+        />
+      )}
     </>
   );
 }

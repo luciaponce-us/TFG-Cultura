@@ -2,7 +2,12 @@ import type { Item, ItemRequest } from "../types";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
 import type { Book, BookRequest } from "../types/book";
 import type { Movie, MovieRequest } from "../types/movie";
-import type { RolGame, RolGameRequest } from "../types/rolgame";
+import type {
+  RolGame,
+  RolGameRequest,
+  RolSaga,
+  RolSagaRequest,
+} from "../types/rolgame";
 
 function toRequest(item: Item): ItemRequest {
   return {
@@ -64,5 +69,19 @@ export function toRolGameRequest(rolGame: RolGame): RolGameRequest {
     ...itemRequest,
     sagaId: rolGame.saga.id,
     type: rolGame.type,
+  };
+}
+
+export function toRolSagaRequest(rolSaga: RolSaga): RolSagaRequest {
+  return {
+    name: rolSaga.name,
+    description: rolSaga.description,
+    website: rolSaga.website,
+    characterSheetUrl: rolSaga.characterSheetUrl,
+    gameMaster: rolSaga.gameMaster,
+    dice: rolSaga.dice,
+    recommendedPlayers: rolSaga.recommendedPlayers,
+    sectionId: rolSaga.section.id,
+    categoriesIds: rolSaga.categories.map((category) => category.id),
   };
 }

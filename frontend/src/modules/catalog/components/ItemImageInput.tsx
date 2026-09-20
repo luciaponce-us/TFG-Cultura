@@ -5,12 +5,14 @@ interface ItemImageInputProps {
   setImage: (file: File | null) => void;
   loading: boolean;
   placeholder: string;
+  disabled?: boolean;
 }
 export function ItemImageInput({
   image,
   setImage,
   loading,
   placeholder,
+  disabled = false,
 }: ItemImageInputProps) {
   return (
     <HStack
@@ -40,6 +42,7 @@ export function ItemImageInput({
             w="100%"
             h="100%"
             objectFit="cover"
+            borderRadius="lg"
           />
         )}
       </Box>
@@ -53,7 +56,7 @@ export function ItemImageInput({
           secondaryText="JPG o PNG, tamaño no superior a 2MB"
           fileType="image/*"
           onFileChange={setImage}
-          disabled={loading}
+          disabled={loading || disabled}
         />
       </VStack>
     </HStack>
