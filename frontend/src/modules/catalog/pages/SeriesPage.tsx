@@ -1,5 +1,6 @@
 import { CreateSeriesDialog } from "../components";
 import { useSeries } from "../hooks";
+import { ITEM_TYPES } from "../types";
 import { ItemsPage } from "./ItemsPage";
 
 export function SeriesPage() {
@@ -16,6 +17,7 @@ export function SeriesPage() {
       emptyText="No hay series disponibles."
       createText="Crear serie"
       CreateDialogComponent={CreateSeriesDialog}
+      type={ITEM_TYPES.SERIES}
     />
   );
 }

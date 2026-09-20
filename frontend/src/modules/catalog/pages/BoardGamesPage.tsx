@@ -1,6 +1,7 @@
 import { useBoardGames } from "../hooks";
 import { CreateBoardGameDialog } from "../components";
 import { ItemsPage } from "./ItemsPage";
+import { ITEM_TYPES } from "../types";
 
 export function BoardGamesPage() {
   return (
@@ -16,6 +17,7 @@ export function BoardGamesPage() {
       emptyText="No hay juegos de mesa disponibles."
       createText="Crear juego de mesa"
       CreateDialogComponent={CreateBoardGameDialog}
+      type={ITEM_TYPES.BOARD_GAME}
     />
   );
 }

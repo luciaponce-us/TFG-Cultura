@@ -1,4 +1,4 @@
-import type { FiltersGetAllItems as Filters } from "../types";
+import { ITEM_TYPES, type FiltersGetAllItems as Filters } from "../types";
 import { useBooks } from "../hooks";
 import { CreateBookDialog } from "../components";
 import { ItemsPage } from "./ItemsPage";
@@ -22,6 +22,7 @@ export function MangasAndComicsPage() {
       createText="Crear manga o cómic"
       CreateDialogComponent={CreateBookDialog}
       sectionDefaultValue="Manga"
+      type={ITEM_TYPES.BOOK}
     />
   );
 }

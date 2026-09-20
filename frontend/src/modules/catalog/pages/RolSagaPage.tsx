@@ -1,34 +1,25 @@
 import { useParams } from "react-router-dom";
 import { useRolGamesBySaga, useRolSaga } from "../hooks";
-import { Flex, Heading, HStack, VStack } from "@chakra-ui/react";
+import { Flex, Heading, Spinner } from "@chakra-ui/react";
 import { CustomButton } from "@/modules/core/components";
 import { useState } from "react";
-import { CreateRolGameDialog } from "../components";
-import { IconPencil, IconPlus } from "@tabler/icons-react";
+import { CreateRolGameDialog, ItemCard } from "../components";
+import { IconPlus } from "@tabler/icons-react";
+import { ITEM_TYPES } from "../types";
 
 export function RolSagaPage() {
   const { sagaId } = useParams<{ sagaId: string }>();
-  const { data: rolSaga, isLoading: isRolSagaLoading } = useRolSaga(sagaId!);
+  const { data: rolSaga, isLoading: isRolSagaLoading } = useRolSaga(sagaId);
   const { data: rolGames, isLoading } = useRolGamesBySaga(sagaId!);
   const [isCreateRolGameOpen, setIsCreateRolGameOpen] = useState(false);
-  const [rolGameToEditId, setRolGameToEditId] = useState<string | null>(null);
 
-  if (isLoading || isRolSagaLoading || !rolSaga) {
-    return <div>Cargando...</div>;
-  }
+  let content;
 
-  return (
-    <>
-      <Flex
-        bg="background"
-        borderRadius="xl"
-        boxShadow="lg"
-        p={6}
-        direction="column"
-        align="center"
-        justify="flex-start"
-        gap={6}
-      >
+  if (isRolSagaLoading || isLoading || !rolSaga) {
+    content = <Spinner size="xl" color="principal.500" />;
+  } else {
+    content = (
+      <>
         <Heading as="h1">{rolSaga.name}</Heading>
         <CustomButton
           onClick={() => {
@@ -40,41 +31,45 @@ export function RolSagaPage() {
         {rolGames && rolGames.length > 0 ? (
           <Flex direction="column" gap={4} width="100%">
             {rolGames.map((rolGame) => (
-              <HStack
+              <ItemCard
                 key={rolGame.id}
-                p={4}
-                borderRadius="md"
-                boxShadow="md"
-                bg="white"
-                justify="space-between"
-              >
-                <VStack align="stretch">
-                  <Heading as="h2" size="md">
-                    {rolGame.name}
-                  </Heading>
-                  <p>{rolGame.description}</p>
-                </VStack>
-                <CustomButton
-                  onClick={() => {
-                    setIsCreateRolGameOpen(true);
-                    setRolGameToEditId(rolGame.id);
-                  }}
-                >
-                  <IconPencil />
-                </CustomButton>
-              </HStack>
+                item={rolGame}
+                type={ITEM_TYPES.ROL_GAME}
+                CreateItemDialog={(props) =>
+                  props.sagaId ? (
+                    <CreateRolGameDialog {...props} sagaId={props.sagaId} />
+                  ) : null
+                }
+                sagaId={rolSaga.id}
+              />
             ))}
           </Flex>
         ) : (
           <p>No hay juegos de rol disponibles para esta saga.</p>
         )}
-      </Flex>
-      <CreateRolGameDialog
-        isOpen={isCreateRolGameOpen}
-        setIsOpen={setIsCreateRolGameOpen}
-        sagaId={sagaId!}
-        itemId={rolGameToEditId ?? undefined}
-      />
-    </>
+        {isCreateRolGameOpen && (
+          <CreateRolGameDialog
+            isOpen
+            setIsOpen={setIsCreateRolGameOpen}
+            sagaId={rolSaga.id}
+          />
+        )}
+      </>
+    );
+  }
+
+  return (
+    <Flex
+      bg="background"
+      borderRadius="xl"
+      boxShadow="lg"
+      p={6}
+      direction="column"
+      align="center"
+      justify="flex-start"
+      gap={6}
+    >
+      {content}
+    </Flex>
   );
 }

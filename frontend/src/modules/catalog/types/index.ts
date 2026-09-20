@@ -116,3 +116,14 @@ export interface ItemRoutes {
 }
 
 export type { CreateItemDialogProps } from "./props";
+
+export const ITEM_TYPES = {
+  BOARD_GAME: "BOARD_GAME",
+  BOOK: "BOOK",
+  MOVIE: "MOVIE",
+  SERIES: "SERIES",
+  VIDEO_GAME: "VIDEO_GAME",
+  ROL_GAME: "ROL_GAME",
+} as const;
+
+export type ItemType = (typeof ITEM_TYPES)[keyof typeof ITEM_TYPES];

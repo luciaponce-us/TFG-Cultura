@@ -3,4 +3,5 @@ export interface CreateItemDialogProps {
   readonly setIsOpen: (isOpen: boolean) => void;
   readonly itemId?: string;
   readonly sectionDefaultValue?: string;
+  readonly sagaId?: string;
 }

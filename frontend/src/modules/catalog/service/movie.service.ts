@@ -3,6 +3,7 @@ import { MOVIE_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
 import {
   createItem,
+  deleteItem,
   fetchAllItems,
   fetchItemById,
   updateItem,
@@ -42,4 +43,8 @@ export async function updateMovie(
   image: File | null,
 ): Promise<Movie> {
   return updateItem<Movie, MovieRequest>(MOVIE_ROUTES, token, id, movie, image);
+}
+
+export async function deleteMovie(token: string, id: string): Promise<void> {
+  return deleteItem(MOVIE_ROUTES, token, id);
 }

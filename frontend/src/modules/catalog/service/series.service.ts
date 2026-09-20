@@ -1,7 +1,7 @@
 import type { Paginated } from "@/modules/core/types";
 import type { Series, SeriesRequest } from "../types/series";
 import { SERIES_ROUTES } from "../routes";
-import { createItem, fetchAllItems, fetchItemById, updateItem } from "./item.service";
+import { createItem, deleteItem, fetchAllItems, fetchItemById, updateItem } from "./item.service";
 
 export async function fetchAllSeries(
   page: number = 0,
@@ -37,4 +37,8 @@ export async function updateSeries(
   image: File | null,
 ): Promise<Series> {
   return updateItem<Series, SeriesRequest>(SERIES_ROUTES, token, seriesId, series, image);
+}
+
+export async function deleteSeries(token: string, seriesId: string): Promise<void> {
+  return deleteItem(SERIES_ROUTES, token, seriesId);
 }

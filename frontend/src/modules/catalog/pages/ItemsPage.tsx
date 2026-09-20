@@ -4,6 +4,7 @@ import {
   FILTERS_GET_ALL_ITEMS_DEFAULT,
   type FiltersGetAllItems as Filters,
   type Item,
+  type ItemType,
 } from "../types";
 import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
 import { toaster } from "@/modules/core/components/toaster/toaster";
@@ -30,6 +31,7 @@ interface ItemsPageProps<
   loadText: string;
   errorText: { title: string; description: string };
   emptyText: string;
+  type: ItemType;
   createText?: string;
   sectionDefaultValue?: string;
   CreateDialogComponent?: React.ComponentType<CreateItemDialogProps>;
@@ -42,6 +44,7 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
   loadText,
   errorText,
   emptyText,
+  type,
   createText,
   CreateDialogComponent,
   sectionDefaultValue,
@@ -84,6 +87,7 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
             key={item.id}
             item={item}
             CreateItemDialog={CreateDialogComponent!}
+            type={type}
           />
         ))}
       </VStack>

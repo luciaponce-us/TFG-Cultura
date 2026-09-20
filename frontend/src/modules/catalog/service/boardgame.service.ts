@@ -6,6 +6,7 @@ import {
   createItem,
   updateItem,
   fetchItemById,
+  deleteItem,
 } from "./item.service";
 
 export async function fetchAllBoardGames(
@@ -55,4 +56,11 @@ export async function updateBoardGame(
     boardGame,
     image,
   );
+}
+
+export async function deleteBoardGame(
+  token: string,
+  boardGameId: string,
+): Promise<void> {
+  return deleteItem(BOARDGAME_ROUTES, token, boardGameId);
 }

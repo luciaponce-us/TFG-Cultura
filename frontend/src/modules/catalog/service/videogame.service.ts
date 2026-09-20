@@ -3,6 +3,7 @@ import type { Paginated } from "@/modules/core/types";
 import type { VideoGame, VideoGameRequest } from "../types/videogame";
 import {
   createItem,
+  deleteItem,
   fetchAllItems,
   fetchItemById,
   updateItem,
@@ -55,4 +56,8 @@ export async function updateVideoGame(
     request,
     image,
   );
+}
+
+export async function deleteVideoGame(token: string, videoGameId: string): Promise<void> {
+  return deleteItem(VIDEOGAME_ROUTES, token, videoGameId);
 }

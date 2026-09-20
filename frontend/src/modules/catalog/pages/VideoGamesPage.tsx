@@ -1,6 +1,6 @@
 import { CreateVideoGameDialog } from "../components";
 import { useVideogames } from "../hooks";
-import { parsePlatform } from "../utils/videogames.utils";
+import { ITEM_TYPES } from "../types";
 import { ItemsPage } from "./ItemsPage";
 
 export function VideoGamesPage() {
@@ -15,13 +15,9 @@ export function VideoGamesPage() {
           "No se pudieron cargar los videojuegos. Inténtalo de nuevo más tarde.",
       }}
       emptyText="No hay videojuegos disponibles."
-      renderItem={(videogame) => (
-        <div>
-          {videogame.name} - {parsePlatform(videogame.platform)}
-        </div>
-      )}
       CreateDialogComponent={CreateVideoGameDialog}
       createText="Crear videojuego"
+      type={ITEM_TYPES.VIDEO_GAME}
     />
   );
 }

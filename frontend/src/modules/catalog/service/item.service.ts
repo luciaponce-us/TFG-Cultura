@@ -98,3 +98,16 @@ export async function updateItem<T extends Item, R extends ItemRequest>(
 
   return handleResponse<T>(res);
 }
+
+export async function deleteItem(
+  routes: ItemRoutes,
+  token: string,
+  itemId: string,
+): Promise<void> {
+  const res = await fetchWithTimeout(routes.GET_BY_ID(itemId), {
+    method: "DELETE",
+    headers: authHeaders(token),
+  });
+
+  return handleResponse<void>(res);
+}

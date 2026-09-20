@@ -2,7 +2,7 @@ import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
 import type { Book, BookRequest, BookType } from "../types/book";
 import { BOOK_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
-import { createItem, fetchItemById, updateItem } from "./item.service";
+import { createItem, deleteItem, fetchItemById, updateItem } from "./item.service";
 
 export async function fetchAllBooks(
   page: number = 0,
@@ -47,4 +47,8 @@ export async function updateBook(
   image: File | null,
 ): Promise<Book> {
   return updateItem<Book, BookRequest>(BOOK_ROUTES, token, bookId, book, image);
+}
+
+export async function deleteBook(token: string, bookId: string): Promise<void> {
+  return deleteItem(BOOK_ROUTES, token, bookId);
 }

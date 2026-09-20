@@ -1,4 +1,4 @@
-import type { FiltersGetAllItems as Filters } from "../types";
+import { ITEM_TYPES, type FiltersGetAllItems as Filters } from "../types";
 import type { BookType } from "../types/book";
 import { useBooks } from "../hooks";
 import { CreateBookDialog } from "../components";
@@ -25,6 +25,7 @@ export function BooksPage() {
       createText="Crear libro"
       CreateDialogComponent={CreateBookDialog}
       sectionDefaultValue="Libros"
+      type={ITEM_TYPES.BOOK}
     />
   );
 }

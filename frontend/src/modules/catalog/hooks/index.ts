@@ -50,3 +50,5 @@ export { useVideogame } from "./useVideogame";
 export { useCreateVideoGame } from "./useCreateVideoGame";
 export { useUpdateVideogame } from "./useUpdateVideogame";
 export { useVideoGameForm } from "./form/useVideoGameForm";
+
+export { useDeleteItem } from "./useDeleteItem";

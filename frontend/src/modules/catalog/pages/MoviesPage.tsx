@@ -1,6 +1,7 @@
 import { useMovies } from "../hooks";
 import { ItemsPage } from "./ItemsPage";
 import { CreateMovieDialog } from "../components";
+import { ITEM_TYPES } from "../types";
 
 export function MoviesPage() {
   return (
@@ -16,6 +17,7 @@ export function MoviesPage() {
       emptyText="No hay películas disponibles."
       createText="Crear película"
       CreateDialogComponent={CreateMovieDialog}
+      type={ITEM_TYPES.MOVIE}
     />
   );
 }
