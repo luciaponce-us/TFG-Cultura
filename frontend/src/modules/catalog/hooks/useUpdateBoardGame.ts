@@ -45,7 +45,6 @@ export function useUpdateBoardGame(
       });
 
       await queryClient.invalidateQueries({ queryKey: ["boardgames"] });
-      await queryClient.invalidateQueries({ queryKey: ["boardgames", id] });
       setIsOpen(false);
       return boardGame;
     },

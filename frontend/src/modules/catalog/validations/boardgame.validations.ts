@@ -19,7 +19,8 @@ export const MAX_LENGTH = {
 export function validateBoardGameForm(
   form: BoardGameRequest,
   setErrors: Dispatch<SetStateAction<BoardGameErrors>>,
-): void {
+  isUpdate: boolean = false,
+): boolean {
   const base = validateItemForm(form);
   let errors: BoardGameErrors = {
     ...base,
@@ -36,12 +37,13 @@ export function validateBoardGameForm(
   if (Object.values(errors).some(Boolean)) {
     setErrors(errors);
     toaster.create({
-      title: "Error al crear juego de mesa",
+      title: `Error al ${isUpdate ? "editar" : "crear"} juego de mesa`,
       description:
         "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
       type: "error",
     });
   }
+  return Object.keys(errors).length === 0;
 }
 
 function validatePositiveInteger(

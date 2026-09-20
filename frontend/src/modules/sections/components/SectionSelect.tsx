@@ -17,6 +17,7 @@ interface SectionSelectProps<
   errors: E;
   setErrors: Dispatch<SetStateAction<E>>;
   defaultValueText?: string;
+  disabled?: boolean;
 }
 
 export function SectionSelect<
@@ -28,6 +29,7 @@ export function SectionSelect<
   errors,
   setErrors,
   defaultValueText,
+  disabled = false,
 }: SectionSelectProps<T, E>) {
   const {
     data: sections,
@@ -75,6 +77,7 @@ export function SectionSelect<
           ? "Error al cargar las secciones"
           : (errors.sectionId ?? "")
       }
+      disabled={disabled}
     />
   );
 }

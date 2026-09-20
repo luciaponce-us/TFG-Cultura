@@ -9,6 +9,7 @@ interface CategoriesSelectProps<T extends ItemRequest | RolSagaRequest> {
   setForm: Dispatch<SetStateAction<T>>;
   onCreateCategory?: () => void;
   error?: string;
+  disabled?: boolean;
 }
 
 export function CategoriesSelect<T extends ItemRequest | RolSagaRequest>({
@@ -16,6 +17,7 @@ export function CategoriesSelect<T extends ItemRequest | RolSagaRequest>({
   setForm,
   onCreateCategory,
   error,
+  disabled = false,
 }: CategoriesSelectProps<T>) {
   const {
     data: categories,
@@ -44,6 +46,7 @@ export function CategoriesSelect<T extends ItemRequest | RolSagaRequest>({
       multiple
       onCreate={onCreateCategory}
       onCreateLabel="Crear nueva categoría"
+      disabled={disabled}
     />
   );
 }

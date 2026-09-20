@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HStack, Text, VStack } from "@chakra-ui/react";
+import { Heading, HStack, Text, VStack } from "@chakra-ui/react";
 import {
   CustomButton,
   CustomSearchBar,
@@ -13,6 +13,7 @@ interface BaseGameSelectProps {
   readonly setForm: React.Dispatch<React.SetStateAction<BoardGameRequest>>;
   readonly error?: string;
   readonly onCreateBaseGame: () => void;
+  readonly disabled: boolean;
 }
 
 export function BaseGameSelect({
@@ -20,6 +21,7 @@ export function BaseGameSelect({
   setForm,
   error,
   onCreateBaseGame,
+  disabled,
 }: BaseGameSelectProps) {
   const [search, setSearch] = useState("");
   const { data, isLoading, isError } = useBoardGames(0, {
@@ -35,13 +37,21 @@ export function BaseGameSelect({
       .map((boardGame) => ({ value: boardGame.id, label: boardGame.name })) ??
     [];
 
+  function handleSubmit() {
+    onCreateBaseGame();
+    setSearch("");
+  }
+
   return (
     <VStack align="stretch" gap={3} w="100%">
-      <Text fontWeight="medium">Juego base</Text>
+      <Heading as="h2" size="md">
+        Juego base
+      </Heading>
       <CustomSearchBar
         value={search}
         onChange={(event) => setSearch(event.currentTarget.value)}
         placeholder="Buscar juego base..."
+        disabled={disabled}
       />
       <CustomSelect
         label="Selecciona el juego base"
@@ -59,7 +69,7 @@ export function BaseGameSelect({
         <Text fontSize="sm" color="fg.muted">
           ¿No encuentras el juego base?
         </Text>
-        <CustomButton type="button" onClick={onCreateBaseGame}>
+        <CustomButton type="button" onClick={handleSubmit} disabled={disabled}>
           Crear juego base
         </CustomButton>
       </HStack>

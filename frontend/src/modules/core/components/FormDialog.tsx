@@ -28,6 +28,7 @@ export function FormDialog({
     try {
       setLoadingSubmit(true);
       await handleSubmit();
+      resetForm?.();
     } finally {
       setLoadingSubmit(false);
     }

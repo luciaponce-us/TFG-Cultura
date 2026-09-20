@@ -53,30 +53,41 @@ export function CreateBoardGameDialog({
   allowBaseGame = true,
   itemId,
 }: CreateBoardGameDialogProps) {
-  const { data: boardGameToUpdate } = useBoardGame(itemId);
-  const { form, setForm } = useBoardGameForm(itemId, boardGameToUpdate);
+  const isEdit = itemId !== undefined;
+  const {
+    data: boardGameToUpdate,
+    isLoading: isLoadingBoardGameToUpdate,
+  } = useBoardGame(itemId);
+
+  const { form, setForm } = useBoardGameForm(itemId, boardGameToUpdate, isLoadingBoardGameToUpdate);
   const [errors, setErrors] = useState<BoardGameErrors>(
     INITIAL_BOARD_GAME_ERRORS,
   );
   const [image, setImage] = useState<File | null>(null);
-  const { mutateAsync: createBoardGame, isPending: submitting } =
+  const { mutateAsync: createBoardGame, isPending: creating } =
     useCreateBoardGame(form, image, setErrors, setIsOpen);
   const { mutateAsync: updateBoardGame, isPending: updating } =
     useUpdateBoardGame(itemId, form, image, setErrors, setIsOpen);
-  const loading = itemId ? updating : submitting;
+  const submitting = isEdit ? updating : creating;
+
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [baseGameDialogOpen, setBaseGameDialogOpen] = useState(false);
 
+  function resetForm() {
+    setForm(INITIAL_BOARD_GAME);
+    setErrors(INITIAL_BOARD_GAME_ERRORS);
+    setImage(null);
+  }
+  
   const handleComplexityChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "complexity", form, setErrors, setForm);
   const handleTypesChange = ({ value }: { value: string[] }) =>
     setForm((prev) => ({ ...prev, types: value as BoardGameRequest["types"] }));
 
   async function handleSubmit() {
-    validateBoardGameForm(form, setErrors);
-
-    if (errors != INITIAL_BOARD_GAME_ERRORS) return;
-
+    const isValid = validateBoardGameForm(form, setErrors, isEdit);
+    if (!isValid) return;
+    
     if (itemId) {
       await updateBoardGame();
     } else {
@@ -87,9 +98,14 @@ export function CreateBoardGameDialog({
     }
   }
 
+  if (itemId && isLoadingBoardGameToUpdate) {
+    return null;
+  }
+
   return (
     <>
       <FormDialog
+        key={boardGameToUpdate?.id ?? itemId ?? "new-board-game"}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         title={
@@ -99,16 +115,12 @@ export function CreateBoardGameDialog({
         }
         handleSubmit={handleSubmit}
         submitButtonText={itemId ? "Actualizar" : "Crear"}
-        resetForm={() => {
-          setForm(INITIAL_BOARD_GAME);
-          setErrors(INITIAL_BOARD_GAME_ERRORS);
-          setImage(null);
-        }}
+        resetForm={resetForm}
       >
         <ItemImageInput
           image={image}
           setImage={setImage}
-          loading={loading}
+          loading={submitting}
           placeholder={PLACEHOLDER.BOARDGAME}
         />
 
@@ -120,64 +132,76 @@ export function CreateBoardGameDialog({
           error={errors.name ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.NAME}
-          defaultValue={form.name}
+          value={form.name}
+          disabled={submitting}
         />
         <CategoriesSelect
           form={form}
           setForm={setForm}
           error={errors.categoriesIds}
           onCreateCategory={() => setCategoryDialogOpen(true)}
+          disabled={submitting}
         />
         <CustomInput
           label="Descripción"
           name="description"
           placeholder="Proporciona una descripción del juego de mesa"
           error={errors.description ?? ""}
-          defaultValue={form.description}
+          value={form.description}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           textarea
           maxInputHeight="240px"
           maxLength={MAX_LENGTH.DESCRIPTION}
+          disabled={submitting}
         />
+        <Separator />
         {allowBaseGame && (
           <BaseGameSelect
             form={form}
             setForm={setForm}
             error={errors.baseGameId}
             onCreateBaseGame={() => setBaseGameDialogOpen(true)}
+            disabled={submitting}
           />
         )}
+        <Separator />
         <HStack w="100%" align="start">
           <CustomNumberInput
             label="Jugadores mínimos"
-            defaultValue={form.minPlayers}
+            value={form.minPlayers}
             min={1}
             required
             error={errors.minPlayers}
             onChange={(value) =>
               setForm((prev) => ({ ...prev, minPlayers: value }))
             }
+            defaultValue={form.minPlayers}
+            disabled={submitting}
           />
           <CustomNumberInput
             label="Jugadores máximos"
-            defaultValue={form.maxPlayers}
+            value={form.maxPlayers}
             min={1}
             required
             error={errors.maxPlayers}
             onChange={(value) =>
               setForm((prev) => ({ ...prev, maxPlayers: value }))
             }
+            defaultValue={form.maxPlayers}
+            disabled={submitting}
           />
         </HStack>
         <CustomNumberInput
           label="Tiempo de juego (minutos)"
-          defaultValue={form.playTime}
+          value={form.playTime}
           min={1}
           required
           error={errors.playTime}
           onChange={(value) =>
             setForm((prev) => ({ ...prev, playTime: value }))
           }
+          defaultValue={form.playTime}
+          disabled={submitting}
         />
         <CustomSelect
           label="Complejidad"
@@ -188,6 +212,7 @@ export function CreateBoardGameDialog({
           value={[form.complexity]}
           error={errors.complexity}
           required
+          disabled={submitting}
         />
         <CustomSelect
           label="Tipos de juego"
@@ -199,6 +224,7 @@ export function CreateBoardGameDialog({
           error={errors.types}
           required
           multiple
+          disabled={submitting}
         />
         <SectionSelect
           form={form}
@@ -206,6 +232,7 @@ export function CreateBoardGameDialog({
           errors={errors}
           setErrors={setErrors}
           defaultValueText="Juegos de mesa"
+          disabled={submitting}
         />
 
         <Separator />
@@ -214,7 +241,7 @@ export function CreateBoardGameDialog({
           setForm={setForm}
           errors={errors}
           setErrors={setErrors}
-          loading={loading}
+          loading={submitting}
         />
       </FormDialog>
       <CreateCategoryDialog
