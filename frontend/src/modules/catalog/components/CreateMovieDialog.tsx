@@ -49,15 +49,28 @@ export function CreateMovieDialog({
   setIsOpen,
   itemId,
 }: CreateItemDialogProps) {
-  const { data: movieToUpdate } = useMovie(itemId);
-  const { form, setForm } = useMovieForm(itemId, movieToUpdate);
+  const { data: movieToUpdate, isLoading: isMovieToEditLoading } =
+    useMovie(itemId);
+  const { form, setForm } = useMovieForm(
+    itemId,
+    movieToUpdate,
+    isMovieToEditLoading,
+  );
   const [errors, setErrors] = useState<MovieErrors>(INITIAL_MOVIE_ERRORS);
   const [image, setImage] = useState<File | null>(null);
+
+  function resetForm() {
+    setForm(INITIAL_MOVIE);
+    setErrors(INITIAL_MOVIE_ERRORS);
+    setImage(null);
+  }
+
   const { mutateAsync: createMovie, isPending: submitting } = useCreateMovie(
     form,
     image,
     setErrors,
     setIsOpen,
+    resetForm,
   );
   const { mutateAsync: updateMovie, isPending: updating } = useUpdateMovie(
     itemId,
@@ -65,7 +78,9 @@ export function CreateMovieDialog({
     image,
     setErrors,
     setIsOpen,
+    resetForm,
   );
+
   const loading = submitting || updating;
   const [sagaDialogOpen, setSagaDialogOpen] = useState(false);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
@@ -74,15 +89,19 @@ export function CreateMovieDialog({
     handleSelectChange(value, "format", form, setErrors, setForm);
 
   async function handleSubmit() {
-    validateMovieForm(form, setErrors);
+    const isValid = validateMovieForm(form, setErrors);
 
-    if (errors != INITIAL_MOVIE_ERRORS) return;
+    if (!isValid) return;
 
     if (itemId) {
       await updateMovie();
     } else {
       await createMovie();
     }
+  }
+
+  if (itemId && isMovieToEditLoading) {
+    return null; // Esperando a que se cargue la película a editar
   }
 
   return (
@@ -95,17 +114,14 @@ export function CreateMovieDialog({
         }
         handleSubmit={handleSubmit}
         submitButtonText={movieToUpdate ? "Actualizar" : "Crear"}
-        resetForm={() => {
-          setForm(INITIAL_MOVIE);
-          setErrors(INITIAL_MOVIE_ERRORS);
-          setImage(null);
-        }}
+        resetForm={resetForm}
       >
         <ItemImageInput
           image={image}
           setImage={setImage}
           loading={loading}
           placeholder={PLACEHOLDER.MOVIE}
+          disabled={loading}
         />
 
         <CustomInput
@@ -117,18 +133,22 @@ export function CreateMovieDialog({
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.NAME}
           defaultValue={form.name}
+          value={form.name}
+          disabled={loading}
         />
         <SagaSelect
           form={form}
           setErrors={setErrors}
           setForm={setForm}
           onCreateSaga={() => setSagaDialogOpen(true)}
+          disabled={loading}
         />
         <CategoriesSelect
           form={form}
           setForm={setForm}
           onCreateCategory={() => setCategoryDialogOpen(true)}
           error={errors.categoriesIds}
+          disabled={loading}
         />
         <CustomInput
           label="Sinopsis"
@@ -139,6 +159,9 @@ export function CreateMovieDialog({
           textarea
           maxInputHeight="240px"
           maxLength={MAX_LENGTH.DESCRIPTION}
+          defaultValue={form.description}
+          value={form.description}
+          disabled={loading}
         />
         <CustomSelect
           label="Formato"
@@ -147,8 +170,10 @@ export function CreateMovieDialog({
           onValueChange={handleFormatChange}
           placeholder="Selecciona el formato"
           value={[form.format]}
+          defaultValue={[form.format]}
           error={errors.format ?? ""}
           required
+          disabled={loading}
         />
         <CustomNumberInput
           label="Número de discos"
@@ -159,6 +184,9 @@ export function CreateMovieDialog({
           onChange={(value: number) =>
             setForm((prev) => ({ ...prev, numberOfDiscs: value }))
           }
+          error={errors.numberOfDiscs ?? ""}
+          disabled={loading}
+          value={form.numberOfDiscs}
         />
         <CustomDateInput
           label="Fecha de estreno"
@@ -167,6 +195,7 @@ export function CreateMovieDialog({
           onChange={(value) =>
             setForm((prev) => ({ ...prev, releaseDate: value }))
           }
+          disabled={loading}
         />
         <CustomInput
           label="Tráiler"
@@ -175,6 +204,9 @@ export function CreateMovieDialog({
           error={errors.trailerUrl ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.TRAILER_URL}
+          defaultValue={form.trailerUrl}
+          value={form.trailerUrl}
+          disabled={loading}
         />
         <SectionSelect
           form={form}
@@ -182,6 +214,7 @@ export function CreateMovieDialog({
           errors={errors}
           setErrors={setErrors}
           defaultValueText="Arte"
+          disabled={loading}
         />
 
         <Separator />

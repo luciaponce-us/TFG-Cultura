@@ -16,7 +16,7 @@ export const MAX_LENGTH = {
 export function validateMovieForm(
   form: MovieRequest,
   setErrors: Dispatch<SetStateAction<MovieErrors>>,
-): void {
+): boolean {
   const base = validateItemForm(form);
   let errors: MovieErrors = {
     ...base,
@@ -37,7 +37,9 @@ export function validateMovieForm(
         "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
       type: "error",
     });
+    return false;
   }
+  return true;
 }
 
 function validateNumberOfDiscs(value: number): string | undefined {

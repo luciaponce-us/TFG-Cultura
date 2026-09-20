@@ -9,6 +9,7 @@ import {
 export function useMovieForm(
   movieId: string | undefined,
   movieToUpdate?: Movie,
+  isLoading: boolean = false,
 ): { form: MovieRequest; setForm: Dispatch<SetStateAction<MovieRequest>> } {
   const [formOverride, setFormOverride] = useState<{
     movieId: string | undefined;
@@ -25,6 +26,9 @@ export function useMovieForm(
       : loadedForm;
 
   const setForm: Dispatch<SetStateAction<MovieRequest>> = (nextForm) => {
+    if (movieId && isLoading) {
+      return; // Esperando a que se cargue la película a editar
+    }
     setFormOverride((currentOverride) => {
       const currentForm =
         currentOverride?.movieId === movieId && currentOverride !== undefined

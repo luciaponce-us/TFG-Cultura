@@ -10,6 +10,7 @@ export function useCreateMovie(
   image: File | null,
   setErrors: (errors: Record<string, string>) => void,
   setIsOpen: (isOpen: boolean) => void,
+  resetForm: () => void,
 ) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
@@ -36,6 +37,7 @@ export function useCreateMovie(
 
       await queryClient.invalidateQueries({ queryKey: ["movies"] });
       setIsOpen(false);
+      resetForm();
     },
     onError: (error) => {
       console.error("Error al crear película:", error);
