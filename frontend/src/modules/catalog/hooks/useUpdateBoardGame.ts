@@ -11,6 +11,7 @@ export function useUpdateBoardGame(
   image: File | null,
   setErrors: (errors: Record<string, string>) => void,
   setIsOpen: (isOpen: boolean) => void,
+  resetForm: () => void,
 ) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
@@ -46,6 +47,7 @@ export function useUpdateBoardGame(
 
       await queryClient.invalidateQueries({ queryKey: ["boardgames"] });
       setIsOpen(false);
+      resetForm();
       return boardGame;
     },
     onError: (error) => {

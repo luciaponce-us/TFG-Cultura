@@ -10,6 +10,7 @@ export function useCreateBoardGame(
   image: File | null,
   setErrors: (errors: Record<string, string>) => void,
   setIsOpen: (isOpen: boolean) => void,
+  resetForm: () => void,
 ) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
@@ -36,6 +37,7 @@ export function useCreateBoardGame(
 
       await queryClient.invalidateQueries({ queryKey: ["boardgames"] });
       setIsOpen(false);
+      resetForm();
       return boardGame;
     },
     onError: (error) => {

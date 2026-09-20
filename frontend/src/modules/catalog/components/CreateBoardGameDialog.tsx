@@ -66,20 +66,19 @@ export function CreateBoardGameDialog({
     INITIAL_BOARD_GAME_ERRORS,
   );
   const [image, setImage] = useState<File | null>(null);
-  const { mutateAsync: createBoardGame, isPending: creating } =
-    useCreateBoardGame(form, image, setErrors, setIsOpen);
-  const { mutateAsync: updateBoardGame, isPending: updating } =
-    useUpdateBoardGame(itemId, form, image, setErrors, setIsOpen);
-  const submitting = isEdit ? updating : creating;
-
-  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
-  const [baseGameDialogOpen, setBaseGameDialogOpen] = useState(false);
-
   function resetForm() {
     setForm(INITIAL_BOARD_GAME);
     setErrors(INITIAL_BOARD_GAME_ERRORS);
     setImage(null);
   }
+  const { mutateAsync: createBoardGame, isPending: creating } =
+    useCreateBoardGame(form, image, setErrors, setIsOpen, resetForm);
+  const { mutateAsync: updateBoardGame, isPending: updating } =
+    useUpdateBoardGame(itemId, form, image, setErrors, setIsOpen, resetForm);
+  const submitting = isEdit ? updating : creating;
+
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [baseGameDialogOpen, setBaseGameDialogOpen] = useState(false);
 
   const handleComplexityChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "complexity", form, setErrors, setForm);
