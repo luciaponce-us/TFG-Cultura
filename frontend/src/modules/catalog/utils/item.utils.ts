@@ -8,6 +8,19 @@ import type {
   RolSaga,
   RolSagaRequest,
 } from "../types/rolgame";
+import type { Format } from "../types/movie";
+import type { Series, SeriesRequest } from "../types/series";
+
+function toFormatValue(format: string): Format {
+  switch (format) {
+    case "Blu-ray":
+      return "BLURAY";
+    case "4K":
+      return "UHD_4K";
+    default:
+      return format as Format;
+  }
+}
 
 function toRequest(item: Item): ItemRequest {
   return {
@@ -55,7 +68,7 @@ export function toMovieRequest(movie: Movie): MovieRequest {
   const itemRequest = toRequest(movie);
   return {
     ...itemRequest,
-    format: movie.format,
+    format: toFormatValue(movie.format),
     numberOfDiscs: movie.numberOfDiscs,
     releaseDate: movie.releaseDate,
     trailerUrl: movie.trailerUrl,
@@ -83,5 +96,18 @@ export function toRolSagaRequest(rolSaga: RolSaga): RolSagaRequest {
     recommendedPlayers: rolSaga.recommendedPlayers,
     sectionId: rolSaga.section.id,
     categoriesIds: rolSaga.categories.map((category) => category.id),
+  };
+}
+
+export function toSeriesRequest(series: Series): SeriesRequest {
+  const itemRequest = toRequest(series);
+  return {
+    ...itemRequest,
+      format: toFormatValue(series.format),
+      numberOfDiscs: series.numberOfDiscs,
+      releaseDate: series.releaseDate,
+      numberOfSeasons: series.numberOfSeasons,
+      status: series.status,
+      seasons: series.seasons,
   };
 }

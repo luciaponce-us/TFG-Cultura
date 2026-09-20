@@ -15,7 +15,7 @@ export const MAX_LENGTH = {
 export function validateSeriesForm(
   form: SeriesRequest,
   setErrors: Dispatch<SetStateAction<SeriesErrors>>,
-): void {
+): boolean {
   const base = validateItemForm(form);
   let errors: SeriesErrors = {
     ...base,
@@ -45,7 +45,9 @@ export function validateSeriesForm(
         "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
       type: "error",
     });
+    return false;
   }
+  return true;
 }
 
 function validateReleaseDate(value: string): string | undefined {

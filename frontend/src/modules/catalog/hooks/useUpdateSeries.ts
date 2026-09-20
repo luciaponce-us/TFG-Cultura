@@ -1,12 +1,13 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { toaster } from "@/modules/core/components/toaster/toaster";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toaster } from "@/modules/core/components";
 import { isApiError, isFieldError } from "@/modules/core/utils/utils";
 import type { SeriesRequest } from "../types/series";
-import { createSeries } from "../service/series.service";
+import { updateSeries } from "../service/series.service";
 
-export function useCreateSeries(
-  seriesData: SeriesRequest,
+export function useUpdateSeries(
+  id: string | undefined,
+  request: SeriesRequest,
   image: File | null,
   setErrors: (errors: Record<string, string>) => void,
   setIsOpen: (isOpen: boolean) => void,
@@ -17,35 +18,45 @@ export function useCreateSeries(
 
   return useMutation({
     mutationFn: async () => {
+      if (!id) {
+        toaster.create({
+          title: "Serie no válida",
+          description:
+            "No se proporcionó un ID de serie válido para actualizar.",
+          type: "error",
+        });
+        return;
+      }
       if (!token) {
         toaster.create({
-          title: "Inicia sesión para crear series",
-          description: "Necesitas iniciar sesión para crear una nueva serie.",
+          title: "Inicia sesión para actualizar series",
+          description: "Necesitas iniciar sesión para actualizar una serie.",
           type: "error",
         });
         return;
       }
 
-      await createSeries(token, seriesData, image);
+      return updateSeries(token, id, request, image);
     },
-    onSuccess: async () => {
+    onSuccess: async (series) => {
       toaster.create({
-        title: "Serie creada",
-        description: "La serie se ha creado correctamente.",
+        title: "Serie actualizada",
+        description: "La serie se ha actualizado correctamente.",
       });
 
       await queryClient.invalidateQueries({ queryKey: ["series"] });
       setIsOpen(false);
       resetForm();
+      return series;
     },
     onError: (error) => {
-      console.error("Error al crear serie:", error);
+      console.error("Error al actualizar serie:", error);
 
       if (isApiError(error)) {
         if (isFieldError(error)) {
           setErrors(error.errors);
           toaster.create({
-            title: "Error al crear serie",
+            title: "Error al actualizar serie",
             description:
               "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
             type: "error",
@@ -54,7 +65,7 @@ export function useCreateSeries(
         }
 
         toaster.create({
-          title: "Error al crear serie",
+          title: "Error al actualizar serie",
           description: error.message,
           type: "error",
         });
@@ -62,9 +73,9 @@ export function useCreateSeries(
       }
 
       toaster.create({
-        title: "Error al crear serie",
+        title: "Error al actualizar serie",
         description:
-          "Ocurrió un error al crear la serie. Inténtalo de nuevo más tarde.",
+          "Ocurrió un error inesperado al actualizar la serie. Por favor, inténtalo de nuevo más tarde.",
         type: "error",
       });
     },

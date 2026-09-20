@@ -23,14 +23,13 @@ import {
   PLACEHOLDER,
 } from "@/modules/core/utils/utils";
 
-import { useCreateSeries } from "../hooks";
+import { useCreateSeries,useSerie, useSeriesForm, useUpdateSeries } from "../hooks";
 import {
   FORMATS_OPTIONS,
   INITIAL_SERIES,
   INITIAL_SERIES_ERRORS,
   SERIES_STATUSES_OPTIONS,
   type SeriesErrors,
-  type SeriesRequest,
 } from "../types/series";
 import {
   MAX_LENGTH,
@@ -42,17 +41,35 @@ import { ItemImageInput, AdminItemInfoForm } from "./";
 export function CreateSeriesDialog({
   isOpen,
   setIsOpen,
+  itemId,
 }: CreateItemDialogProps) {
-  const [form, setForm] = useState<SeriesRequest>(INITIAL_SERIES);
+  const {data: seriesToUpdate, isLoading: isSeriesToEditLoading} = useSerie(itemId);
+  console.log("seriesToUpdate", seriesToUpdate);
+  const {form, setForm} = useSeriesForm(itemId, seriesToUpdate, isSeriesToEditLoading);
   const [errors, setErrors] = useState<SeriesErrors>(INITIAL_SERIES_ERRORS);
   const [image, setImage] = useState<File | null>(null);
+  function resetForm() {
+    setForm(INITIAL_SERIES);
+    setErrors(INITIAL_SERIES_ERRORS);
+    setImage(null);
+  }
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const { mutateAsync: createSeries, isPending: submitting } = useCreateSeries(
     form,
     image,
     setErrors,
     setIsOpen,
+    resetForm,
   );
+  const { mutateAsync: updateSeries, isPending: updating } = useUpdateSeries(
+    itemId,
+    form,
+    image,
+    setErrors,
+    setIsOpen,
+    resetForm,
+  );
+  const loading = submitting || updating;
 
   const handleFormatChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "format", form, setErrors, setForm);
@@ -88,9 +105,17 @@ export function CreateSeriesDialog({
   }
 
   async function handleSubmit() {
-    validateSeriesForm(form, setErrors);
-    if (errors != INITIAL_SERIES_ERRORS) return;
-    await createSeries();
+    const isValid = validateSeriesForm(form, setErrors);
+    if (!isValid) return;
+    if (itemId) {
+      await updateSeries();
+    } else {
+      await createSeries();
+    }
+  }
+
+  if (itemId && isSeriesToEditLoading) {
+    return null; // Esperando a que se cargue la serie a editar
   }
 
   return (
@@ -98,20 +123,17 @@ export function CreateSeriesDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title="Crear serie"
+        title={seriesToUpdate ? `Editando "${seriesToUpdate.name}"` : "Crear serie"}
         handleSubmit={handleSubmit}
-        submitButtonText="Crear"
-        resetForm={() => {
-          setForm(INITIAL_SERIES);
-          setErrors(INITIAL_SERIES_ERRORS);
-          setImage(null);
-        }}
+        submitButtonText={itemId ? "Guardar" : "Crear"}
+        resetForm={resetForm}
       >
         <ItemImageInput
           image={image}
           setImage={setImage}
-          loading={submitting}
+          loading={isSeriesToEditLoading}
           placeholder={PLACEHOLDER.SERIES}
+          disabled={loading}
         />
 
         <CustomInput
@@ -122,12 +144,15 @@ export function CreateSeriesDialog({
           error={errors.name ?? ""}
           onChange={(event) => handleChange(event, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.NAME}
+          value={form.name}
+          disabled={loading}
         />
         <CategoriesSelect
           form={form}
           setForm={setForm}
           onCreateCategory={() => setCategoryDialogOpen(true)}
           error={errors.categoriesIds}
+          disabled={loading}
         />
         <CustomInput
           label="Sinopsis"
@@ -138,6 +163,8 @@ export function CreateSeriesDialog({
           textarea
           maxInputHeight="240px"
           maxLength={MAX_LENGTH.DESCRIPTION}
+          value={form.description}
+          disabled={loading}
         />
         <CustomSelect
           label="Formato"
@@ -146,8 +173,10 @@ export function CreateSeriesDialog({
           onValueChange={handleFormatChange}
           placeholder="Selecciona el formato"
           value={[form.format]}
+          defaultValue={[form.format]}
           error={errors.format ?? ""}
           required
+          disabled={loading}
         />
         <CustomNumberInput
           label="Número de discos"
@@ -158,6 +187,9 @@ export function CreateSeriesDialog({
           onChange={(value: number) =>
             setForm((previous) => ({ ...previous, numberOfDiscs: value }))
           }
+          error={errors.numberOfDiscs ?? ""}
+          value={form.numberOfDiscs}
+          disabled={loading}
         />
         <Heading as="h2" size="md" mt={4}>
           Información de la serie
@@ -169,6 +201,7 @@ export function CreateSeriesDialog({
           onChange={(value) =>
             setForm((previous) => ({ ...previous, releaseDate: value }))
           }
+          disabled={loading}
         />
         <CustomNumberInput
           label="Número de temporadas"
@@ -180,6 +213,8 @@ export function CreateSeriesDialog({
             setForm((previous) => ({ ...previous, numberOfSeasons: value }))
           }
           error={errors.numberOfSeasons ?? ""}
+          value={form.numberOfSeasons}
+          disabled={loading}
         />
         <CustomSelect
           label="Estado de la serie"
@@ -190,6 +225,7 @@ export function CreateSeriesDialog({
           value={[form.status]}
           error={errors.status ?? ""}
           required
+          disabled={loading}
         />
         <VStack align="stretch" gap={4}>
           <HStack justify="space-between" align="center">
@@ -200,7 +236,7 @@ export function CreateSeriesDialog({
             <CustomButton
               type="button"
               onClick={addSeason}
-              disabled={submitting}
+              disabled={loading}
             >
               <IconPlus />
               Añadir temporada
@@ -221,7 +257,7 @@ export function CreateSeriesDialog({
                   aria-label={`Eliminar temporada ${index + 1}`}
                   title={`Eliminar temporada ${index + 1}`}
                   onClick={() => removeSeason(index)}
-                  disabled={form.seasons.length <= 1}
+                  disabled={loading || form.seasons.length <= 1}
                 >
                   <IconTrash size={18} />
                 </CustomButton>
@@ -242,6 +278,7 @@ export function CreateSeriesDialog({
                       ),
                     }))
                   }
+                  disabled={loading}
                 />
                 <CustomNumberInput
                   label="Parte"
@@ -258,6 +295,7 @@ export function CreateSeriesDialog({
                       ),
                     }))
                   }
+                  disabled={loading}
                 />
               </HStack>
               <CustomInput
@@ -276,6 +314,7 @@ export function CreateSeriesDialog({
                     ),
                   }))
                 }
+                disabled={loading}
               />
             </VStack>
           ))}
@@ -287,6 +326,7 @@ export function CreateSeriesDialog({
           errors={errors}
           setErrors={setErrors}
           defaultValueText="Arte"
+          disabled={loading}
         />
 
         <Separator />
@@ -295,7 +335,7 @@ export function CreateSeriesDialog({
           setForm={setForm}
           errors={errors}
           setErrors={setErrors}
-          loading={submitting}
+          loading={loading}
         />
       </FormDialog>
       <CreateCategoryDialog

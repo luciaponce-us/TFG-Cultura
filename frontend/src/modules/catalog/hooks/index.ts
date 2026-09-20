@@ -25,7 +25,10 @@ export { useMovieForm } from "./form/useMovieForm";
 
 // SERIES
 export { useSeries } from "./useSeries";
+export { useSerie } from "./useSerie";
 export { useCreateSeries } from "./useCreateSeries";
+export { useUpdateSeries } from "./useUpdateSeries";
+export { useSeriesForm } from "./form/useSeriesForm";
 
 // ROLGAME
 export { useRolGamesBySaga } from "./useRolGamesBySaga";
