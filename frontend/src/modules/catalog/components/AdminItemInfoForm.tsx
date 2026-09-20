@@ -76,7 +76,7 @@ export function AdminItemInfoForm<R extends ItemRequest, E extends ItemErrors>({
             setForm,
           )
         }
-        defaultValue={form.comments}
+        value={form.comments}
         disabled={loading}
       />
       <CustomSwitch
@@ -113,7 +113,7 @@ export function AdminItemInfoForm<R extends ItemRequest, E extends ItemErrors>({
       <HStack>
         <CustomNumberInput
           label="Número de copias"
-          defaultValue={form.copies}
+          value={form.copies}
           min={1}
           max={10}
           required
@@ -126,10 +126,11 @@ export function AdminItemInfoForm<R extends ItemRequest, E extends ItemErrors>({
             }))
           }
           disabled={loading}
+          defaultValue={form.copies}
         />
         <CustomNumberInput
           label="Precio de compra"
-          defaultValue={form.price}
+          value={form.price}
           min={0}
           max={1000}
           step={0.01}
@@ -138,6 +139,7 @@ export function AdminItemInfoForm<R extends ItemRequest, E extends ItemErrors>({
           error={errors.price}
           onChange={(value) => setForm((prev) => ({ ...prev, price: value }))}
           isEuros
+          defaultValue={form.price}
         />
       </HStack>
     </>
