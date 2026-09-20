@@ -19,13 +19,12 @@ import {
   PLACEHOLDER,
 } from "@/modules/core/utils/utils";
 
-import { useCreateVideoGame } from "../hooks";
+import { useCreateVideoGame, useUpdateVideogame, useVideogame, useVideoGameForm } from "../hooks";
 import {
   INITIAL_VIDEO_GAME,
   INITIAL_VIDEO_GAME_ERRORS,
   PLATFORM_OPTIONS,
   type VideoGameErrors,
-  type VideoGameRequest,
 } from "../types/videogame";
 import type { CreateItemDialogProps } from "../types";
 import {
@@ -37,23 +36,46 @@ import { AdminItemInfoForm, ItemImageInput } from "./";
 export function CreateVideoGameDialog({
   isOpen,
   setIsOpen,
+  itemId,
 }: CreateItemDialogProps) {
-  const [form, setForm] = useState<VideoGameRequest>(INITIAL_VIDEO_GAME);
+  const { data: videoGameToUpdate, isLoading: isVideoGameToEditLoading } =
+    useVideogame(itemId);
+  const { form, setForm } = useVideoGameForm(
+    itemId,
+    videoGameToUpdate,
+    isVideoGameToEditLoading,
+  );
   const [errors, setErrors] = useState<VideoGameErrors>(
     INITIAL_VIDEO_GAME_ERRORS,
   );
   const [image, setImage] = useState<File | null>(null);
+  function resetForm() {
+    setForm(INITIAL_VIDEO_GAME);
+    setErrors(INITIAL_VIDEO_GAME_ERRORS);
+    setImage(null);
+  }
   const { mutateAsync: createVideoGame, isPending: submitting } =
-    useCreateVideoGame(form, image, setErrors, setIsOpen);
+    useCreateVideoGame(form, image, setErrors, setIsOpen, resetForm);
+  const { mutateAsync: updateVideoGame, isPending: updating } =
+    useUpdateVideogame(itemId, form, image, setErrors, setIsOpen, resetForm);
+  const loading = submitting || updating;
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
   const handlePlatformChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "platform", form, setErrors, setForm);
 
   async function handleSubmit() {
-    validateVideoGameForm(form, setErrors);
-    if (errors != INITIAL_VIDEO_GAME_ERRORS) return;
-    await createVideoGame();
+    const isValid = validateVideoGameForm(form, setErrors);
+    if (!isValid) return;
+    if (itemId) {
+      await updateVideoGame();
+    } else {
+      await createVideoGame();
+    }
+  }
+
+  if (itemId && isVideoGameToEditLoading) {
+    return null; // Esperando a que se cargue el videojuego a editar
   }
 
   return (
@@ -61,20 +83,17 @@ export function CreateVideoGameDialog({
       <FormDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title="Crear videojuego"
+        title={videoGameToUpdate ? `Editando "${videoGameToUpdate.name}"` : "Crear videojuego"}
         handleSubmit={handleSubmit}
-        submitButtonText="Crear"
-        resetForm={() => {
-          setForm(INITIAL_VIDEO_GAME);
-          setErrors(INITIAL_VIDEO_GAME_ERRORS);
-          setImage(null);
-        }}
+        submitButtonText={itemId ? "Guardar" : "Crear"}
+        resetForm={resetForm}
       >
         <ItemImageInput
           image={image}
           setImage={setImage}
-          loading={submitting}
+          loading={isVideoGameToEditLoading}
           placeholder={PLACEHOLDER.VIDEOGAME}
+          disabled={loading}
         />
 
         <CustomInput
@@ -85,6 +104,9 @@ export function CreateVideoGameDialog({
           error={errors.name ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.NAME}
+          value={form.name}
+          defaultValue={form.name}
+          disabled={loading}
         />
         <CustomSelect
           label="Plataforma"
@@ -93,14 +115,17 @@ export function CreateVideoGameDialog({
           onValueChange={handlePlatformChange}
           placeholder="Selecciona la plataforma"
           value={[form.platform]}
+          defaultValue={[form.platform]}
           error={errors.platform ?? ""}
           required
+          disabled={loading}
         />
         <CategoriesSelect
           form={form}
           setForm={setForm}
           onCreateCategory={() => setCategoryDialogOpen(true)}
           error={errors.categoriesIds}
+          disabled={loading}
         />
         <CustomInput
           label="Sinopsis"
@@ -111,6 +136,9 @@ export function CreateVideoGameDialog({
           textarea
           maxInputHeight="240px"
           maxLength={MAX_LENGTH.DESCRIPTION}
+          value={form.description}
+          defaultValue={form.description}
+          disabled={loading}
         />
         <CustomDateInput
           label="Fecha de estreno"
@@ -119,6 +147,7 @@ export function CreateVideoGameDialog({
           onChange={(value) =>
             setForm((prev) => ({ ...prev, releaseDate: value }))
           }
+          disabled={loading}
         />
         <CustomInput
           label="Tráiler"
@@ -127,6 +156,9 @@ export function CreateVideoGameDialog({
           error={errors.trailerUrl ?? ""}
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.TRAILER_URL}
+          value={form.trailerUrl}
+          defaultValue={form.trailerUrl}
+          disabled={loading}
         />
         <SectionSelect
           form={form}
@@ -134,6 +166,7 @@ export function CreateVideoGameDialog({
           errors={errors}
           setErrors={setErrors}
           defaultValueText="Informática"
+          disabled={loading}
         />
 
         <Separator />
@@ -142,7 +175,7 @@ export function CreateVideoGameDialog({
           setForm={setForm}
           errors={errors}
           setErrors={setErrors}
-          loading={submitting}
+          loading={loading}
           loanAvailable={false}
         />
       </FormDialog>

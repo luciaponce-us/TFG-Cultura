@@ -10,6 +10,7 @@ import type {
 } from "../types/rolgame";
 import type { Format } from "../types/movie";
 import type { Series, SeriesRequest } from "../types/series";
+import type { VideoGame, VideoGameRequest } from "../types/videogame";
 
 function toFormatValue(format: string): Format {
   switch (format) {
@@ -109,5 +110,15 @@ export function toSeriesRequest(series: Series): SeriesRequest {
       numberOfSeasons: series.numberOfSeasons,
       status: series.status,
       seasons: series.seasons,
+  };
+}
+
+export function toVideoGameRequest(videoGame: VideoGame): VideoGameRequest {
+  const itemRequest = toRequest(videoGame);
+  return {
+    ...itemRequest,
+    platform: videoGame.platform,
+    releaseDate: videoGame.releaseDate,
+    trailerUrl: videoGame.trailerUrl,
   };
 }

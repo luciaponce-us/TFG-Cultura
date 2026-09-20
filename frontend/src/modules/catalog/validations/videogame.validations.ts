@@ -20,7 +20,7 @@ export const MAX_LENGTH = {
 export function validateVideoGameForm(
   form: VideoGameRequest,
   setErrors: Dispatch<SetStateAction<VideoGameErrors>>,
-): void {
+): boolean {
   const base = validateItemForm(form);
   let errors: VideoGameErrors = {
     ...base,
@@ -38,7 +38,9 @@ export function validateVideoGameForm(
         "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
       type: "error",
     });
+    return false;
   }
+  return true;
 }
 
 function validatePlatform(value: Platform): string | undefined {

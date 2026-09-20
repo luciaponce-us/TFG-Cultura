@@ -1,7 +1,12 @@
 import { VIDEOGAME_ROUTES } from "../routes";
 import type { Paginated } from "@/modules/core/types";
 import type { VideoGame, VideoGameRequest } from "../types/videogame";
-import { createItem, fetchAllItems } from "./item.service";
+import {
+  createItem,
+  fetchAllItems,
+  fetchItemById,
+  updateItem,
+} from "./item.service";
 
 export async function fetchAllVideoGames(
   page: number = 0,
@@ -18,6 +23,12 @@ export async function fetchAllVideoGames(
   );
 }
 
+export async function fetchVideoGameById(
+  videoGameId: string,
+): Promise<VideoGame> {
+  return fetchItemById<VideoGame>(VIDEOGAME_ROUTES, videoGameId);
+}
+
 export async function createVideoGame(
   request: VideoGameRequest,
   image: File | null,
@@ -26,6 +37,21 @@ export async function createVideoGame(
   return createItem<VideoGame, VideoGameRequest>(
     VIDEOGAME_ROUTES,
     token,
+    request,
+    image,
+  );
+}
+
+export async function updateVideoGame(
+    token: string,
+  videoGameId: string,
+  request: VideoGameRequest,
+  image: File | null,
+): Promise<VideoGame> {
+  return updateItem<VideoGame, VideoGameRequest>(
+    VIDEOGAME_ROUTES,
+    token,
+    videoGameId,
     request,
     image,
   );
