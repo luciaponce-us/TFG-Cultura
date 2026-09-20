@@ -44,30 +44,42 @@ export function CreateRolGameDialog({
   sagaId,
   itemId,
 }: CreateRolGameDialogProps) {
-  const { data: rolGameToEdit } = useRolGame(itemId);
-  const { form, setForm } = useRolGameForm(itemId, sagaId, rolGameToEdit);
+  const { data: rolGameToEdit, isLoading: isRolGameToEditLoading } =
+    useRolGame(itemId);
+  const { data: rolSaga, isLoading: isRolSagaLoading } = useRolSaga(sagaId);
+  const { form, setForm } = useRolGameForm(
+    itemId,
+    sagaId,
+    rolGameToEdit,
+    isRolGameToEditLoading || isRolSagaLoading,
+  );
   const [errors, setErrors] = useState<RolGameErrors>(INITIAL_ROL_GAME_ERRORS);
   const [image, setImage] = useState<File | null>(null);
+  function resetForm() {
+    setForm(INITIAL_ROL_GAME);
+    setErrors(INITIAL_ROL_GAME_ERRORS);
+    setImage(null);
+  }
   const { mutateAsync: createRolGame, isPending: submitting } =
-    useCreateRolGame(form, image, setErrors, setIsOpen);
+    useCreateRolGame(form, image, setErrors, setIsOpen, resetForm);
   const { mutateAsync: updateRolGame, isPending: updating } = useUpdateRolGame(
     itemId,
     form,
     image,
     setErrors,
     setIsOpen,
+    resetForm,
   );
-  const loading = submitting || updating;
-
-  const { data: rolSaga } = useRolSaga(sagaId);
+  const loading =
+    submitting || updating || isRolGameToEditLoading || isRolSagaLoading;
 
   const handleTypeChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "type", form, setErrors, setForm);
 
   async function handleSubmit() {
-    validateRolGameForm(form, setErrors);
+    const isValid = validateRolGameForm(form, setErrors);
 
-    if (errors != INITIAL_ROL_GAME_ERRORS) return;
+    if (!isValid) return;
 
     if (itemId) {
       await updateRolGame();
@@ -85,17 +97,14 @@ export function CreateRolGameDialog({
       }
       handleSubmit={async () => await handleSubmit()}
       submitButtonText={itemId ? "Actualizar" : "Crear"}
-      resetForm={() => {
-        setForm(INITIAL_ROL_GAME);
-        setErrors(INITIAL_ROL_GAME_ERRORS);
-        setImage(null);
-      }}
+      resetForm={resetForm}
     >
       <ItemImageInput
         image={image}
         setImage={setImage}
-        loading={loading}
+        loading={isRolGameToEditLoading}
         placeholder={PLACEHOLDER.ROLGAME}
+        disabled={loading}
       />
 
       <CustomInput
@@ -108,6 +117,7 @@ export function CreateRolGameDialog({
         maxLength={MAX_LENGTH.NAME}
         disabled={loading}
         defaultValue={form.name}
+        value={form.name}
       />
 
       <CustomSelect
@@ -115,6 +125,7 @@ export function CreateRolGameDialog({
         options={rolSaga ? [{ value: rolSaga.id, label: rolSaga.name }] : []}
         placeholder="Cargando..."
         defaultValue={[form.sagaId]}
+        value={[form.sagaId]}
         disabled
         required
       />
@@ -130,7 +141,10 @@ export function CreateRolGameDialog({
         onValueChange={handleTypeChange}
         placeholder="Selecciona el tipo de libro de juego de rol"
         defaultValue={[form.type]}
+        value={[form.type]}
+        error={errors.type ?? ""}
         disabled={loading}
+        required
       />
 
       <CustomInput
@@ -144,6 +158,7 @@ export function CreateRolGameDialog({
         maxLength={MAX_LENGTH.DESCRIPTION}
         disabled={loading}
         defaultValue={form.description}
+        value={form.description}
       />
 
       <Separator />

@@ -18,7 +18,7 @@ export const MAX_LENGTH = {
 export function validateRolGameForm(
   form: RolGameRequest,
   setErrors: Dispatch<SetStateAction<RolGameErrors>>,
-): void {
+): boolean {
   const base = validateItemForm(form);
   let errors: RolGameErrors = {
     ...base,
@@ -36,7 +36,9 @@ export function validateRolGameForm(
         "Se encontraron errores en el formulario. Por favor, corrígelos e inténtalo de nuevo.",
       type: "error",
     });
+    return false;
   }
+  return true;
 }
 
 function validateType(value: RolBookType): string | undefined {

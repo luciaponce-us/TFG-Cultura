@@ -11,6 +11,7 @@ export function useUpdateRolGame(
   image: File | null,
   setErrors: (errors: Record<string, string>) => void,
   setIsOpen: (isOpen: boolean) => void,
+  resetForm: () => void,
 ) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
@@ -46,6 +47,7 @@ export function useUpdateRolGame(
 
       await queryClient.invalidateQueries({ queryKey: ["rolgames"] });
       setIsOpen(false);
+      resetForm();
       return rolGame;
     },
     onError: (error) => {

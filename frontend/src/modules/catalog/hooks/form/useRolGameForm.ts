@@ -11,6 +11,7 @@ export function useRolGameForm(
   rolGameId: string | undefined,
   sagaId: string,
   rolGameToUpdate?: RolGame,
+  isLoading: boolean = false,
 ): { form: RolGameRequest; setForm: Dispatch<SetStateAction<RolGameRequest>> } {
   const [formOverride, setFormOverride] = useState<{
     rolGameId: string | undefined;
@@ -28,6 +29,9 @@ export function useRolGameForm(
       : loadedForm;
 
   const setForm: Dispatch<SetStateAction<RolGameRequest>> = (nextForm) => {
+    if (rolGameId && isLoading) {
+      return; // Esperando a que se cargue el juego de rol a editar
+    }
     setFormOverride((currentOverride) => {
       const currentForm =
         currentOverride?.rolGameId === rolGameId &&
