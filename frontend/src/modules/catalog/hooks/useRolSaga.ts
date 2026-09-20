@@ -11,6 +11,6 @@ export function useRolSaga(sagaId: string | undefined) {
       }
       return fetchRolSagaById(sagaId);
     },
-    enabled: !!sagaId
+    enabled: !!sagaId,
   });
 }

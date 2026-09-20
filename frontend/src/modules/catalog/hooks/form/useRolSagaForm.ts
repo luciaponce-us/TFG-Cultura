@@ -17,11 +17,11 @@ export function useRolSagaForm(
     value: RolSagaRequest;
   }>();
 
-    const initialSectionId = useSectionNameContains("rol")?.id;
+  const initialSectionId = useSectionNameContains("rol")?.id;
 
   const loadedForm = rolSagaToUpdate
     ? toRolSagaRequest(rolSagaToUpdate)
-    : {...INITIAL_ROL_SAGA, sectionId: initialSectionId};
+    : { ...INITIAL_ROL_SAGA, sectionId: initialSectionId };
 
   const form =
     formOverride?.rolSagaId === rolSagaId && formOverride !== undefined

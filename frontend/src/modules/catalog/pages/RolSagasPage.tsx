@@ -76,21 +76,21 @@ function RolSagaCard({ rolSaga }: { rolSaga: RolSaga }) {
         gap={10}
       >
         <HStack gap={4} align="start">
-        <Image
-          src={rolSaga.imageUrl ?? PLACEHOLDER.ROLSAGA}
-          alt={rolSaga.name}
-          width="100px"
-          height="auto"
-          borderRadius="sm"
-          aspectRatio="1/1"
-        />
-        <VStack align="start" gap={1} justify="top">
-        <Heading as="h2" size="md">
-          {rolSaga.name}
-        </Heading>
-        <p>{rolSaga.description}</p>
-        <Link href={`/catalogo/rol/${rolSaga.id}`}>Ver detalles</Link>
-        </VStack>
+          <Image
+            src={rolSaga.imageUrl ?? PLACEHOLDER.ROLSAGA}
+            alt={rolSaga.name}
+            width="100px"
+            height="auto"
+            borderRadius="sm"
+            aspectRatio="1/1"
+          />
+          <VStack align="start" gap={1} justify="top">
+            <Heading as="h2" size="md">
+              {rolSaga.name}
+            </Heading>
+            <p>{rolSaga.description}</p>
+            <Link href={`/catalogo/rol/${rolSaga.id}`}>Ver detalles</Link>
+          </VStack>
         </HStack>
         {isAdmin && (
           <CustomButton

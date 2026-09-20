@@ -54,12 +54,14 @@ export function CreateBoardGameDialog({
   itemId,
 }: CreateBoardGameDialogProps) {
   const isEdit = itemId !== undefined;
-  const {
-    data: boardGameToUpdate,
-    isLoading: isLoadingBoardGameToUpdate,
-  } = useBoardGame(itemId);
+  const { data: boardGameToUpdate, isLoading: isLoadingBoardGameToUpdate } =
+    useBoardGame(itemId);
 
-  const { form, setForm } = useBoardGameForm(itemId, boardGameToUpdate, isLoadingBoardGameToUpdate);
+  const { form, setForm } = useBoardGameForm(
+    itemId,
+    boardGameToUpdate,
+    isLoadingBoardGameToUpdate,
+  );
   const [errors, setErrors] = useState<BoardGameErrors>(
     INITIAL_BOARD_GAME_ERRORS,
   );
@@ -78,7 +80,7 @@ export function CreateBoardGameDialog({
     setErrors(INITIAL_BOARD_GAME_ERRORS);
     setImage(null);
   }
-  
+
   const handleComplexityChange = ({ value }: { value: string[] }) =>
     handleSelectChange(value, "complexity", form, setErrors, setForm);
   const handleTypesChange = ({ value }: { value: string[] }) =>
@@ -87,7 +89,7 @@ export function CreateBoardGameDialog({
   async function handleSubmit() {
     const isValid = validateBoardGameForm(form, setErrors, isEdit);
     if (!isValid) return;
-    
+
     if (itemId) {
       await updateBoardGame();
     } else {

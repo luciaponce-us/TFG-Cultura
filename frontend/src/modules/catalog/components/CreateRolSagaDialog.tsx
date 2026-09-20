@@ -54,7 +54,7 @@ export function CreateRolSagaDialog({
   );
   const [image, setImage] = useState<File | null>(null);
   const [errors, setErrors] = useState<RolSagaErrors>(INITIAL_ROL_SAGA_ERRORS);
-    function resetForm() {
+  function resetForm() {
     setForm(INITIAL_ROL_SAGA);
     setErrors(INITIAL_ROL_SAGA_ERRORS);
     setImage(null);
@@ -71,7 +71,7 @@ export function CreateRolSagaDialog({
     image,
     setErrors,
     setIsOpen,
-    resetForm
+    resetForm,
   );
 
   const submitting = creating || updating;

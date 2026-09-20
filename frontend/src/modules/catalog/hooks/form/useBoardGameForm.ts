@@ -1,8 +1,4 @@
-import {
-  useState,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 
 import {
   INITIAL_BOARD_GAME,
@@ -32,24 +28,22 @@ export function useBoardGameForm(
 
   const setForm: Dispatch<SetStateAction<BoardGameRequest>> = (nextForm) => {
     if (boardGameId && isLoading) {
-    return; // Esperando a que se cargue el juego de mesa a editar
-  }
+      return; // Esperando a que se cargue el juego de mesa a editar
+    }
     setFormOverride((currentOverride) => {
       const currentForm =
-        currentOverride !== undefined && currentOverride.boardGameId === boardGameId
+        currentOverride !== undefined &&
+        currentOverride.boardGameId === boardGameId
           ? currentOverride.value
           : loadedForm;
 
       return {
         boardGameId,
         value:
-          typeof nextForm === "function"
-            ? nextForm(currentForm)
-            : nextForm,
+          typeof nextForm === "function" ? nextForm(currentForm) : nextForm,
       };
     });
   };
-
 
   return {
     form,

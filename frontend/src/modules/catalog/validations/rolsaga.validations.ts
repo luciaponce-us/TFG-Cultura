@@ -34,7 +34,10 @@ export function validateRolSagaForm(
   errors = removeEmptyFields(errors);
 
   if (Object.keys(errors).length > 0) {
-    console.error("Errores de validación en el formulario de saga de rol:", errors);
+    console.error(
+      "Errores de validación en el formulario de saga de rol:",
+      errors,
+    );
     setErrors(errors);
     toaster.create({
       title: `Error al ${isUpdate ? "editar" : "crear"} saga de rol`,
