@@ -2,7 +2,6 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import {
   defaultCategory,
   type Category,
-  type CategoryCreateRequest,
   type CategoryFormErrors,
 } from "../types";
 import {
@@ -10,48 +9,70 @@ import {
   CustomInput,
   FormDialog,
 } from "@/modules/core/components";
-import { useCreateCategory } from "../hooks";
+import { useCategory, useCreateCategory, useUpdateCategory } from "../hooks";
 import { handleChange } from "@/modules/core/utils/utils";
+import { useCategoryForm } from "../hooks/useCategoryForm";
 
 interface CreateCategoryDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: Dispatch<SetStateAction<boolean>>;
-  readonly onCategoryCreated: (category: Category) => void;
+  readonly onCategoryCreated?: (category: Category) => void;
+  readonly categoryId?: string;
 }
 
 export function CreateCategoryDialog({
   isOpen,
   setIsOpen,
   onCategoryCreated,
+  categoryId,
 }: CreateCategoryDialogProps) {
-  const [category, setCategory] =
-    useState<CategoryCreateRequest>(defaultCategory);
+  const { data: categoryToEdit, isLoading: isCategoryToEditLoading } =
+    useCategory(categoryId);
+  const { form, setForm } = useCategoryForm(
+    categoryId,
+    categoryToEdit,
+    isCategoryToEditLoading,
+  );
   const [errors, setErrors] = useState<CategoryFormErrors>({});
   const { mutateAsync: createCategory } = useCreateCategory(
     setErrors,
     setIsOpen,
   );
+  const { mutateAsync: updateCategory } = useUpdateCategory(
+    categoryId,
+    form,
+    setErrors,
+    setIsOpen,
+    () => {
+      setForm(defaultCategory);
+      setErrors({});
+    },
+  );
 
   async function handleSubmit() {
-    if (!category) {
+    if (categoryId) {
+      await updateCategory();
       return;
+    } else {
+      const createdCategory: Category | undefined = await createCategory(form);
+      if (!createdCategory) {
+        return;
+      }
+      onCategoryCreated?.(createdCategory);
     }
-    const createdCategory: Category | undefined =
-      await createCategory(category);
-    if (!createdCategory) {
-      return;
-    }
-    onCategoryCreated(createdCategory);
-    setIsOpen(false);
+  }
+
+  if (categoryId && isCategoryToEditLoading) {
+    return null; // Esperando a que se cargue la categoría a editar
   }
 
   return (
     <FormDialog
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      title="Crear categoría"
+      title={categoryToEdit ? "Editando categoría" : "Crear categoría"}
       handleSubmit={handleSubmit}
-      submitButtonText="Crear"
+      submitButtonText={categoryId ? "Guardar" : "Crear"}
     >
       <CustomInput
         label="Nombre"
@@ -59,13 +80,14 @@ export function CreateCategoryDialog({
         placeholder="Introduce el nombre de la categoría..."
         required
         error={errors.name}
-        onChange={(e) => handleChange(e, category, setErrors, setCategory)}
+        value={form.name}
+        onChange={(e) => handleChange(e, form, setErrors, setForm)}
       />
 
       <CustomColorPicker
         required
-        onChange={(e) => handleChange(e, category, setErrors, setCategory)}
-        defaultValue={category?.color || "#000000"}
+        onChange={(e) => handleChange(e, form, setErrors, setForm)}
+        defaultValue={form?.color || "#000000"}
         error={errors.color}
       />
     </FormDialog>

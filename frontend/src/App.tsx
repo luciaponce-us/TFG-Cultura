@@ -39,6 +39,8 @@ import {
   VideoGamesPage,
 } from "@/modules/catalog/pages";
 
+import { CategoriesPage } from "@/modules/categories/pages";
+
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
 
 const queryClient = new QueryClient();
@@ -65,6 +67,7 @@ export default function App() {
                 path="/mis-sugerencias"
                 element={<SuggestionsPage mySuggestions />}
               />
+              
               {/* CATÁLOGO */}
               <Route path="/catalogo" element={<CatalogPage />} />
               <Route path="/catalogo/libros" element={<BooksPage />} />
@@ -100,6 +103,8 @@ export default function App() {
                 path="/admin/usuarios/:username"
                 element={withRoleProtection(EditUserPage, MANAGEMENT_ROLES)}
               />
+              {/* CATEGORÍAS */}
+              <Route path="/admin/categorias" element={withRoleProtection(CategoriesPage, MANAGEMENT_ROLES)} />
               <Route path="/no-encontrado" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
             </Route>
