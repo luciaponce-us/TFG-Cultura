@@ -9,20 +9,18 @@ export function useDeleteRolSaga(id: string | undefined) {
 
   return useMutation({
     mutationFn: async () => {
-        if (!token) {
-            toaster.create({
-                title: "Inicia sesión para eliminar sagas de rol",
-                description:
-                    "Necesitas iniciar sesión para eliminar una saga de rol.",
-                type: "error",
-            });
-            return;
-        }
-        if (!id) return undefined;
+      if (!token) {
+        toaster.create({
+          title: "Inicia sesión para eliminar sagas de rol",
+          description:
+            "Necesitas iniciar sesión para eliminar una saga de rol.",
+          type: "error",
+        });
+        return;
+      }
+      if (!id) return undefined;
 
-      
-          return deleteRolSaga(token, id);
-      
+      return deleteRolSaga(token, id);
     },
 
     onSuccess: async () => {
@@ -43,6 +41,6 @@ export function useDeleteRolSaga(id: string | undefined) {
           "Ocurrió un error al intentar eliminar la saga de rol. Por favor, inténtalo de nuevo más tarde.",
         type: "error",
       });
-    }
+    },
   });
 }

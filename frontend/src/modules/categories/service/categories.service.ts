@@ -17,15 +17,10 @@ export async function fetchAllCategories(): Promise<Category[]> {
   return handleResponse<Category[]>(res);
 }
 
-export async function fetchCategoryById(
-  categoryId: string,
-): Promise<Category> {
-  const res = await fetchWithTimeout(
-    CATEGORY_ROUTES.GET_BY_ID(categoryId),
-    {
-      method: "GET",
-    },
-  );
+export async function fetchCategoryById(categoryId: string): Promise<Category> {
+  const res = await fetchWithTimeout(CATEGORY_ROUTES.GET_BY_ID(categoryId), {
+    method: "GET",
+  });
 
   return handleResponse<Category>(res);
 }
@@ -51,17 +46,14 @@ export async function updateCategory(
   category: CategoryCreateRequest,
   token: string,
 ): Promise<Category> {
-  const res = await fetchWithTimeout(
-    CATEGORY_ROUTES.GET_BY_ID(categoryId),
-    {
-      method: "PUT",
-      headers: {
-        ...jsonHeaders,
-        ...authHeaders(token),
-      },
-      body: JSON.stringify(category),
+  const res = await fetchWithTimeout(CATEGORY_ROUTES.GET_BY_ID(categoryId), {
+    method: "PUT",
+    headers: {
+      ...jsonHeaders,
+      ...authHeaders(token),
     },
-  );
+    body: JSON.stringify(category),
+  });
 
   return handleResponse<Category>(res);
 }
@@ -70,15 +62,12 @@ export async function deleteCategory(
   categoryId: string,
   token: string,
 ): Promise<void> {
-  const res = await fetchWithTimeout(
-    CATEGORY_ROUTES.GET_BY_ID(categoryId),
-    {
-      method: "DELETE",
-      headers: {
-        ...authHeaders(token),
-      },
+  const res = await fetchWithTimeout(CATEGORY_ROUTES.GET_BY_ID(categoryId), {
+    method: "DELETE",
+    headers: {
+      ...authHeaders(token),
     },
-  );
+  });
 
   return handleResponse<void>(res);
 }

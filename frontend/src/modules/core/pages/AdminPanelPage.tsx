@@ -82,7 +82,7 @@ export default function AdminPanelPage() {
     {
       icon: <IconStar style={adminCardIconStyle} stroke={1.5} />,
       label: "Categorías",
-      onClick: () =>void navigation("/admin/categorias"),
+      onClick: () => void navigation("/admin/categorias"),
     },
     {
       icon: <IconChartPie4 style={adminCardIconStyle} stroke={1.5} />,

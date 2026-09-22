@@ -67,7 +67,7 @@ export default function App() {
                 path="/mis-sugerencias"
                 element={<SuggestionsPage mySuggestions />}
               />
-              
+
               {/* CATÁLOGO */}
               <Route path="/catalogo" element={<CatalogPage />} />
               <Route path="/catalogo/libros" element={<BooksPage />} />
@@ -104,7 +104,10 @@ export default function App() {
                 element={withRoleProtection(EditUserPage, MANAGEMENT_ROLES)}
               />
               {/* CATEGORÍAS */}
-              <Route path="/admin/categorias" element={withRoleProtection(CategoriesPage, MANAGEMENT_ROLES)} />
+              <Route
+                path="/admin/categorias"
+                element={withRoleProtection(CategoriesPage, MANAGEMENT_ROLES)}
+              />
               <Route path="/no-encontrado" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
             </Route>

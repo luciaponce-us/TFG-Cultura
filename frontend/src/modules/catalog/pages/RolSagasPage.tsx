@@ -111,7 +111,7 @@ function RolSagaCard({ rolSaga }: { rolSaga: RolSaga }) {
               <IconPencil />
             </CustomButton>
             <CustomButton
-            color="rojo"
+              color="rojo"
               onClick={() => {
                 setIsDeleteDialogOpen(true);
               }}

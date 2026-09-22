@@ -7,7 +7,6 @@ import {
 } from "../types";
 import { toCategoryRequest } from "../utils";
 
-
 export function useCategoryForm(
   categoryId: string | undefined,
   categoryToUpdate?: Category,
@@ -27,7 +26,9 @@ export function useCategoryForm(
       ? formOverride.value
       : loadedForm;
 
-  const setForm: Dispatch<SetStateAction<CategoryCreateRequest>> = (nextForm) => {
+  const setForm: Dispatch<SetStateAction<CategoryCreateRequest>> = (
+    nextForm,
+  ) => {
     if (categoryId && isLoading) {
       return; // Esperando a que se cargue la categoría a editar
     }

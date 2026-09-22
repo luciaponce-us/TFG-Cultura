@@ -29,7 +29,8 @@ export function useUpdateCategory(
       if (!token) {
         toaster.create({
           title: "Inicia sesión para actualizar categorías",
-          description: "Necesitas iniciar sesión para actualizar una categoría.",
+          description:
+            "Necesitas iniciar sesión para actualizar una categoría.",
           type: "error",
         });
         return;
