@@ -1,12 +1,17 @@
 import { Flex, Heading, HStack, Image, Link, VStack } from "@chakra-ui/react";
 import { useRolSagas } from "../hooks";
-import { CustomButton, TextSecondary } from "@/modules/core/components";
+import {
+  ConfirmDialog,
+  CustomButton,
+  TextSecondary,
+} from "@/modules/core/components";
 import { useState } from "react";
 import { CreateRolSagaDialog } from "../components/CreateRolSagaDialog";
-import { IconPencil, IconPlus } from "@tabler/icons-react";
+import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useAuth } from "@/modules/core/context/useAuth";
 import type { RolSaga } from "../types/rolgame";
 import { PLACEHOLDER } from "@/modules/core/utils/utils";
+import { useDeleteRolSaga } from "../hooks";
 
 export function RolSagasPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -63,7 +68,11 @@ export function RolSagasPage() {
 
 function RolSagaCard({ rolSaga }: { rolSaga: RolSaga }) {
   const { isAdmin } = useAuth();
+  const { mutateAsync: deleteRolSaga, isPending: isDeleting } =
+    useDeleteRolSaga(rolSaga.id);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
   return (
     <>
       <HStack
@@ -93,13 +102,24 @@ function RolSagaCard({ rolSaga }: { rolSaga: RolSaga }) {
           </VStack>
         </HStack>
         {isAdmin && (
-          <CustomButton
-            onClick={() => {
-              setIsEditOpen(true);
-            }}
-          >
-            <IconPencil />
-          </CustomButton>
+          <VStack gap={2}>
+            <CustomButton
+              onClick={() => {
+                setIsEditOpen(true);
+              }}
+            >
+              <IconPencil />
+            </CustomButton>
+            <CustomButton
+            color="rojo"
+              onClick={() => {
+                setIsDeleteDialogOpen(true);
+              }}
+              loading={isDeleting}
+            >
+              <IconTrash />
+            </CustomButton>
+          </VStack>
         )}
       </HStack>
       {isEditOpen && (
@@ -107,6 +127,15 @@ function RolSagaCard({ rolSaga }: { rolSaga: RolSaga }) {
           isOpen
           setIsOpen={setIsEditOpen}
           rolSagaId={rolSaga.id}
+        />
+      )}
+      {isDeleteDialogOpen && (
+        <ConfirmDialog
+          isOpen
+          setIsOpen={setIsDeleteDialogOpen}
+          handleAction={() => void deleteRolSaga()}
+          title="Confirmar eliminación"
+          message={`¿Estás seguro de que quieres eliminar "${rolSaga.name}"? Esta acción no se puede deshacer y se eliminarán todos los juegos de rol relacionados.`}
         />
       )}
     </>
