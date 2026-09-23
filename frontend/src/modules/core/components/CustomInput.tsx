@@ -32,7 +32,7 @@ export const CustomInput = ({
   onChange,
   password = false,
   defaultValue,
-  value,
+  value = "",
   textarea = false,
   maxInputHeight,
   disabled = false,
@@ -52,7 +52,7 @@ export const CustomInput = ({
     placeholder,
     onChange: handleChange,
     focusRingColor: "principal.600",
-    ...(value === undefined ? { defaultValue } : { value }),
+    ...((textarea && value === "")|| (value === undefined) ? { defaultValue } : { value }),
     maxLength,
     disabled,
   };
