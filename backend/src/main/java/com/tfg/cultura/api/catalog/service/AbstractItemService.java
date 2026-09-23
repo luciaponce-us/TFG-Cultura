@@ -27,7 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public abstract class AbstractItemService<T extends Item, R extends AbstractItemRepository<T>, C extends ItemRequest, RES>
 		implements
-			ItemServiceInterface<T, C, RES> {
+			ItemServiceInterface<T,R, C, RES> {
 
 	private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
 
