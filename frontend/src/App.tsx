@@ -73,10 +73,7 @@ export default function App() {
               {/* CATÁLOGO */}
               <Route path="/catalogo" element={<CatalogPage />} />
               <Route path="/catalogo/libros" element={<BooksPage />} />
-              <Route
-                path="/catalogo/libros/:bookId"
-                element={<BookPage />}
-              />
+              <Route path="/catalogo/libros/:bookId" element={<BookPage />} />
               <Route
                 path="/catalogo/mangas-y-comics"
                 element={<MangasAndComicsPage />}

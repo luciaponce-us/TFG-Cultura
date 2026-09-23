@@ -14,11 +14,9 @@ import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -118,9 +116,7 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 		Saga saga = sagaService.findById(sagaId);
 		Set<Book> books = repository.findAllBySaga(saga);
 		logger.info("Found {} books for saga with ID: {}", books.size(), sagaId);
-		return books.stream()
-				.map(BookResponse::new)
-				.collect(Collectors.toSet());
+		return books.stream().map(BookResponse::new).collect(Collectors.toSet());
 	}
 
 }

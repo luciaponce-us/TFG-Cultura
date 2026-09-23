@@ -39,7 +39,7 @@ export function ItemImageInput({
           <Spinner size="lg" color="principal.500" />
         ) : (
           <Image
-            src={image ? URL.createObjectURL(image) : (imageUrl || placeholder)}
+            src={image ? URL.createObjectURL(image) : imageUrl || placeholder}
             alt="Foto del ítem"
             w="100%"
             h="100%"
