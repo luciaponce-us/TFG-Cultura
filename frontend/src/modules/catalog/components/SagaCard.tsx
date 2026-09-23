@@ -33,7 +33,11 @@ export function SagaCard({ saga }: { saga: Saga }) {
         </HStack>
       </HStack>
       {isEditOpen && (
-        <CreateSagaDialog isOpen setIsOpen={setIsEditOpen} sagaToEditName={saga.name} />
+        <CreateSagaDialog
+          isOpen
+          setIsOpen={setIsEditOpen}
+          sagaToEditName={saga.name}
+        />
       )}
       {isDeleteDialogOpen && (
         <ConfirmDialog

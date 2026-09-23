@@ -93,42 +93,42 @@ export default function AdminPanelPage() {
   ];
 
   return (
-      <Flex
-        bg="background"
-        borderRadius="xl"
-        boxShadow="lg"
-        p={6}
-        direction="column"
-        align="center"
-        justify="center"
+    <Flex
+      bg="background"
+      borderRadius="xl"
+      boxShadow="lg"
+      p={6}
+      direction="column"
+      align="center"
+      justify="center"
+      flex={1}
+      h="fit-content"
+      gap={6}
+      w="60vw"
+    >
+      <Heading as="h1" textAlign="center">
+        Panel de administración
+      </Heading>
+      <Grid
+        templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }}
+        templateRows="repeat(2, 1fr)"
+        gap={8}
+        color="principal.500"
         flex={1}
+        w="100%"
         h="fit-content"
-        gap={6}
-        w="60vw"
+        alignItems="center"
+        justifyItems="center"
       >
-        <Heading as="h1" textAlign="center">
-          Panel de administración
-        </Heading>
-        <Grid
-          templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }}
-          templateRows="repeat(2, 1fr)"
-          gap={8}
-          color="principal.500"
-          flex={1}
-          w="100%"
-          h="fit-content"
-          alignItems="center"
-          justifyItems="center"
-        >
-          {adminLinks.map((link, index) => (
-            <AdminCard
-              key={index}
-              icon={link.icon}
-              label={link.label}
-              onClick={link.onClick}
-            />
-          ))}
-        </Grid>
-      </Flex>
+        {adminLinks.map((link, index) => (
+          <AdminCard
+            key={index}
+            icon={link.icon}
+            label={link.label}
+            onClick={link.onClick}
+          />
+        ))}
+      </Grid>
+    </Flex>
   );
 }

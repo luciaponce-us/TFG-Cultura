@@ -1,8 +1,5 @@
 import { Flex, Heading } from "@chakra-ui/react";
-import {
-  CustomButton,
-  TextSecondary,
-} from "@/modules/core/components";
+import { CustomButton, TextSecondary } from "@/modules/core/components";
 import { useState } from "react";
 import { useSagas } from "../hooks";
 import { CreateSagaDialog, SagaCard } from "../components";
@@ -17,9 +14,7 @@ export function SagasPage() {
   if (isLoading) {
     content = <TextSecondary>Cargando...</TextSecondary>;
   } else if (isError) {
-    content = (
-      <TextSecondary>No se pudieron cargar las sagas.</TextSecondary>
-    );
+    content = <TextSecondary>No se pudieron cargar las sagas.</TextSecondary>;
   } else if (sagas && sagas.length > 0) {
     content =
       sagas && sagas.length > 0 ? (

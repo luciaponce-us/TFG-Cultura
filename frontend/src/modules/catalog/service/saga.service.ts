@@ -35,7 +35,11 @@ export async function createSaga(token: string, name: string): Promise<Saga> {
   return handleResponse<Saga>(res);
 }
 
-export async function updateSaga(token: string, id: string, name: string): Promise<Saga> {
+export async function updateSaga(
+  token: string,
+  id: string,
+  name: string,
+): Promise<Saga> {
   const res = await fetchWithTimeout(SAGA_ROUTES.GET_BY_ID(id), {
     method: "PUT",
     headers: { ...jsonHeaders, ...authHeaders(token) },

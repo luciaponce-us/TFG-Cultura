@@ -12,7 +12,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 @Getter
-@Setter 
+@Setter
 @Builder
 public class MovieInfo {
 

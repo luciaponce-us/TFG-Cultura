@@ -8,7 +8,7 @@ import type { Dispatch, SetStateAction } from "react";
 export function useCreateSaga(
   setError: Dispatch<SetStateAction<string | null>>,
   resetForm: () => void,
-  setIsOpen: Dispatch<SetStateAction<boolean>>
+  setIsOpen: Dispatch<SetStateAction<boolean>>,
 ) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
