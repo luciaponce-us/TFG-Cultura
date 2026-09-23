@@ -7,9 +7,12 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
+
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 @Getter
+@Setter 
 @Builder
 public class MovieInfo {
 
