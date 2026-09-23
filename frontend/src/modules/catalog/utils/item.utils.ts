@@ -1,4 +1,4 @@
-import type { Item, ItemRequest } from "../types";
+import type { Item, ItemCondition, ItemRequest } from "../types";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
 import type { Book, BookRequest } from "../types/book";
 import type { Movie, MovieRequest } from "../types/movie";
@@ -120,4 +120,24 @@ export function toVideoGameRequest(videoGame: VideoGame): VideoGameRequest {
     releaseDate: videoGame.releaseDate,
     trailerUrl: videoGame.trailerUrl,
   };
+}
+
+export function parseItemCondition(condition: ItemCondition): string {
+  switch (condition) {
+    case "PERFECT":
+      return "Perfecto";
+    case "MINOR_DAMAGE":
+      return "Daño menor";
+    case "MODERATE_DAMAGE":
+      return "Daño moderado";
+    case "SEVERE_DAMAGE":
+      return "Daño severo";
+  }
+}
+
+export function parsePrice(price: number): string {
+  return price.toLocaleString("es-ES", {
+    style: "currency",
+    currency: "EUR",
+  });
 }
