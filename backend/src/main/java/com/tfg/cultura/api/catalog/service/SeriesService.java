@@ -11,7 +11,6 @@ import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 
-
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -45,7 +44,8 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 
 	private void checkPurchasedAtAfterReleaseDate(Series item) {
 		if (item.getPurchasedAt() != null && item.getPurchasedAt().isBefore(item.getSeriesInfo().getReleaseDate())) {
-			throw new ValidationException(logger, Map.of("purchasedAt", "La fecha de compra no puede ser anterior a la fecha de estreno"));
+			throw new ValidationException(logger,
+					Map.of("purchasedAt", "La fecha de compra no puede ser anterior a la fecha de estreno"));
 		}
 	}
 
@@ -53,8 +53,10 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 		Integer higherSeason = item.getSeasons().stream().mapToInt(season -> season.getSeasonNumber()).max().orElse(0);
 		Integer maxSeason = item.getSeriesInfo().getNumberOfSeasons();
 		if (higherSeason > maxSeason) {
-			throw new ValidationException(logger, Map.of("numberOfSeasons", String.format(
-				"La serie tiene %d temporadas, pero has añadido la temporada número %d.", maxSeason, higherSeason)));
+			throw new ValidationException(logger,
+					Map.of("numberOfSeasons",
+							String.format("La serie tiene %d temporadas, pero has añadido la temporada número %d.",
+									maxSeason, higherSeason)));
 		}
 	}
 
