@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BoardGameService
 		extends
-		AbstractItemService<BoardGame, BoardGameRepository, BoardGameRequest, BoardGameResponse> {
+			AbstractItemService<BoardGame, BoardGameRepository, BoardGameRequest, BoardGameResponse> {
 
 	private final AppProperties appProperties;
 
