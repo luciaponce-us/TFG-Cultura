@@ -1,6 +1,8 @@
 package com.tfg.cultura.api.categories.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,6 +17,7 @@ import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
 import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.factory.CategoryFactory;
 import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
 import com.tfg.cultura.api.categories.service.CategoryDeletingService;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
@@ -33,10 +36,11 @@ class CategoryControllerTest extends BaseControllerTest {
 	@Mock
 	private CategoryDeletingService categoryDeletingService;
 
-	private static final String BASE_URL = "/api/catalog/categories";
+	private static final String BASE_URL = "/api/categories";
 	private static final String CATEGORY_URL = BASE_URL + "/{id}";
 
 	private Category category;
+	private CategoryRequest categoryRequest;
 
 	@BeforeEach
 	void setup() {
@@ -48,32 +52,32 @@ class CategoryControllerTest extends BaseControllerTest {
 
 	private void initTestData() {
 		category = CategoryFactory.validCategory();
+		categoryRequest = CategoryFactory.validCategoryRequest();
 	}
 
 	// ====================== CREATE ======================
 
 	@Test
 	void should_create_category_successfully() throws Exception {
-		when(categoryService.createCategory(anyString())).thenReturn(category);
+		when(categoryService.createCategory(any(CategoryRequest.class))).thenReturn(category);
 
-		mockMvc.perform(
-				post(BASE_URL).param("name", category.getName()).contentType(MediaType.APPLICATION_FORM_URLENCODED))
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(categoryRequest)))
 				.andExpect(status().isCreated()).andExpect(jsonPath("$.id").value(category.getId()))
-				.andExpect(jsonPath("$.name").value(category.getName()));
+				.andExpect(jsonPath("$.name").value(category.getName()))
+				.andExpect(jsonPath("$.color").value(category.getColor()));
 
-		verify(categoryService).createCategory(category.getName());
+		verify(categoryService).createCategory(any(CategoryRequest.class));
 	}
 
 	@Test
 	void should_return_conflict_when_category_already_exists() throws Exception {
-		when(categoryService.createCategory(anyString()))
+		when(categoryService.createCategory(any(CategoryRequest.class)))
 				.thenThrow(new CategoryAlreadyExistsException(category.getName()));
 
-		mockMvc.perform(
-				post(BASE_URL).param("name", category.getName()).contentType(MediaType.APPLICATION_FORM_URLENCODED))
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(categoryRequest)))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());
 
-		verify(categoryService).createCategory(category.getName());
+		verify(categoryService).createCategory(any(CategoryRequest.class));
 	}
 
 	// ====================== GET ALL ======================
@@ -98,6 +102,32 @@ class CategoryControllerTest extends BaseControllerTest {
 		verify(categoryService).findAllCategories();
 	}
 
+	// ====================== GET BY ID ======================
+
+	@Test
+	void should_get_category_by_id() throws Exception {
+		String categoryId = category.getId();
+
+		when(categoryService.findCategoryById(categoryId)).thenReturn(category);
+
+		mockMvc.perform(get(CATEGORY_URL, categoryId)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(categoryId)).andExpect(jsonPath("$.name").value(category.getName()));
+
+		verify(categoryService).findCategoryById(categoryId);
+	}
+
+	@Test
+	void should_return_not_found_when_category_does_not_exist() throws Exception {
+		String categoryId = category.getId();
+
+		when(categoryService.findCategoryById(categoryId))
+				.thenThrow(new CategoryNotFoundException("Categoría no encontrada"));
+
+		mockMvc.perform(get(CATEGORY_URL, categoryId)).andExpect(status().isNotFound());
+
+		verify(categoryService).findCategoryById(categoryId);
+	}
+
 	// ====================== UPDATE ======================
 
 	@Test
@@ -105,26 +135,31 @@ class CategoryControllerTest extends BaseControllerTest {
 		Category updatedCategory = Category.builder().id(category.getId()).name("Updated Category")
 				.color(category.getColor()).build();
 
-		when(categoryService.updateCategory(anyString(), anyString())).thenReturn(updatedCategory);
+		when(categoryService.updateCategory(anyString(), any(CategoryRequest.class))).thenReturn(updatedCategory);
 
-		mockMvc.perform(put(CATEGORY_URL, category.getId()).param("name", updatedCategory.getName())
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED)).andExpect(status().isOk())
+		CategoryRequest updateRequest = CategoryRequest.builder().name(updatedCategory.getName())
+				.color(updatedCategory.getColor()).build();
+
+		mockMvc.perform(put(CATEGORY_URL, category.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(updateRequest))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(category.getId()))
-				.andExpect(jsonPath("$.name").value(updatedCategory.getName()));
+				.andExpect(jsonPath("$.name").value(updatedCategory.getName()))
+				.andExpect(jsonPath("$.color").value(updatedCategory.getColor()));
 
-		verify(categoryService).updateCategory(category.getId(), updatedCategory.getName());
+		verify(categoryService).updateCategory(eq(category.getId()), any(CategoryRequest.class));
 	}
 
 	@Test
 	void should_return_404_when_updating_missing_category() throws Exception {
-		when(categoryService.updateCategory(anyString(), anyString()))
+		when(categoryService.updateCategory(anyString(), any(CategoryRequest.class)))
 				.thenThrow(new CategoryNotFoundException("Categoría no encontrada con ID: 99"));
 
-		mockMvc.perform(put(CATEGORY_URL, "99").param("name", "Updated Category")
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED)).andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.message").exists());
+		CategoryRequest updateRequest = CategoryRequest.builder().name("Updated Category").color("#000000").build();
 
-		verify(categoryService).updateCategory("99", "Updated Category");
+		mockMvc.perform(put(CATEGORY_URL, "99").contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
+				.andExpect(status().isNotFound()).andExpect(jsonPath("$.message").exists());
+
+		verify(categoryService).updateCategory(eq("99"), any(CategoryRequest.class));
 	}
 
 	// ====================== DELETE ======================

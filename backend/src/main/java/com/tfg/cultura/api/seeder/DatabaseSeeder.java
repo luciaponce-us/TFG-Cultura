@@ -176,7 +176,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 		Saga s1 = Saga.builder().name("Geralt de Rivia").build();
 		Saga s2 = Saga.builder().name("Crónicas Vampíricas").build();
 		Saga s3 = Saga.builder().name("Odisea").build();
-		List<Saga> sagas = List.of(s1, s2, s3);
+		Saga s4 = Saga.builder().name("Blue Exorcist").build();
+		List<Saga> sagas = List.of(s1, s2, s3, s4);
 		mongoTemplate.insertAll(sagas);
 		logger.info("✅📖 Insertadas {} sagas", sagas.size());
 		return sagas;

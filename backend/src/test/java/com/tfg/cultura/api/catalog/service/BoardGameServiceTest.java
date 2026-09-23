@@ -2,6 +2,7 @@ package com.tfg.cultura.api.catalog.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -110,6 +111,21 @@ class BoardGameServiceTest {
 		assertEquals(request.getComplexity(), newBoardGame.getComplexity());
 		assertEquals(Set.of(request.getTypes()), newBoardGame.getTypes());
 		assertEquals(request.getBaseGameId(), newBoardGame.getBaseGame().getId());
+	}
+
+	@Test
+	void should_fill_specific_fields_correctly_when_base_game_is_null() {
+		BoardGame newBoardGame = service.createEntity();
+		request.setBaseGameId(null);
+		service.fillSpecificFields(newBoardGame, request);
+
+		assertDoesNotThrow(() -> service.validate(newBoardGame));
+		assertEquals(request.getMinPlayers(), newBoardGame.getMinPlayers());
+		assertEquals(request.getMaxPlayers(), newBoardGame.getMaxPlayers());
+		assertEquals(request.getPlayTime(), newBoardGame.getPlayTime());
+		assertEquals(request.getComplexity(), newBoardGame.getComplexity());
+		assertEquals(Set.of(request.getTypes()), newBoardGame.getTypes());
+		assertNull(newBoardGame.getBaseGame());
 	}
 
 	@Test

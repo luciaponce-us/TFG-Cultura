@@ -9,6 +9,8 @@ import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.Set;
+
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,9 +68,13 @@ public class BoardGameService
 	}
 
 	@Override
+	@SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "findById is type-safe through AbstractItemService<T>")
 	protected void fillSpecificFields(BoardGame item, BoardGameRequest request) {
+		BoardGame baseGame = null;
 
-		BoardGame baseGame = this.findById(request.getBaseGameId());
+		if (request.getBaseGameId() != null) {
+			baseGame = this.findById(request.getBaseGameId());
+		}
 
 		item.setMinPlayers(request.getMinPlayers());
 		item.setMaxPlayers(request.getMaxPlayers());

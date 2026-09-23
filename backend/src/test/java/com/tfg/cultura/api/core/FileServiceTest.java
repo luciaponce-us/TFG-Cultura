@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.cloudinary.Cloudinary;
@@ -118,16 +119,6 @@ public class FileServiceTest {
 	}
 
 	@Test
-	void should_call_destroy_when_delete_file() throws Exception {
-		when(cloudinary.uploader()).thenReturn(uploader);
-
-		String url = "https://res.cloudinary.com/demo/image/upload/v1234567890/users/user-1.png";
-		fileService.deleteFile(url);
-
-		verify(uploader).destroy(eq("users/user-1"), any(Map.class));
-	}
-
-	@Test
 	void should_throw_exception_when_delete_file_fails() throws Exception {
 		when(cloudinary.uploader()).thenReturn(uploader);
 		when(uploader.destroy(eq("users/user-1"), any(Map.class))).thenThrow(new RuntimeException("boom"));
@@ -142,18 +133,32 @@ public class FileServiceTest {
 		when(cloudinary.uploader()).thenReturn(uploader);
 
 		String url = "https://res.cloudinary.com/demo/image/upload/.png";
+
 		fileService.deleteFile(url);
 
 		verify(uploader).destroy(eq(".png"), any(Map.class));
 	}
 
 	@Test
-	void should_throw_exception_when_extracting_public_id_from_invalid_url() {
+	void should_not_delete_file_when_url_is_not_from_cloudinary() throws Exception {
 		when(cloudinary.uploader()).thenReturn(uploader);
 
-		String url = "https://res.cloudinary.com/demo/image/no-upload/users/user-1.png";
+		String url = "https://example.com/users/user-1.png";
 
-		assertThrows(FileDeleteException.class, () -> fileService.deleteFile(url));
+		fileService.deleteFile(url);
+
+		verifyNoInteractions(uploader);
+	}
+
+	@Test
+	void should_call_destroy_when_delete_raw_file() throws Exception {
+		when(cloudinary.uploader()).thenReturn(uploader);
+
+		String url = "https://res.cloudinary.com/demo/raw/upload/v1234567890/documents/file.pdf";
+
+		fileService.deleteFile(url);
+
+		verify(uploader).destroy(eq("documents/file"), any(Map.class)); // Se elimina la extensión del archivo
 	}
 
 	private byte[] loadExampleImageBytes() throws Exception {

@@ -25,17 +25,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-public abstract class AbstractItemService<T extends Item, R extends AbstractItemRepository<T>, C extends ItemRequest, RES>
+public abstract class AbstractItemService<T extends Item, R extends AbstractItemRepository<T>, C extends ItemRequest, S>
 		implements
-			ItemServiceInterface<T, C, RES> {
+			ItemServiceInterface<T, C, S> {
 
-	private static final Logger logger = LoggerFactory.getLogger("catalogLogger");
+	protected static final Logger logger = LoggerFactory.getLogger("catalogLogger");
 
 	protected final R repository;
 	private final SectionService sectionService;
-	private final CategoryService categoryService;
+	protected final CategoryService categoryService;
 	private final FileService fileService;
-	private final Function<T, RES> mapper;
+	private final Function<T, S> mapper;
 
 	@Override
 	public T findById(String id) throws ItemNotFoundException {
@@ -47,13 +47,13 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 	}
 
 	@Override
-	public RES getById(String id) throws ItemNotFoundException {
+	public S getById(String id) throws ItemNotFoundException {
 		T item = findById(id);
 		return mapper.apply(item);
 	}
 
 	@Override
-	public Page<RES> getAll(Pageable pageable, String nameContains, Set<String> categoryIds) {
+	public Page<S> getAll(Pageable pageable, String nameContains, Set<String> categoryIds) {
 		Set<Category> categories = categoryIds == null || categoryIds.isEmpty()
 				? null
 				: categoryService.findCategoriesByIds(categoryIds);
@@ -77,7 +77,7 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 
 	@Override
 	@Transactional
-	public RES create(C request, MultipartFile image) throws FileUploadException, IllegalArgumentException {
+	public S create(C request, MultipartFile image) throws FileUploadException, IllegalArgumentException {
 
 		T item = createEntity();
 
@@ -140,7 +140,8 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 	}
 
 	@Override
-	public RES update(String id, C request, MultipartFile image)
+	@Transactional
+	public S update(String id, C request, MultipartFile image)
 			throws ItemNotFoundException, FileUploadException, IllegalArgumentException {
 		T existingItem = findById(id);
 

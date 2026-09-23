@@ -11,8 +11,11 @@ import static org.mockito.Mockito.when;
 import com.tfg.cultura.api.catalog.exception.saga.SagaAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Book;
+import com.tfg.cultura.api.catalog.model.Movie;
+import com.tfg.cultura.api.catalog.model.MovieInfo;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
+import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.catalog.repository.SagaRepository;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +34,9 @@ class SagaServiceTest {
 
 	@Mock
 	private BookRepository bookRepository;
+
+	@Mock
+	private MovieRepository movieRepository;
 
 	@InjectMocks
 	private SagaService service;
@@ -137,6 +143,7 @@ class SagaServiceTest {
 
 		when(sagaRepository.findById("1")).thenReturn(Optional.of(saga));
 		when(bookRepository.findAllBySaga("1")).thenReturn(List.of(firstBook, secondBook));
+		when(movieRepository.findAllByMovieInfoSagaId("1")).thenReturn(List.of());
 
 		service.deleteSaga("1");
 
@@ -144,6 +151,27 @@ class SagaServiceTest {
 		assertNull(secondBook.getSaga());
 		verify(bookRepository).save(firstBook);
 		verify(bookRepository).save(secondBook);
+		verify(sagaRepository).delete(saga);
+	}
+
+	@Test
+	void should_delete_saga_and_detach_movies_from_it() {
+		String sagaId = saga.getId();
+		Movie firstMovie = Movie.builder().id("m1").movieInfo(MovieInfo.builder().saga(saga).build()).build();
+		Movie secondMovie = Movie.builder().id("m2").movieInfo(MovieInfo.builder().saga(saga).build()).build();
+
+		when(sagaRepository.findById(sagaId)).thenReturn(Optional.of(saga));
+		when(bookRepository.findAllBySaga(sagaId)).thenReturn(List.of());
+		when(movieRepository.findAllByMovieInfoSagaId(sagaId)).thenReturn(List.of(firstMovie, secondMovie));
+
+		when(movieRepository.save(firstMovie)).thenReturn(firstMovie);
+		when(movieRepository.save(secondMovie)).thenReturn(secondMovie);
+
+		service.deleteSaga(sagaId);
+
+		assertNull(firstMovie.getMovieInfo().getSaga());
+		assertNull(secondMovie.getMovieInfo().getSaga());
+		verify(movieRepository).findAllByMovieInfoSagaId(sagaId);
 		verify(sagaRepository).delete(saga);
 	}
 }

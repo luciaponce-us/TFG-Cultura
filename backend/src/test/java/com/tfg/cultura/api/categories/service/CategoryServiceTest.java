@@ -12,6 +12,7 @@ import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
 import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.factory.CategoryFactory;
 import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
 import com.tfg.cultura.api.categories.repository.CategoryRepository;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,7 @@ class CategoryServiceTest {
 
 		when(categoryRepository.save(any(Category.class))).thenReturn(category);
 
-		Category result = service.createCategory(category.getName());
+		Category result = service.createCategory(CategoryFactory.validCategoryRequest());
 
 		assertEquals(category, result);
 
@@ -63,7 +64,8 @@ class CategoryServiceTest {
 
 		when(categoryRepository.existsByName(category.getName())).thenReturn(true);
 
-		assertThrows(CategoryAlreadyExistsException.class, () -> service.createCategory(category.getName()));
+		CategoryRequest request = CategoryFactory.validCategoryRequest();
+		assertThrows(CategoryAlreadyExistsException.class, () -> service.createCategory(request));
 
 		verify(categoryRepository).existsByName(category.getName());
 		verify(categoryRepository, never()).save(any());
@@ -122,6 +124,14 @@ class CategoryServiceTest {
 	}
 
 	@Test
+	void should_return_empty_set_when_category_ids_are_null() {
+		Set<Category> result = service.findCategoriesByIds(null);
+
+		assertTrue(result.isEmpty());
+		verify(categoryRepository, never()).findById(any());
+	}
+
+	@Test
 	void should_return_all_categories_sorted_by_name() {
 
 		List<Category> categories = List.of(category, anotherCategory);
@@ -144,10 +154,12 @@ class CategoryServiceTest {
 
 		when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		Category result = service.updateCategory(category.getId(), "Science Fiction");
+		CategoryRequest request = CategoryRequest.builder().name("Science Fiction").color(category.getColor()).build();
+		Category result = service.updateCategory(category.getId(), request);
 
 		assertEquals("Science Fiction", result.getName());
 		assertEquals(category.getId(), result.getId());
+		assertEquals(category.getColor(), result.getColor());
 		assertEquals("Science Fiction", result.getName());
 
 		verify(categoryRepository).save(result);
@@ -155,13 +167,14 @@ class CategoryServiceTest {
 
 	@Test
 	void should_throw_when_updating_non_existing_category() {
+		String nonExistingCategoryId = "non-existing-id";
 
-		when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
+		when(categoryRepository.findById(nonExistingCategoryId)).thenReturn(Optional.empty());
 
-		assertThrows(CategoryNotFoundException.class,
-				() -> service.updateCategory(category.getId(), "Science Fiction"));
+		CategoryRequest request = CategoryRequest.builder().name("Science Fiction").color(category.getColor()).build();
+		assertThrows(CategoryNotFoundException.class, () -> service.updateCategory(nonExistingCategoryId, request));
 
-		verify(categoryRepository).findById(category.getId());
+		verify(categoryRepository).findById(nonExistingCategoryId);
 		verify(categoryRepository, never()).save(any());
 	}
 

@@ -12,7 +12,7 @@ import {
   UploadBox,
 } from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { handleChange } from "@/modules/core/utils/utils";
+import { handleChange, PLACEHOLDER } from "@/modules/core/utils/utils";
 
 import { useUpdateUserProfile, useUpdateUserProfileAvatar } from "../../hooks";
 import {
@@ -138,7 +138,7 @@ export function EditProfilePage() {
         <VStack w="100%" align="stretch" gap={4} minW={0}>
           <HStack w="100%" gap={4} minW={0}>
             <CustomAvatar
-              src={user?.avatar}
+              src={user?.avatar || PLACEHOLDER.AVATAR}
               name={form?.name || "User"}
               minW={0}
               w="100px"

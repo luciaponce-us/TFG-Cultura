@@ -27,6 +27,21 @@ import {
 
 import { SuggestionsPage } from "@/modules/suggestions/pages";
 
+import {
+  BooksPage,
+  MangasAndComicsPage,
+  MoviesPage,
+  SeriesPage,
+  BoardGamesPage,
+  CatalogPage,
+  RolSagasPage,
+  RolSagaPage,
+  VideoGamesPage,
+  SagasPage,
+} from "@/modules/catalog/pages";
+
+import { CategoriesPage } from "@/modules/categories/pages";
+
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
 
 const queryClient = new QueryClient();
@@ -53,8 +68,30 @@ export default function App() {
                 path="/mis-sugerencias"
                 element={<SuggestionsPage mySuggestions />}
               />
+
+              {/* CATÁLOGO */}
+              <Route path="/catalogo" element={<CatalogPage />} />
+              <Route path="/catalogo/libros" element={<BooksPage />} />
+              <Route
+                path="/catalogo/mangas-y-comics"
+                element={<MangasAndComicsPage />}
+              />
+              <Route path="/catalogo/peliculas" element={<MoviesPage />} />
+              <Route path="/catalogo/series" element={<SeriesPage />} />
+              <Route
+                path="/catalogo/juegos-de-mesa"
+                element={<BoardGamesPage />}
+              />
+              <Route path="/catalogo/rol" element={<RolSagasPage />} />
+              <Route path="/catalogo/rol/:sagaId" element={<RolSagaPage />} />
+              <Route
+                path="/catalogo/videojuegos"
+                element={<VideoGamesPage />}
+              />
+              {/* PERFIL */}
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/perfil/editar" element={<EditProfilePage />} />
+              {/* ADMIN */}
               <Route
                 path="/admin"
                 element={withRoleProtection(AdminPanel, MANAGEMENT_ROLES)}
@@ -66,6 +103,16 @@ export default function App() {
               <Route
                 path="/admin/usuarios/:username"
                 element={withRoleProtection(EditUserPage, MANAGEMENT_ROLES)}
+              />
+              {/* CATEGORÍAS */}
+              <Route
+                path="/admin/categorias"
+                element={withRoleProtection(CategoriesPage, MANAGEMENT_ROLES)}
+              />
+              {/* SAGAS */}
+              <Route
+                path="/admin/sagas"
+                element={withRoleProtection(SagasPage, MANAGEMENT_ROLES)}
               />
               <Route path="/no-encontrado" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />

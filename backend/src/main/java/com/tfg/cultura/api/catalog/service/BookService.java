@@ -7,13 +7,18 @@ import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
+import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
+import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.Map;
+import java.util.Set;
 import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -61,7 +66,8 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 
 	@Override
 	protected void fillSpecificFields(Book item, BookRequest request) {
-		Saga saga = sagaService.findByName(request.getSagaName());
+		String sagaName = request.getSagaName();
+		Saga saga = sagaName == null || sagaName.isBlank() ? null : sagaService.findByName(sagaName);
 
 		item.setAuthor(sanitize(request.getAuthor()));
 		item.setIsbn(sanitize(request.getIsbn()));
@@ -76,11 +82,29 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 				return 15; // RN-15
 			case COMIC, MANGA :
 				return 7; // RN-16
-			case ROL :
-				return 15; // RN-17
 			default :
 				return 15;
 		}
+	}
+
+	public Page<BookResponse> getAllBooksByTypeAndNameContains(Set<BookType> types, String nameContains,
+			Set<String> categoryIds, Pageable pageable) {
+		Set<Category> categories = categoryIds == null || categoryIds.isEmpty()
+				? null
+				: categoryService.findCategoriesByIds(categoryIds);
+
+		Page<Book> books;
+		if (nameContains == null || nameContains.isBlank()) {
+			books = categories == null
+					? repository.findAllByTypeIn(types, pageable)
+					: repository.findAllByTypeInAndCategoriesContaining(types, categories, pageable);
+		} else {
+			books = categories == null
+					? repository.findAllByTypeInAndNameContainingIgnoreCase(types, nameContains, pageable)
+					: repository.findAllByTypeInAndNameContainingIgnoreCaseAndCategoriesContaining(types, nameContains,
+							categories, pageable);
+		}
+		return books.map(BookResponse::new);
 	}
 
 }

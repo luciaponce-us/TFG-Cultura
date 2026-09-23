@@ -1,7 +1,8 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
-import { ApiError } from "../types";
-import { useBreakpointValue } from "@chakra-ui/react/hooks";
+import type { ApiError } from "../types";
+import { ApiException } from "../types";
+import { useBreakpointValue } from "@chakra-ui/react";
 import { toaster } from "../components";
 
 export const jsonHeaders = { "Content-Type": "application/json" };
@@ -10,44 +11,57 @@ export const authHeaders = (token: string) => ({
 });
 const REQUEST_TIMEOUT_MS = 12000;
 
-export async function handleResponse<T>(res: Response): Promise<T> {
-  const contentType = res.headers.get("content-type") ?? "";
+export async function handleResponse<T>(response: Response): Promise<T> {
+  const text = await response.text();
 
-  if (!res.ok) {
-    let message = `Error ${res.status}`;
-    let errors: { [key: string]: string } = {};
-
-    try {
-      if (contentType.includes("application/json")) {
-        const data: unknown = await res.json();
-
-        if (typeof data === "object" && data !== null) {
-          const d = data as Partial<ApiError>;
-          message = d.message || message;
-          errors = d.errors || {};
-        }
-      } else {
-        const text = await res.text();
-        message = text || message;
-      }
-    } catch {
-      // ignore parsing errors
+  if (!response.ok) {
+    if (!text) {
+      throw new ApiException(
+        response.status,
+        getDefaultErrorMessage(response.status),
+      );
     }
-    const apiError = new ApiError(message, res.status, errors);
 
-    throw apiError;
+    const data: unknown = JSON.parse(text);
+    const error = data as ApiError;
+
+    throw new ApiException(
+      error.status,
+      error.message,
+      error.errors,
+      error.timestamp,
+    );
   }
 
-  if (!contentType.includes("application/json")) {
-    // Respuesta en formano no json
-    const text = await res.text();
-    return text as unknown as T;
+  if (!text) {
+    return undefined as T;
   }
 
-  const text = await res.text();
-  if (!text) return {} as T;
+  const contentType = response.headers.get("Content-Type");
 
-  return JSON.parse(text) as T;
+  if (contentType?.includes("application/json")) {
+    const data: unknown = JSON.parse(text);
+    return data as T;
+  }
+
+  return text as T; // Se devuelve el token como texto plano al iniciar sesión
+}
+
+function getDefaultErrorMessage(status: number): string {
+  switch (status) {
+    case 401:
+      return "No estás autenticado.";
+    case 403:
+      return "No tienes permisos para realizar esta acción.";
+    case 404:
+      return "El recurso solicitado no existe.";
+    case 409:
+      return "La operación entra en conflicto con el estado actual.";
+    case 500:
+      return "Se ha producido un error interno del servidor.";
+    default:
+      return "Se ha producido un error inesperado.";
+  }
 }
 
 export async function fetchWithTimeout(
@@ -58,15 +72,19 @@ export async function fetchWithTimeout(
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    return await fetch(input, { ...init, signal: controller.signal });
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      const message =
-        "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.";
-      throw new ApiError(message, 500);
-    } else {
-      throw error;
+      throw new ApiException(
+        408,
+        "Tiempo de espera del servidor agotado. Vuelve a intentarlo más tarde.",
+      );
     }
+
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
@@ -74,12 +92,14 @@ export async function fetchWithTimeout(
 
 export function isApiError(err: unknown): err is ApiError {
   if (err == null || err == undefined) return false;
-  return (
-    typeof err === "object" &&
-    "status" in err &&
-    "message" in err &&
-    "timestamp" in err
-  );
+  return typeof err === "object" && "status" in err && "message" in err;
+}
+
+export function isFieldError(
+  err: unknown,
+): err is ApiError & { errors: Record<string, string> } {
+  if (!isApiError(err)) return false;
+  return err.errors !== undefined && Object.keys(err.errors).length > 0;
 }
 
 export function isDeactivatedUserError(err: unknown): boolean {
@@ -133,3 +153,37 @@ export const handleSelectChange = <
 export function useIsMobile() {
   return useBreakpointValue({ base: true, md: false });
 }
+
+export function removeEmptyFields<T extends object>(value: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => {
+      if (
+        fieldValue === null ||
+        fieldValue === undefined ||
+        fieldValue === ""
+      ) {
+        return false;
+      }
+
+      return !Array.isArray(fieldValue) || fieldValue.length > 0;
+    }),
+  ) as Partial<T>;
+}
+
+export const PLACEHOLDER = {
+  BOOK: "https://res.cloudinary.com/dubz79y98/image/upload/v1788778962/book_placeholder.jpg",
+  MOVIE:
+    "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/movie_placeholder.png",
+  SERIES:
+    "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/movie_placeholder.png",
+  VIDEOGAME:
+    "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/movie_placeholder.png",
+  BOARDGAME:
+    "https://res.cloudinary.com/dubz79y98/image/upload/v1787070899/boardgame_placeholder.jpg",
+  ROLGAME:
+    "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/book_placeholder.png",
+  ROLSAGA:
+    "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/book_placeholder.png",
+  AVATAR:
+    "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder.png",
+};

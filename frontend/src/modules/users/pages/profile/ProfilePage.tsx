@@ -22,6 +22,7 @@ import {
 
 import { parsePaymentReceiptUrl, parseRole } from "../../utils";
 import { deleteMyAccount } from "../../service/user.service";
+import { PLACEHOLDER } from "@/modules/core/utils/utils";
 
 export function ProfilePage() {
   const { user, token, logout } = useAuth();
@@ -57,7 +58,7 @@ export function ProfilePage() {
         <VStack gap={6}>
           <CustomAvatar
             name={user.name}
-            src={user.avatar}
+            src={user.avatar || PLACEHOLDER.AVATAR}
             size="2xl"
             w="100px"
             h="100px"

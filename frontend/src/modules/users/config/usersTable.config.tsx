@@ -6,6 +6,7 @@ import { UserActions } from "../components";
 import { parsePaymentReceiptUrl, parseRole } from "../utils";
 
 import type { User } from "../types";
+import { PLACEHOLDER } from "@/modules/core/utils/utils";
 
 export const defaultHeaders = [
   "Avatar",
@@ -35,7 +36,7 @@ export const mobileRowsContent = (user: User) => [
     key: "avatar",
     content: (
       <CustomAvatar
-        src={user.avatar || undefined}
+        src={user.avatar || PLACEHOLDER.AVATAR}
         name={user.name}
         w="40px"
         h="40px"
@@ -66,7 +67,7 @@ export const defaultRowsContent = (user: User) => [
     key: "avatar",
     content: (
       <CustomAvatar
-        src={user.avatar || undefined}
+        src={user.avatar || PLACEHOLDER.AVATAR}
         name={user.name}
         w="40px"
         h="40px"

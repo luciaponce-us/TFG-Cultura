@@ -5,8 +5,10 @@ import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 import com.tfg.cultura.api.catalog.exception.saga.SagaAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Book;
+import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
+import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.catalog.repository.SagaRepository;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +25,7 @@ public class SagaService {
 
 	private final SagaRepository sagaRepository;
 	private final BookRepository bookRepository;
+	private final MovieRepository movieRepository;
 
 	// CREATE
 
@@ -88,6 +91,11 @@ public class SagaService {
 		booksInSaga.forEach(book -> {
 			book.setSaga(null);
 			bookRepository.save(book);
+		});
+		Iterable<Movie> moviesInSaga = movieRepository.findAllByMovieInfoSagaId(id);
+		moviesInSaga.forEach(movie -> {
+			movie.getMovieInfo().setSaga(null);
+			movieRepository.save(movie);
 		});
 		sagaRepository.delete(existingSaga);
 	}

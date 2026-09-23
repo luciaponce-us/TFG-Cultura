@@ -6,12 +6,16 @@ interface CustomSearchBarProps {
   readonly onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readonly placeholder?: string;
   readonly value?: string;
+  readonly background?: string;
+  readonly disabled?: boolean;
 }
 
 export function CustomSearchBar({
   onChange,
   placeholder,
   value,
+  background = "transparent",
+  disabled,
 }: CustomSearchBarProps) {
   const [internalValue, setInternalValue] = useState<string>("");
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -37,9 +41,16 @@ export function CustomSearchBar({
     <IconSearch size={18} />
   );
   return (
-    <InputGroup color="principal.800" endElement={endElement} w="100%">
+    <InputGroup
+      color="principal.800"
+      endElement={endElement}
+      w="100%"
+      borderRadius="full"
+      background={background}
+    >
       <Input
         placeholder={placeholder || "Buscar..."}
+        disabled={disabled}
         {...style}
         _hover={hoverStyle}
         _focus={focusStyle}

@@ -1,10 +1,9 @@
-import { Dialog, Heading, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 
 import {
-  CustomButton,
   CustomInput,
   CustomSelect,
+  FormDialog,
 } from "@/modules/core/components";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 
@@ -45,8 +44,7 @@ export function CreateSuggestionDialog({
   token?: string | null;
 }) {
   const [form, setForm] = useState<SuggestionCreateRequest>(initialForm);
-  const { mutateAsync: createSuggestion, isPending: loading } =
-    useCreateSuggestion();
+  const { mutateAsync: createSuggestion } = useCreateSuggestion();
   const [errors, setErrors] = useState<SuggestionFormErrors>(initialErrors);
 
   const handleTypeChange = ({ value }: { value: string[] }) =>
@@ -63,71 +61,44 @@ export function CreateSuggestionDialog({
   }
 
   return (
-    <Dialog.Root open={isOpen}>
-      <Dialog.Backdrop />
-      <Dialog.Positioner>
-        <Dialog.Content
-          maxH="80vh"
-          overflow="hidden"
-          borderRadius="xl"
-          bg="background"
-          as="form"
-        >
-          <Dialog.CloseTrigger />
-          <Dialog.Header>
-            <Dialog.Title>
-              <Heading as="h1">Crear sugerencia</Heading>
-            </Dialog.Title>
-          </Dialog.Header>
-          <Dialog.Body>
-            <VStack>
-              <CustomInput
-                label="Título"
-                name="title"
-                placeholder="Describe brevemente la sugerencia"
-                required
-                error={errors.title ?? ""}
-                onChange={(e) => handleChange(e, form, setErrors, setForm)}
-                maxLength={MAX_LENGTH.TITLE}
-              />
-              <CustomInput
-                label="Descripción"
-                name="description"
-                placeholder="Proporciona una descripción detallada de la sugerencia"
-                error={errors.description ?? ""}
-                onChange={(e) => handleChange(e, form, setErrors, setForm)}
-                textarea
-                maxInputHeight="125px"
-                maxLength={MAX_LENGTH.DESCRIPTION}
-              />
-              <CustomSelect
-                label="Tipo de sugerencia"
-                name="type"
-                options={[
-                  { value: "CATALOG", label: "Catálogo" },
-                  { value: "EVENT", label: "Evento" },
-                  { value: "OTHER", label: "Otro" },
-                ]}
-                onValueChange={handleTypeChange}
-                placeholder="Selecciona el tipo de sugerencia"
-                defaultValue={[form?.type as string]}
-              />
-            </VStack>
-          </Dialog.Body>
-          <Dialog.Footer>
-            <CustomButton onClick={() => setIsOpen(false)} color="rojo">
-              Cancelar
-            </CustomButton>
-            <CustomButton
-              onClick={() => void handleSubmit()}
-              loading={loading}
-              type="submit"
-            >
-              Crear
-            </CustomButton>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog.Positioner>
-    </Dialog.Root>
+    <FormDialog
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      title="Crear sugerencia"
+      handleSubmit={handleSubmit}
+      submitButtonText="Crear"
+    >
+      <CustomInput
+        label="Título"
+        name="title"
+        placeholder="Describe brevemente la sugerencia"
+        required
+        error={errors.title ?? ""}
+        onChange={(e) => handleChange(e, form, setErrors, setForm)}
+        maxLength={MAX_LENGTH.TITLE}
+      />
+      <CustomInput
+        label="Descripción"
+        name="description"
+        placeholder="Proporciona una descripción detallada de la sugerencia"
+        error={errors.description ?? ""}
+        onChange={(e) => handleChange(e, form, setErrors, setForm)}
+        textarea
+        maxInputHeight="125px"
+        maxLength={MAX_LENGTH.DESCRIPTION}
+      />
+      <CustomSelect
+        label="Tipo de sugerencia"
+        name="type"
+        options={[
+          { value: "CATALOG", label: "Catálogo" },
+          { value: "EVENT", label: "Evento" },
+          { value: "OTHER", label: "Otro" },
+        ]}
+        onValueChange={handleTypeChange}
+        placeholder="Selecciona el tipo de sugerencia"
+        defaultValue={[form?.type as string]}
+      />
+    </FormDialog>
   );
 }

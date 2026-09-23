@@ -42,7 +42,6 @@ const DEFAULT_ERRORS: Record<string, string> = {
 };
 
 export function EditUserForm({ user }: { readonly user: User }) {
-  // TODO: Ask confirmation before changing role
   const { username } = useParams();
   const { user: loggedUser, token } = useAuth();
   const loggedUserRole: Role | undefined = loggedUser?.role ?? "SOCIO";
