@@ -117,11 +117,4 @@ class BookServiceTest {
 		assertEquals(7, service.getLoanDays(request));
 	}
 
-	@Test
-	void should_return_15_days_for_rol() {
-		BookRequest request = BookRequest.builder().type(BookType.ROL).build();
-
-		assertEquals(15, service.getLoanDays(request));
-	}
-
 }

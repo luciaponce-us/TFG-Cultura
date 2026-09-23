@@ -82,8 +82,6 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 				return 15; // RN-15
 			case COMIC, MANGA :
 				return 7; // RN-16
-			case ROL :
-				return 15; // RN-17
 			default :
 				return 15;
 		}

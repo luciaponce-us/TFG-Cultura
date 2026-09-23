@@ -12,8 +12,7 @@ export const BOOK_TYPES = [
   "NOVEL",
   "COMIC",
   "MANGA",
-  "ENCYCLOPEDIA",
-  "ROL",
+  "ENCYCLOPEDIA"
 ] as const;
 
 export type BookType = (typeof BOOK_TYPES)[number];
@@ -22,8 +21,7 @@ export const BOOK_TYPES_OPTIONS = [
   { value: "NOVEL", label: "Novela" },
   { value: "COMIC", label: "Cómic" },
   { value: "MANGA", label: "Manga" },
-  { value: "ENCYCLOPEDIA", label: "Enciclopedia" },
-  { value: "ROL", label: "Rol" },
+  { value: "ENCYCLOPEDIA", label: "Enciclopedia" }
 ];
 
 export interface BookRequest extends ItemRequest {
