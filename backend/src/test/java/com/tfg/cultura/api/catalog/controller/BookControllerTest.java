@@ -44,6 +44,7 @@ class BookControllerTest extends BaseControllerTest {
 
 	private static final String BASE_URL = "/api/catalog/books";
 	private static final String BOOK_URL = BASE_URL + "/{id}";
+	private static final String BOOKS_BY_TYPE_URL = BASE_URL + "/types/{types}";
 
 	private Book book;
 	private BookRequest bookCreateRequest;
@@ -167,7 +168,7 @@ class BookControllerTest extends BaseControllerTest {
 		when(bookService.getAllBooksByTypeAndNameContains(Set.of(BookType.MANGA), null, null, PageRequest.of(0, 10)))
 				.thenReturn(page);
 
-		mockMvc.perform(get(BASE_URL + "/type/MANGA").param("page", "0").param("size", "10")).andExpect(status().isOk())
+		mockMvc.perform(get(BOOKS_BY_TYPE_URL, "MANGA").param("page", "0").param("size", "10")).andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(1));
 
 		verify(bookService).getAllBooksByTypeAndNameContains(Set.of(BookType.MANGA), null, null, PageRequest.of(0, 10));
