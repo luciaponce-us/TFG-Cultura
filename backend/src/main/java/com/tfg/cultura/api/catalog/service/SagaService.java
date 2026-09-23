@@ -87,7 +87,7 @@ public class SagaService {
 
 	public void deleteSaga(String id) throws SagaNotFoundException {
 		Saga existingSaga = findById(id);
-		Iterable<Book> booksInSaga = bookRepository.findAllBySaga(id);
+		Iterable<Book> booksInSaga = bookRepository.findAllBySaga(existingSaga);
 		booksInSaga.forEach(book -> {
 			book.setSaga(null);
 			bookRepository.save(book);

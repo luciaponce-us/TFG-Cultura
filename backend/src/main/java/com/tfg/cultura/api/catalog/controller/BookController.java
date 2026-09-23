@@ -37,4 +37,10 @@ public class BookController extends AbstractItemController<BookRequest, BookResp
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
+	@GetMapping("/saga/{sagaId}")
+	public ResponseEntity<Set<BookResponse>> getAllBooksBySaga(@PathVariable String sagaId){
+		Set<BookResponse> response = service.getAllBooksBySagaId(sagaId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
 }

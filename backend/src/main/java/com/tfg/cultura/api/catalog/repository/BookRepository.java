@@ -1,6 +1,7 @@
 package com.tfg.cultura.api.catalog.repository;
 
 import com.tfg.cultura.api.catalog.model.Book;
+import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.categories.model.Category;
 
@@ -20,5 +21,5 @@ public interface BookRepository extends AbstractItemRepository<Book> {
 	boolean existsByIsbn(String isbn);
 	boolean existsByIsbnAndIdNot(String isbn, String id);
 
-	Iterable<Book> findAllBySaga(String sagaId);
+	Set<Book> findAllBySaga(Saga saga);
 }

@@ -19,6 +19,8 @@ import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.catalog.repository.SagaRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -142,7 +144,7 @@ class SagaServiceTest {
 		Book secondBook = Book.builder().id("b2").saga(saga).build();
 
 		when(sagaRepository.findById("1")).thenReturn(Optional.of(saga));
-		when(bookRepository.findAllBySaga("1")).thenReturn(List.of(firstBook, secondBook));
+		when(bookRepository.findAllBySaga(saga)).thenReturn(Set.of(firstBook, secondBook));
 		when(movieRepository.findAllByMovieInfoSagaId("1")).thenReturn(List.of());
 
 		service.deleteSaga("1");
@@ -161,7 +163,7 @@ class SagaServiceTest {
 		Movie secondMovie = Movie.builder().id("m2").movieInfo(MovieInfo.builder().saga(saga).build()).build();
 
 		when(sagaRepository.findById(sagaId)).thenReturn(Optional.of(saga));
-		when(bookRepository.findAllBySaga(sagaId)).thenReturn(List.of());
+		when(bookRepository.findAllBySaga(saga)).thenReturn(Set.of());
 		when(movieRepository.findAllByMovieInfoSagaId(sagaId)).thenReturn(List.of(firstMovie, secondMovie));
 
 		when(movieRepository.save(firstMovie)).thenReturn(firstMovie);

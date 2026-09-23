@@ -33,6 +33,15 @@ export async function fetchAllBooks(
   return handleResponse<Paginated<Book>>(res);
 }
 
+export async function fetchAllBooksBySaga(sagaId: string): Promise<Book[]> {
+  console.log("Fetching books by sagaId:", sagaId);
+  const res = await fetchWithTimeout(BOOK_ROUTES.GET_ALL_BY_SAGA(sagaId), {
+    method: "GET",
+  });
+
+  return handleResponse<Book[]>(res);
+}
+
 export async function fetchBookById(bookId: string): Promise<Book> {
   return fetchItemById<Book>(BOOK_ROUTES, bookId);
 }

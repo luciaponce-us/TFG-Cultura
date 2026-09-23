@@ -3,12 +3,15 @@ import type { ItemRoutes } from "../types";
 
 interface BookRoutes extends ItemRoutes {
   GET_ALL_BY_TYPE: (types: string[]) => string;
+  GET_ALL_BY_SAGA: (sagaId: string) => string;
 }
 
 export const BOOK_ROUTES: BookRoutes = {
   BASE: `${API_BASE_URL}/api/catalog/books`,
   GET_ALL_BY_TYPE: (types: string[]) =>
     `${API_BASE_URL}/api/catalog/books/types/${types.join(",")}`,
+  GET_ALL_BY_SAGA: (sagaId: string) =>
+    `${API_BASE_URL}/api/catalog/books/saga/${sagaId}`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/books/${id}`,
 };
 

@@ -136,6 +136,22 @@ class BookServiceTest {
 		assertEquals(7, service.getLoanDays(request));
 	}
 
+	@Test
+	void should_find_books_by_saga_id_using_saga_reference() {
+		String sagaId = "saga-1";
+		Saga saga = Saga.builder().id(sagaId).build();
+		Set<Book> books = Set.of(Book.builder().build());
+
+		when(sagaService.findById(sagaId)).thenReturn(saga);
+		when(bookRepository.findAllBySaga(saga)).thenReturn(books);
+
+		Set<BookResponse> result = service.getAllBooksBySagaId(sagaId);
+
+		assertEquals(books.size(), result.size());
+		verify(sagaService).findById(sagaId);
+		verify(bookRepository).findAllBySaga(saga);
+	}
+
 	private final PageRequest pageable = PageRequest.of(0, 10);
 
 	@Test
