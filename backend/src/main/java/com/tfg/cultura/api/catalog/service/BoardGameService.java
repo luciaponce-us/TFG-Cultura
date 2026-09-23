@@ -68,8 +68,8 @@ public class BoardGameService
 	@Override
 	protected void fillSpecificFields(BoardGame item, BoardGameRequest request) {
 		BoardGame baseGame = null;
-		
-		if(request.getBaseGameId() != null){
+
+		if (request.getBaseGameId() != null) {
 			baseGame = this.findById(request.getBaseGameId());
 		}
 
