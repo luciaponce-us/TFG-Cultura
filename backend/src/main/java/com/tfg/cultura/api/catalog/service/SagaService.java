@@ -89,6 +89,7 @@ public class SagaService {
 			book.setSaga(null);
 			bookRepository.save(book);
 		});
+		// FIXME: Set all movies saga=null
 		sagaRepository.delete(existingSaga);
 	}
 
