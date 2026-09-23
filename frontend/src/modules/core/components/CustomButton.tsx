@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 interface CustomButtonProps extends ButtonProps {
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   color?: string;
   isPagination?: boolean;
 }
