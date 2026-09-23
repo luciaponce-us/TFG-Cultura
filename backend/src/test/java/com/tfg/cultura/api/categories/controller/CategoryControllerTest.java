@@ -110,10 +110,8 @@ class CategoryControllerTest extends BaseControllerTest {
 
 		when(categoryService.findCategoryById(categoryId)).thenReturn(category);
 
-		mockMvc.perform(get(CATEGORY_URL, categoryId))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(categoryId))
-				.andExpect(jsonPath("$.name").value(category.getName()));
+		mockMvc.perform(get(CATEGORY_URL, categoryId)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(categoryId)).andExpect(jsonPath("$.name").value(category.getName()));
 
 		verify(categoryService).findCategoryById(categoryId);
 	}
@@ -125,8 +123,7 @@ class CategoryControllerTest extends BaseControllerTest {
 		when(categoryService.findCategoryById(categoryId))
 				.thenThrow(new CategoryNotFoundException("Categoría no encontrada"));
 
-		mockMvc.perform(get(CATEGORY_URL, categoryId))
-				.andExpect(status().isNotFound());
+		mockMvc.perform(get(CATEGORY_URL, categoryId)).andExpect(status().isNotFound());
 
 		verify(categoryService).findCategoryById(categoryId);
 	}

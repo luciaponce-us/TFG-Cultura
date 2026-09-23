@@ -12,9 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Set;
-
 import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
@@ -26,6 +23,8 @@ import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -137,13 +136,11 @@ class BookServiceTest {
 
 		when(bookRepository.findAllByTypeIn(types, pageable)).thenReturn(books);
 
-		Page<BookResponse> result = service.getAllBooksByTypeAndNameContains(
-				types, null, null, pageable);
+		Page<BookResponse> result = service.getAllBooksByTypeAndNameContains(types, null, null, pageable);
 
 		assertEquals(books.getTotalElements(), result.getTotalElements());
 		verify(bookRepository).findAllByTypeIn(types, pageable);
-		verify(bookRepository, never()).findAllByTypeInAndCategoriesContaining(
-				anySet(), anySet(), any());
+		verify(bookRepository, never()).findAllByTypeInAndCategoriesContaining(anySet(), anySet(), any());
 		verifyNoInteractions(categoryService);
 	}
 
@@ -155,17 +152,14 @@ class BookServiceTest {
 		Page<Book> books = new PageImpl<>(List.of(new Book()));
 
 		when(categoryService.findCategoriesByIds(categoryIds)).thenReturn(categories);
-		when(bookRepository.findAllByTypeInAndCategoriesContaining(
-				types, categories, pageable)).thenReturn(books);
+		when(bookRepository.findAllByTypeInAndCategoriesContaining(types, categories, pageable)).thenReturn(books);
 
-		Page<BookResponse> result = service.getAllBooksByTypeAndNameContains(
-				types, "", categoryIds, pageable);
+		Page<BookResponse> result = service.getAllBooksByTypeAndNameContains(types, "", categoryIds, pageable);
 
 		assertEquals(books.getTotalElements(), result.getTotalElements());
 
 		verify(categoryService).findCategoriesByIds(categoryIds);
-		verify(bookRepository).findAllByTypeInAndCategoriesContaining(
-				types, categories, pageable);
+		verify(bookRepository).findAllByTypeInAndCategoriesContaining(types, categories, pageable);
 		verify(bookRepository, never()).findAllByTypeIn(anySet(), any());
 	}
 
@@ -175,19 +169,16 @@ class BookServiceTest {
 		String nameContains = "harry";
 		Page<Book> books = new PageImpl<>(List.of(new Book()));
 
-		when(bookRepository.findAllByTypeInAndNameContainingIgnoreCase(
-				types, nameContains, pageable)).thenReturn(books);
+		when(bookRepository.findAllByTypeInAndNameContainingIgnoreCase(types, nameContains, pageable))
+				.thenReturn(books);
 
-		Page<BookResponse> result = service.getAllBooksByTypeAndNameContains(
-				types, nameContains, null, pageable);
+		Page<BookResponse> result = service.getAllBooksByTypeAndNameContains(types, nameContains, null, pageable);
 
 		assertEquals(books.getTotalElements(), result.getTotalElements());
 
-		verify(bookRepository).findAllByTypeInAndNameContainingIgnoreCase(
-				types, nameContains, pageable);
+		verify(bookRepository).findAllByTypeInAndNameContainingIgnoreCase(types, nameContains, pageable);
 		verify(bookRepository, never()).findAllByTypeIn(anySet(), any());
-		verify(bookRepository, never()).findAllByTypeInAndCategoriesContaining(
-				anySet(), anySet(), any());
+		verify(bookRepository, never()).findAllByTypeInAndCategoriesContaining(anySet(), anySet(), any());
 		verifyNoInteractions(categoryService);
 	}
 
@@ -200,22 +191,20 @@ class BookServiceTest {
 		Page<Book> books = new PageImpl<>(List.of(new Book()));
 
 		when(categoryService.findCategoriesByIds(categoryIds)).thenReturn(categories);
-		when(bookRepository.findAllByTypeInAndNameContainingIgnoreCaseAndCategoriesContaining(
-				types, nameContains, categories, pageable)).thenReturn(books);
+		when(bookRepository.findAllByTypeInAndNameContainingIgnoreCaseAndCategoriesContaining(types, nameContains,
+				categories, pageable)).thenReturn(books);
 
-		Page<BookResponse> result = service.getAllBooksByTypeAndNameContains(
-				types, nameContains, categoryIds, pageable);
+		Page<BookResponse> result = service.getAllBooksByTypeAndNameContains(types, nameContains, categoryIds,
+				pageable);
 
 		assertEquals(books.getTotalElements(), result.getTotalElements());
 
 		verify(categoryService).findCategoriesByIds(categoryIds);
-		verify(bookRepository).findAllByTypeInAndNameContainingIgnoreCaseAndCategoriesContaining(
-				types, nameContains, categories, pageable);
+		verify(bookRepository).findAllByTypeInAndNameContainingIgnoreCaseAndCategoriesContaining(types, nameContains,
+				categories, pageable);
 		verify(bookRepository, never()).findAllByTypeIn(anySet(), any());
-		verify(bookRepository, never()).findAllByTypeInAndCategoriesContaining(
-				anySet(), anySet(), any());
-		verify(bookRepository, never()).findAllByTypeInAndNameContainingIgnoreCase(
-				anySet(), anyString(), any());
+		verify(bookRepository, never()).findAllByTypeInAndCategoriesContaining(anySet(), anySet(), any());
+		verify(bookRepository, never()).findAllByTypeInAndNameContainingIgnoreCase(anySet(), anyString(), any());
 	}
 
 }

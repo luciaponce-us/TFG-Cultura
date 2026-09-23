@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.tfg.cultura.api.users.exception.UserNotFoundException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,11 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
-
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 
 @ExtendWith(MockitoExtension.class)
 class JwtFilterTest {
@@ -222,8 +220,7 @@ class JwtFilterTest {
 
 		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
 		when(jwtService.extractId(token)).thenReturn(userId);
-		when(userDetailsService.loadUserById(userId))
-				.thenThrow(new RuntimeException("User not found"));
+		when(userDetailsService.loadUserById(userId)).thenThrow(new RuntimeException("User not found"));
 
 		filter.doFilterInternal(request, response, filterChain);
 
@@ -267,8 +264,7 @@ class JwtFilterTest {
 
 		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
 		when(jwtService.extractId(token)).thenReturn(userId);
-		when(userDetailsService.loadUserById(userId))
-				.thenThrow(mock(UserNotFoundException.class));
+		when(userDetailsService.loadUserById(userId)).thenThrow(mock(UserNotFoundException.class));
 
 		filter.doFilterInternal(request, response, filterChain);
 
@@ -280,8 +276,7 @@ class JwtFilterTest {
 		String token = "token";
 
 		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-		when(jwtService.extractId(token))
-				.thenThrow(new RuntimeException("Unexpected error"));
+		when(jwtService.extractId(token)).thenThrow(new RuntimeException("Unexpected error"));
 
 		filter.doFilterInternal(request, response, filterChain);
 

@@ -113,7 +113,7 @@ class BoardGameServiceTest {
 		assertEquals(request.getBaseGameId(), newBoardGame.getBaseGame().getId());
 	}
 
-	@Test 
+	@Test
 	void should_fill_specific_fields_correctly_when_base_game_is_null() {
 		BoardGame newBoardGame = service.createEntity();
 		request.setBaseGameId(null);
