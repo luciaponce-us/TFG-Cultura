@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.tfg.cultura.api.catalog.exception.series.InvalidNumberOfSeasonsException;
+import com.tfg.cultura.api.catalog.exception.series.PurchasedAtBeforeReleaseDateException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.catalog.model.SeriesInfo;
@@ -81,7 +83,7 @@ class SeriesServiceTest {
 		info.setReleaseDate(LocalDate.of(2015, 01, 01));
 		series.setSeriesInfo(info);
 
-		assertThrows(IllegalArgumentException.class, () -> service.validate(series));
+		assertThrows(PurchasedAtBeforeReleaseDateException.class, () -> service.validate(series));
 	}
 
 	@Test
@@ -105,7 +107,7 @@ class SeriesServiceTest {
 		series.getSeasons().get(0).setSeasonNumber(3);
 		series.getSeriesInfo().setNumberOfSeasons(2);
 
-		assertThrows(IllegalArgumentException.class, () -> service.validate(series));
+		assertThrows(InvalidNumberOfSeasonsException.class, () -> service.validate(series));
 	}
 
 	@Test
@@ -115,7 +117,7 @@ class SeriesServiceTest {
 		series.getSeasons().get(1).setSeasonNumber(3);
 		series.getSeriesInfo().setNumberOfSeasons(2);
 
-		assertThrows(IllegalArgumentException.class, () -> service.validate(series));
+		assertThrows(InvalidNumberOfSeasonsException.class, () -> service.validate(series));
 	}
 
 	@Test
