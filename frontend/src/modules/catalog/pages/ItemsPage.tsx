@@ -81,7 +81,11 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
     }
 
     return (
-      <VStack align="stretch" gap={4} w="100%">
+      <Grid
+        templateColumns={{ base: "1fr 1fr", md: "1fr 1fr 1fr 1fr" }}
+        gap={2}
+        w="100%"
+      >
         {content?.map((item) => (
           <ItemCard
             key={item.id}
@@ -90,7 +94,7 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
             type={type}
           />
         ))}
-      </VStack>
+      </Grid>
     );
   }
 
@@ -130,7 +134,7 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
         bg="background"
         borderRadius="xl"
         boxShadow="lg"
-        p={6}
+        p={{ base: 4, md: 6 }}
         align="center"
         justify="flex-start"
         w="100%"

@@ -127,3 +127,20 @@ export const ITEM_TYPES = {
 } as const;
 
 export type ItemType = (typeof ITEM_TYPES)[keyof typeof ITEM_TYPES];
+
+export function getItemTypeUrl(type: ItemType): string {
+  switch (type) {
+    case ITEM_TYPES.BOARD_GAME:
+      return "juegos-de-mesa";
+    case ITEM_TYPES.BOOK:
+      return "libros";
+    case ITEM_TYPES.MOVIE:
+      return "peliculas";
+    case ITEM_TYPES.SERIES:
+      return "series";
+    case ITEM_TYPES.VIDEO_GAME:
+      return "videojuegos";
+    case ITEM_TYPES.ROL_GAME:
+      return "rol";
+  }
+}

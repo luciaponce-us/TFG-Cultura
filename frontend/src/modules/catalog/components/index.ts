@@ -11,3 +11,4 @@ export { ItemImageInput } from "./ItemImageInput";
 export { AdminItemInfoForm } from "./AdminItemInfoForm";
 export { BaseGameSelect } from "./BaseGameSelect";
 export { SagaCard } from "./SagaCard";
+export { AdminItemInfoSideBar } from "./AdminItemInfoSideBar";

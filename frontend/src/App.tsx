@@ -38,6 +38,7 @@ import {
   RolSagaPage,
   VideoGamesPage,
   SagasPage,
+  BookPage,
 } from "@/modules/catalog/pages";
 
 import { CategoriesPage } from "@/modules/categories/pages";
@@ -72,6 +73,10 @@ export default function App() {
               {/* CATÁLOGO */}
               <Route path="/catalogo" element={<CatalogPage />} />
               <Route path="/catalogo/libros" element={<BooksPage />} />
+              <Route
+                path="/catalogo/libros/:bookId"
+                element={<BookPage />}
+              />
               <Route
                 path="/catalogo/mangas-y-comics"
                 element={<MangasAndComicsPage />}
