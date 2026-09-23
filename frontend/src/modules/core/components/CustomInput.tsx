@@ -52,7 +52,9 @@ export const CustomInput = ({
     placeholder,
     onChange: handleChange,
     focusRingColor: "principal.600",
-    ...((textarea && value === "")|| (value === undefined) ? { defaultValue } : { value }),
+    ...((textarea && value === "") || value === undefined
+      ? { defaultValue }
+      : { value }),
     maxLength,
     disabled,
   };
