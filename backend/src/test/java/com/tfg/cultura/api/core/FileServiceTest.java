@@ -121,14 +121,11 @@ public class FileServiceTest {
 	@Test
 	void should_throw_exception_when_delete_file_fails() throws Exception {
 		when(cloudinary.uploader()).thenReturn(uploader);
-		when(uploader.destroy(eq("users/user-1"), any(Map.class)))
-				.thenThrow(new RuntimeException("boom"));
+		when(uploader.destroy(eq("users/user-1"), any(Map.class))).thenThrow(new RuntimeException("boom"));
 
 		String url = "https://res.cloudinary.com/demo/image/upload/users/user-1.png";
 
-		assertThrows(
-				FileDeleteException.class,
-				() -> fileService.deleteFile(url));
+		assertThrows(FileDeleteException.class, () -> fileService.deleteFile(url));
 	}
 
 	@Test
