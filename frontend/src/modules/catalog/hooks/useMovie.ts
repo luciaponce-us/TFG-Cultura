@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchMovieById } from "../service/movie.service";
 
 export function useMovie(movieId: string | undefined) {
@@ -10,6 +10,6 @@ export function useMovie(movieId: string | undefined) {
       }
       return await fetchMovieById(movieId);
     },
-    placeholderData: keepPreviousData,
+    enabled: !!movieId,
   });
 }

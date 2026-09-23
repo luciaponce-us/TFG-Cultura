@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchBookById } from "../service/book.service";
 
 export function useBook(bookId: string | undefined) {
@@ -10,6 +10,6 @@ export function useBook(bookId: string | undefined) {
       }
       return await fetchBookById(bookId);
     },
-    placeholderData: keepPreviousData,
+    enabled: !!bookId,
   });
 }

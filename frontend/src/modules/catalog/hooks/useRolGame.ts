@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchRolGameById } from "../service/rolgame.service";
 
 export function useRolGame(rolGameId: string | undefined) {
@@ -10,6 +10,6 @@ export function useRolGame(rolGameId: string | undefined) {
       }
       return await fetchRolGameById(rolGameId);
     },
-    placeholderData: keepPreviousData,
+    enabled: !!rolGameId,
   });
 }
