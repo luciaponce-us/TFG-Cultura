@@ -65,7 +65,6 @@ export function toBookRequest(book: Book): BookRequest {
 }
 
 export function toMovieRequest(movie: Movie): MovieRequest {
-  console.log("toMovieRequest movie:", movie);
   const itemRequest = toRequest(movie);
   return {
     ...itemRequest,

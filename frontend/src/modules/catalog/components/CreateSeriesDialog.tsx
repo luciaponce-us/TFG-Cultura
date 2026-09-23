@@ -50,7 +50,6 @@ export function CreateSeriesDialog({
 }: CreateItemDialogProps) {
   const { data: seriesToUpdate, isLoading: isSeriesToEditLoading } =
     useSerie(itemId);
-  console.log("seriesToUpdate", seriesToUpdate);
   const { form, setForm } = useSeriesForm(
     itemId,
     seriesToUpdate,

@@ -14,7 +14,7 @@ export default function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, token } = useAuth();
   console.log(
-    "ProtectedRoute - Accediendo a ruta protegida con el rol:",
+    "[Ruta protegida] Accediendo con el rol",
     user?.role,
   );
 

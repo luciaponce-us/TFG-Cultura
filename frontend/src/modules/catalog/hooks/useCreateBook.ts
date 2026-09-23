@@ -17,7 +17,6 @@ export function useCreateBook(
 
   return useMutation({
     mutationFn: async () => {
-      console.log("Creando libro...");
       if (!token) {
         toaster.create({
           title: "Inicia sesión para crear libros",

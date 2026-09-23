@@ -83,7 +83,6 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
   const isAuthor = suggestion.author.username === user?.username;
 
   async function handleToggleSupport() {
-    console.log("Toggling support for suggestion:", suggestion.id);
     setLoadingSupport(true);
     if (!token) {
       toaster.create({
