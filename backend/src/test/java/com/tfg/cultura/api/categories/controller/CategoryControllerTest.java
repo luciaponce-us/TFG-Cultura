@@ -102,6 +102,35 @@ class CategoryControllerTest extends BaseControllerTest {
 		verify(categoryService).findAllCategories();
 	}
 
+	// ====================== GET BY ID ======================
+
+	@Test
+	void should_get_category_by_id() throws Exception {
+		String categoryId = category.getId();
+
+		when(categoryService.findCategoryById(categoryId)).thenReturn(category);
+
+		mockMvc.perform(get(CATEGORY_URL, categoryId))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(categoryId))
+				.andExpect(jsonPath("$.name").value(category.getName()));
+
+		verify(categoryService).findCategoryById(categoryId);
+	}
+
+	@Test
+	void should_return_not_found_when_category_does_not_exist() throws Exception {
+		String categoryId = category.getId();
+
+		when(categoryService.findCategoryById(categoryId))
+				.thenThrow(new CategoryNotFoundException("Categoría no encontrada"));
+
+		mockMvc.perform(get(CATEGORY_URL, categoryId))
+				.andExpect(status().isNotFound());
+
+		verify(categoryService).findCategoryById(categoryId);
+	}
+
 	// ====================== UPDATE ======================
 
 	@Test
