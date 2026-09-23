@@ -7,5 +7,5 @@ import java.util.Optional;
 public interface MovieRepository extends AbstractItemRepository<Movie> {
 	Optional<Movie> findByNameAndFormat(String name, Format format);
 
-	Iterable<Movie> findByMovieInfoSagaId(String sagaId);
+	Iterable<Movie> findAllByMovieInfoSagaId(String sagaId);
 }

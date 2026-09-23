@@ -92,7 +92,7 @@ public class SagaService {
 			book.setSaga(null);
 			bookRepository.save(book);
 		});
-		Iterable<Movie> moviesInSaga = movieRepository.findByMovieInfoSagaId(id);
+		Iterable<Movie> moviesInSaga = movieRepository.findAllByMovieInfoSagaId(id);
 		moviesInSaga.forEach(movie -> {
 			movie.getMovieInfo().setSaga(null);
 			movieRepository.save(movie);
