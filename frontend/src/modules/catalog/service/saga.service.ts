@@ -17,6 +17,14 @@ export async function fetchAllSagas(): Promise<Saga[]> {
   return handleResponse<Saga[]>(res);
 }
 
+export async function fetchSagaByName(name: string): Promise<Saga> {
+  const res = await fetchWithTimeout(SAGA_ROUTES.GET_BY_NAME(name), {
+    method: "GET",
+  });
+
+  return handleResponse<Saga>(res);
+}
+
 export async function createSaga(token: string, name: string): Promise<Saga> {
   const res = await fetchWithTimeout(SAGA_ROUTES.BASE, {
     method: "POST",
@@ -25,4 +33,23 @@ export async function createSaga(token: string, name: string): Promise<Saga> {
   });
 
   return handleResponse<Saga>(res);
+}
+
+export async function updateSaga(token: string, id: string, name: string): Promise<Saga> {
+  const res = await fetchWithTimeout(SAGA_ROUTES.GET_BY_ID(id), {
+    method: "PUT",
+    headers: { ...jsonHeaders, ...authHeaders(token) },
+    body: name,
+  });
+
+  return handleResponse<Saga>(res);
+}
+
+export async function deleteSaga(token: string, id: string): Promise<void> {
+  const res = await fetchWithTimeout(SAGA_ROUTES.GET_BY_ID(id), {
+    method: "DELETE",
+    headers: authHeaders(token),
+  });
+
+  return handleResponse<void>(res);
 }

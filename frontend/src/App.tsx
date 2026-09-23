@@ -37,6 +37,7 @@ import {
   RolSagasPage,
   RolSagaPage,
   VideoGamesPage,
+  SagasPage,
 } from "@/modules/catalog/pages";
 
 import { CategoriesPage } from "@/modules/categories/pages";
@@ -107,6 +108,11 @@ export default function App() {
               <Route
                 path="/admin/categorias"
                 element={withRoleProtection(CategoriesPage, MANAGEMENT_ROLES)}
+              />
+              {/* SAGAS */}
+              <Route
+                path="/admin/sagas"
+                element={withRoleProtection(SagasPage, MANAGEMENT_ROLES)}
               />
               <Route path="/no-encontrado" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />

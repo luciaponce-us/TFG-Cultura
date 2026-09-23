@@ -10,6 +10,7 @@ interface FormDialogProps {
   handleSubmit: () => Promise<void>;
   submitButtonText: string;
   resetForm?: () => void;
+  disabled?: boolean;
 }
 
 export function FormDialog({
@@ -20,6 +21,7 @@ export function FormDialog({
   handleSubmit,
   submitButtonText,
   resetForm,
+  disabled = false,
 }: FormDialogProps) {
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const onSubmit = async (e: React.SubmitEvent<HTMLElement>) => {
@@ -32,6 +34,12 @@ export function FormDialog({
       setLoadingSubmit(false);
     }
   };
+
+  function cancel() {
+    resetForm?.();
+    setIsOpen(false);
+  }
+
   return (
     <Dialog.Root open={isOpen}>
       <Portal>
@@ -64,18 +72,14 @@ export function FormDialog({
               </VStack>
             </Dialog.Body>
             <Dialog.Footer>
-              <CustomButton
-                onClick={() => {
-                  if (resetForm) {
-                    resetForm();
-                  }
-                  setIsOpen(false);
-                }}
-                color="rojo"
-              >
+              <CustomButton onClick={cancel} color="rojo">
                 Cancelar
               </CustomButton>
-              <CustomButton loading={loadingSubmit} type="submit">
+              <CustomButton
+                loading={loadingSubmit}
+                type="submit"
+                disabled={disabled}
+              >
                 {submitButtonText}
               </CustomButton>
             </Dialog.Footer>

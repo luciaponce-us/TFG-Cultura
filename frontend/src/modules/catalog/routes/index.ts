@@ -14,6 +14,8 @@ export const BOOK_ROUTES: BookRoutes = {
 
 export const SAGA_ROUTES = {
   BASE: `${API_BASE_URL}/api/catalog/sagas`,
+  GET_BY_NAME: (name: string) => `${API_BASE_URL}/api/catalog/sagas/${name}`,
+  GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/sagas/${id}`,
 };
 
 export const MOVIE_ROUTES: ItemRoutes = {
