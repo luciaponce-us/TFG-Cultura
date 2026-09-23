@@ -60,7 +60,7 @@ public class FileService {
 
 	public void deleteFile(String url) throws FileDeleteException {
 		try {
-			if (!isCloudinaryUrl(url, ResourceType.IMAGE) || !isCloudinaryUrl(url, ResourceType.RAW)) {
+			if (!isCloudinaryUrl(url, ResourceType.IMAGE) && !isCloudinaryUrl(url, ResourceType.RAW)) {
 				return; // No es una URL de Cloudinary, no se puede eliminar. Solo sucede con seeder
 			}
 			String publicId = extractPublicId(url);
