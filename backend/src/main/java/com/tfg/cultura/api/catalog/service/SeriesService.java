@@ -1,7 +1,5 @@
 package com.tfg.cultura.api.catalog.service;
 
-import com.tfg.cultura.api.catalog.exception.series.InvalidNumberOfSeasonsException;
-import com.tfg.cultura.api.catalog.exception.series.PurchasedAtBeforeReleaseDateException;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.catalog.model.SeriesInfo;
 import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
@@ -9,8 +7,13 @@ import com.tfg.cultura.api.catalog.model.dto.SeriesResponse;
 import com.tfg.cultura.api.catalog.repository.SeriesRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
+
+
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,14 +38,14 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 	}
 
 	@Override
-	protected void validate(Series item) throws PurchasedAtBeforeReleaseDateException, InvalidNumberOfSeasonsException {
+	protected void validate(Series item) throws ValidationException {
 		checkPurchasedAtAfterReleaseDate(item);
 		checkNumberOfSeasons(item);
 	}
 
 	private void checkPurchasedAtAfterReleaseDate(Series item) {
 		if (item.getPurchasedAt() != null && item.getPurchasedAt().isBefore(item.getSeriesInfo().getReleaseDate())) {
-			throw new PurchasedAtBeforeReleaseDateException();
+			throw new ValidationException(logger, Map.of("purchasedAt", "La fecha de compra no puede ser anterior a la fecha de estreno"));
 		}
 	}
 
@@ -50,7 +53,8 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 		Integer higherSeason = item.getSeasons().stream().mapToInt(season -> season.getSeasonNumber()).max().orElse(0);
 		Integer maxSeason = item.getSeriesInfo().getNumberOfSeasons();
 		if (higherSeason > maxSeason) {
-			throw new InvalidNumberOfSeasonsException(higherSeason, maxSeason);
+			throw new ValidationException(logger, Map.of("numberOfSeasons", String.format(
+				"La serie tiene %d temporadas, pero has añadido la temporada número %d.", maxSeason, higherSeason)));
 		}
 	}
 

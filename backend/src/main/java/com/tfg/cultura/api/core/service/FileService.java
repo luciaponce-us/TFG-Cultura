@@ -188,7 +188,7 @@ public class FileService {
 		}
 	}
 
-	private Boolean isCloudinaryUrl(String url, ResourceType type) {
+	private boolean isCloudinaryUrl(String url, ResourceType type) {
 		String resourceType = type.name().toLowerCase(Locale.ROOT);
 		String regex = "^https://res\\.cloudinary\\.com/[^/]+/(" + resourceType + ")/upload/.+";
 		return url != null && url.matches(regex);

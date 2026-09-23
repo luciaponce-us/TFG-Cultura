@@ -167,13 +167,14 @@ class CategoryServiceTest {
 
 	@Test
 	void should_throw_when_updating_non_existing_category() {
+		String nonExistingCategoryId = "non-existing-id";
 
-		when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
+		when(categoryRepository.findById(nonExistingCategoryId)).thenReturn(Optional.empty());
 
 		CategoryRequest request = CategoryRequest.builder().name("Science Fiction").color(category.getColor()).build();
-		assertThrows(CategoryNotFoundException.class, () -> service.updateCategory(category.getId(), request));
+		assertThrows(CategoryNotFoundException.class, () -> service.updateCategory(nonExistingCategoryId, request));
 
-		verify(categoryRepository).findById(category.getId());
+		verify(categoryRepository).findById(nonExistingCategoryId);
 		verify(categoryRepository, never()).save(any());
 	}
 
