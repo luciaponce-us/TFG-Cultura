@@ -122,6 +122,7 @@ export function CreateBookDialog({
           loading={isBookToEditLoading}
           placeholder={PLACEHOLDER.BOOK}
           disabled={loading || isBookToEditLoading}
+          imageUrl={bookToUpdate?.imageUrl}
         />
 
         <CustomInput

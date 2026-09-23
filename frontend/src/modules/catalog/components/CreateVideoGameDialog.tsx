@@ -103,6 +103,7 @@ export function CreateVideoGameDialog({
           loading={isVideoGameToEditLoading}
           placeholder={PLACEHOLDER.VIDEOGAME}
           disabled={loading}
+          imageUrl={videoGameToUpdate?.imageUrl}
         />
 
         <CustomInput

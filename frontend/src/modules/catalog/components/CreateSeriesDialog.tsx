@@ -145,6 +145,7 @@ export function CreateSeriesDialog({
           loading={isSeriesToEditLoading}
           placeholder={PLACEHOLDER.SERIES}
           disabled={loading}
+          imageUrl={seriesToUpdate?.imageUrl}
         />
 
         <CustomInput

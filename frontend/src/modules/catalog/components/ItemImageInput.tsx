@@ -6,6 +6,7 @@ interface ItemImageInputProps {
   loading: boolean;
   placeholder: string;
   disabled?: boolean;
+  imageUrl?: string | undefined;
 }
 export function ItemImageInput({
   image,
@@ -13,6 +14,7 @@ export function ItemImageInput({
   loading,
   placeholder,
   disabled = false,
+  imageUrl,
 }: ItemImageInputProps) {
   return (
     <HStack
@@ -37,8 +39,8 @@ export function ItemImageInput({
           <Spinner size="lg" color="principal.500" />
         ) : (
           <Image
-            src={image ? URL.createObjectURL(image) : placeholder}
-            alt="Foto del juego de rol"
+            src={image ? URL.createObjectURL(image) : (imageUrl || placeholder)}
+            alt="Foto del ítem"
             w="100%"
             h="100%"
             objectFit="cover"
@@ -50,7 +52,7 @@ export function ItemImageInput({
         <UploadBox
           text={
             <>
-              Arrastra la <b>foto del juego de rol</b>
+              Arrastra la <b>foto del ítem</b>
             </>
           }
           secondaryText="JPG o PNG, tamaño no superior a 2MB"

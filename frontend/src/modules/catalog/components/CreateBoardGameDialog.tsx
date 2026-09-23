@@ -123,6 +123,7 @@ export function CreateBoardGameDialog({
           setImage={setImage}
           loading={submitting}
           placeholder={PLACEHOLDER.BOARDGAME}
+          imageUrl={boardGameToUpdate?.imageUrl}
         />
 
         <CustomInput

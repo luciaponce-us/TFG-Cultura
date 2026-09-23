@@ -105,6 +105,7 @@ export function CreateRolGameDialog({
         loading={isRolGameToEditLoading}
         placeholder={PLACEHOLDER.ROLGAME}
         disabled={loading}
+        imageUrl={rolGameToEdit?.imageUrl}
       />
 
       <CustomInput

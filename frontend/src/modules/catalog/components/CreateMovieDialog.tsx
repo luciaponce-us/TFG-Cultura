@@ -122,6 +122,7 @@ export function CreateMovieDialog({
           loading={loading}
           placeholder={PLACEHOLDER.MOVIE}
           disabled={loading}
+          imageUrl={movieToUpdate?.imageUrl}
         />
 
         <CustomInput
