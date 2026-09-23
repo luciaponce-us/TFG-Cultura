@@ -18,6 +18,7 @@ public interface BookRepository extends AbstractItemRepository<Book> {
 			Set<Category> categories, Pageable pageable);
 
 	boolean existsByIsbn(String isbn);
+	boolean existsByIsbnAndIdNot(String isbn, String id);
 
 	Iterable<Book> findAllBySaga(String sagaId);
 }

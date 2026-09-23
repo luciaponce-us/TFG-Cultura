@@ -53,7 +53,10 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 
 	private void checkUniqueIsbn(Book item) throws ItemAlreadyExistsException {
 		String isbn = item.getIsbn();
-		if (isbn != null && repository.existsByIsbn(isbn)) {
+		boolean isbnExists = item.getId() == null
+				? repository.existsByIsbn(isbn)
+				: repository.existsByIsbnAndIdNot(isbn, item.getId());
+		if (isbn != null && isbnExists) {
 			throw new ItemAlreadyExistsException(
 					Map.of("isbn", "El ISBN " + sanitize(isbn) + " ya existe en otro libro."));
 		}

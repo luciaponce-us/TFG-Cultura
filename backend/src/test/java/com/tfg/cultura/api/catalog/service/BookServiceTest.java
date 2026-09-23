@@ -74,6 +74,15 @@ class BookServiceTest {
 	}
 
 	@Test
+	void should_not_throw_when_updating_book_with_same_isbn() {
+		Book book = Book.builder().id("book-1").isbn("9781234567890").build();
+
+		when(bookRepository.existsByIsbnAndIdNot("9781234567890", "book-1")).thenReturn(false);
+
+		assertDoesNotThrow(() -> service.validate(book));
+	}
+
+	@Test
 	void should_fill_book_specific_fields() {
 
 		Saga saga = new Saga();
