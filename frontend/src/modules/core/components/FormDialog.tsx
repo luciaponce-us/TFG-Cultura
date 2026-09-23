@@ -1,6 +1,7 @@
 import { Dialog, Heading, Portal, VStack } from "@chakra-ui/react";
 import { CustomButton } from "./CustomButton";
 import { useState } from "react";
+import { COLORS } from "@/styles/theme";
 
 interface FormDialogProps {
   isOpen: boolean;
@@ -47,34 +48,48 @@ export function FormDialog({
         <Dialog.Positioner>
           <Dialog.Content
             maxH="80vh"
-            overflow="hidden"
+            display="flex"
+            flexDirection="column"
             borderRadius="xl"
-            bg="background"
+            bg={COLORS.BACKGROUND}
             as="form"
             onSubmit={(e) => void onSubmit(e)}
+            px={4}
           >
             <Dialog.CloseTrigger />
-            <Dialog.Header>
+
+            <Dialog.Header flexShrink={0}>
               <Dialog.Title>
-                <Heading as="h1">{title}</Heading>
+                <Heading as="h1" overflowWrap="anywhere">
+                  {title}
+                </Heading>
               </Dialog.Title>
             </Dialog.Header>
-            <Dialog.Body>
-              <VStack
-                overflowY="scroll"
-                maxH="60vh"
-                align="stretch"
-                gap={4}
-                px={4}
-                py={2}
-              >
+
+            <Dialog.Body flex="1" minH={0} overflowY="auto" position="relative">
+              <VStack align="stretch" gap={4} py={2} pb={10}>
                 {children}
               </VStack>
             </Dialog.Body>
-            <Dialog.Footer>
+
+            <Dialog.Footer
+              flexShrink={0}
+              position="relative"
+              _before={{
+                content: '""',
+                position: "absolute",
+                top: "-32px",
+                left: 0,
+                right: 0,
+                height: "32px",
+                background: `linear-gradient(to bottom, transparent, ${COLORS.BACKGROUND})`,
+                pointerEvents: "none",
+              }}
+            >
               <CustomButton onClick={cancel} color="rojo">
                 Cancelar
               </CustomButton>
+
               <CustomButton
                 loading={loadingSubmit}
                 type="submit"
