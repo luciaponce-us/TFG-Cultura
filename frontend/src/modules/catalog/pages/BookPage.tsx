@@ -68,12 +68,15 @@ function SagaBooks({
 
   return (
     <MoreItemsFromSaga
-      sagaName={saga.name}
       sagaItems={sagaBooks}
       isLoading={sagaBooksLoading}
       isError={sagaBooksError}
       CreateItemDialog={CreateBookDialog}
       itemType={ITEM_TYPES.BOOK}
+      title={`Más libros de la saga "${saga.name}"`}
+      loadingText="Cargando libros de la saga..."
+      errorText="Ha ocurrido un error al cargar los libros de la saga. Vuelve a intentarlo más tarde."
+      emptyText="No hay más libros de esta saga."
     />
   );
 }

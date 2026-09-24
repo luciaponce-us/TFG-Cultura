@@ -3,34 +3,41 @@ import { Grid, Heading } from "@chakra-ui/react";
 import type { CreateItemDialogProps, Item, ItemType } from "../types";
 import { ItemCard } from "./ItemCard";
 
-export function MoreItemsFromSaga<T extends Item>({
-  sagaName,
-  sagaItems,
-  isLoading,
-  isError,
-  CreateItemDialog,
-  itemType,
-}: {
-  sagaName: string;
+interface MoreItemsFromSagaProps<T extends Item> {
   sagaItems: T[] | undefined;
   isLoading: boolean;
   isError: boolean;
   CreateItemDialog: React.ComponentType<CreateItemDialogProps>;
   itemType: ItemType;
-}) {
+  title: string;
+  loadingText: string;
+  errorText: string;
+  emptyText: string;
+}
+
+export function MoreItemsFromSaga<T extends Item>({
+  sagaItems,
+  isLoading,
+  isError,
+  CreateItemDialog,
+  itemType,
+  title,
+  loadingText,
+  errorText,
+  emptyText,
+}: MoreItemsFromSagaProps<T>) {
   let content;
 
   if (isLoading) {
-    content = <TextSecondary>Cargando libros de la saga...</TextSecondary>;
+    content = <TextSecondary>{loadingText}</TextSecondary>;
   } else if (isError) {
     content = (
       <TextSecondary>
-        Ha ocurrido un error al cargar los libros de la saga. Vuelve a
-        intentarlo más tarde.
+        {errorText}
       </TextSecondary>
     );
   } else if (sagaItems && sagaItems.length == 0) {
-    content = <TextSecondary>No hay más libros de esta saga.</TextSecondary>;
+    content = <TextSecondary>{emptyText}</TextSecondary>;
   } else if (sagaItems && sagaItems.length > 0) {
     content = (
       <Grid
@@ -59,7 +66,7 @@ export function MoreItemsFromSaga<T extends Item>({
   return (
     <>
       <Heading as="h2" size="md" mt={6} mb={4}>
-        Más libros de la saga "{sagaName}"
+        {title}
       </Heading>
       {content}
     </>
