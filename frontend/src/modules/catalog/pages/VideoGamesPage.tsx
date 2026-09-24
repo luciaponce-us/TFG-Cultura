@@ -14,7 +14,7 @@ export function VideoGamesPage() {
         description:
           "No se pudieron cargar los videojuegos. Inténtalo de nuevo más tarde.",
       }}
-      emptyText="No hay videojuegos disponibles."
+      emptyText={(hasFilters) => hasFilters ? "No hay videojuegos que coincidan con los filtros seleccionados." : "No hay videojuegos disponibles."}
       CreateDialogComponent={CreateVideoGameDialog}
       createText="Crear videojuego"
       type={ITEM_TYPES.VIDEO_GAME}

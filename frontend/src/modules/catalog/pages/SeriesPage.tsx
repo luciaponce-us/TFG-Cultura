@@ -14,7 +14,7 @@ export function SeriesPage() {
         description:
           "No se pudieron cargar las series. Inténtalo de nuevo más tarde.",
       }}
-      emptyText="No hay series disponibles."
+      emptyText={(hasFilters) => hasFilters ? "No hay series que coincidan con los filtros seleccionados." : "No hay series disponibles."}
       createText="Crear serie"
       CreateDialogComponent={CreateSeriesDialog}
       type={ITEM_TYPES.SERIES}

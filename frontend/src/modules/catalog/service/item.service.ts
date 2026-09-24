@@ -21,7 +21,7 @@ export async function fetchAllItems<T extends Item>(
   }
 
   if (categories && categories.length > 0) {
-    queryParams += `&categories=${categories.join(",")}`;
+    queryParams += `&categoryIds=${categories.join(",")}`;
   }
 
   const res = await fetchWithTimeout(`${routes.BASE}${queryParams}`, {

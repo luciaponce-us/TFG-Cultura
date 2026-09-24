@@ -1,14 +1,14 @@
 import { useAuth } from "@/modules/core/context/useAuth";
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import {
   FILTERS_GET_ALL_ITEMS_DEFAULT,
-  type FiltersGetAllItems as Filters,
+  type FiltersGetAllItems,
   type Item,
   type ItemType,
 } from "../types";
 import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
 import { toaster } from "@/modules/core/components/toaster/toaster";
-import { Grid, Heading, Link, VStack } from "@chakra-ui/react";
+import { Box, Grid, Heading, Link, VStack } from "@chakra-ui/react";
 import {
   CustomButton,
   CustomPagination,
@@ -20,26 +20,28 @@ import type { Paginated } from "@/modules/core/types";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { ItemCard } from "../components";
 import type { CreateItemDialogProps } from "../types/props";
+import { CategoriesSelect } from "@/modules/categories/components";
+import { useDebounce } from "@/modules/core/hooks/useDebounce";
 
-interface ItemsPageProps<
-  T extends { id: string; name?: string },
-  TFilters extends Filters = Filters,
-> {
-  getAllHook: (page: number, filters: TFilters) => UseQueryResult<Paginated<T>>;
-  initialFilters?: TFilters;
+interface ItemsPageProps<T extends { id: string; name?: string }> {
+  getAllHook: (
+    page: number,
+    filters: FiltersGetAllItems,
+  ) => UseQueryResult<Paginated<T>>;
+  initialFilters?: FiltersGetAllItems;
   title: string;
   loadText: string;
   errorText: { title: string; description: string };
-  emptyText: string;
+  emptyText: (filters: boolean) => string;
   type: ItemType;
   createText?: string;
   sectionDefaultValue?: string;
   CreateDialogComponent?: React.ComponentType<CreateItemDialogProps>;
 }
 
-export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
+export function ItemsPage<T extends Item>({
   getAllHook,
-  initialFilters = FILTERS_GET_ALL_ITEMS_DEFAULT as TFilters,
+  initialFilters = FILTERS_GET_ALL_ITEMS_DEFAULT,
   title,
   loadText,
   errorText,
@@ -48,17 +50,23 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
   createText,
   CreateDialogComponent,
   sectionDefaultValue,
-}: ItemsPageProps<T, TFilters>) {
+}: ItemsPageProps<T>) {
   const { isAdmin } = useAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [filters, setFilters] = useState<TFilters>(initialFilters);
+  const [filters, setFilters] = useState<FiltersGetAllItems>(initialFilters);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
+  const filtersWithSearch = {
+    ...filters,
+    nameContains: debouncedSearch,
+  };
   const [page, setPage] = useState<number>(0);
   const {
     data: paginatedItems,
     isLoading,
     error,
     isError,
-  } = getAllHook(page, filters);
+  } = getAllHook(page, filtersWithSearch);
 
   const content = paginatedItems?.content;
 
@@ -77,7 +85,24 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
     }
 
     if (!paginatedItems || content?.length === 0) {
-      return <TextSecondary>{emptyText}</TextSecondary>;
+      return (
+        <VStack flex={1} justify="center" align="center">
+          <TextSecondary fontSize="sm">
+            {emptyText(!!Object.keys(filters).length)}
+          </TextSecondary>
+          {Object.keys(filters).length > 0 && (
+            <Link
+              fontSize="sm"
+              onClick={() => {
+                setPage(0);
+                setFilters(initialFilters);
+              }}
+            >
+              Eliminar filtros
+            </Link>
+          )}
+        </VStack>
+      );
     }
 
     return (
@@ -100,10 +125,10 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
 
   return (
     <Grid
-      templateColumns={{ base: "1fr", md: "1fr 2fr" }}
+      templateColumns={{ base: "1fr", md: "1fr 2fr 1fr" }}
       gap={10}
       flex={1}
-      maxW="100vw"
+      maxW="80vw"
     >
       <SideBar>
         <VStack align="start" gap={4} w="100%" minW="210px">
@@ -118,15 +143,11 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
           >
             Eliminar filtros
           </Link>
-          <CustomSearchBar
-            placeholder="Buscar..."
-            onChange={(e) => {
-              setPage(0);
-              setFilters({
-                ...initialFilters,
-                nameContains: e.currentTarget.value,
-              });
-            }}
+          <FiltersSection
+            filters={filters}
+            setFilters={setFilters}
+            setPage={setPage}
+            setSearch={setSearch}
           />
         </VStack>
       </SideBar>
@@ -157,6 +178,14 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
             {createText}
           </CustomButton>
         )}
+        <Box w="100%" display={{ base: "block", md: "none" }}>
+          <FiltersSection
+            filters={filters}
+            setFilters={setFilters}
+            setPage={setPage}
+            setSearch={setSearch}
+          />
+        </Box>
         {renderItems()}
         {content && paginatedItems.totalPages > 1 && (
           <CustomPagination
@@ -175,5 +204,36 @@ export function ItemsPage<T extends Item, TFilters extends Filters = Filters>({
         />
       )}
     </Grid>
+  );
+}
+
+function FiltersSection({
+  filters,
+  setFilters,
+  setPage,
+  setSearch,
+}: {
+  filters: FiltersGetAllItems;
+  setFilters: Dispatch<SetStateAction<FiltersGetAllItems>>;
+  setPage: Dispatch<SetStateAction<number>>;
+  setSearch: Dispatch<SetStateAction<string>>;
+}) {
+  return (
+    <VStack w="100%" gap={3} align="stretch">
+      <CustomSearchBar
+        placeholder="Buscar..."
+        onChange={(e) => {
+          setPage(0);
+          setSearch(e.currentTarget.value);
+        }}
+      />
+      <CategoriesSelect
+        form={filters}
+        setForm={(newFilters) => {
+          setPage(0);
+          setFilters(newFilters);
+        }}
+      />
+    </VStack>
   );
 }

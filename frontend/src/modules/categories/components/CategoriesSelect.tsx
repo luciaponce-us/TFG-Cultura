@@ -1,10 +1,10 @@
-import type { ItemRequest } from "@/modules/catalog/types";
+import type { FiltersGetAllItems, ItemRequest } from "@/modules/catalog/types";
 import { CustomSelect } from "@/modules/core/components";
 import type { Dispatch, SetStateAction } from "react";
 import { useCategories } from "../hooks";
 import type { RolSagaRequest } from "@/modules/catalog/types/rolgame";
 
-interface CategoriesSelectProps<T extends ItemRequest | RolSagaRequest> {
+interface CategoriesSelectProps<T extends ItemRequest | RolSagaRequest | FiltersGetAllItems> {
   form: T;
   setForm: Dispatch<SetStateAction<T>>;
   onCreateCategory?: () => void;
@@ -12,12 +12,12 @@ interface CategoriesSelectProps<T extends ItemRequest | RolSagaRequest> {
   disabled?: boolean;
 }
 
-export function CategoriesSelect<T extends ItemRequest | RolSagaRequest>({
+export function CategoriesSelect<T extends ItemRequest | RolSagaRequest | FiltersGetAllItems>({
   form,
   setForm,
   onCreateCategory,
   error,
-  disabled = false,
+  disabled = false
 }: CategoriesSelectProps<T>) {
   const {
     data: categories,

@@ -21,7 +21,7 @@ export async function fetchAllBooks(
   if (nameContains)
     queryParams += `&nameContains=${encodeURIComponent(nameContains)}`;
   if (categories && categories.length > 0)
-    queryParams += `&categories=${categories.join(",")}`;
+    queryParams += `&categoryIds=${categories.join(",")}`;
 
   const res = await fetchWithTimeout(
     `${BOOK_ROUTES.GET_ALL_BY_TYPE(types)}${queryParams}`,

@@ -18,7 +18,7 @@ export function useBooks(
         pageSize,
         types,
         filters.nameContains,
-        filters.categories,
+        filters.categoriesIds,
       );
     },
     placeholderData: keepPreviousData,

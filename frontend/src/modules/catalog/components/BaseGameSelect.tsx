@@ -26,7 +26,7 @@ export function BaseGameSelect({
   const [search, setSearch] = useState("");
   const { data, isLoading, isError } = useBoardGames(0, {
     nameContains: search,
-    categories: [],
+    categoriesIds: [],
   });
 
   const baseGameOptions =

@@ -3,12 +3,12 @@ import type { SectionReference } from "@/modules/sections/types";
 
 export interface FiltersGetAllItems {
   nameContains?: string;
-  categories?: string[];
+  categoriesIds?: string[];
 }
 
 export const FILTERS_GET_ALL_ITEMS_DEFAULT: FiltersGetAllItems = {
   nameContains: "",
-  categories: [],
+  categoriesIds: [],
 };
 
 export interface Item {

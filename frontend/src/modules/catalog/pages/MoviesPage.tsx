@@ -14,7 +14,7 @@ export function MoviesPage() {
         description:
           "No se pudieron cargar las películas. Inténtalo de nuevo más tarde.",
       }}
-      emptyText="No hay películas disponibles."
+      emptyText={(hasFilters) => hasFilters ? "No hay películas que coincidan con los filtros seleccionados." : "No hay películas disponibles."}
       createText="Crear película"
       CreateDialogComponent={CreateMovieDialog}
       type={ITEM_TYPES.MOVIE}
