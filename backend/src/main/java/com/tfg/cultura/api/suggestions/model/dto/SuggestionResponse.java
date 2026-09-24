@@ -23,7 +23,8 @@ public class SuggestionResponse {
 	public SuggestionResponse(Suggestion suggestion) {
 		UserResponse authorResponse = suggestion.getAuthor() == null ? null : new UserResponse(suggestion.getAuthor());
 
-		List<UserResponse> supportersList = suggestion.getSupporters() == null ? List.of()
+		List<UserResponse> supportersList = suggestion.getSupporters() == null
+				? List.of()
 				: suggestion.getSupporters().stream().filter(Objects::nonNull).map(UserResponse::new).toList();
 
 		List<String> avatars = supportersList.stream().limit(3).map(UserResponse::getAvatar).filter(Objects::nonNull)

@@ -4,7 +4,9 @@ import type { Dispatch, SetStateAction } from "react";
 import { useCategories } from "../hooks";
 import type { RolSagaRequest } from "@/modules/catalog/types/rolgame";
 
-interface CategoriesSelectProps<T extends ItemRequest | RolSagaRequest | FiltersGetAllItems> {
+interface CategoriesSelectProps<
+  T extends ItemRequest | RolSagaRequest | FiltersGetAllItems,
+> {
   form: T;
   setForm: Dispatch<SetStateAction<T>>;
   onCreateCategory?: () => void;
@@ -12,12 +14,14 @@ interface CategoriesSelectProps<T extends ItemRequest | RolSagaRequest | Filters
   disabled?: boolean;
 }
 
-export function CategoriesSelect<T extends ItemRequest | RolSagaRequest | FiltersGetAllItems>({
+export function CategoriesSelect<
+  T extends ItemRequest | RolSagaRequest | FiltersGetAllItems,
+>({
   form,
   setForm,
   onCreateCategory,
   error,
-  disabled = false
+  disabled = false,
 }: CategoriesSelectProps<T>) {
   const {
     data: categories,

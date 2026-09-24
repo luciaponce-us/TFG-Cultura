@@ -21,7 +21,11 @@ export function BooksPage() {
         description:
           "No se pudieron cargar los libros. Inténtalo de nuevo más tarde.",
       }}
-      emptyText={(hasFilters) => hasFilters ? "No hay libros que coincidan con los filtros aplicados." : "No hay libros disponibles."}
+      emptyText={(hasFilters) =>
+        hasFilters
+          ? "No hay libros que coincidan con los filtros aplicados."
+          : "No hay libros disponibles."
+      }
       createText="Crear libro"
       CreateDialogComponent={CreateBookDialog}
       sectionDefaultValue="Libros"

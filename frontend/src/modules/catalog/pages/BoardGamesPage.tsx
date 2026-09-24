@@ -14,7 +14,11 @@ export function BoardGamesPage() {
         description:
           "No se pudieron cargar los juegos de mesa. Inténtalo de nuevo más tarde.",
       }}
-      emptyText={(hasFilters) => hasFilters ? "No hay juegos de mesa que coincidan con los filtros seleccionados." : "No hay juegos de mesa disponibles."}
+      emptyText={(hasFilters) =>
+        hasFilters
+          ? "No hay juegos de mesa que coincidan con los filtros seleccionados."
+          : "No hay juegos de mesa disponibles."
+      }
       createText="Crear juego de mesa"
       CreateDialogComponent={CreateBoardGameDialog}
       type={ITEM_TYPES.BOARD_GAME}

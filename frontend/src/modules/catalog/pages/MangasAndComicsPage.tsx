@@ -18,7 +18,11 @@ export function MangasAndComicsPage() {
         description:
           "No se pudieron cargar los mangas y cómics. Inténtalo de nuevo más tarde.",
       }}
-      emptyText={(hasFilters) => hasFilters ? "No hay mangas ni cómics que coincidan con los filtros seleccionados." : "No hay mangas ni cómics disponibles."}
+      emptyText={(hasFilters) =>
+        hasFilters
+          ? "No hay mangas ni cómics que coincidan con los filtros seleccionados."
+          : "No hay mangas ni cómics disponibles."
+      }
       createText="Crear manga o cómic"
       CreateDialogComponent={CreateBookDialog}
       sectionDefaultValue="Manga"
