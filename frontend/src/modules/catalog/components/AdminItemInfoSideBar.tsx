@@ -33,7 +33,7 @@ export function AdminItemInfoSideBar<T extends Item>({
   const { mutateAsync: deleteItem, isPending: isDeleting } = useDeleteItem(
     item?.id,
     type,
-    onDeleteSuccess
+    onDeleteSuccess,
   );
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
