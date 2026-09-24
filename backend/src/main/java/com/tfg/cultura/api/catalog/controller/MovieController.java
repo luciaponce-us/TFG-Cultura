@@ -23,7 +23,7 @@ public class MovieController extends AbstractItemController<MovieRequest, MovieR
 		super(movieService);
 	}
 
-		@GetMapping("/saga/{sagaId}")
+	@GetMapping("/saga/{sagaId}")
 	public ResponseEntity<Set<MovieResponse>> getAllMoviesBySaga(@PathVariable String sagaId) {
 		Set<MovieResponse> response = service.getAllMoviesBySagaId(sagaId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);

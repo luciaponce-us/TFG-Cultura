@@ -31,11 +31,7 @@ export function MoreItemsFromSaga<T extends Item>({
   if (isLoading) {
     content = <TextSecondary>{loadingText}</TextSecondary>;
   } else if (isError) {
-    content = (
-      <TextSecondary>
-        {errorText}
-      </TextSecondary>
-    );
+    content = <TextSecondary>{errorText}</TextSecondary>;
   } else if (sagaItems && sagaItems.length == 0) {
     content = <TextSecondary>{emptyText}</TextSecondary>;
   } else if (sagaItems && sagaItems.length > 0) {

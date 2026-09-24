@@ -92,7 +92,7 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
 		}
 	}
 
-		public Set<MovieResponse> getAllMoviesBySagaId(String sagaId) {
+	public Set<MovieResponse> getAllMoviesBySagaId(String sagaId) {
 		logger.info("Fetching all movies for saga with ID: {}", sagaId);
 		Saga saga = sagaService.findById(sagaId);
 		Set<Movie> movies = repository.findAllByMovieInfoSagaId(saga.getId());
