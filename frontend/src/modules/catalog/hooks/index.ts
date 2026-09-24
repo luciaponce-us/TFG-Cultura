@@ -23,6 +23,7 @@ export { useSagaForm } from "./form/useSagaForm";
 
 // MOVIE
 export { useMovies } from "./useMovies";
+export { useMoviesBySaga } from "./useMoviesBySaga";
 export { useMovie } from "./useMovie";
 export { useCreateMovie } from "./useCreateMovie";
 export { useUpdateMovie } from "./useUpdateMovie";

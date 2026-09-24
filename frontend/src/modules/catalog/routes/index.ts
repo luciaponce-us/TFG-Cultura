@@ -21,9 +21,15 @@ export const SAGA_ROUTES = {
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/sagas/${id}`,
 };
 
-export const MOVIE_ROUTES: ItemRoutes = {
+interface MovieRoutes extends ItemRoutes {
+  GET_ALL_BY_SAGA: (sagaId: string) => string;
+}
+
+export const MOVIE_ROUTES: MovieRoutes = {
   BASE: `${API_BASE_URL}/api/catalog/movies`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/movies/${id}`,
+  GET_ALL_BY_SAGA: (sagaId: string) =>
+    `${API_BASE_URL}/api/catalog/movies/saga/${sagaId}`,
 };
 
 export const SERIES_ROUTES: ItemRoutes = {

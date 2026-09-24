@@ -144,7 +144,7 @@ class SagaServiceTest {
 
 		when(sagaRepository.findById("1")).thenReturn(Optional.of(saga));
 		when(bookRepository.findAllBySaga(saga)).thenReturn(Set.of(firstBook, secondBook));
-		when(movieRepository.findAllByMovieInfoSagaId("1")).thenReturn(List.of());
+		when(movieRepository.findAllByMovieInfoSagaId("1")).thenReturn(Set.of());
 
 		service.deleteSaga("1");
 
@@ -163,7 +163,7 @@ class SagaServiceTest {
 
 		when(sagaRepository.findById(sagaId)).thenReturn(Optional.of(saga));
 		when(bookRepository.findAllBySaga(saga)).thenReturn(Set.of());
-		when(movieRepository.findAllByMovieInfoSagaId(sagaId)).thenReturn(List.of(firstMovie, secondMovie));
+		when(movieRepository.findAllByMovieInfoSagaId(sagaId)).thenReturn(Set.of(firstMovie, secondMovie));
 
 		when(movieRepository.save(firstMovie)).thenReturn(firstMovie);
 		when(movieRepository.save(secondMovie)).thenReturn(secondMovie);
