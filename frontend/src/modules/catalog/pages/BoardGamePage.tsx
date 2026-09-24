@@ -30,6 +30,7 @@ export function BoardGamePage() {
       itemId={boardGameId ?? ""}
       itemType={ITEM_TYPES.BOARD_GAME}
       placeholderImage={PLACEHOLDER.BOARDGAME}
+      errorMessage="Ha ocurrido un error al cargar el juego de mesa. Vuelve a intentarlo más tarde."
       CreateItemDialogComponent={CreateBoardGameDialog}
       subtitle={Subtitle({ boardGame })}
       extraInfo={ExtraInfo({ boardGame })}

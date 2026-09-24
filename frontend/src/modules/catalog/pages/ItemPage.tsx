@@ -22,6 +22,7 @@ interface ItemPageProps<T extends Item> {
   itemId: string;
   itemType: ItemType;
   placeholderImage: string;
+  errorMessage: string;
   CreateItemDialogComponent: React.ComponentType<CreateItemDialogProps>;
   subtitle?: string | React.ReactNode;
   extraInfo?: React.ReactNode;
@@ -36,6 +37,7 @@ export function ItemPage<T extends Item>({
   itemId,
   itemType,
   placeholderImage,
+  errorMessage,
   CreateItemDialogComponent,
   subtitle,
   extraInfo,
@@ -69,8 +71,7 @@ export function ItemPage<T extends Item>({
           mb={4}
         />
         <Text color="gray.700" fontSize="lg" textAlign="center">
-          Ha ocurrido un error al cargar el libro. Vuelve a intentarlo más
-          tarde.
+          {errorMessage}
         </Text>
       </VStack>
     );
@@ -92,7 +93,7 @@ export function ItemPage<T extends Item>({
             width="auto"
             maxH={{ base: "50vh", md: "500px" }}
             minH={0}
-            borderRadius="sm"
+            borderRadius="md"
             aspectRatio="2/3"
             justifySelf="center"
           />

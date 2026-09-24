@@ -22,6 +22,7 @@ export function BookPage() {
       itemId={bookId ?? ""}
       itemType={ITEM_TYPES.BOOK}
       placeholderImage={PLACEHOLDER.BOOK}
+      errorMessage="Ha ocurrido un error al cargar el libro. Vuelve a intentarlo más tarde."
       CreateItemDialogComponent={CreateBookDialog}
       subtitle={Subtitle({ book })}
       extraInfo={ExtraInfo({ book })}
