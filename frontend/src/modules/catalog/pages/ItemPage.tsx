@@ -23,7 +23,7 @@ interface ItemPageProps<T extends Item> {
   itemType: ItemType;
   placeholderImage: string;
   CreateItemDialogComponent: React.ComponentType<CreateItemDialogProps>;
-  subtitle?: string;
+  subtitle?: string | React.ReactNode;
   extraInfo?: React.ReactNode;
   sagaComponent?: React.ReactNode;
   sagaId?: string;

@@ -39,6 +39,7 @@ import {
   VideoGamesPage,
   SagasPage,
   BookPage,
+  BoardGamePage,
 } from "@/modules/catalog/pages";
 
 import { CategoriesPage } from "@/modules/categories/pages";
@@ -83,6 +84,10 @@ export default function App() {
               <Route
                 path="/catalogo/juegos-de-mesa"
                 element={<BoardGamesPage />}
+              />
+              <Route
+                path="/catalogo/juegos-de-mesa/:boardGameId"
+                element={<BoardGamePage />}
               />
               <Route path="/catalogo/rol" element={<RolSagasPage />} />
               <Route path="/catalogo/rol/:sagaId" element={<RolSagaPage />} />

@@ -10,3 +10,4 @@ export { VideoGamesPage } from "./lists/VideoGamesPage";
 export { SagasPage } from "./lists/SagasPage";
 export { BookPage } from "./BookPage";
 export { ItemPage } from "./ItemPage";
+export { BoardGamePage } from "./BoardGamePage";
