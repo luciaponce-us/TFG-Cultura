@@ -1,13 +1,16 @@
+// LISTS
+export { BoardGamesPage } from "./lists/BoardGamesPage";
 export { BooksPage } from "./lists/BooksPage";
+export { CatalogPage } from "./lists/CatalogPage";
 export { MangasAndComicsPage } from "./lists/MangasAndComicsPage";
 export { MoviesPage } from "./lists/MoviesPage";
-export { SeriesPage } from "./lists/SeriesPage";
-export { BoardGamesPage } from "./lists/BoardGamesPage";
-export { CatalogPage } from "./lists/CatalogPage";
-export { RolSagasPage } from "./lists/RolSagasPage";
-export { RolSagaPage } from "./RolSagaPage";
-export { VideoGamesPage } from "./lists/VideoGamesPage";
 export { SagasPage } from "./lists/SagasPage";
-export { BookPage } from "./BookPage";
-export { ItemPage } from "./ItemPage";
+export { SeriesPage } from "./lists/SeriesPage";
+export { RolSagasPage } from "./lists/RolSagasPage";
+export { VideoGamesPage } from "./lists/VideoGamesPage";
+
+// INDIVIDUAL ITEMS
 export { BoardGamePage } from "./BoardGamePage";
+export { BookPage } from "./BookPage";
+export { MoviePage } from "./MoviePage";
+export { RolSagaPage } from "./RolSagaPage";
