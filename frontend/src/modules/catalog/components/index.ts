@@ -12,3 +12,5 @@ export { AdminItemInfoForm } from "./AdminItemInfoForm";
 export { BaseGameSelect } from "./BaseGameSelect";
 export { SagaCard } from "./SagaCard";
 export { AdminItemInfoSideBar } from "./AdminItemInfoSideBar";
+export { ItemDescription } from "./ItemDescription";
+export { MoreItemsFromSaga } from "./MoreItemsFromSaga";
