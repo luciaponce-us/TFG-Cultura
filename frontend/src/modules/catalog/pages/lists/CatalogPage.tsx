@@ -7,7 +7,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useBoardGames, useBooks, useMovies, useSeries } from "../hooks";
+import { useBoardGames, useBooks, useMovies, useSeries } from "../../hooks";
 import { CustomButton } from "@/modules/core/components";
 import { useNavigate } from "react-router-dom";
 import {

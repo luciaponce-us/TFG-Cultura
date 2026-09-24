@@ -1,7 +1,7 @@
 import { CustomSelect } from "@/modules/core/components";
-import { useSagas } from "../hooks";
+import { useSagas } from "../../hooks";
 import type { Dispatch, SetStateAction } from "react";
-import type { ItemErrors, ItemRequest } from "../types";
+import type { ItemErrors, ItemRequest } from "../../types";
 
 interface SagaSelectProps<
   T extends ItemRequest & { sagaName?: string },

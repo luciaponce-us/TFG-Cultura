@@ -24,19 +24,19 @@ import {
   useUpdateVideogame,
   useVideogame,
   useVideoGameForm,
-} from "../hooks";
+} from "../../hooks";
 import {
   INITIAL_VIDEO_GAME,
   INITIAL_VIDEO_GAME_ERRORS,
   PLATFORM_OPTIONS,
   type VideoGameErrors,
-} from "../types/videogame";
-import type { CreateItemDialogProps } from "../types";
+} from "../../types/videogame";
+import type { CreateItemDialogProps } from "../../types";
 import {
   MAX_LENGTH,
   validateVideoGameForm,
-} from "../validations/videogame.validations";
-import { AdminItemInfoForm, ItemImageInput } from "./";
+} from "../../validations/videogame.validations";
+import { AdminItemInfoForm, ItemImageInput } from "..";
 
 export function CreateVideoGameDialog({
   isOpen,

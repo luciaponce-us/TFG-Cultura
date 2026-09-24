@@ -1,6 +1,6 @@
-import { CreateVideoGameDialog } from "../components";
-import { useVideogames } from "../hooks";
-import { ITEM_TYPES } from "../types";
+import { CreateVideoGameDialog } from "../../components";
+import { useVideogames } from "../../hooks";
+import { ITEM_TYPES } from "../../types";
 import { ItemsPage } from "./ItemsPage";
 
 export function VideoGamesPage() {

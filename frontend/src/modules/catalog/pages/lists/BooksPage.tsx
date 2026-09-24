@@ -1,7 +1,7 @@
-import { ITEM_TYPES, type FiltersGetAllItems as Filters } from "../types";
-import type { BookType } from "../types/book";
-import { useBooks } from "../hooks";
-import { CreateBookDialog } from "../components";
+import { ITEM_TYPES, type FiltersGetAllItems as Filters } from "../../types";
+import type { BookType } from "../../types/book";
+import { useBooks } from "../../hooks";
+import { CreateBookDialog } from "../../components";
 import { ItemsPage } from "./ItemsPage";
 
 const BOOK_TYPES: BookType[] = ["NOVEL", "ENCYCLOPEDIA"];

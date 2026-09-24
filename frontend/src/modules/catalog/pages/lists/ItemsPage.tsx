@@ -5,7 +5,7 @@ import {
   type FiltersGetAllItems,
   type Item,
   type ItemType,
-} from "../types";
+} from "../../types";
 import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { Box, Grid, Heading, Link, VStack } from "@chakra-ui/react";
@@ -18,8 +18,8 @@ import {
 import { IconPlus } from "@tabler/icons-react";
 import type { Paginated } from "@/modules/core/types";
 import type { UseQueryResult } from "@tanstack/react-query";
-import { ItemCard } from "../components";
-import type { CreateItemDialogProps } from "../types/props";
+import { ItemCard } from "../../components";
+import type { CreateItemDialogProps } from "../../types/props";
 import { CategoriesSelect } from "@/modules/categories/components";
 import { useDebounce } from "@/modules/core/hooks/useDebounce";
 

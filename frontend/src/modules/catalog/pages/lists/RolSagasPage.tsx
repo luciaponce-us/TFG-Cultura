@@ -1,17 +1,17 @@
 import { Flex, Heading, HStack, Image, Link, VStack } from "@chakra-ui/react";
-import { useRolSagas } from "../hooks";
+import { useRolSagas } from "../../hooks";
 import {
   ConfirmDialog,
   CustomButton,
   TextSecondary,
 } from "@/modules/core/components";
 import { useState } from "react";
-import { CreateRolSagaDialog } from "../components/CreateRolSagaDialog";
+import { CreateRolSagaDialog } from "../../components/forms/CreateRolSagaDialog";
 import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useAuth } from "@/modules/core/context/useAuth";
-import type { RolSaga } from "../types/rolgame";
+import type { RolSaga } from "../../types/rolgame";
 import { PLACEHOLDER } from "@/modules/core/utils/utils";
-import { useDeleteRolSaga } from "../hooks";
+import { useDeleteRolSaga } from "../../hooks";
 
 export function RolSagasPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);

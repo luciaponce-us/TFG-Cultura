@@ -1,9 +1,9 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { Box, Spinner } from "@chakra-ui/react";
-import { useCreateSaga, useSaga, useSagaForm, useUpdateSaga } from "../hooks";
+import { useCreateSaga, useSaga, useSagaForm, useUpdateSaga } from "../../hooks";
 import { CustomInput, FormDialog } from "@/modules/core/components";
 import { isApiError } from "@/modules/core/utils/utils";
-import { validateSagaName, MAX_LENGTH } from "../validations/saga.validations";
+import { validateSagaName, MAX_LENGTH } from "../../validations/saga.validations";
 
 interface CreateSagaDialogProps {
   readonly isOpen: boolean;

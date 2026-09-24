@@ -3,7 +3,7 @@ import {
   ITEM_CONDITIONS_OPTIONS,
   type ItemErrors,
   type ItemRequest,
-} from "../types";
+} from "../../types";
 import { Heading, HStack, Separator } from "@chakra-ui/react";
 import {
   CustomDateInput,
@@ -12,7 +12,7 @@ import {
   CustomSelect,
   CustomSwitch,
 } from "@/modules/core/components";
-import { MAX_LENGTH } from "../validations/item.validations";
+import { MAX_LENGTH } from "../../validations/item.validations";
 import { handleChange, handleSelectChange } from "@/modules/core/utils/utils";
 
 interface AdminItemInfoFormProps<R extends ItemRequest, E extends ItemErrors> {

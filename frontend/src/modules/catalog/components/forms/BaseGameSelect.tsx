@@ -5,8 +5,8 @@ import {
   CustomSearchBar,
   CustomSelect,
 } from "@/modules/core/components";
-import { useBoardGames } from "../hooks";
-import type { BoardGameRequest } from "../types/boardgame";
+import { useBoardGames } from "../../hooks";
+import type { BoardGameRequest } from "../../types/boardgame";
 
 interface BaseGameSelectProps {
   readonly form: BoardGameRequest;

@@ -20,19 +20,19 @@ import {
   useRolGameForm,
   useRolSaga,
   useUpdateRolGame,
-} from "../hooks";
+} from "../../hooks";
 import {
   INITIAL_ROL_GAME,
   INITIAL_ROL_GAME_ERRORS,
   ROL_BOOK_TYPES_OPTIONS,
   type RolGameErrors,
-} from "../types/rolgame";
-import type { CreateItemDialogProps } from "../types";
+} from "../../types/rolgame";
+import type { CreateItemDialogProps } from "../../types";
 import {
   MAX_LENGTH,
   validateRolGameForm,
-} from "../validations/rolgame.validations";
-import { AdminItemInfoForm, ItemImageInput } from "./";
+} from "../../validations/rolgame.validations";
+import { AdminItemInfoForm, ItemImageInput } from "..";
 
 interface CreateRolGameDialogProps extends CreateItemDialogProps {
   readonly sagaId: string;

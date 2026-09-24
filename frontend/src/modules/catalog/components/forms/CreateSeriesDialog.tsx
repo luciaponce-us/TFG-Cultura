@@ -28,20 +28,20 @@ import {
   useSerie,
   useSeriesForm,
   useUpdateSeries,
-} from "../hooks";
+} from "../../hooks";
 import {
   FORMATS_OPTIONS,
   INITIAL_SERIES,
   INITIAL_SERIES_ERRORS,
   SERIES_STATUSES_OPTIONS,
   type SeriesErrors,
-} from "../types/series";
+} from "../../types/series";
 import {
   MAX_LENGTH,
   validateSeriesForm,
-} from "../validations/series.validations";
-import type { CreateItemDialogProps } from "../types";
-import { ItemImageInput, AdminItemInfoForm } from "./";
+} from "../../validations/series.validations";
+import type { CreateItemDialogProps } from "../../types";
+import { ItemImageInput, AdminItemInfoForm } from "..";
 
 export function CreateSeriesDialog({
   isOpen,

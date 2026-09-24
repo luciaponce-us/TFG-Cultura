@@ -21,18 +21,18 @@ import {
   useRolSaga,
   useRolSagaForm,
   useUpdateRolSaga,
-} from "../hooks";
+} from "../../hooks";
 import {
   GAME_MASTERS_OPTIONS,
   INITIAL_ROL_SAGA,
   INITIAL_ROL_SAGA_ERRORS,
   type RolSagaErrors,
-} from "../types/rolgame";
+} from "../../types/rolgame";
 import {
   MAX_LENGTH,
   validateRolSagaForm,
-} from "../validations/rolsaga.validations";
-import { ItemImageInput } from "./";
+} from "../../validations/rolsaga.validations";
+import { ItemImageInput } from "..";
 
 interface CreateRolSagaDialogProps {
   readonly isOpen: boolean;

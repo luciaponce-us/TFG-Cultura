@@ -25,24 +25,24 @@ import {
   useMovie,
   useMovieForm,
   useUpdateMovie,
-} from "../hooks";
+} from "../../hooks";
 import {
   FORMATS_OPTIONS,
   INITIAL_MOVIE,
   INITIAL_MOVIE_ERRORS,
   type MovieErrors,
-} from "../types/movie";
-import type { CreateItemDialogProps } from "../types";
+} from "../../types/movie";
+import type { CreateItemDialogProps } from "../../types";
 import {
   MAX_LENGTH,
   validateMovieForm,
-} from "../validations/movie.validations";
+} from "../../validations/movie.validations";
 import {
   AdminItemInfoForm,
   CreateSagaDialog,
   ItemImageInput,
   SagaSelect,
-} from "./";
+} from "..";
 
 export function CreateMovieDialog({
   isOpen,

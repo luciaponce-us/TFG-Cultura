@@ -24,7 +24,7 @@ import {
   useBoardGameForm,
   useCreateBoardGame,
   useUpdateBoardGame,
-} from "../hooks";
+} from "../../hooks";
 import {
   BOARD_GAME_TYPES_OPTIONS,
   COMPLEXITIES_OPTIONS,
@@ -33,13 +33,13 @@ import {
   type BoardGame,
   type BoardGameErrors,
   type BoardGameRequest,
-} from "../types/boardgame";
-import type { CreateItemDialogProps } from "../types";
+} from "../../types/boardgame";
+import type { CreateItemDialogProps } from "../../types";
 import {
   MAX_LENGTH,
   validateBoardGameForm,
-} from "../validations/boardgame.validations";
-import { AdminItemInfoForm, BaseGameSelect, ItemImageInput } from ".";
+} from "../../validations/boardgame.validations";
+import { AdminItemInfoForm, BaseGameSelect, ItemImageInput } from "..";
 
 interface CreateBoardGameDialogProps extends CreateItemDialogProps {
   readonly onCreated?: (boardGame: BoardGame) => void;

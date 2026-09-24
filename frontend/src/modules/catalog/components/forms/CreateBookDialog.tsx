@@ -18,25 +18,25 @@ import {
 } from "@/modules/categories/components";
 import { SectionSelect } from "@/modules/sections/components";
 
-import { useBook, useBookForm, useCreateBook, useUpdateBook } from "../hooks";
+import { useBook, useBookForm, useCreateBook, useUpdateBook } from "../../hooks";
 import {
   BOOK_TYPES_OPTIONS,
   INITIAL_BOOK,
   INITIAL_BOOK_ERRORS,
   type BookErrors,
-} from "../types/book";
-import type { CreateItemDialogProps } from "../types";
+} from "../../types/book";
+import type { CreateItemDialogProps } from "../../types";
 import {
   MAX_LENGTH,
   cleanIsbn,
   validateBookForm,
-} from "../validations/book.validations";
+} from "../../validations/book.validations";
 import {
   AdminItemInfoForm,
   CreateSagaDialog,
   ItemImageInput,
   SagaSelect,
-} from "./";
+} from "..";
 
 export function CreateBookDialog({
   isOpen,

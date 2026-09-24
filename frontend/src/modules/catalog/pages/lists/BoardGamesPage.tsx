@@ -1,7 +1,7 @@
-import { useBoardGames } from "../hooks";
-import { CreateBoardGameDialog } from "../components";
+import { useBoardGames } from "../../hooks";
+import { CreateBoardGameDialog } from "../../components";
 import { ItemsPage } from "./ItemsPage";
-import { ITEM_TYPES } from "../types";
+import { ITEM_TYPES } from "../../types";
 
 export function BoardGamesPage() {
   return (

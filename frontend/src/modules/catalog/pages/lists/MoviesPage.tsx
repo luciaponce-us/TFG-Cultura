@@ -1,7 +1,7 @@
-import { useMovies } from "../hooks";
+import { useMovies } from "../../hooks";
 import { ItemsPage } from "./ItemsPage";
-import { CreateMovieDialog } from "../components";
-import { ITEM_TYPES } from "../types";
+import { CreateMovieDialog } from "../../components";
+import { ITEM_TYPES } from "../../types";
 
 export function MoviesPage() {
   return (

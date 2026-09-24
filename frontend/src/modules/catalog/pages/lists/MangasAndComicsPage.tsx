@@ -1,6 +1,6 @@
-import { ITEM_TYPES, type FiltersGetAllItems as Filters } from "../types";
-import { useBooks } from "../hooks";
-import { CreateBookDialog } from "../components";
+import { ITEM_TYPES, type FiltersGetAllItems as Filters } from "../../types";
+import { useBooks } from "../../hooks";
+import { CreateBookDialog } from "../../components";
 import { ItemsPage } from "./ItemsPage";
 
 function useBooksForPage(page: number, filters: Filters) {

@@ -1,8 +1,8 @@
 import { Flex, Heading } from "@chakra-ui/react";
 import { CustomButton, TextSecondary } from "@/modules/core/components";
 import { useState } from "react";
-import { useSagas } from "../hooks";
-import { CreateSagaDialog, SagaCard } from "../components";
+import { useSagas } from "../../hooks";
+import { CreateSagaDialog, SagaCard } from "../../components";
 import { IconPlus } from "@tabler/icons-react";
 
 export function SagasPage() {
