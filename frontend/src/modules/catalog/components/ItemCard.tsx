@@ -88,7 +88,7 @@ export function ItemCard<T extends Item>({
             alt={item.name}
             minH={0}
             objectFit="contain"
-            borderRadius="sm"
+            borderRadius="md"
             aspectRatio="2/3"
           />
           <VStack
@@ -134,7 +134,7 @@ export function ItemCard<T extends Item>({
               flexShrink={0}
               justifyContent="center"
             >
-              {item.categories.map((category) => (
+              {item.categories.slice(0, 5).map((category) => (
                 <CategoryTag key={category.id} category={category} />
               ))}
             </Box>
