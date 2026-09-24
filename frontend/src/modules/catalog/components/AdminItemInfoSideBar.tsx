@@ -3,13 +3,14 @@ import {
   CustomButton,
   SideBar,
 } from "@/modules/core/components";
-import type { Item, ItemType } from "../types";
+import type { CreateItemDialogProps, Item, ItemType } from "../types";
 import { Heading, HStack, Spinner, VStack, Text } from "@chakra-ui/react";
 import { parseItemCondition, parsePrice } from "../utils/item.utils";
 import { parseDate } from "@/modules/core/utils/utils";
 import { useState } from "react";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
 import { useDeleteItem } from "../hooks";
+import { useNavigate } from "react-router-dom";
 
 export function AdminItemInfoSideBar<T extends Item>({
   item,
@@ -21,18 +22,18 @@ export function AdminItemInfoSideBar<T extends Item>({
   item: T | undefined;
   isLoading: boolean;
   type: ItemType;
-  CreateItemDialog: React.ComponentType<{
-    isOpen: boolean;
-    setIsOpen: (isOpen: boolean) => void;
-    itemId?: string;
-    sagaId?: string;
-  }>;
+  CreateItemDialog: React.ComponentType<CreateItemDialogProps>;
   sagaId?: string;
 }) {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const navigate = useNavigate();
+  function onDeleteSuccess() {
+    void navigate(-1);
+  }
   const { mutateAsync: deleteItem, isPending: isDeleting } = useDeleteItem(
     item?.id,
     type,
+    onDeleteSuccess
   );
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 

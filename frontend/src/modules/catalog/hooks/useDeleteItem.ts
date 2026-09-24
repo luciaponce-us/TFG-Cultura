@@ -10,7 +10,11 @@ import { deleteBoardGame } from "../service/boardgame.service";
 import { deleteMovie } from "../service/movie.service";
 import { deleteRolGame } from "../service/rolgame.service";
 
-export function useDeleteItem(id: string | undefined, type: ItemType) {
+export function useDeleteItem(
+  id: string | undefined,
+  type: ItemType,
+  onDeleteSuccess?: () => void,
+) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
 
@@ -43,14 +47,17 @@ export function useDeleteItem(id: string | undefined, type: ItemType) {
     },
 
     onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [toQueryKey(type)],
+      });
+
       toaster.create({
         title: "Elemento eliminado",
         description: "El elemento se ha eliminado correctamente.",
         type: "success",
       });
-      await queryClient.invalidateQueries({
-        queryKey: [toQueryKey(type)],
-      });
+
+      onDeleteSuccess?.();
     },
     onError: (error) => {
       console.error("Error al eliminar elemento:", error);
