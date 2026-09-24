@@ -5,6 +5,7 @@ import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.Getter;
 
 @Getter
@@ -20,11 +21,13 @@ public class SuggestionResponse {
 	private LocalDateTime createdAt;
 
 	public SuggestionResponse(Suggestion suggestion) {
-		UserResponse authorResponse = new UserResponse(suggestion.getAuthor());
+		UserResponse authorResponse = suggestion.getAuthor() == null ? null : new UserResponse(suggestion.getAuthor());
 
-		List<UserResponse> supportersList = suggestion.getSupporters().stream().map(UserResponse::new).toList();
+		List<UserResponse> supportersList = suggestion.getSupporters() == null ? List.of()
+				: suggestion.getSupporters().stream().filter(Objects::nonNull).map(UserResponse::new).toList();
 
-		List<String> avatars = supportersList.stream().limit(3).map(UserResponse::getAvatar).toList();
+		List<String> avatars = supportersList.stream().limit(3).map(UserResponse::getAvatar).filter(Objects::nonNull)
+				.toList();
 
 		this.id = suggestion.getId();
 		this.title = suggestion.getTitle();
