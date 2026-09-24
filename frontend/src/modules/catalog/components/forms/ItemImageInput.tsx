@@ -1,5 +1,5 @@
 import { UploadBox } from "@/modules/core/components";
-import { Box, HStack, Image, Spinner, VStack } from "@chakra-ui/react";
+import { Box, Grid, Image, Spinner, VStack } from "@chakra-ui/react";
 interface ItemImageInputProps {
   image: File | null;
   setImage: (file: File | null) => void;
@@ -17,12 +17,13 @@ export function ItemImageInput({
   imageUrl,
 }: ItemImageInputProps) {
   return (
-    <HStack
-      align="stretch"
+    <Grid
+      templateColumns="1fr 2.5fr"
+      gap={4}
       w="100%"
       maxW="100%"
-      maxH="200px"
-      mb={image ? "60px" : ""}
+      h="100%"
+      alignItems="center"
     >
       <Box
         aspectRatio={2 / 3}
@@ -61,6 +62,6 @@ export function ItemImageInput({
           disabled={loading || disabled}
         />
       </VStack>
-    </HStack>
+    </Grid>
   );
 }
