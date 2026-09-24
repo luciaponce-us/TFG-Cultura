@@ -1,4 +1,5 @@
 import { Avatar, AvatarGroup } from "@chakra-ui/react";
+import { PLACEHOLDER } from "../utils/utils";
 
 interface CustomAvatarGroupProps extends React.ComponentProps<
   typeof AvatarGroup
@@ -19,7 +20,7 @@ export function CustomAvatarGroup({
       {displayedItems.map((item) => (
         <Avatar.Root key={item.name}>
           <Avatar.Fallback name={item.name} />
-          <Avatar.Image src={item.src} />
+          <Avatar.Image src={item.src || PLACEHOLDER.AVATAR} />
         </Avatar.Root>
       ))}
       {extraCount > 0 && (
