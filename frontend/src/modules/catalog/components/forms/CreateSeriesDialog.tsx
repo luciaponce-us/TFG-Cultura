@@ -203,6 +203,7 @@ export function CreateSeriesDialog({
           value={form.numberOfDiscs}
           disabled={loading}
         />
+        <Separator />
         <Heading as="h2" size="md" mt={4}>
           Información de la serie
         </Heading>
@@ -239,6 +240,7 @@ export function CreateSeriesDialog({
           required
           disabled={loading}
         />
+        <Separator />
         <VStack align="stretch" gap={4}>
           <HStack justify="space-between" align="center">
             <Heading as="h2" size="md">
