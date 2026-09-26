@@ -143,7 +143,7 @@ export function ItemPage<T extends Item>({
                   ))}
               </Box>
               <Separator w="100%" />
-              <Heading as="h2" size="sm">
+              <Heading as="h2" size="md">
                 Más información
               </Heading>
               {extraInfo}

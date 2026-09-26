@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { RolSaga } from "../types/rolgame";
 import { fetchRolSagaById } from "../service/rolsaga.service";
 
-export function useRolSaga(sagaId: string | undefined) {
+export function useRolSaga(sagaId: string | undefined, isDeleting: boolean=false) {
   return useQuery<RolSaga | undefined>({
     queryKey: ["rolsagas", sagaId],
     queryFn: () => {
@@ -11,6 +11,6 @@ export function useRolSaga(sagaId: string | undefined) {
       }
       return fetchRolSagaById(sagaId);
     },
-    enabled: !!sagaId,
+    enabled: !!sagaId && !isDeleting,
   });
 }

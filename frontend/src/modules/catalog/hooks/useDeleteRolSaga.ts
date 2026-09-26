@@ -3,7 +3,7 @@ import { useAuth } from "@/modules/core/context/useAuth";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { deleteRolSaga } from "../service/rolsaga.service";
 
-export function useDeleteRolSaga(id: string | undefined) {
+export function useDeleteRolSaga(id: string | undefined, onDeleteSuccess?: () => void) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
 
@@ -24,13 +24,14 @@ export function useDeleteRolSaga(id: string | undefined) {
     },
 
     onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["rolsagas"],
+      });
+      onDeleteSuccess?.();
       toaster.create({
         title: "Saga de rol eliminada",
         description: "La saga de rol se ha eliminado correctamente.",
         type: "success",
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ["rolsagas"],
       });
     },
     onError: (error) => {
