@@ -41,6 +41,7 @@ import {
   BookPage,
   BoardGamePage,
   MoviePage,
+  SeriePage,
 } from "@/modules/catalog/pages";
 
 import { CategoriesPage } from "@/modules/categories/pages";
@@ -80,12 +81,17 @@ export default function App() {
                 path="/catalogo/mangas-y-comics"
                 element={<MangasAndComicsPage />}
               />
+              {/* Para mangas y cómics individuales, se reutiliza la página de libros */}
               <Route path="/catalogo/peliculas" element={<MoviesPage />} />
               <Route
                 path="/catalogo/peliculas/:movieId"
                 element={<MoviePage />}
               />
               <Route path="/catalogo/series" element={<SeriesPage />} />
+              <Route
+                path="/catalogo/series/:serieId"
+                element={<SeriePage />}
+              />
               <Route
                 path="/catalogo/juegos-de-mesa"
                 element={<BoardGamesPage />}
