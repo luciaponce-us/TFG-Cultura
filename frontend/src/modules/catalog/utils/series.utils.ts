@@ -14,12 +14,12 @@ export function parseStatus(status: SeriesStatus): string {
 }
 
 export function getTrailers(series: Series): string[] {
-    const seasons: Season[] = series.seasons;
-    const trailers: string[] = [];
-    seasons.forEach((season) => {
-        if (season.trailerUrl) {
-            trailers.push(season.trailerUrl);
-        }
-    });
-    return trailers;
+  const seasons: Season[] = series.seasons;
+  const trailers: string[] = [];
+  seasons.forEach((season) => {
+    if (season.trailerUrl) {
+      trailers.push(season.trailerUrl);
+    }
+  });
+  return trailers;
 }

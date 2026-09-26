@@ -1,6 +1,10 @@
 import { Box, Grid, HStack, Text } from "@chakra-ui/react";
 import { useMovie, useMoviesBySaga, useSaga } from "../hooks";
-import { CreateMovieDialog, ItemTrailer, MoreItemsFromSaga } from "../components";
+import {
+  CreateMovieDialog,
+  ItemTrailer,
+  MoreItemsFromSaga,
+} from "../components";
 import { useParams } from "react-router-dom";
 import { ITEM_TYPES } from "../types";
 import { ItemPage } from "./ItemPage";

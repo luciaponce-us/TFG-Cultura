@@ -88,10 +88,7 @@ export default function App() {
                 element={<MoviePage />}
               />
               <Route path="/catalogo/series" element={<SeriesPage />} />
-              <Route
-                path="/catalogo/series/:serieId"
-                element={<SeriePage />}
-              />
+              <Route path="/catalogo/series/:serieId" element={<SeriePage />} />
               <Route
                 path="/catalogo/juegos-de-mesa"
                 element={<BoardGamesPage />}

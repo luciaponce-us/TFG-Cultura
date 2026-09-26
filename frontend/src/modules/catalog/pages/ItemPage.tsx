@@ -101,32 +101,32 @@ export function ItemPage<T extends Item>({
             <VStack w="100%" align="start" gap={4}>
               <HStack w="100%" justify="space-between" align="center">
                 <VStack align="start" gap={1}>
-              <Heading as="h1" wordBreak="break-word">
-                {item.name}
-              </Heading>
-              {subtitle && (
-                <Text
-                  fontSize="sm"
-                  color="gray.500"
-                  wordBreak="break-all"
-                  lineClamp={1}
+                  <Heading as="h1" wordBreak="break-word">
+                    {item.name}
+                  </Heading>
+                  {subtitle && (
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                      wordBreak="break-all"
+                      lineClamp={1}
+                    >
+                      {subtitle}
+                    </Text>
+                  )}
+                </VStack>
+                <CustomButton
+                  onClick={() =>
+                    toaster.create({
+                      title: "Funcionalidad en desarrollo",
+                      description: "Esta funcionalidad aún no está disponible.",
+                    })
+                  }
+                  w="fit-content"
+                  disabled={!item.loanAvailable}
                 >
-                  {subtitle}
-                </Text>
-              )}
-              </VStack>
-              <CustomButton
-                onClick={() =>
-                  toaster.create({
-                    title: "Funcionalidad en desarrollo",
-                    description: "Esta funcionalidad aún no está disponible.",
-                  })
-                }
-                w="fit-content"
-                disabled={!item.loanAvailable}
-              >
-                Solicitar préstamo
-              </CustomButton>
+                  Solicitar préstamo
+                </CustomButton>
               </HStack>
 
               <ItemDescription description={item.description} />
@@ -143,12 +143,12 @@ export function ItemPage<T extends Item>({
                   ))}
               </Box>
               <Separator w="100%" />
-              <Heading as="h2" size="sm">Más información</Heading>
+              <Heading as="h2" size="sm">
+                Más información
+              </Heading>
               {extraInfo}
             </VStack>
-            <Box alignSelf="center">
-              
-            </Box>
+            <Box alignSelf="center"></Box>
           </VStack>
         </Grid>
         {sagaComponent}

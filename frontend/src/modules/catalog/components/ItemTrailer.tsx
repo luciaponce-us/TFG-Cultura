@@ -9,7 +9,7 @@ export function ItemTrailer({
   item: Item;
   trailerUrl: string;
 }) {
-    const [isIframeError, setIsIframeError] = useState(false);
+  const [isIframeError, setIsIframeError] = useState(false);
 
   return (
     <VStack align="start" gap={2} w={{ base: "100%", md: "320px" }}>
@@ -25,15 +25,15 @@ export function ItemTrailer({
             <p>Error al cargar el trailer</p>
           </VStack>
         ) : (
-        <iframe
-          src={trailerUrl}
-          title={`Trailer de ${item.name}`}
-          allowFullScreen
-          onError={(e) => {
-            console.error("Error al cargar trailer:", e);
-            setIsIframeError(true);
-          }}
-        />
+          <iframe
+            src={trailerUrl}
+            title={`Trailer de ${item.name}`}
+            allowFullScreen
+            onError={(e) => {
+              console.error("Error al cargar trailer:", e);
+              setIsIframeError(true);
+            }}
+          />
         )}
       </AspectRatio>
     </VStack>
