@@ -83,11 +83,8 @@ export function ItemCard<T extends Item>({
           h="100%"
           minH={0}
         >
-          <ItemImage
-            item={item}
-            type={type}
-          />
-          
+          <ItemImage item={item} type={type} />
+
           <VStack
             align="space-between"
             justify="space-between"
