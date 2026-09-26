@@ -151,7 +151,7 @@ export function ItemPage<T extends Item>({
       <Grid
         templateColumns={{ base: "1fr", md: isAdmin ? "1fr 2.5fr" : "1fr" }}
         gap={10}
-        maxW={isAdmin ? "70vw" : "50vw"}
+        maxW={isAdmin ? {base: "80vw", md: "70vw"} : {base: "80vw", md: "50vw"}}
       >
         {isAdmin && (
           <AdminItemInfoSideBar

@@ -85,12 +85,16 @@ export function ItemsPage<T extends Item>({
     }
 
     if (!paginatedItems || content?.length === 0) {
+      const hasFilters = Object.values(filtersWithSearch).some((value) =>
+        Array.isArray(value) ? value.length > 0 : value !== "",
+      );
+
       return (
         <VStack flex={1} justify="center" align="center">
           <TextSecondary fontSize="sm">
-            {emptyText(!!Object.keys(filters).length)}
+            {emptyText(hasFilters)}
           </TextSecondary>
-          {Object.keys(filters).length > 0 && (
+          {hasFilters && (
             <Link
               fontSize="sm"
               onClick={() => {

@@ -45,7 +45,7 @@ function ExtraInfo({
   if (!movie) return undefined;
   return (
     <>
-      <Grid templateColumns="repeat(2, 1fr)" gap={4} w="100%">
+      <Grid templateColumns={{base: "1fr", md: "1fr 1.3fr"}} gap={4} w="100%">
         <Box gap={1} display="flex" flexDirection="column">
           <HStack>
             <Text fontWeight="bold">Formato:</Text>

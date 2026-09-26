@@ -39,7 +39,7 @@ export function AdminItemInfoSideBar<T extends Item>({
 
   return (
     <>
-      <SideBar flex={1}>
+      <SideBar flex={1} hideOnMobile={false} order={{base: 1, md: 0}}>
         <VStack align="center" gap={4} w="100%" minW="210px">
           <Heading as="h1">Administración</Heading>
           {isLoading || !item ? (
