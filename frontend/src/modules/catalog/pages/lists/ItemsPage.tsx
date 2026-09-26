@@ -91,9 +91,7 @@ export function ItemsPage<T extends Item>({
 
       return (
         <VStack flex={1} justify="center" align="center">
-          <TextSecondary fontSize="sm">
-            {emptyText(hasFilters)}
-          </TextSecondary>
+          <TextSecondary fontSize="sm">{emptyText(hasFilters)}</TextSecondary>
           {hasFilters && (
             <Link
               fontSize="sm"
