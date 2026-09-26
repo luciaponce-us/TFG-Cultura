@@ -16,7 +16,7 @@ export function ItemImage<T extends Item | RolSaga>({
   const [hasImageError, setHasImageError] = useState(false);
   const placeholderUrl = type ? getPlaceholder(type) : PLACEHOLDER.ROLSAGA;
   const imageUrl = item.imageUrl ?? placeholderUrl;
-  
+
   return (
     <Box
       minH={0}

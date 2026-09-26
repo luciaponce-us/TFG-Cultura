@@ -102,10 +102,7 @@ export function ItemsPage<T extends Item | RolSaga>({
         <VStack flex={1} justify="center" align="center">
           <TextSecondary fontSize="sm">{emptyText(hasFilters)}</TextSecondary>
           {hasFilters && (
-            <Link
-              fontSize="sm"
-              onClick={clearFilters}
-            >
+            <Link fontSize="sm" onClick={clearFilters}>
               Eliminar filtros
             </Link>
           )}

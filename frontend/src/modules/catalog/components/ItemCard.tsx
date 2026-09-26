@@ -33,8 +33,10 @@ export function ItemCard<T extends Item | RolSaga>({
   const { isAdmin } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const isRolSaga = "website" in item;
-  const { mutateAsync: deleteItem, isPending: isDeletingItem } =
-    useDeleteItem(item.id, type);
+  const { mutateAsync: deleteItem, isPending: isDeletingItem } = useDeleteItem(
+    item.id,
+    type,
+  );
   const { mutateAsync: deleteRolSaga, isPending: isDeletingRolSaga } =
     useDeleteRolSaga(isRolSaga ? item.id : undefined);
   const deleteMutation = isRolSaga ? deleteRolSaga : deleteItem;
@@ -57,7 +59,11 @@ export function ItemCard<T extends Item | RolSaga>({
         key={item.id}
         onClick={() => {
           if (!isDeleting) {
-            void navigate(type? `/catalogo/${getItemTypeUrl(type)}/${item.id}` : `/catalogo/rol/${item.id}`);
+            void navigate(
+              type
+                ? `/catalogo/${getItemTypeUrl(type)}/${item.id}`
+                : `/catalogo/rol/${item.id}`,
+            );
           }
         }}
         _hover={{
