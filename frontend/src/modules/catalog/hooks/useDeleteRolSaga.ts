@@ -3,7 +3,10 @@ import { useAuth } from "@/modules/core/context/useAuth";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { deleteRolSaga } from "../service/rolsaga.service";
 
-export function useDeleteRolSaga(id: string | undefined, onDeleteSuccess?: () => void) {
+export function useDeleteRolSaga(
+  id: string | undefined,
+  onDeleteSuccess?: () => void,
+) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
 

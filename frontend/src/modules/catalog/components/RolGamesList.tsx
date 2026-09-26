@@ -1,7 +1,4 @@
-import {
-  CustomButton,
-  TextSecondary,
-} from "@/modules/core/components";
+import { CustomButton, TextSecondary } from "@/modules/core/components";
 import { useRolGamesBySaga } from "../hooks";
 import { Box, Heading, VStack } from "@chakra-ui/react";
 import { CreateRolGameDialog } from "./forms/CreateRolGameDialog";
@@ -23,7 +20,7 @@ export function RolGamesGrid({ sagaId }: RolGamesGridProps) {
 
   let content;
 
-  if (sagaId===undefined ||isLoading || !rolGames) {
+  if (sagaId === undefined || isLoading || !rolGames) {
     content = (
       <TextSecondary>Cargando libros de rol de esta saga...</TextSecondary>
     );
@@ -97,4 +94,3 @@ export function RolGamesGrid({ sagaId }: RolGamesGridProps) {
     </>
   );
 }
-
