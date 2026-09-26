@@ -6,6 +6,7 @@ import {
   type Item,
   type ItemType,
 } from "../../types";
+import type { RolSaga } from "../../types/rolgame";
 import { TextSecondary } from "@/modules/core/components/text/TextSecondary";
 import { toaster } from "@/modules/core/components/toaster/toaster";
 import { Box, Grid, Heading, Link, VStack } from "@chakra-ui/react";
@@ -33,13 +34,14 @@ interface ItemsPageProps<T extends { id: string; name?: string }> {
   loadText: string;
   errorText: { title: string; description: string };
   emptyText: (filters: boolean) => string;
-  type: ItemType;
+  type?: ItemType;
+  showFilters?: boolean;
   createText?: string;
   sectionDefaultValue?: string;
   CreateDialogComponent?: React.ComponentType<CreateItemDialogProps>;
 }
 
-export function ItemsPage<T extends Item>({
+export function ItemsPage<T extends Item | RolSaga>({
   getAllHook,
   initialFilters = FILTERS_GET_ALL_ITEMS_DEFAULT,
   title,
@@ -47,6 +49,7 @@ export function ItemsPage<T extends Item>({
   errorText,
   emptyText,
   type,
+  showFilters = true,
   createText,
   CreateDialogComponent,
   sectionDefaultValue,
@@ -69,6 +72,12 @@ export function ItemsPage<T extends Item>({
   } = getAllHook(page, filtersWithSearch);
 
   const content = paginatedItems?.content;
+
+  function clearFilters() {
+    setPage(0);
+    setFilters(initialFilters);
+    setSearch("");
+  }
 
   function renderItems() {
     if (isLoading) {
@@ -95,10 +104,7 @@ export function ItemsPage<T extends Item>({
           {hasFilters && (
             <Link
               fontSize="sm"
-              onClick={() => {
-                setPage(0);
-                setFilters(initialFilters);
-              }}
+              onClick={clearFilters}
             >
               Eliminar filtros
             </Link>
@@ -127,32 +133,34 @@ export function ItemsPage<T extends Item>({
 
   return (
     <Grid
-      templateColumns={{ base: "1fr", md: "1fr 2fr 1fr" }}
+      templateColumns={{
+        base: "1fr",
+        md: showFilters ? "1fr 2fr 1fr" : "1fr",
+      }}
       gap={10}
       flex={1}
       maxW="80vw"
     >
-      <SideBar>
-        <VStack align="start" gap={4} w="100%" minW="210px">
-          <Heading as="h1">Filtros</Heading>
-          <Link
-            variant="underline"
-            color="principal.500"
-            onClick={() => {
-              setPage(0);
-              setFilters(initialFilters);
-            }}
-          >
-            Eliminar filtros
-          </Link>
-          <FiltersSection
-            filters={filters}
-            setFilters={setFilters}
-            setPage={setPage}
-            setSearch={setSearch}
-          />
-        </VStack>
-      </SideBar>
+      {showFilters && (
+        <SideBar>
+          <VStack align="start" gap={4} w="100%" minW="210px">
+            <Heading as="h1">Filtros</Heading>
+            <Link
+              variant="underline"
+              color="principal.500"
+              onClick={clearFilters}
+            >
+              Eliminar filtros
+            </Link>
+            <FiltersSection
+              filters={filters}
+              setFilters={setFilters}
+              setPage={setPage}
+              setSearch={setSearch}
+            />
+          </VStack>
+        </SideBar>
+      )}
       <VStack
         bg="background"
         borderRadius="xl"
@@ -180,14 +188,16 @@ export function ItemsPage<T extends Item>({
             {createText}
           </CustomButton>
         )}
-        <Box w="100%" display={{ base: "block", md: "none" }}>
-          <FiltersSection
-            filters={filters}
-            setFilters={setFilters}
-            setPage={setPage}
-            setSearch={setSearch}
-          />
-        </Box>
+        {showFilters && (
+          <Box w="100%" display={{ base: "block", md: "none" }}>
+            <FiltersSection
+              filters={filters}
+              setFilters={setFilters}
+              setPage={setPage}
+              setSearch={setSearch}
+            />
+          </Box>
+        )}
         {renderItems()}
         {content && paginatedItems.totalPages > 1 && (
           <CustomPagination

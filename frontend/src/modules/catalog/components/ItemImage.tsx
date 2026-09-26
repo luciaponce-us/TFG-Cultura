@@ -3,15 +3,20 @@ import { Box, Image } from "@chakra-ui/react";
 
 import type { Item, ItemType } from "../types";
 import { getPlaceholder } from "../utils/item.utils";
+import type { RolSaga } from "../types/rolgame";
+import { PLACEHOLDER } from "@/modules/core/utils/utils";
 
-export function ItemImage<T extends Item>({
+export function ItemImage<T extends Item | RolSaga>({
   item,
   type,
 }: {
   item: T;
-  type: ItemType;
+  type?: ItemType;
 }) {
   const [hasImageError, setHasImageError] = useState(false);
+  const placeholderUrl = type ? getPlaceholder(type) : PLACEHOLDER.ROLSAGA;
+  const imageUrl = item.imageUrl ?? placeholderUrl;
+  
   return (
     <Box
       minH={0}
@@ -27,23 +32,23 @@ export function ItemImage<T extends Item>({
     >
       {hasImageError ? (
         <Image
-          src={getPlaceholder(type)}
+          src={placeholderUrl}
           alt={item.name}
           w="100%"
           h="100%"
           minH={0}
-          objectFit="contain"
+          objectFit="cover"
           borderRadius="md"
           aspectRatio="2/3"
         />
       ) : (
         <Image
-          src={item.imageUrl ?? getPlaceholder(type)}
+          src={imageUrl}
           alt={item.name}
           w="100%"
           h="100%"
           minH={0}
-          objectFit="contain"
+          objectFit="cover"
           borderRadius="md"
           aspectRatio="2/3"
           onError={() => setHasImageError(true)}

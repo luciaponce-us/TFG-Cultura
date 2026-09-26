@@ -12,7 +12,7 @@ import { deleteRolGame } from "../service/rolgame.service";
 
 export function useDeleteItem(
   id: string | undefined,
-  type: ItemType,
+  type: ItemType | undefined,
   onDeleteSuccess?: () => void,
 ) {
   const { token } = useAuth();
@@ -28,7 +28,7 @@ export function useDeleteItem(
         });
         return;
       }
-      if (!id) return undefined;
+      if (!id || !type) return undefined;
 
       switch (type) {
         case ITEM_TYPES.BOARD_GAME:
@@ -47,6 +47,7 @@ export function useDeleteItem(
     },
 
     onSuccess: async () => {
+      if (!type || !id) return;
       await queryClient.invalidateQueries({
         queryKey: [toQueryKey(type)],
       });

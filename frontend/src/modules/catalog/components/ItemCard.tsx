@@ -9,20 +9,21 @@ import { useAuth } from "@/modules/core/context/useAuth";
 import { ConfirmDialog, CustomButton } from "@/modules/core/components";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
-import { useDeleteItem } from "../hooks";
+import { useDeleteItem, useDeleteRolSaga } from "../hooks";
 import { CategoryTag } from "@/modules/categories/components/CategoryTag";
 import { useNavigate } from "react-router-dom";
 import { ItemImage } from "./ItemImage";
+import type { RolSaga } from "../types/rolgame";
 
-interface ItemCardProps<T extends Item> {
+interface ItemCardProps<T extends Item | RolSaga> {
   item: T;
-  type: ItemType;
+  type?: ItemType;
   CreateItemDialog: React.ComponentType<CreateItemDialogProps>;
   sagaId?: string;
   isSagaItem?: boolean;
 }
 
-export function ItemCard<T extends Item>({
+export function ItemCard<T extends Item | RolSaga>({
   item,
   type,
   CreateItemDialog,
@@ -31,10 +32,13 @@ export function ItemCard<T extends Item>({
 }: ItemCardProps<T>) {
   const { isAdmin } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const { mutateAsync: deleteItem, isPending: isDeleting } = useDeleteItem(
-    item.id,
-    type,
-  );
+  const isRolSaga = "website" in item;
+  const { mutateAsync: deleteItem, isPending: isDeletingItem } =
+    useDeleteItem(item.id, type);
+  const { mutateAsync: deleteRolSaga, isPending: isDeletingRolSaga } =
+    useDeleteRolSaga(isRolSaga ? item.id : undefined);
+  const deleteMutation = isRolSaga ? deleteRolSaga : deleteItem;
+  const isDeleting = isRolSaga ? isDeletingRolSaga : isDeletingItem;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const description: string =
     "author" in item ? (item.author as string) : item.description;
@@ -53,7 +57,7 @@ export function ItemCard<T extends Item>({
         key={item.id}
         onClick={() => {
           if (!isDeleting) {
-            void navigate(`/catalogo/${getItemTypeUrl(type)}/${item.id}`);
+            void navigate(type? `/catalogo/${getItemTypeUrl(type)}/${item.id}` : `/catalogo/rol/${item.id}`);
           }
         }}
         _hover={{
@@ -172,7 +176,7 @@ export function ItemCard<T extends Item>({
           setIsOpen={setIsDeleteDialogOpen}
           title="Confirmar eliminación"
           message={`¿Estás seguro de que quieres eliminar "${item.name}"? Esta acción no se puede deshacer.`}
-          handleAction={() => void deleteItem()}
+          handleAction={() => void deleteMutation()}
         />
       )}
     </>

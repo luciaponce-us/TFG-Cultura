@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 
 import {
   CustomInput,
@@ -33,12 +33,7 @@ import {
   validateRolSagaForm,
 } from "../../validations/rolsaga.validations";
 import { ItemImageInput } from "..";
-
-interface CreateRolSagaDialogProps {
-  readonly isOpen: boolean;
-  readonly setIsOpen: Dispatch<SetStateAction<boolean>>;
-  readonly rolSagaId?: string;
-}
+import type { CreateRolSagaDialogProps } from "../../types/props";
 
 export function CreateRolSagaDialog({
   isOpen,
