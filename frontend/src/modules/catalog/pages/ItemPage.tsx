@@ -7,6 +7,8 @@ import {
   Text,
   Box,
   Spinner,
+  HStack,
+  Separator,
 } from "@chakra-ui/react";
 import { CustomButton, toaster } from "@/modules/core/components";
 import { useState } from "react";
@@ -96,7 +98,9 @@ export function ItemPage<T extends Item>({
             py={4}
             gap={6}
           >
-            <VStack w="100%" align="start" gap={2}>
+            <VStack w="100%" align="start" gap={4}>
+              <HStack w="100%" justify="space-between" align="center">
+                <VStack align="start" gap={1}>
               <Heading as="h1" wordBreak="break-word">
                 {item.name}
               </Heading>
@@ -110,6 +114,21 @@ export function ItemPage<T extends Item>({
                   {subtitle}
                 </Text>
               )}
+              </VStack>
+              <CustomButton
+                onClick={() =>
+                  toaster.create({
+                    title: "Funcionalidad en desarrollo",
+                    description: "Esta funcionalidad aún no está disponible.",
+                  })
+                }
+                w="fit-content"
+                disabled={!item.loanAvailable}
+              >
+                Solicitar préstamo
+              </CustomButton>
+              </HStack>
+
               <ItemDescription description={item.description} />
               <Box
                 display="flex"
@@ -123,21 +142,12 @@ export function ItemPage<T extends Item>({
                     <CategoryTag key={category.id} category={category} />
                   ))}
               </Box>
+              <Separator w="100%" />
+              <Heading as="h2" size="sm">Más información</Heading>
               {extraInfo}
             </VStack>
             <Box alignSelf="center">
-              <CustomButton
-                onClick={() =>
-                  toaster.create({
-                    title: "Funcionalidad en desarrollo",
-                    description: "Esta funcionalidad aún no está disponible.",
-                  })
-                }
-                w="fit-content"
-                disabled={!item.loanAvailable}
-              >
-                Solicitar préstamo
-              </CustomButton>
+              
             </Box>
           </VStack>
         </Grid>
