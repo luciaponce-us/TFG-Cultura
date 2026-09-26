@@ -1,6 +1,6 @@
-import { AspectRatio, Box, Grid, HStack, Text, VStack } from "@chakra-ui/react";
+import { Box, Grid, HStack, Text } from "@chakra-ui/react";
 import { useMovie, useMoviesBySaga, useSaga } from "../hooks";
-import { CreateMovieDialog, MoreItemsFromSaga } from "../components";
+import { CreateMovieDialog, ItemTrailer, MoreItemsFromSaga } from "../components";
 import { useParams } from "react-router-dom";
 import { ITEM_TYPES } from "../types";
 import { ItemPage } from "./ItemPage";
@@ -61,20 +61,7 @@ function ExtraInfo({
           </HStack>
         </Box>
         {movie.trailerUrl && (
-          <VStack align="start" gap={2}>
-            <AspectRatio
-              ratio={16 / 9}
-              w="100%"
-              borderRadius="md"
-              overflow="hidden"
-            >
-              <iframe
-                src={movie.trailerUrl}
-                title={`Trailer de ${movie.name}`}
-                allowFullScreen
-              />
-            </AspectRatio>
-          </VStack>
+          <ItemTrailer item={movie} trailerUrl={movie.trailerUrl} />
         )}
       </Grid>
     </>

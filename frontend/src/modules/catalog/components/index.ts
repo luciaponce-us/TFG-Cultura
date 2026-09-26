@@ -14,3 +14,4 @@ export { SagaCard } from "./SagaCard";
 export { AdminItemInfoSideBar } from "./AdminItemInfoSideBar";
 export { ItemDescription } from "./ItemDescription";
 export { MoreItemsFromSaga } from "./MoreItemsFromSaga";
+export { ItemTrailer } from "./ItemTrailer";
