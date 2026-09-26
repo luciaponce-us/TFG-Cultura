@@ -4,7 +4,7 @@ import { CreateMovieDialog, MoreItemsFromSaga } from "../components";
 import { useParams } from "react-router-dom";
 import { ITEM_TYPES } from "../types";
 import { ItemPage } from "./ItemPage";
-import { parseDate, PLACEHOLDER } from "@/modules/core/utils/utils";
+import { parseDate } from "@/modules/core/utils/utils";
 import type { Movie } from "../types/movie";
 import type { Saga } from "../types/saga";
 
@@ -21,7 +21,6 @@ export function MoviePage() {
       isError={isError}
       itemId={movieId ?? ""}
       itemType={ITEM_TYPES.MOVIE}
-      placeholderImage={PLACEHOLDER.MOVIE}
       errorMessage="Ha ocurrido un error al cargar la película. Vuelve a intentarlo más tarde."
       CreateItemDialogComponent={CreateMovieDialog}
       subtitle={Subtitle({ movie })}

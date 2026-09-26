@@ -1,4 +1,4 @@
-import type { Item, ItemCondition, ItemRequest } from "../types";
+import { ITEM_TYPES, type Item, type ItemCondition, type ItemRequest, type ItemType } from "../types";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
 import type { Book, BookRequest } from "../types/book";
 import type { Movie, MovieRequest } from "../types/movie";
@@ -11,6 +11,7 @@ import type {
 import type { Format } from "../types/movie";
 import type { Series, SeriesRequest } from "../types/series";
 import type { VideoGame, VideoGameRequest } from "../types/videogame";
+import { PLACEHOLDER } from "@/modules/core/utils/utils";
 
 function toFormatValue(format: string): Format {
   switch (format) {
@@ -140,4 +141,21 @@ export function parsePrice(price: number): string {
     style: "currency",
     currency: "EUR",
   });
+}
+
+export function getPlaceholder(itemType: ItemType): string {
+  switch (itemType) {
+    case ITEM_TYPES.BOARD_GAME:
+      return PLACEHOLDER.BOARDGAME;
+    case ITEM_TYPES.BOOK:
+      return PLACEHOLDER.BOOK;
+    case ITEM_TYPES.MOVIE:
+      return PLACEHOLDER.MOVIE;
+    case ITEM_TYPES.ROL_GAME:
+      return PLACEHOLDER.ROLGAME;
+    case ITEM_TYPES.SERIES:
+      return PLACEHOLDER.SERIES;
+    case ITEM_TYPES.VIDEO_GAME:
+      return PLACEHOLDER.VIDEOGAME;
+  }
 }

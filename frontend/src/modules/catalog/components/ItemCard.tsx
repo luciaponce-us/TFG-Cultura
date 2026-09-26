@@ -1,4 +1,4 @@
-import { Box, HStack, Image, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import {
   getItemTypeUrl,
   type CreateItemDialogProps,
@@ -10,9 +10,9 @@ import { ConfirmDialog, CustomButton } from "@/modules/core/components";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { useDeleteItem } from "../hooks";
-import { PLACEHOLDER } from "@/modules/core/utils/utils";
 import { CategoryTag } from "@/modules/categories/components/CategoryTag";
 import { useNavigate } from "react-router-dom";
+import { ItemImage } from "./ItemImage";
 
 interface ItemCardProps<T extends Item> {
   item: T;
@@ -83,14 +83,11 @@ export function ItemCard<T extends Item>({
           h="100%"
           minH={0}
         >
-          <Image
-            src={item.imageUrl ?? PLACEHOLDER.ROLSAGA}
-            alt={item.name}
-            minH={0}
-            objectFit="contain"
-            borderRadius="md"
-            aspectRatio="2/3"
+          <ItemImage
+            item={item}
+            type={type}
           />
+          
           <VStack
             align="space-between"
             justify="space-between"

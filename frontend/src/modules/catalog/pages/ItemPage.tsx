@@ -14,6 +14,7 @@ import { AdminItemInfoSideBar, ItemDescription } from "../components";
 import { useAuth } from "@/modules/core/context/useAuth";
 import { CategoryTag } from "@/modules/categories/components/CategoryTag";
 import type { CreateItemDialogProps, Item, ItemType } from "../types";
+import { ItemImage } from "../components/ItemImage";
 
 interface ItemPageProps<T extends Item> {
   item: T | undefined;
@@ -21,7 +22,6 @@ interface ItemPageProps<T extends Item> {
   isError: boolean;
   itemId: string;
   itemType: ItemType;
-  placeholderImage: string;
   errorMessage: string;
   CreateItemDialogComponent: React.ComponentType<CreateItemDialogProps>;
   subtitle?: string | React.ReactNode;
@@ -36,7 +36,6 @@ export function ItemPage<T extends Item>({
   isError,
   itemId,
   itemType,
-  placeholderImage,
   errorMessage,
   CreateItemDialogComponent,
   subtitle,
@@ -87,16 +86,7 @@ export function ItemPage<T extends Item>({
           h="fit-content"
           justifyContent="top"
         >
-          <Image
-            src={item.imageUrl ?? placeholderImage}
-            alt={item.name}
-            width="auto"
-            maxH={{ base: "50vh", md: "500px" }}
-            minH={0}
-            borderRadius="md"
-            aspectRatio="2/3"
-            justifySelf="center"
-          />
+          <ItemImage item={item} type={itemType} />
 
           <VStack
             w="100%"

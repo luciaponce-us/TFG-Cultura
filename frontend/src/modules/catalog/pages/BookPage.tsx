@@ -7,7 +7,6 @@ import type { Saga } from "../types/saga";
 import type { Book } from "../types/book";
 import { parseBookType } from "../utils/books.utils";
 import { ItemPage } from "./ItemPage";
-import { PLACEHOLDER } from "@/modules/core/utils/utils";
 
 export function BookPage() {
   const { bookId } = useParams<{ bookId: string }>();
@@ -21,7 +20,6 @@ export function BookPage() {
       isError={isError}
       itemId={bookId ?? ""}
       itemType={ITEM_TYPES.BOOK}
-      placeholderImage={PLACEHOLDER.BOOK}
       errorMessage="Ha ocurrido un error al cargar el libro. Vuelve a intentarlo más tarde."
       CreateItemDialogComponent={CreateBookDialog}
       subtitle={Subtitle({ book })}

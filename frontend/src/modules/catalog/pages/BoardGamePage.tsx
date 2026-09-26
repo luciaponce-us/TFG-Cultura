@@ -4,7 +4,6 @@ import { CreateBoardGameDialog } from "../components";
 import { useParams } from "react-router-dom";
 import { ITEM_TYPES } from "../types";
 import { ItemPage } from "./ItemPage";
-import { PLACEHOLDER } from "@/modules/core/utils/utils";
 import type { BoardGame } from "../types/boardgame";
 import {
   IconChartPie4,
@@ -29,7 +28,6 @@ export function BoardGamePage() {
       isError={isError}
       itemId={boardGameId ?? ""}
       itemType={ITEM_TYPES.BOARD_GAME}
-      placeholderImage={PLACEHOLDER.BOARDGAME}
       errorMessage="Ha ocurrido un error al cargar el juego de mesa. Vuelve a intentarlo más tarde."
       CreateItemDialogComponent={CreateBoardGameDialog}
       subtitle={Subtitle({ boardGame })}
