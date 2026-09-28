@@ -3,17 +3,13 @@
   "private": true,
   "version": "1.1.0",
   "type": "module",
-  "standard-version": {
-    "infile": "../docs/CHANGELOG.md"
-  },
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
     "preview": "vite preview",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "release": "standard-version"
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@chakra-ui/react": "^3.37.0",
