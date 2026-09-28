@@ -1,6 +1,7 @@
 package com.tfg.cultura.api.core.exception;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ public class ApiErrorBuilder {
 
 		String finalMessage = (message != null && !message.equals("")) ? message : ex.getMessage();
 
-		ApiError response = ApiError.builder().timestamp(LocalDateTime.now()).status(status.value()).errors(null)
+		ApiError response = ApiError.builder().timestamp(LocalDateTime.now(ZoneId.of("Europe/Madrid"))).status(status.value()).errors(null)
 				.message(finalMessage).build();
 
 		logger.warn("HTTP {} - {}: {}", status, ex.getClass().getSimpleName(), ex.getMessage());

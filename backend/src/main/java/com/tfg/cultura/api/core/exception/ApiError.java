@@ -1,6 +1,7 @@
 package com.tfg.cultura.api.core.exception;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -21,14 +22,14 @@ public class ApiError {
 	private String message;
 
 	public ApiError(ApiException exception) {
-		this.timestamp = LocalDateTime.now();
+		this.timestamp = LocalDateTime.now(ZoneId.of("Europe/Madrid"));
 		this.status = exception.getStatus().value();
 		this.errors = exception instanceof FieldException fieldException ? fieldException.getErrors() : null;
 		this.message = exception.getMessage();
 	}
 
 	public ApiError(FieldException exception) {
-		this.timestamp = LocalDateTime.now();
+		this.timestamp = LocalDateTime.now(ZoneId.of("Europe/Madrid"));
 		this.status = exception.getStatus().value();
 		this.errors = exception.getErrors();
 		this.message = exception.getMessage();
