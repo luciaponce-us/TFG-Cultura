@@ -9,6 +9,7 @@ import {
   Spinner,
   HStack,
   Separator,
+  Link,
 } from "@chakra-ui/react";
 import { CustomButton, toaster } from "@/modules/core/components";
 import { useState } from "react";
@@ -115,19 +116,11 @@ export function ItemPage<T extends Item>({
                     </Text>
                   )}
                 </VStack>
-                <CustomButton
-                  onClick={() =>
-                    toaster.create({
-                      title: "Funcionalidad en desarrollo",
-                      description: "Esta funcionalidad aún no está disponible.",
-                    })
-                  }
-                  w="fit-content"
-                  disabled={!item.loanAvailable}
-                >
-                  Solicitar préstamo
-                </CustomButton>
+                <LoanButton item={item} hideBelow="md"/>
               </HStack>
+              <Box alignSelf="flex-end">
+              <LoanButton item={item} hideFrom="md"/>
+              </Box>
 
               <ItemDescription description={item.description} />
               <Box
@@ -186,7 +179,9 @@ export function ItemPage<T extends Item>({
           minW={{ base: "100%", md: "800px" }}
           h="fit-content"
           gap={6}
+          direction="column"
         >
+          <Link onClick={() => window.history.back()} color="principal.800">🡰 Volver atrás</Link>
           {content}
         </Flex>
       </Grid>
@@ -200,4 +195,23 @@ export function ItemPage<T extends Item>({
       )}
     </>
   );
+}
+
+function LoanButton<T extends Item>({ item, hideBelow, hideFrom }: { item: T; hideBelow?: "sm" | "md" | "lg" | "xl"; hideFrom?: "sm" | "md" | "lg" | "xl" }) {
+return (
+  <CustomButton
+                  onClick={() =>
+                    toaster.create({
+                      title: "Funcionalidad en desarrollo",
+                      description: "Esta funcionalidad aún no está disponible.",
+                    })
+                  }
+                  w="fit-content"
+                  disabled={!item.loanAvailable}
+                  hideBelow={hideBelow}
+                  hideFrom={hideFrom}
+                >
+                  Solicitar préstamo
+                </CustomButton>
+)
 }

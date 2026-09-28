@@ -1,6 +1,7 @@
 import {
   MAX_LENGTH as MAX_LENGTH_ITEM,
   validateItemForm,
+  validateYouTubeEmbedUrl,
 } from "@/modules/catalog/validations/item.validations";
 import type {
   Platform,
@@ -58,5 +59,5 @@ function validateReleaseDate(value: string): string | undefined {
 function validateTrailerUrl(value: string): string | undefined {
   if (value.length > MAX_LENGTH.TRAILER_URL)
     return `La URL del tráiler no puede superar los ${MAX_LENGTH.TRAILER_URL} caracteres.`;
-  return;
+  return validateYouTubeEmbedUrl(value);
 }

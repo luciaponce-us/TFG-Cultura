@@ -1,6 +1,7 @@
 import { AspectRatio, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 import type { Item } from "../types";
+import { validateYouTubeEmbedUrl } from "../validations/item.validations";
 
 export function ItemTrailer({
   item,
@@ -10,11 +11,12 @@ export function ItemTrailer({
   trailerUrl: string;
 }) {
   const [isIframeError, setIsIframeError] = useState(false);
+  const isValidUrl = validateYouTubeEmbedUrl(trailerUrl) === undefined;
 
   return (
     <VStack align="start" gap={2} w={{ base: "100%", md: "320px" }}>
       <AspectRatio ratio={16 / 9} w="100%" borderRadius="md" overflow="hidden">
-        {isIframeError ? (
+        {isIframeError || !isValidUrl ? (
           <VStack
             w="100%"
             h="100%"

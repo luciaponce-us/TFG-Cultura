@@ -42,6 +42,7 @@ import {
   BoardGamePage,
   MoviePage,
   SeriePage,
+  VideoGamePage,
 } from "@/modules/catalog/pages";
 
 import { CategoriesPage } from "@/modules/categories/pages";
@@ -102,6 +103,10 @@ export default function App() {
               <Route
                 path="/catalogo/videojuegos"
                 element={<VideoGamesPage />}
+              />
+              <Route
+                path="/catalogo/videojuegos/:videoGameId"
+                element={<VideoGamePage />}
               />
               {/* PERFIL */}
               <Route path="/perfil" element={<ProfilePage />} />

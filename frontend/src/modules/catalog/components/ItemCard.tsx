@@ -14,6 +14,8 @@ import { CategoryTag } from "@/modules/categories/components/CategoryTag";
 import { useNavigate } from "react-router-dom";
 import { ItemImage } from "./ItemImage";
 import type { RolSaga } from "../types/rolgame";
+import { parsePlatform } from "../utils/videogames.utils";
+import type { Platform } from "../types/videogame";
 
 interface ItemCardProps<T extends Item | RolSaga> {
   item: T;
@@ -42,8 +44,16 @@ export function ItemCard<T extends Item | RolSaga>({
   const deleteMutation = isRolSaga ? deleteRolSaga : deleteItem;
   const isDeleting = isRolSaga ? isDeletingRolSaga : isDeletingItem;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const description: string =
-    "author" in item ? (item.author as string) : item.description;
+  function getDescription(item: Item | RolSaga): string {
+    if ("author" in item) {
+      return item.author as string;
+    } else if ("platform" in item) {
+      return parsePlatform(item.platform as Platform);
+    } else {
+      return item.description;
+    }
+  }
+  const description: string = getDescription(item);
   const navigate = useNavigate();
   return (
     <>

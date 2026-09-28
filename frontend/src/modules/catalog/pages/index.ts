@@ -15,3 +15,4 @@ export { BookPage } from "./BookPage";
 export { MoviePage } from "./MoviePage";
 export { RolSagaPage } from "./RolSagaPage";
 export { SeriePage } from "./SeriePage";
+export { VideoGamePage } from "./VideoGamePage";
