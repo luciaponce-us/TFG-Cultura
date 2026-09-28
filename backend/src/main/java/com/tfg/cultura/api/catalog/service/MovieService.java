@@ -2,7 +2,6 @@ package com.tfg.cultura.api.catalog.service;
 
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
@@ -12,6 +11,7 @@ import com.tfg.cultura.api.catalog.model.dto.MovieResponse;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.time.LocalDate;
@@ -51,14 +51,14 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
 		checkUniqueNameReleaseYearAndFormat(item);
 	}
 
-	private void checkUniqueNameReleaseYearAndFormat(Movie item) throws ItemAlreadyExistsException {
+	private void checkUniqueNameReleaseYearAndFormat(Movie item) throws DuplicationException {
 		Optional<Movie> existingMovie = repository.findByNameAndFormat(item.getName(), item.getFormat());
 
 		if (existingMovie.isPresent() && !existingMovie.get().getId().equals(item.getId())) {
 			LocalDate existingReleaseDate = existingMovie.get().getMovieInfo().getReleaseDate();
 			boolean sameReleaseYear = existingReleaseDate.getYear() == item.getMovieInfo().getReleaseDate().getYear();
 			if (sameReleaseYear) {
-				throw new ItemAlreadyExistsException(
+				throw new DuplicationException(logger,
 						Map.of("name", "Ya existe una película con el mismo nombre, año de estreno y formato"));
 			}
 		}

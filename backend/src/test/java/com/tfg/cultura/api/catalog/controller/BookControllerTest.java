@@ -13,8 +13,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
@@ -22,6 +20,8 @@ import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.service.BookService;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.factory.FileFactory;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +32,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +44,8 @@ class BookControllerTest extends BaseControllerTest {
 
 	@Mock
 	private BookService bookService;
+
+	private static final Logger logger = LoggerFactory.getLogger("testLogger");
 
 	private static final String BASE_URL = "/api/catalog/books";
 	private static final String BOOK_URL = BASE_URL + "/{id}";
@@ -104,7 +108,7 @@ class BookControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_conflict_when_book_already_exists() throws Exception {
 		when(bookService.create(any(BookRequest.class), any()))
-				.thenThrow(new ItemAlreadyExistsException(Map.of("isbn", "El ISBN ya existe")));
+				.thenThrow(new DuplicationException(logger, Map.of("isbn", "El ISBN ya existe")));
 
 		MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
 
@@ -140,7 +144,7 @@ class BookControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_book_is_not_found() throws Exception {
-		when(bookService.getById(anyString())).thenThrow(new ItemNotFoundException("El libro no existe"));
+			when(bookService.getById(anyString())).thenThrow(new NotFoundException("El libro no existe", logger));
 
 		mockMvc.perform(get(BOOK_URL, "missing-id")).andExpect(status().isNotFound());
 
@@ -200,7 +204,7 @@ class BookControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_deleting_book_that_does_not_exist() throws Exception {
-		doThrow(new ItemNotFoundException("El libro no existe")).when(bookService).delete(anyString());
+			doThrow(new NotFoundException("El libro no existe", logger)).when(bookService).delete(anyString());
 
 		mockMvc.perform(delete(BOOK_URL, "missing-id")).andExpect(status().isNotFound());
 

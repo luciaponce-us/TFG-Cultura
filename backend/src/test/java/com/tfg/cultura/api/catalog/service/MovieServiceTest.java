@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
@@ -15,6 +14,7 @@ import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.enumerators.Format;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
+import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.time.LocalDate;
@@ -58,7 +58,7 @@ class MovieServiceTest {
 		when(movieRepository.findByNameAndFormat(currentMovie.getName(), currentMovie.getFormat()))
 				.thenReturn(Optional.of(existingMovie));
 
-		assertThrows(ItemAlreadyExistsException.class, () -> service.validate(currentMovie));
+		assertThrows(DuplicationException.class, () -> service.validate(currentMovie));
 
 		verify(movieRepository).findByNameAndFormat(currentMovie.getName(), currentMovie.getFormat());
 	}

@@ -15,13 +15,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieResponse;
 import com.tfg.cultura.api.catalog.service.MovieService;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.factory.FileFactory;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +32,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +44,8 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Mock
 	private MovieService movieService;
+
+	private static final Logger logger = LoggerFactory.getLogger("testLogger");
 
 	private static final String BASE_URL = "/api/catalog/movies";
 	private static final String MOVIE_URL = BASE_URL + "/{id}";
@@ -104,8 +108,7 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_conflict_when_movie_already_exists() throws Exception {
-		when(movieService.create(any(MovieRequest.class), any())).thenThrow(new ItemAlreadyExistsException(
-				Map.of("movie", "Ya existe una película con el mismo nombre, año de estreno y formato")));
+		when(movieService.create(any(MovieRequest.class), any())).thenThrow(new DuplicationException(logger, Map.of("movie", "Ya existe una película con el mismo nombre, año de estreno y formato")));
 
 		MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
 
@@ -141,7 +144,7 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_movie_is_not_found() throws Exception {
-		when(movieService.getById(anyString())).thenThrow(new ItemNotFoundException("La película no existe"));
+			when(movieService.getById(anyString())).thenThrow(new NotFoundException("La película no existe", logger));
 
 		mockMvc.perform(get(MOVIE_URL, "missing-id")).andExpect(status().isNotFound());
 
@@ -187,7 +190,7 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_deleting_movie_that_does_not_exist() throws Exception {
-		doThrow(new ItemNotFoundException("La película no existe")).when(movieService).delete(anyString());
+			doThrow(new NotFoundException("La película no existe", logger)).when(movieService).delete(anyString());
 
 		mockMvc.perform(delete(MOVIE_URL, "missing-id")).andExpect(status().isNotFound());
 
@@ -213,8 +216,7 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_conflict_when_updating_movie_that_already_exists() throws Exception {
-		when(movieService.update(anyString(), any(MovieRequest.class), any())).thenThrow(new ItemAlreadyExistsException(
-				Map.of("movie", "Ya existe una película con el mismo nombre, año de estreno y formato")));
+		when(movieService.update(anyString(), any(MovieRequest.class), any())).thenThrow(new DuplicationException(logger, Map.of("movie", "Ya existe una película con el mismo nombre, año de estreno y formato")));
 
 		MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
 

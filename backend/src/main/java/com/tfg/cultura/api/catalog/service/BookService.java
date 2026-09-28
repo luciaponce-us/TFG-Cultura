@@ -2,7 +2,6 @@ package com.tfg.cultura.api.catalog.service;
 
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
@@ -12,6 +11,7 @@ import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.Map;
@@ -52,13 +52,13 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 		checkUniqueIsbn(item);
 	}
 
-	private void checkUniqueIsbn(Book item) throws ItemAlreadyExistsException {
+	private void checkUniqueIsbn(Book item) throws DuplicationException {
 		String isbn = item.getIsbn();
 		boolean isbnExists = item.getId() == null
 				? repository.existsByIsbn(isbn)
 				: repository.existsByIsbnAndIdNot(isbn, item.getId());
 		if (isbn != null && isbnExists) {
-			throw new ItemAlreadyExistsException(
+			throw new DuplicationException(logger,
 					Map.of("isbn", "El ISBN " + sanitize(isbn) + " ya existe en otro libro."));
 		}
 	}

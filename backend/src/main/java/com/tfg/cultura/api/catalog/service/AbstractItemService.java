@@ -2,13 +2,13 @@ package com.tfg.cultura.api.catalog.service;
 
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Item;
 import com.tfg.cultura.api.catalog.model.dto.ItemRequest;
 import com.tfg.cultura.api.catalog.repository.AbstractItemRepository;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.exception.file.FileUploadException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.service.SectionService;
@@ -38,16 +38,16 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 	private final Function<T, S> mapper;
 
 	@Override
-	public T findById(String id) throws ItemNotFoundException {
+	public T findById(String id) throws NotFoundException {
 		return repository.findById(id).orElseThrow(() -> {
 			logger.error("Item no encontrado con ID: {}", sanitize(id));
-			return new ItemNotFoundException("Item no encontrado con ID: " + sanitize(id));
+			return new NotFoundException("Item no encontrado con ID: " + sanitize(id), logger);
 		});
 
 	}
 
 	@Override
-	public S getById(String id) throws ItemNotFoundException {
+	public S getById(String id) throws NotFoundException {
 		T item = findById(id);
 		return mapper.apply(item);
 	}
@@ -142,7 +142,7 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 	@Override
 	@Transactional
 	public S update(String id, C request, MultipartFile image)
-			throws ItemNotFoundException, FileUploadException, IllegalArgumentException {
+			throws NotFoundException, FileUploadException, IllegalArgumentException {
 		T existingItem = findById(id);
 
 		fillItemFields(existingItem, request, getLoanDays(request));
@@ -165,7 +165,7 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 		return mapper.apply(updatedItemWithImage);
 	}
 
-	protected void postUpdateActions(T oldItem, T updatedItem) throws ItemNotFoundException, IllegalArgumentException {
+	protected void postUpdateActions(T oldItem, T updatedItem) throws NotFoundException, IllegalArgumentException {
 		// Default implementation - can be overridden by subclasses
 	};
 

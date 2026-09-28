@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.dto.BoardGameRequest;
 import com.tfg.cultura.api.catalog.repository.BoardGameRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.Optional;
@@ -133,7 +133,7 @@ class BoardGameServiceTest {
 		BoardGame newBoardGame = service.createEntity();
 		when(boardGameRepository.findById(request.getBaseGameId())).thenReturn(Optional.empty());
 
-		assertThrows(ItemNotFoundException.class, () -> service.fillSpecificFields(newBoardGame, request));
+		assertThrows(NotFoundException.class, () -> service.fillSpecificFields(newBoardGame, request));
 	}
 
 	@Test

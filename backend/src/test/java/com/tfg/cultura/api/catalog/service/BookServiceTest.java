@@ -12,7 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
@@ -21,6 +20,7 @@ import com.tfg.cultura.api.catalog.model.enumerators.BookType;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
+import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.List;
@@ -61,7 +61,7 @@ class BookServiceTest {
 
 		when(bookRepository.existsByIsbn("9781234567890")).thenReturn(true);
 
-		assertThrows(ItemAlreadyExistsException.class, () -> service.validate(book));
+		assertThrows(DuplicationException.class, () -> service.validate(book));
 	}
 
 	@Test

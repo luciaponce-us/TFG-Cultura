@@ -12,7 +12,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
@@ -22,6 +21,7 @@ import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.factory.AppPropertiesFactory;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
@@ -154,7 +154,7 @@ class AbstractItemServiceTest {
 	void should_throw_when_book_does_not_exist() {
 		when(repository.findById("book-id")).thenReturn(Optional.empty());
 
-		ItemNotFoundException exception = assertThrows(ItemNotFoundException.class, () -> service.findById("book-id"));
+				NotFoundException exception = assertThrows(NotFoundException.class, () -> service.findById("book-id"));
 
 		assertEquals("Item no encontrado con ID: book-id", exception.getMessage());
 
@@ -182,7 +182,7 @@ class AbstractItemServiceTest {
 
 		when(repository.findById("1")).thenReturn(Optional.empty());
 
-		assertThrows(ItemNotFoundException.class, () -> service.getById("1"));
+			assertThrows(NotFoundException.class, () -> service.getById("1"));
 	}
 
 	@Test
@@ -234,7 +234,7 @@ class AbstractItemServiceTest {
 	void should_throw_when_updating_non_existing_book() {
 		when(repository.findById("1")).thenReturn(Optional.empty());
 
-		assertThrows(ItemNotFoundException.class, () -> service.update("1", request, null));
+			assertThrows(NotFoundException.class, () -> service.update("1", request, null));
 	}
 
 	@Test
@@ -282,7 +282,7 @@ class AbstractItemServiceTest {
 
 		when(repository.findById("1")).thenReturn(Optional.empty());
 
-		assertThrows(ItemNotFoundException.class, () -> service.delete("1"));
+			assertThrows(NotFoundException.class, () -> service.delete("1"));
 
 		verify(repository).findById("1");
 		verify(repository, never()).delete(any());

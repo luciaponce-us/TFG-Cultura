@@ -2,13 +2,13 @@ package com.tfg.cultura.api.catalog.service;
 
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.model.VideoGame;
 import com.tfg.cultura.api.catalog.model.dto.VideoGameRequest;
 import com.tfg.cultura.api.catalog.model.dto.VideoGameResponse;
 import com.tfg.cultura.api.catalog.repository.VideoGameRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.time.LocalDate;
@@ -54,10 +54,10 @@ public class VideoGameService
 		}
 	}
 
-	private void checkUniqueNameAndPlatform(VideoGame item) {
+	private void checkUniqueNameAndPlatform(VideoGame item) throws DuplicationException {
 		boolean exists = repository.existsByNameAndPlatform(item.getName(), item.getPlatform());
 		if (exists) {
-			throw new ItemAlreadyExistsException(
+			throw new DuplicationException(logger,
 					Map.of("name", "Ya existe un videojuego con el mismo nombre y plataforma", "platform",
 							"Ya existe un videojuego con el mismo nombre y plataforma"));
 		}

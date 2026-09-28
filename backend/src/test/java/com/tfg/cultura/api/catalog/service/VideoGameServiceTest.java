@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.VideoGame;
 import com.tfg.cultura.api.catalog.model.dto.VideoGameRequest;
 import com.tfg.cultura.api.catalog.repository.VideoGameRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.factory.AppPropertiesFactory;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
@@ -82,7 +82,7 @@ class VideoGameServiceTest {
 		when(videoGameRepository.existsByNameAndPlatform(videoGame.getName(), videoGame.getPlatform()))
 				.thenReturn(true);
 
-		assertThrows(ItemAlreadyExistsException.class, () -> service.validate(videoGame));
+		assertThrows(DuplicationException.class, () -> service.validate(videoGame));
 	}
 
 	// fillSpecificFields
