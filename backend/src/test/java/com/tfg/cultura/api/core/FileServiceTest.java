@@ -54,8 +54,14 @@ public class FileServiceTest {
 		MockMultipartFile file = new MockMultipartFile("file", "photo.jpg", "image/jpeg",
 				"content".getBytes(StandardCharsets.UTF_8));
 
-		FileUploadRequest request = FileUploadRequest.builder().file(file).folder("users").publicId("user-123")
-				.overwrite(false).resourceType("image").build();
+		FileUploadRequest request = FileUploadRequest.builder()
+				.file(file)
+				.folder("users")
+				.className("user")
+				.id("123")
+				.overwrite(false)
+				.resourceType("image")
+				.build();
 
 		Map<String, Object> uploadResult = new HashMap<>();
 		uploadResult.put("secure_url", "https://cdn.example.com/file.png");
@@ -77,7 +83,7 @@ public class FileServiceTest {
 		assertEquals("image", options.get("resource_type"));
 		assertEquals("upload", options.get("type"));
 		assertEquals(false, options.get("overwrite"));
-		assertEquals("user-123", options.get("public_id"));
+		assertEquals("user_123", options.get("public_id"));
 	}
 
 	@Test

@@ -3,6 +3,7 @@ package com.tfg.cultura.api.users.service;
 import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.exception.file.InvalidFileTypeException;
+import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.service.FileService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +25,32 @@ public class UserFileService {
 	private static final String PAYMENT_FOLDER = "cultura/payment_receipts";
 
 	protected String uploadAvatar(String userId, MultipartFile file) throws FileUploadException {
-		return fileService.uploadImage("user", userId, file, AVATAR_FOLDER, AVATAR_PLACEHOLDER, 300, 300, logger,
-				"avatar");
+		FileUploadRequest request = FileUploadRequest.builder()
+				.id(userId)
+				.className("user")
+				.file(file)
+				.folder(AVATAR_FOLDER)
+				.defaultFileUrl(AVATAR_PLACEHOLDER)
+				.width(300)
+				.height(300)
+				.resourceType("image")
+				.field("avatar")
+				.build();
+		return fileService.uploadImage(request, logger);
 	}
 
 	protected String uploadPaymentReceiptPdf(String userId, MultipartFile file) throws FileUploadException {
 		validatePaymentReceipt(file);
-		return fileService.uploadPdf("payment", userId, file, PAYMENT_FOLDER, PAYMENT_RECEIPT_PLACEHOLDER, logger,
-				"paymentReceipt");
+		FileUploadRequest request = FileUploadRequest.builder()
+				.id(userId)
+				.className("user")
+				.file(file)
+				.folder(PAYMENT_FOLDER)
+				.defaultFileUrl(PAYMENT_RECEIPT_PLACEHOLDER)
+				.resourceType("raw")
+				.field("paymentReceipt")
+				.build();
+		return fileService.uploadPdf(request, logger);
 	}
 
 	protected void validateAvatar(MultipartFile file) {

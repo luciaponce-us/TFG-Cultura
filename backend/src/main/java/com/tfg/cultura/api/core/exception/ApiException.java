@@ -10,7 +10,7 @@ public abstract class ApiException extends RuntimeException {
 	private final transient Logger logger;
 	private final HttpStatus status;
 
-	public ApiException(String message, Logger logger, HttpStatus status) {
+	protected ApiException(String message, Logger logger, HttpStatus status) {
 		super(message);
 		this.logger = logger;
 		this.status = status;

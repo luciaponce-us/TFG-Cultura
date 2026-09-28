@@ -8,6 +8,7 @@ import com.tfg.cultura.api.catalog.repository.AbstractItemRepository;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.exception.file.FileUploadException;
+import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
@@ -27,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public abstract class AbstractItemService<T extends Item, R extends AbstractItemRepository<T>, C extends ItemRequest, S>
 		implements
-			ItemServiceInterface<T, C, S> {
+		ItemServiceInterface<T, C, S> {
 
 	protected static final Logger logger = LoggerFactory.getLogger("catalogLogger");
 
@@ -91,15 +92,30 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 
 		T savedItem = repository.save(item);
 
-		String imageUrl = fileService.uploadImage("item", savedItem.getId(), image, getImageFolder(),
-				getDefaultImageUrl(), 400, 600, logger, "imageUrl");
+		if (image == null || image.isEmpty()) {
+			postCreationActions(savedItem);
+			return mapper.apply(savedItem);
+		} else {
+			FileUploadRequest imageRequest = FileUploadRequest.builder()
+					.file(image)
+					.folder(getImageFolder())
+					.className("item")
+					.id(savedItem.getId())
+					.width(400)
+					.height(600)
+					.defaultFileUrl(getDefaultImageUrl())
+					.field("imageUrl")
+					.build();
 
-		savedItem.setImageUrl(imageUrl);
-		T savedItemWithImage = repository.save(savedItem);
+			String imageUrl = fileService.uploadImage(imageRequest, logger);
 
-		postCreationActions(savedItemWithImage);
+			savedItem.setImageUrl(imageUrl);
+			T savedItemWithImage = repository.save(savedItem);
 
-		return mapper.apply(savedItemWithImage);
+			postCreationActions(savedItemWithImage);
+
+			return mapper.apply(savedItemWithImage);
+		}
 	}
 
 	protected abstract T createEntity();
@@ -155,14 +171,30 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 
 		T updatedItem = repository.save(existingItem);
 
-		String newImageUrl = fileService.updateImage(existingItem.getImageUrl(), "item", id, image, getImageFolder(),
-				getDefaultImageUrl(), 400, 600, logger, "imageUrl");
-		updatedItem.setImageUrl(newImageUrl);
-		T updatedItemWithImage = repository.save(updatedItem);
+		if (image == null || image.isEmpty()) {
+			postUpdateActions(existingItem, updatedItem);
+			return mapper.apply(updatedItem);
+		} else {
+			FileUploadRequest imageRequest = FileUploadRequest.builder()
+					.file(image)
+					.folder(getImageFolder())
+					.className("item")
+					.id(id)
+					.width(400)
+					.height(600)
+					.defaultFileUrl(getDefaultImageUrl())
+					.field("imageUrl")
+					.resourceType("image")
+					.build();
 
-		postUpdateActions(existingItem, updatedItemWithImage);
+			String newImageUrl = fileService.updateImage(existingItem.getImageUrl(), imageRequest, logger);
+			updatedItem.setImageUrl(newImageUrl);
+			T updatedItemWithImage = repository.save(updatedItem);
 
-		return mapper.apply(updatedItemWithImage);
+			postUpdateActions(existingItem, updatedItemWithImage);
+
+			return mapper.apply(updatedItemWithImage);
+		}
 	}
 
 	protected void postUpdateActions(T oldItem, T updatedItem) throws NotFoundException, IllegalArgumentException {

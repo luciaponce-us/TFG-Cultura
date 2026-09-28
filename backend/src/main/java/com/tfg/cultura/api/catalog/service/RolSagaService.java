@@ -14,6 +14,7 @@ import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.file.FileDeleteException;
 import com.tfg.cultura.api.core.exception.file.FileUploadException;
+import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.exception.SectionNotFoundException;
 import com.tfg.cultura.api.sections.model.Section;
@@ -75,8 +76,19 @@ public class RolSagaService {
 
 		deleteImage(rolSaga.getImageUrl());
 
-		String imageUrl = fileService.uploadImage("rolsaga", rolSaga.getId(), image, getImageFolder(),
-				getDefaultImageUrl(), 400, 600, logger, "imageUrl");
+		FileUploadRequest fileUploadRequest = FileUploadRequest.builder()
+				.file(image)
+				.folder(getImageFolder())
+				.className("rolsaga")
+				.id(rolSaga.getId())
+				.width(400)
+				.height(600)
+				.defaultFileUrl(getDefaultImageUrl())
+				.resourceType("image")
+				.field("imageUrl")
+				.build();
+
+		String imageUrl = fileService.uploadImage(fileUploadRequest, logger);
 
 		rolSaga.setImageUrl(imageUrl);
 	}

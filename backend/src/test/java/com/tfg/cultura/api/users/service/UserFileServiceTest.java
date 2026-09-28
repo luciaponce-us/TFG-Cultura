@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -46,8 +45,7 @@ class UserFileServiceTest {
 	@Test
 	void should_upload_avatar_successfully() {
 		String userId = "123";
-		when(fileService.uploadImage(anyString(), anyString(), any(), anyString(), anyString(), anyInt(), anyInt(),
-				any(), anyString())).thenReturn("url/avatar.png");
+		when(fileService.uploadImage(any(), any())).thenReturn("url/avatar.png");
 
 		String result = service.uploadAvatar(userId, AVATAR_FILE);
 
@@ -57,8 +55,7 @@ class UserFileServiceTest {
 	@Test
 	void should_propagate_avatar_upload_failure() {
 		String userId = "123";
-		when(fileService.uploadImage(anyString(), anyString(), any(), anyString(), anyString(), anyInt(), anyInt(),
-				any(), anyString())).thenThrow(new FileUploadException("error"));
+		when(fileService.uploadImage(any(), any())).thenThrow(new FileUploadException("error"));
 
 		assertThrows(FileUploadException.class, () -> service.uploadAvatar(userId, AVATAR_FILE));
 	}
@@ -68,7 +65,7 @@ class UserFileServiceTest {
 	@Test
 	void should_throw_FileUploadException_when_upload_fails() {
 		String userId = "123";
-		when(fileService.uploadPdf(anyString(), anyString(), any(), anyString(), anyString(), any(), anyString()))
+		when(fileService.uploadPdf(any(), any()))
 				.thenThrow(new FileUploadException("Cloud error"));
 
 		FileUploadException exception = assertThrows(FileUploadException.class,
@@ -76,7 +73,7 @@ class UserFileServiceTest {
 
 		assertTrue(exception.getMessage().contains("Cloud error"));
 
-		verify(fileService).uploadPdf(anyString(), anyString(), any(), anyString(), anyString(), any(), anyString());
+		verify(fileService).uploadPdf(any(), any());
 	}
 
 	// VALIDATE AVATAR

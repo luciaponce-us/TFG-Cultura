@@ -17,8 +17,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUploadRequest {
 	@NotBlank
 	private MultipartFile file;
+	@NotBlank
 	private String folder;
-	private String publicId;
+	@NotBlank
+	private String className;
+	@NotBlank
+	private String id;
+	private Integer width;
+	private Integer height;
+	private String field;
+	private String defaultFileUrl;
 	@Default
 	private boolean overwrite = true;
 	private String resourceType; // image, raw, auto

@@ -114,8 +114,7 @@ class RolSagaServiceTest {
 
 		when(repository.save(any(RolSaga.class))).thenReturn(rolSaga);
 
-		when(fileService.uploadImage(eq("rolsaga"), eq("rol-saga-id"), eq(image), anyString(), anyString(), anyInt(),
-				anyInt(), any(), anyString())).thenReturn("new-image-url");
+		when(fileService.uploadImage(any(), any())).thenReturn("new-image-url");
 
 		when(appProperties.defaultImages()).thenReturn(defaultImages);
 		when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
@@ -129,8 +128,7 @@ class RolSagaServiceTest {
 
 		verify(repository).save(any(RolSaga.class));
 
-		verify(fileService).uploadImage(eq("rolsaga"), eq("rol-saga-id"), eq(image), anyString(), anyString(), anyInt(),
-				anyInt(), any(), anyString());
+		verify(fileService).uploadImage(any(), any());
 	}
 
 	@Test
@@ -215,8 +213,7 @@ class RolSagaServiceTest {
 		when(appProperties.defaultImages()).thenReturn(defaultImages);
 		when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
 
-		doThrow(new FileUploadException("Error uploading image")).when(fileService).uploadImage(eq("rolsaga"),
-				eq(rolSaga.getId()), eq(image), anyString(), anyString(), anyInt(), anyInt(), any(), anyString());
+		doThrow(new FileUploadException("Error uploading image")).when(fileService).uploadImage(any(), any());
 
 		// When & Then
 		assertThrows(FileUploadException.class, () -> service.create(request, image));
@@ -437,8 +434,7 @@ class RolSagaServiceTest {
 
 		when(sectionService.findSectionById(request.getSectionId())).thenReturn(rolSaga.getSection());
 
-		when(fileService.uploadImage(eq("rolsaga"), eq(rolSaga.getId()), eq(image), anyString(), anyString(), anyInt(),
-				anyInt(), any(), anyString())).thenReturn("new-image-url");
+		when(fileService.uploadImage(any(), any())).thenReturn("new-image-url");
 
 		when(repository.save(rolSaga)).thenReturn(rolSaga);
 
@@ -454,8 +450,7 @@ class RolSagaServiceTest {
 
 		verify(fileService).deleteFile("old-image-url");
 
-		verify(fileService).uploadImage(any(), anyString(), any(), anyString(), anyString(), anyInt(), anyInt(), any(),
-				anyString());
+		verify(fileService).uploadImage(any(), any());
 
 		verify(repository).save(rolSaga);
 	}

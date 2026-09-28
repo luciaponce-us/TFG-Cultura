@@ -78,13 +78,11 @@ class AbstractItemServiceTest {
 	}
 
 	private void mockFileServiceUploadImage(String imageUrl) {
-		when(fileService.uploadImage(any(), any(), any(), any(), any(), anyInt(), anyInt(), any(), anyString()))
-				.thenReturn(imageUrl);
+		when(fileService.uploadImage(any(), any())).thenReturn(imageUrl);
 	}
 
 	private void mockFileServiceUpdateImage(String imageUrl) {
-		when(fileService.updateImage(anyString(), anyString(), anyString(), any(), anyString(), anyString(), anyInt(),
-				anyInt(), any(), anyString())).thenReturn(imageUrl);
+		when(fileService.updateImage(any(), any(), any())).thenReturn(imageUrl);
 	}
 
 	// CREATE
@@ -96,7 +94,6 @@ class AbstractItemServiceTest {
 		when(categoryService.findCategoriesByIds(any())).thenReturn(Set.of(category));
 		when(sagaService.findByName("Harry Potter")).thenReturn(saga);
 		when(repository.existsByIsbn(any())).thenReturn(false);
-		mockFileServiceUploadImage(service.getDefaultImageUrl());
 
 		when(repository.save(any(Book.class))).thenAnswer(inv -> {
 			Book b = inv.getArgument(0);
@@ -110,7 +107,7 @@ class AbstractItemServiceTest {
 
 		ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
 
-		verify(repository, times(2)).save(captor.capture());
+		verify(repository).save(captor.capture());
 
 		assertEquals("Harry Potter", response.getName());
 		assertEquals("J.K. Rowling", response.getAuthor());
@@ -227,7 +224,7 @@ class AbstractItemServiceTest {
 
 		assertEquals(request.getName(), response.getName());
 
-		verify(repository, times(2)).save(book);
+		verify(repository).save(book);
 	}
 
 	@Test
@@ -259,8 +256,7 @@ class AbstractItemServiceTest {
 
 		assertEquals("https://cloudinary/...", response.getImageUrl());
 
-		verify(fileService).updateImage(anyString(), anyString(), anyString(), any(), anyString(), anyString(),
-				anyInt(), anyInt(), any(), anyString());
+		verify(fileService).updateImage(any(), any(), any());
 	}
 
 	// DELETE
