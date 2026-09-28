@@ -27,4 +27,11 @@ class UrlValidatorTest {
 	void should_return_false_for_invalid_url() {
 		assert !validator.isValid(INVALID_URL, null);
 	}
+
+	@Test
+	void should_return_false_for_large_malformed_url() {
+		String malformedUrl = "https://" + "a".repeat(100_000) + "!";
+
+		assert !validator.isValid(malformedUrl, null);
+	}
 }
