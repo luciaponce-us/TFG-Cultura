@@ -166,7 +166,8 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_get_movies_by_saga() throws Exception {
-		when(movieService.getAllMoviesBySagaId(movie.getMovieInfo().getSaga().getId())).thenReturn(Set.of(movieResponse));
+		when(movieService.getAllMoviesBySagaId(movie.getMovieInfo().getSaga().getId()))
+				.thenReturn(Set.of(movieResponse));
 
 		mockMvc.perform(get(BASE_URL + "/saga/{sagaId}", movie.getMovieInfo().getSaga().getId()))
 				.andExpect(status().isOk()).andExpect(jsonPath("$[0].id").value(movieResponse.getId()))
