@@ -4,11 +4,9 @@ import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
-
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
 import com.tfg.cultura.api.catalog.model.Saga;
-
 import com.tfg.cultura.api.catalog.model.dto.MovieRequest;
 import com.tfg.cultura.api.catalog.model.dto.MovieResponse;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
@@ -21,7 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
 
