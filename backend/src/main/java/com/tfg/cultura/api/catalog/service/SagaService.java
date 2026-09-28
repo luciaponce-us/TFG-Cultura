@@ -32,7 +32,7 @@ public class SagaService {
 	public Saga createSaga(String name) throws SagaAlreadyExistsException {
 		boolean exists = sagaRepository.existsByName(name);
 		if (exists) {
-			logger.error("Ya existe una saga con el nombre: {}", name);
+			logger.error("Ya existe una saga con el nombre: {}", sanitize(name));
 			throw new SagaAlreadyExistsException(name);
 		}
 
@@ -75,7 +75,7 @@ public class SagaService {
 		Saga existingSaga = findById(id);
 
 		if (!existingSaga.getName().equals(name) && sagaRepository.existsByName(name)) {
-			logger.error("Ya existe una saga con el nombre: {}", name);
+			logger.error("Ya existe una saga con el nombre: {}", sanitize(name));
 			throw new SagaAlreadyExistsException(name);
 		}
 
