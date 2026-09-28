@@ -221,8 +221,6 @@ class AbstractItemServiceTest {
 
 		when(sagaService.findByName(any())).thenReturn(saga);
 
-		when(repository.existsByIsbn(any())).thenReturn(false);
-
 		when(repository.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		BookResponse response = service.update("1", request, null);
@@ -250,9 +248,6 @@ class AbstractItemServiceTest {
 		when(categoryService.findCategoriesByIds(any())).thenReturn(Set.of(category));
 
 		when(sagaService.findByName(any())).thenReturn(saga);
-
-		when(repository.existsByIsbn(any())).thenReturn(false);
-
 		when(repository.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		MockMultipartFile image = new MockMultipartFile("image", "book.jpg", MediaType.IMAGE_JPEG_VALUE,
