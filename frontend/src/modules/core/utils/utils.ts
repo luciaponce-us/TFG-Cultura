@@ -187,3 +187,11 @@ export const PLACEHOLDER = {
   AVATAR:
     "https://res.cloudinary.com/dubz79y98/image/upload/v1776288595/avatar_placeholder.png",
 };
+
+export function parseDate(date: string): string {
+  const dateObj = new Date(date);
+  const day = dateObj.getDate().toString().padStart(2, "0");
+  const month = (dateObj.getMonth() + 1).toString().padStart(2, "0");
+  const year = dateObj.getFullYear();
+  return `${day}/${month}/${year}`;
+}

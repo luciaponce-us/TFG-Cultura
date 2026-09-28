@@ -38,6 +38,11 @@ import {
   RolSagaPage,
   VideoGamesPage,
   SagasPage,
+  BookPage,
+  BoardGamePage,
+  MoviePage,
+  SeriePage,
+  VideoGamePage,
 } from "@/modules/catalog/pages";
 
 import { CategoriesPage } from "@/modules/categories/pages";
@@ -72,21 +77,36 @@ export default function App() {
               {/* CATÁLOGO */}
               <Route path="/catalogo" element={<CatalogPage />} />
               <Route path="/catalogo/libros" element={<BooksPage />} />
+              <Route path="/catalogo/libros/:bookId" element={<BookPage />} />
               <Route
                 path="/catalogo/mangas-y-comics"
                 element={<MangasAndComicsPage />}
               />
+              {/* Para mangas y cómics individuales, se reutiliza la página de libros */}
               <Route path="/catalogo/peliculas" element={<MoviesPage />} />
+              <Route
+                path="/catalogo/peliculas/:movieId"
+                element={<MoviePage />}
+              />
               <Route path="/catalogo/series" element={<SeriesPage />} />
+              <Route path="/catalogo/series/:serieId" element={<SeriePage />} />
               <Route
                 path="/catalogo/juegos-de-mesa"
                 element={<BoardGamesPage />}
+              />
+              <Route
+                path="/catalogo/juegos-de-mesa/:boardGameId"
+                element={<BoardGamePage />}
               />
               <Route path="/catalogo/rol" element={<RolSagasPage />} />
               <Route path="/catalogo/rol/:sagaId" element={<RolSagaPage />} />
               <Route
                 path="/catalogo/videojuegos"
                 element={<VideoGamesPage />}
+              />
+              <Route
+                path="/catalogo/videojuegos/:videoGameId"
+                element={<VideoGamePage />}
               />
               {/* PERFIL */}
               <Route path="/perfil" element={<ProfilePage />} />

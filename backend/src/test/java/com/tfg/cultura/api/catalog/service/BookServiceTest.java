@@ -74,6 +74,15 @@ class BookServiceTest {
 	}
 
 	@Test
+	void should_not_throw_when_updating_book_with_same_isbn() {
+		Book book = Book.builder().id("book-1").isbn("9781234567890").build();
+
+		when(bookRepository.existsByIsbnAndIdNot("9781234567890", "book-1")).thenReturn(false);
+
+		assertDoesNotThrow(() -> service.validate(book));
+	}
+
+	@Test
 	void should_fill_book_specific_fields() {
 
 		Saga saga = new Saga();
@@ -125,6 +134,22 @@ class BookServiceTest {
 		BookRequest request = BookRequest.builder().type(BookType.MANGA).build();
 
 		assertEquals(7, service.getLoanDays(request));
+	}
+
+	@Test
+	void should_find_books_by_saga_id_using_saga_reference() {
+		String sagaId = "saga-1";
+		Saga saga = Saga.builder().id(sagaId).build();
+		Set<Book> books = Set.of(Book.builder().build());
+
+		when(sagaService.findById(sagaId)).thenReturn(saga);
+		when(bookRepository.findAllBySaga(saga)).thenReturn(books);
+
+		Set<BookResponse> result = service.getAllBooksBySagaId(sagaId);
+
+		assertEquals(books.size(), result.size());
+		verify(sagaService).findById(sagaId);
+		verify(bookRepository).findAllBySaga(saga);
 	}
 
 	private final PageRequest pageable = PageRequest.of(0, 10);

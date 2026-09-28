@@ -3,6 +3,7 @@ import type { MovieRequest, MovieErrors } from "../types/movie";
 import {
   validateItemForm,
   MAX_LENGTH as MAX_LENGTH_ITEM,
+  validateYouTubeEmbedUrl,
 } from "./item.validations";
 import type { Dispatch, SetStateAction } from "react";
 import { toaster } from "@/modules/core/components/toaster/toaster";
@@ -61,9 +62,7 @@ function validateTrailerUrl(value?: string): string | undefined {
   if (value.length > MAX_LENGTH.TRAILER_URL) {
     return `El tráiler no puede superar los ${MAX_LENGTH.TRAILER_URL} caracteres.`;
   }
-  return /^https:\/\/www\.youtube\.com\/embed\/[a-zA-Z0-9_-]+$/.test(value)
-    ? undefined
-    : "La URL del tráiler no es válida. Debe tener el formato: https://www.youtube.com/embed/VIDEO_ID";
+  return validateYouTubeEmbedUrl(value);
 }
 
 function validateSagaName(value?: string): string | undefined {

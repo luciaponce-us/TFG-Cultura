@@ -1,4 +1,10 @@
-import type { Item, ItemRequest } from "../types";
+import {
+  ITEM_TYPES,
+  type Item,
+  type ItemCondition,
+  type ItemRequest,
+  type ItemType,
+} from "../types";
 import type { BoardGame, BoardGameRequest } from "../types/boardgame";
 import type { Book, BookRequest } from "../types/book";
 import type { Movie, MovieRequest } from "../types/movie";
@@ -11,6 +17,7 @@ import type {
 import type { Format } from "../types/movie";
 import type { Series, SeriesRequest } from "../types/series";
 import type { VideoGame, VideoGameRequest } from "../types/videogame";
+import { PLACEHOLDER } from "@/modules/core/utils/utils";
 
 function toFormatValue(format: string): Format {
   switch (format) {
@@ -120,4 +127,41 @@ export function toVideoGameRequest(videoGame: VideoGame): VideoGameRequest {
     releaseDate: videoGame.releaseDate,
     trailerUrl: videoGame.trailerUrl,
   };
+}
+
+export function parseItemCondition(condition: ItemCondition): string {
+  switch (condition) {
+    case "PERFECT":
+      return "Perfecto";
+    case "MINOR_DAMAGE":
+      return "Daño menor";
+    case "MODERATE_DAMAGE":
+      return "Daño moderado";
+    case "SEVERE_DAMAGE":
+      return "Daño severo";
+  }
+}
+
+export function parsePrice(price: number): string {
+  return price.toLocaleString("es-ES", {
+    style: "currency",
+    currency: "EUR",
+  });
+}
+
+export function getPlaceholder(itemType: ItemType): string {
+  switch (itemType) {
+    case ITEM_TYPES.BOARD_GAME:
+      return PLACEHOLDER.BOARDGAME;
+    case ITEM_TYPES.BOOK:
+      return PLACEHOLDER.BOOK;
+    case ITEM_TYPES.MOVIE:
+      return PLACEHOLDER.MOVIE;
+    case ITEM_TYPES.ROL_GAME:
+      return PLACEHOLDER.ROLGAME;
+    case ITEM_TYPES.SERIES:
+      return PLACEHOLDER.SERIES;
+    case ITEM_TYPES.VIDEO_GAME:
+      return PLACEHOLDER.VIDEOGAME;
+  }
 }

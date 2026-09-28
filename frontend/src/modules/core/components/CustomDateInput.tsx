@@ -23,10 +23,6 @@ export function CustomDateInput({
   const dateValue: DateValue[] | undefined = value
     ? [parseDate(value)]
     : undefined;
-  const today = new Date();
-  const todayDateValue: DateValue[] = [
-    parseDate(today.toISOString().split("T")[0]),
-  ];
 
   const handleDateChange = (newValue: DateValue[] | undefined) => {
     const firstValue = newValue?.[0] ?? null;
@@ -60,7 +56,6 @@ export function CustomDateInput({
     <Field.Root invalid={!!error || !validateDate(dateValue?.[0] ?? null)}>
       <DateInput.Root
         value={dateValue}
-        defaultValue={todayDateValue}
         onValueChange={handleValueChange}
         locale="es-ES"
         disabled={disabled}

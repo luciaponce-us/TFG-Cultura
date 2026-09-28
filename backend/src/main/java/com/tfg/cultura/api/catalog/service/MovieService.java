@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.catalog.service;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Movie;
@@ -15,6 +17,8 @@ import com.tfg.cultura.api.sections.service.SectionService;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
 
@@ -85,6 +89,14 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
 			default :
 				return 7;
 		}
+	}
+
+	public Set<MovieResponse> getAllMoviesBySagaId(String sagaId) {
+		logger.info("Fetching all movies for saga with ID: {}", sanitize(sagaId));
+		Saga saga = sagaService.findById(sagaId);
+		Set<Movie> movies = repository.findAllByMovieInfoSagaId(saga.getId());
+		logger.info("Found {} movies for saga with ID: {}", movies.size(), sanitize(sagaId));
+		return movies.stream().map(MovieResponse::new).collect(Collectors.toSet());
 	}
 
 }

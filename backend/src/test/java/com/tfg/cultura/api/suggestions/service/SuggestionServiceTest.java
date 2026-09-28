@@ -175,6 +175,21 @@ class SuggestionServiceTest {
 		assertThrows(SuggestionNotFoundException.class, () -> service.getById("someSuggestionId"));
 	}
 
+	@Test
+	void getById_should_ignore_null_supporter_avatars() throws SuggestionNotFoundException {
+		User supporterWithoutAvatar = UserFactory.validUser2();
+		supporterWithoutAvatar.setAvatar(null);
+		suggestion.setSupporters(new ArrayList<>(List.of(supporterWithoutAvatar)));
+		suggestion.setTotalSupporters(1);
+		mockSuggestionById(suggestion);
+
+		SuggestionResponse response = service.getById(suggestion.getId());
+
+		assertNotNull(response);
+		assertEquals(1, response.getSupporters().size());
+		assertTrue(response.getSomeSupportersAvatars().isEmpty());
+	}
+
 	// SUPPORT SUGGESTIONS
 
 	@Test

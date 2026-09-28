@@ -16,6 +16,7 @@ import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +54,10 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 
 	private void checkUniqueIsbn(Book item) throws ItemAlreadyExistsException {
 		String isbn = item.getIsbn();
-		if (isbn != null && repository.existsByIsbn(isbn)) {
+		boolean isbnExists = item.getId() == null
+				? repository.existsByIsbn(isbn)
+				: repository.existsByIsbnAndIdNot(isbn, item.getId());
+		if (isbn != null && isbnExists) {
 			throw new ItemAlreadyExistsException(
 					Map.of("isbn", "El ISBN " + sanitize(isbn) + " ya existe en otro libro."));
 		}
@@ -105,6 +109,14 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 							categories, pageable);
 		}
 		return books.map(BookResponse::new);
+	}
+
+	public Set<BookResponse> getAllBooksBySagaId(String sagaId) {
+		logger.info("Fetching all books for saga with ID: {}", sanitize(sagaId));
+		Saga saga = sagaService.findById(sagaId);
+		Set<Book> books = repository.findAllBySaga(saga);
+		logger.info("Found {} books for saga with ID: {}", books.size(), sanitize(sagaId));
+		return books.stream().map(BookResponse::new).collect(Collectors.toSet());
 	}
 
 }

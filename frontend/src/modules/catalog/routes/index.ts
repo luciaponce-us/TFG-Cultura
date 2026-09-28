@@ -3,12 +3,15 @@ import type { ItemRoutes } from "../types";
 
 interface BookRoutes extends ItemRoutes {
   GET_ALL_BY_TYPE: (types: string[]) => string;
+  GET_ALL_BY_SAGA: (sagaId: string) => string;
 }
 
 export const BOOK_ROUTES: BookRoutes = {
   BASE: `${API_BASE_URL}/api/catalog/books`,
   GET_ALL_BY_TYPE: (types: string[]) =>
     `${API_BASE_URL}/api/catalog/books/types/${types.join(",")}`,
+  GET_ALL_BY_SAGA: (sagaId: string) =>
+    `${API_BASE_URL}/api/catalog/books/saga/${sagaId}`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/books/${id}`,
 };
 
@@ -18,9 +21,15 @@ export const SAGA_ROUTES = {
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/sagas/${id}`,
 };
 
-export const MOVIE_ROUTES: ItemRoutes = {
+interface MovieRoutes extends ItemRoutes {
+  GET_ALL_BY_SAGA: (sagaId: string) => string;
+}
+
+export const MOVIE_ROUTES: MovieRoutes = {
   BASE: `${API_BASE_URL}/api/catalog/movies`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/api/catalog/movies/${id}`,
+  GET_ALL_BY_SAGA: (sagaId: string) =>
+    `${API_BASE_URL}/api/catalog/movies/saga/${sagaId}`,
 };
 
 export const SERIES_ROUTES: ItemRoutes = {

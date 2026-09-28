@@ -19,11 +19,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     localStorage.getItem("token"),
   );
 
-  const login = useCallback((jwt: string) => {
-    localStorage.setItem("token", jwt);
-    setToken(jwt);
-  }, []);
-
   const logout = useCallback(() => {
     localStorage.removeItem("token");
     setToken(null);
@@ -44,6 +39,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     token,
     onUnauthorized: logout,
   });
+
+  const login = useCallback(
+    (jwt: string) => {
+      localStorage.setItem("token", jwt);
+      setToken(jwt);
+      if (user) updateUser(user);
+    },
+    [updateUser, user],
+  );
 
   const isAdmin = user ? MANAGEMENT_ROLES.includes(user.role) : false;
 

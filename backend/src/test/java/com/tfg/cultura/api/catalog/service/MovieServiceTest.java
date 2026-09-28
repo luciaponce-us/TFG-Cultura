@@ -19,6 +19,7 @@ import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -108,5 +109,24 @@ class MovieServiceTest {
 		MovieRequest request = MovieRequest.builder().numberOfDiscs(2).build();
 
 		assertEquals(7, service.getLoanDays(request));
+	}
+
+	@Test
+	void should_return_movies_by_saga_id() {
+		String sagaId = "saga-1";
+		Saga saga = Saga.builder().id(sagaId).build();
+		Movie movie = CatalogFactory.validMovie();
+		movie.setMovieInfo(movie.getMovieInfo());
+		Set<Movie> movies = Set.of(movie);
+
+		when(sagaService.findById(sagaId)).thenReturn(saga);
+		when(movieRepository.findAllByMovieInfoSagaId(sagaId)).thenReturn(movies);
+
+		Set<com.tfg.cultura.api.catalog.model.dto.MovieResponse> result = service.getAllMoviesBySagaId(sagaId);
+
+		assertEquals(1, result.size());
+		assertEquals(movie.getId(), result.iterator().next().getId());
+		verify(sagaService).findById(sagaId);
+		verify(movieRepository).findAllByMovieInfoSagaId(sagaId);
 	}
 }

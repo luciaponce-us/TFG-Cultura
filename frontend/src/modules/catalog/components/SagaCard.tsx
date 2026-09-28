@@ -4,7 +4,7 @@ import { IconPencil, IconTrash } from "@tabler/icons-react";
 
 import { useDeleteSaga } from "../hooks";
 import { CustomButton, ConfirmDialog } from "@/modules/core/components";
-import { CreateSagaDialog } from "./CreateSagaDialog";
+import { CreateSagaDialog } from "./forms/CreateSagaDialog";
 
 import type { Saga } from "../types/saga";
 

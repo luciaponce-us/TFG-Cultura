@@ -134,6 +134,7 @@ export function LoginPage() {
           onChange={(e) => handleChange(e, form, setErrors, setForm)}
           maxLength={MAX_LENGTH.USERNAME}
           showMaxLength={false}
+          value={form.username}
         />
 
         <CustomInput
@@ -145,6 +146,7 @@ export function LoginPage() {
           password={true}
           maxLength={MAX_LENGTH.PASSWORD}
           showMaxLength={false}
+          value={form.password}
         />
 
         <TextSecondary>

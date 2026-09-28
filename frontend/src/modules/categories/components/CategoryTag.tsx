@@ -15,8 +15,12 @@ export function CategoryTag({ category }: { category: Category }) {
       align="center"
       justify="center"
     >
-      <Text color={isLight ? "#1E1E1E" : "white"} fontWeight="bold">
-        {category.name}
+      <Text
+        color={isLight ? "#1E1E1E" : "white"}
+        fontSize="12px"
+        fontWeight="bold"
+      >
+        {category.name.toLocaleUpperCase()}
       </Text>
     </Flex>
   );

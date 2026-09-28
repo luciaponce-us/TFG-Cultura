@@ -16,7 +16,7 @@ export function useVideogames(
         page,
         pageSize,
         filters.nameContains,
-        filters.categories,
+        filters.categoriesIds,
       );
     },
     placeholderData: keepPreviousData,

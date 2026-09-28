@@ -7,7 +7,7 @@ export interface Movie extends Item {
   numberOfDiscs: number;
   releaseDate: string;
   trailerUrl: string;
-  saga: Saga;
+  saga?: Saga;
 }
 
 export const FORMATS = ["DVD", "BLURAY", "UHD_4K"] as const;

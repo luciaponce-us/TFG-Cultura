@@ -8,6 +8,7 @@ import {
   fetchItemById,
   updateItem,
 } from "./item.service";
+import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
 
 export async function fetchAllMovies(
   page: number = 0,
@@ -22,6 +23,15 @@ export async function fetchAllMovies(
     nameContains,
     categories,
   );
+}
+
+export async function fetchAllMoviesBySaga(sagaId: string): Promise<Movie[]> {
+  console.log("Fetching movies by sagaId:", sagaId);
+  const res = await fetchWithTimeout(MOVIE_ROUTES.GET_ALL_BY_SAGA(sagaId), {
+    method: "GET",
+  });
+
+  return handleResponse<Movie[]>(res);
 }
 
 export async function fetchMovieById(id: string): Promise<Movie> {

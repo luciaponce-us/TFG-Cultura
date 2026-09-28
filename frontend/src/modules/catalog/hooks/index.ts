@@ -7,6 +7,7 @@ export { useBoardGameForm } from "./form/useBoardGameForm";
 
 // BOOK
 export { useBooks } from "./useBooks";
+export { useBooksBySaga } from "./useBooksBySaga";
 export { useBook } from "./useBook";
 export { useCreateBook } from "./useCreateBook";
 export { useUpdateBook } from "./useUpdateBook";
@@ -22,6 +23,7 @@ export { useSagaForm } from "./form/useSagaForm";
 
 // MOVIE
 export { useMovies } from "./useMovies";
+export { useMoviesBySaga } from "./useMoviesBySaga";
 export { useMovie } from "./useMovie";
 export { useCreateMovie } from "./useCreateMovie";
 export { useUpdateMovie } from "./useUpdateMovie";
