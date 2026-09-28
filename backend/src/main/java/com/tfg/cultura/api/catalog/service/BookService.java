@@ -112,10 +112,10 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 	}
 
 	public Set<BookResponse> getAllBooksBySagaId(String sagaId) {
-		logger.info("Fetching all books for saga with ID: {}", sagaId);
+		logger.info("Fetching all books for saga with ID: {}", sanitize(sagaId));
 		Saga saga = sagaService.findById(sagaId);
 		Set<Book> books = repository.findAllBySaga(saga);
-		logger.info("Found {} books for saga with ID: {}", books.size(), sagaId);
+		logger.info("Found {} books for saga with ID: {}", books.size(), sanitize(sagaId));
 		return books.stream().map(BookResponse::new).collect(Collectors.toSet());
 	}
 
