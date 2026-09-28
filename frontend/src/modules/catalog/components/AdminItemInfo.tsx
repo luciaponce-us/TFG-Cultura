@@ -13,7 +13,9 @@ interface AdminItemInfoProps<T extends Item> {
   item: T | undefined;
   isLoading: boolean;
   type: ItemType;
-  CreateItemDialog: React.ComponentType<CreateItemDialogProps | CreateRolGameDialogProps>;
+  CreateItemDialog: React.ComponentType<
+    CreateItemDialogProps | CreateRolGameDialogProps
+  >;
   sagaId?: string;
 }
 
@@ -45,7 +47,7 @@ export function AdminItemInfo<T extends Item>({
             {item && (
               <VStack w="100%" gap={4}>
                 <VStack w="100%" gap={2}>
-                    <HStack w="100%">
+                  <HStack w="100%">
                     <Text fontWeight="bold">Nombre:</Text>
                     <Text>{item.name}</Text>
                   </HStack>

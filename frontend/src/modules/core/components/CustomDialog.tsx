@@ -12,9 +12,8 @@ export function CustomDialog({
   isOpen,
   setIsOpen,
   title,
-    children,
+  children,
 }: CustomDialogProps) {
-
   return (
     <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)} modal>
       <Portal>
@@ -32,9 +31,7 @@ export function CustomDialog({
                 <Heading as="h1">{title}</Heading>
               </Dialog.Title>
             </Dialog.Header>
-            <Dialog.Body>
-              {children}
-            </Dialog.Body>
+            <Dialog.Body>{children}</Dialog.Body>
             <Dialog.Footer>
               <CustomButton onClick={() => setIsOpen(false)}>
                 Volver

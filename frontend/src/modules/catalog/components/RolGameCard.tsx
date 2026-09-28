@@ -5,7 +5,12 @@ import { useDeleteItem } from "../hooks";
 import { ITEM_TYPES } from "../types";
 import { Box, HStack, VStack, Text, Flex } from "@chakra-ui/react";
 import { ItemImage } from "./ItemImage";
-import { ConfirmDialog, CustomButton, CustomDialog, toaster } from "@/modules/core/components";
+import {
+  ConfirmDialog,
+  CustomButton,
+  CustomDialog,
+  toaster,
+} from "@/modules/core/components";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
 import { CreateRolGameDialog } from "./forms/CreateRolGameDialog";
 import { AdminItemInfo } from "./AdminItemInfo";
@@ -35,16 +40,24 @@ export function RolGameCard({ rolgame }: { rolgame: RolGame }) {
             setIsAdminInfoOpen(true);
           }
         }}
-        _hover={isAdmin?{
-          cursor: isDeleting ? "not-allowed" : "pointer",
-          transform: "scale(1.02)",
-          boxShadow: "md",
-        }:undefined}
-        _active={isAdmin?{
-          transform: isDeleting ? "none" : "!important scale(0.99)",
-          bg: isDeleting ? "none" : "gray.100",
-          boxShadow: isDeleting ? "none" : "sm",
-        }:undefined}
+        _hover={
+          isAdmin
+            ? {
+                cursor: isDeleting ? "not-allowed" : "pointer",
+                transform: "scale(1.02)",
+                boxShadow: "md",
+              }
+            : undefined
+        }
+        _active={
+          isAdmin
+            ? {
+                transform: isDeleting ? "none" : "!important scale(0.99)",
+                bg: isDeleting ? "none" : "gray.100",
+                boxShadow: isDeleting ? "none" : "sm",
+              }
+            : undefined
+        }
         filter={isDeleting ? "grayscale(100%)" : "none"}
         opacity={isDeleting ? 0.5 : 1}
         minH={{ base: "136px", md: "176px" }}
@@ -68,43 +81,54 @@ export function RolGameCard({ rolgame }: { rolgame: RolGame }) {
           </Box>
 
           <VStack align="center" justify="center" minW={0} flex={1} h="100%">
-            <VStack gap={2} align="start" textAlign="start" w="100%" minW={0} h="100%" justifyContent="space-between" p={{ base: 1, md: 2 }} pt={{ base: 1, md: 4 }}>
+            <VStack
+              gap={2}
+              align="start"
+              textAlign="start"
+              w="100%"
+              minW={0}
+              h="100%"
+              justifyContent="space-between"
+              p={{ base: 1, md: 2 }}
+              pt={{ base: 1, md: 4 }}
+            >
               <VStack gap={1}>
-              <Text
-                fontWeight="bold"
-                fontSize="16px"
-                w="100%"
-                wordBreak="break-word"
-                overflowWrap="break-word"
-                lang="es"
-                hyphens="auto"
-                lineClamp={2}
-              >
-                {rolgame.name}
-              </Text>
-              <Text
-                fontSize="14px"
-                lineClamp={2}
-                w="100%"
-                overflowWrap="anywhere"
-              >
-                {rolgame.description}
-              </Text>
+                <Text
+                  fontWeight="bold"
+                  fontSize="16px"
+                  w="100%"
+                  wordBreak="break-word"
+                  overflowWrap="break-word"
+                  lang="es"
+                  hyphens="auto"
+                  lineClamp={2}
+                >
+                  {rolgame.name}
+                </Text>
+                <Text
+                  fontSize="14px"
+                  lineClamp={2}
+                  w="100%"
+                  overflowWrap="anywhere"
+                >
+                  {rolgame.description}
+                </Text>
               </VStack>
               <HStack justifyContent="space-between" w="100%">
-              <RolGameTypeTag rolgameType={rolgame.type} />
-                          <CustomButton
-    onClick={(event) => {
-      event.stopPropagation();
-      toaster.create({
-        title: "Funcionalidad en desarrollo",
-        description: "Esta funcionalidad aún no está disponible. Por favor, inténtalo más tarde."
-      });
-    }}
-  >
-    Solicitar préstamo
-  </CustomButton>
-  </HStack>
+                <RolGameTypeTag rolgameType={rolgame.type} />
+                <CustomButton
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toaster.create({
+                      title: "Funcionalidad en desarrollo",
+                      description:
+                        "Esta funcionalidad aún no está disponible. Por favor, inténtalo más tarde.",
+                    });
+                  }}
+                >
+                  Solicitar préstamo
+                </CustomButton>
+              </HStack>
             </VStack>
           </VStack>
 
@@ -135,8 +159,6 @@ export function RolGameCard({ rolgame }: { rolgame: RolGame }) {
               </CustomButton>
             </VStack>
           )}
-
-
         </HStack>
       </HStack>
       {isEditOpen && (
@@ -166,7 +188,6 @@ export function RolGameCard({ rolgame }: { rolgame: RolGame }) {
             item={rolgame}
             type={ITEM_TYPES.ROL_GAME}
             isLoading={rolgame === undefined}
-
             sagaId={rolgame.saga.id}
             CreateItemDialog={({ isOpen, setIsOpen, itemId, sagaId }) =>
               sagaId ? (
@@ -186,25 +207,20 @@ export function RolGameCard({ rolgame }: { rolgame: RolGame }) {
 }
 
 function RolGameTypeTag({ rolgameType }: { rolgameType: RolBookType }) {
-
   const isBasic = rolgameType === "BASIC";
   const typeLabel = rolgameType === "BASIC" ? "BÁSICO" : "EXPANSIÓN";
   return (
     <Flex
-          bg={isBasic ? "green.500" : "blue.500"}
-          borderRadius="md"
-          px={2}
-          py={1}
-          align="center"
-          justify="center"
-        >
-          <Text
-            color={"white"}
-            fontSize="12px"
-            fontWeight="bold"
-          >
-            {typeLabel}
-          </Text>
-        </Flex>
-  )
+      bg={isBasic ? "green.500" : "blue.500"}
+      borderRadius="md"
+      px={2}
+      py={1}
+      align="center"
+      justify="center"
+    >
+      <Text color={"white"} fontSize="12px" fontWeight="bold">
+        {typeLabel}
+      </Text>
+    </Flex>
+  );
 }
