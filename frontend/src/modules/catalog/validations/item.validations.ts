@@ -109,7 +109,7 @@ function validateCategoriesIds(value: string[]): string | undefined {
 
 export function validateYouTubeEmbedUrl(value: string): string | undefined {
   if (!value) return undefined;
-    return /^https:\/\/www\.youtube\.com\/embed\/[a-zA-Z0-9_-]+$/.test(value)
-      ? undefined
-      : "La URL debe tener el formato: https://www.youtube.com/embed/VIDEO_ID";
-  }
+  return /^https:\/\/www\.youtube\.com\/embed\/[a-zA-Z0-9_-]+$/.test(value)
+    ? undefined
+    : "La URL debe tener el formato: https://www.youtube.com/embed/VIDEO_ID";
+}

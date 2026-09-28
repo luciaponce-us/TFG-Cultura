@@ -1,9 +1,6 @@
 import { Box, Grid, HStack, Text } from "@chakra-ui/react";
 import { useVideogame } from "../hooks";
-import {
-  CreateVideoGameDialog,
-  ItemTrailer,
-} from "../components";
+import { CreateVideoGameDialog, ItemTrailer } from "../components";
 import { useParams } from "react-router-dom";
 import { ITEM_TYPES } from "../types";
 import { ItemPage } from "./ItemPage";
@@ -30,7 +27,11 @@ export function VideoGamePage() {
   );
 }
 
-function Subtitle({ videoGame }: { videoGame: VideoGame | undefined }): string | undefined {
+function Subtitle({
+  videoGame,
+}: {
+  videoGame: VideoGame | undefined;
+}): string | undefined {
   if (!videoGame) return undefined;
   const platform = parsePlatform(videoGame.platform);
   return `Videojuego para ${platform}`;

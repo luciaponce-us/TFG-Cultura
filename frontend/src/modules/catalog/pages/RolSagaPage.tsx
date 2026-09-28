@@ -160,7 +160,9 @@ export function RolSagaPage() {
         h="fit-content"
         gap={6}
       >
-        <Link onClick={() => window.history.back()} color="principal.800">🡰 Volver atrás</Link>
+        <Link onClick={() => window.history.back()} color="principal.800">
+          🡰 Volver atrás
+        </Link>
         {content}
       </VStack>
       <VStack
