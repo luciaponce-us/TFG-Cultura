@@ -27,6 +27,7 @@ import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -161,6 +162,17 @@ class MovieControllerTest extends BaseControllerTest {
 				.andExpect(jsonPath("$.number").value(0));
 
 		verify(movieService).getAll(PageRequest.of(0, 10), null, null);
+	}
+
+	@Test
+	void should_get_movies_by_saga() throws Exception {
+		when(movieService.getAllMoviesBySagaId(movie.getMovieInfo().getSaga().getId())).thenReturn(Set.of(movieResponse));
+
+		mockMvc.perform(get(BASE_URL + "/saga/{sagaId}", movie.getMovieInfo().getSaga().getId()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].id").value(movieResponse.getId()))
+				.andExpect(jsonPath("$[0].name").value(movieResponse.getName()));
+
+		verify(movieService).getAllMoviesBySagaId(movie.getMovieInfo().getSaga().getId());
 	}
 
 	// ====================== DELETE ======================

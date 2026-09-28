@@ -17,6 +17,7 @@ import com.tfg.cultura.api.catalog.exception.item.ItemAlreadyExistsException;
 import com.tfg.cultura.api.catalog.exception.item.ItemNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Book;
+import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.dto.BookRequest;
 import com.tfg.cultura.api.catalog.model.dto.BookResponse;
 import com.tfg.cultura.api.catalog.model.enumerators.BookType;
@@ -60,6 +61,7 @@ class BookControllerTest extends BaseControllerTest {
 
 	private void initTestData() {
 		book = CatalogFactory.validBook();
+		book.setSaga(CatalogFactory.validSaga());
 		bookCreateRequest = CatalogFactory.validBookCreateRequest();
 		bookResponse = new BookResponse(book);
 	}
@@ -172,6 +174,19 @@ class BookControllerTest extends BaseControllerTest {
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1));
 
 		verify(bookService).getAllBooksByTypeAndNameContains(Set.of(BookType.MANGA), null, null, PageRequest.of(0, 10));
+	}
+
+	@Test
+	void should_get_books_by_saga() throws Exception {
+		Saga saga = CatalogFactory.validSaga();
+		book.setSaga(saga);
+		when(bookService.getAllBooksBySagaId(saga.getId())).thenReturn(Set.of(bookResponse));
+
+		mockMvc.perform(get(BASE_URL + "/saga/{sagaId}", saga.getId())).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].id").value(bookResponse.getId()))
+				.andExpect(jsonPath("$[0].name").value(bookResponse.getName()));
+
+		verify(bookService).getAllBooksBySagaId(saga.getId());
 	}
 
 	// ====================== DELETE ======================
