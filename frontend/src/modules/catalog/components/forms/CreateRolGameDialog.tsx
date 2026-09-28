@@ -27,16 +27,14 @@ import {
   ROL_BOOK_TYPES_OPTIONS,
   type RolGameErrors,
 } from "../../types/rolgame";
-import type { CreateItemDialogProps } from "../../types";
 import {
   MAX_LENGTH,
   validateRolGameForm,
 } from "../../validations/rolgame.validations";
 import { AdminItemInfoForm, ItemImageInput } from "..";
+import type { CreateRolGameDialogProps } from "../../types/props";
 
-interface CreateRolGameDialogProps extends CreateItemDialogProps {
-  readonly sagaId: string;
-}
+
 
 export function CreateRolGameDialog({
   isOpen,

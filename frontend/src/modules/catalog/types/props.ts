@@ -13,3 +13,7 @@ export interface CreateRolSagaDialogProps {
   readonly setIsOpen: Dispatch<SetStateAction<boolean>>;
   readonly rolSagaId?: string;
 }
+
+export interface CreateRolGameDialogProps extends CreateItemDialogProps {
+  readonly sagaId: string;
+}

@@ -13,6 +13,7 @@ export { BaseGameSelect } from "./forms/BaseGameSelect";
 
 export { ItemCard } from "./ItemCard";
 export { SagaCard } from "./SagaCard";
+export { AdminItemInfo } from "./AdminItemInfo";
 export { AdminItemInfoSideBar } from "./AdminItemInfoSideBar";
 export { ItemDescription } from "./ItemDescription";
 export { MoreItemsFromSaga } from "./MoreItemsFromSaga";
