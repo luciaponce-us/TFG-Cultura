@@ -13,8 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaNotFoundException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
@@ -24,6 +22,8 @@ import com.tfg.cultura.api.catalog.repository.RolSagaRepository;
 import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.file.FileDeleteException;
 import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.factory.FileFactory;
@@ -161,7 +161,7 @@ class RolSagaServiceTest {
 		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(true);
 
 		// When & Then
-		assertThrows(RolSagaAlreadyExistsException.class, () -> service.create(request, null));
+			assertThrows(DuplicationException.class, () -> service.create(request, null));
 
 		verify(repository).existsByNameAndIdNot(request.getName(), null);
 
@@ -228,7 +228,7 @@ class RolSagaServiceTest {
 	// READ
 
 	@Test
-	void should_get_rol_saga_by_id() throws RolSagaNotFoundException {
+	void should_get_rol_saga_by_id() throws NotFoundException {
 		// Given
 
 		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
@@ -253,7 +253,7 @@ class RolSagaServiceTest {
 		when(repository.findById(id)).thenReturn(Optional.empty());
 
 		// When & Then
-		assertThrows(RolSagaNotFoundException.class, () -> service.getById(id));
+		assertThrows(NotFoundException.class, () -> service.getById(id));
 
 		verify(repository).findById(id);
 	}
@@ -286,8 +286,8 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_update_rol_saga_without_changing_name_or_image()
-			throws CategoryNotFoundException, SectionNotFoundException, RolSagaNotFoundException,
-			RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
+			throws CategoryNotFoundException, SectionNotFoundException, NotFoundException,
+					DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
 
@@ -320,7 +320,7 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_update_rol_saga_when_name_changes() throws CategoryNotFoundException, SectionNotFoundException,
-			RolSagaNotFoundException, RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
+				NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
 
@@ -355,7 +355,7 @@ class RolSagaServiceTest {
 		when(repository.findById(id)).thenReturn(Optional.empty());
 
 		// When & Then
-		assertThrows(RolSagaNotFoundException.class, () -> service.update(id, request, null));
+		assertThrows(NotFoundException.class, () -> service.update(id, request, null));
 
 		verify(repository).findById(id);
 
@@ -376,7 +376,7 @@ class RolSagaServiceTest {
 		when(repository.existsByNameAndIdNot("Forgotten Realms", rolSaga.getId())).thenReturn(true);
 
 		// When & Then
-		assertThrows(RolSagaAlreadyExistsException.class, () -> service.update(rolSaga.getId(), request, null));
+		assertThrows(DuplicationException.class, () -> service.update(rolSaga.getId(), request, null));
 
 		verify(repository).findById(rolSaga.getId());
 		verify(repository).existsByNameAndIdNot("Forgotten Realms", rolSaga.getId());
@@ -430,7 +430,7 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_update_rol_saga_with_image() throws CategoryNotFoundException, SectionNotFoundException,
-			RolSagaNotFoundException, RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
+				NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
 
@@ -463,7 +463,7 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_not_update_image_when_image_is_empty() throws CategoryNotFoundException, SectionNotFoundException,
-			RolSagaNotFoundException, RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
+				NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
 		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
@@ -487,7 +487,7 @@ class RolSagaServiceTest {
 	// DELETE
 
 	@Test
-	void should_delete_rol_saga_and_its_image() throws RolSagaNotFoundException, FileDeleteException {
+	void should_delete_rol_saga_and_its_image() throws NotFoundException, FileDeleteException {
 
 		// Given
 		rolSaga.setImageUrl("https://cloudinary.com/old-image.png");
@@ -514,7 +514,7 @@ class RolSagaServiceTest {
 		when(repository.findById(id)).thenReturn(Optional.empty());
 
 		// When & Then
-		assertThrows(RolSagaNotFoundException.class, () -> service.delete(id));
+		assertThrows(NotFoundException.class, () -> service.delete(id));
 
 		verify(repository).findById(id);
 

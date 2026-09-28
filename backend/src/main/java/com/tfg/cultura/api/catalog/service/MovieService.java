@@ -2,7 +2,6 @@ package com.tfg.cultura.api.catalog.service;
 
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
-import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
 import com.tfg.cultura.api.catalog.model.Saga;
@@ -12,6 +11,7 @@ import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.time.LocalDate;
@@ -70,7 +70,7 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
 	}
 
 	@Override
-	protected void fillSpecificFields(Movie item, MovieRequest request) throws SagaNotFoundException {
+	protected void fillSpecificFields(Movie item, MovieRequest request) throws NotFoundException {
 		Saga saga = sagaService.findByName(request.getSagaName());
 
 		MovieInfo movieInfo = MovieInfo.builder().releaseDate(request.getReleaseDate())

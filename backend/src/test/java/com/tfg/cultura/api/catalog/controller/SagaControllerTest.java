@@ -11,12 +11,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.tfg.cultura.api.catalog.exception.saga.SagaAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
+import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.service.SagaService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -57,7 +57,7 @@ class SagaControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_conflict_when_saga_already_exists() throws Exception {
-		when(sagaService.createSaga(anyString())).thenThrow(new SagaAlreadyExistsException(saga.getName()));
+		when(sagaService.createSaga(anyString())).thenThrow(CatalogFactory.duplicationException);
 
 		mockMvc.perform(post(BASE_URL).contentType(MediaType.TEXT_PLAIN).content(saga.getName()))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());
@@ -79,7 +79,7 @@ class SagaControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_saga_by_name_not_found() throws Exception {
-		when(sagaService.findByName(anyString())).thenThrow(new SagaNotFoundException(saga.getName()));
+		when(sagaService.findByName(anyString())).thenThrow(CatalogFactory.notFoundException);
 
 		mockMvc.perform(get(GET_SAGA_URL, "missing-saga")).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.message").exists());
@@ -117,7 +117,7 @@ class SagaControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_updating_missing_saga() throws Exception {
-		when(sagaService.updateSaga(anyString(), anyString())).thenThrow(new SagaNotFoundException("missing-id"));
+		when(sagaService.updateSaga(anyString(), anyString())).thenThrow(CatalogFactory.notFoundException);
 
 		mockMvc.perform(put(SAGA_URL, "missing-id").contentType(MediaType.TEXT_PLAIN).content("Updated Saga"))
 				.andExpect(status().isNotFound()).andExpect(jsonPath("$.message").exists());
@@ -128,7 +128,7 @@ class SagaControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_conflict_when_updating_to_existing_saga_name() throws Exception {
 		when(sagaService.updateSaga(anyString(), anyString()))
-				.thenThrow(new SagaAlreadyExistsException("Existing Saga"));
+				.thenThrow(CatalogFactory.duplicationException);
 
 		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.TEXT_PLAIN).content("Existing Saga"))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());
@@ -147,7 +147,7 @@ class SagaControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_deleting_missing_saga() throws Exception {
-		doThrow(new SagaNotFoundException("missing-id")).when(sagaService).deleteSaga(anyString());
+		doThrow(CatalogFactory.notFoundException).when(sagaService).deleteSaga(anyString());
 
 		mockMvc.perform(delete(SAGA_URL, "missing-id")).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.message").exists());

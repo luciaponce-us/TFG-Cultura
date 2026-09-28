@@ -2,15 +2,17 @@ package com.tfg.cultura.api.catalog.service;
 
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
-import com.tfg.cultura.api.catalog.exception.saga.SagaAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.catalog.repository.SagaRepository;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -29,11 +31,11 @@ public class SagaService {
 
 	// CREATE
 
-	public Saga createSaga(String name) throws SagaAlreadyExistsException {
+	public Saga createSaga(String name) throws DuplicationException {
 		boolean exists = sagaRepository.existsByName(name);
 		if (exists) {
 			logger.error("Ya existe una saga con el nombre: {}", sanitize(name));
-			throw new SagaAlreadyExistsException(name);
+			throw new DuplicationException(LoggerFactory.getLogger("catalogLogger"), Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
 		}
 
 		Saga saga = Saga.builder().name(name).build();
@@ -43,25 +45,25 @@ public class SagaService {
 
 	// READ
 
-	public Saga findById(String id) throws SagaNotFoundException {
+	public Saga findById(String id) throws NotFoundException {
 		Optional<Saga> optionalSaga = sagaRepository.findById(id);
 		if (optionalSaga.isPresent()) {
 			return optionalSaga.get();
 		} else {
 			String errorMessage = "Saga no encontrada con ID: " + sanitize(id);
 			logger.error(errorMessage);
-			throw new SagaNotFoundException(errorMessage);
+			throw new NotFoundException(errorMessage, logger);
 		}
 	}
 
-	public Saga findByName(String name) throws SagaNotFoundException {
+	public Saga findByName(String name) throws NotFoundException {
 		Saga saga = sagaRepository.findByName(name);
 		if (saga != null) {
 			return saga;
 		} else {
 			String errorMessage = "Saga no encontrada con nombre: " + sanitize(name);
 			logger.error(errorMessage);
-			throw new SagaNotFoundException(errorMessage);
+			throw new NotFoundException(errorMessage, logger);
 		}
 	}
 
@@ -71,12 +73,12 @@ public class SagaService {
 
 	// UPDATE
 
-	public Saga updateSaga(String id, String name) throws SagaNotFoundException, SagaAlreadyExistsException {
+	public Saga updateSaga(String id, String name) throws NotFoundException, DuplicationException {
 		Saga existingSaga = findById(id);
 
 		if (!existingSaga.getName().equals(name) && sagaRepository.existsByName(name)) {
 			logger.error("Ya existe una saga con el nombre: {}", sanitize(name));
-			throw new SagaAlreadyExistsException(name);
+			throw new DuplicationException(LoggerFactory.getLogger("catalogLogger"), Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
 		}
 
 		existingSaga.setName(name);
@@ -85,7 +87,7 @@ public class SagaService {
 
 	// DELETE
 
-	public void deleteSaga(String id) throws SagaNotFoundException {
+	public void deleteSaga(String id) throws NotFoundException {
 		Saga existingSaga = findById(id);
 		Iterable<Book> booksInSaga = bookRepository.findAllBySaga(existingSaga);
 		booksInSaga.forEach(book -> {

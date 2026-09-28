@@ -2,8 +2,6 @@ package com.tfg.cultura.api.catalog.service;
 
 import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
-import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaResponse;
@@ -13,12 +11,15 @@ import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.file.FileDeleteException;
 import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.exception.SectionNotFoundException;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.service.SectionService;
+import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class RolSagaService {
 
 	@Transactional
 	public RolSagaResponse create(RolSagaRequest request, MultipartFile image) throws CategoryNotFoundException,
-			SectionNotFoundException, RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
+			SectionNotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		checkNameUniqueness(request.getName().trim(), null);
 
@@ -83,13 +84,14 @@ public class RolSagaService {
 
 	// READ
 
-	public RolSagaResponse getById(String id) throws RolSagaNotFoundException {
+	public RolSagaResponse getById(String id) throws NotFoundException {
 		RolSaga rolSaga = findById(id);
 		return new RolSagaResponse(rolSaga);
 	}
 
-	protected RolSaga findById(String id) throws RolSagaNotFoundException {
-		return repository.findById(id).orElseThrow(() -> new RolSagaNotFoundException(id));
+	protected RolSaga findById(String id) throws NotFoundException {
+		return repository.findById(id).orElseThrow(() -> new NotFoundException(
+				"Saga de rol con id " + sanitize(id) + " no encontrada", logger));
 	}
 
 	public Page<RolSagaResponse> getAll(Pageable pageable) {
@@ -100,8 +102,8 @@ public class RolSagaService {
 
 	@Transactional
 	public RolSagaResponse update(String id, RolSagaRequest request, MultipartFile image)
-			throws CategoryNotFoundException, SectionNotFoundException, RolSagaNotFoundException,
-			RolSagaAlreadyExistsException, FileDeleteException, FileUploadException {
+			throws CategoryNotFoundException, SectionNotFoundException, NotFoundException,
+			DuplicationException, FileDeleteException, FileUploadException {
 		RolSaga existingRolSaga = findById(id);
 		boolean nameChanged = !existingRolSaga.getName().equalsIgnoreCase(request.getName().trim());
 		if (nameChanged) {
@@ -132,7 +134,7 @@ public class RolSagaService {
 	// DELETE
 
 	@Transactional
-	public void delete(String id) throws RolSagaNotFoundException, FileDeleteException {
+	public void delete(String id) throws NotFoundException, FileDeleteException {
 		RolSaga rolSaga = findById(id);
 		deleteImage(rolSaga.getImageUrl());
 		rolGameRepository.deleteAllBySaga(rolSaga);
@@ -145,9 +147,10 @@ public class RolSagaService {
 		}
 	}
 
-	private void checkNameUniqueness(String name, String id) throws RolSagaAlreadyExistsException {
+	private void checkNameUniqueness(String name, String id) throws DuplicationException {
 		if (repository.existsByNameAndIdNot(name.trim(), id)) {
-			throw new RolSagaAlreadyExistsException("name", "Ya existe una saga de rol con el mismo nombre");
+			throw new DuplicationException(logger,
+					Map.of("name", "Ya existe una saga de rol con el mismo nombre"));
 		}
 	}
 

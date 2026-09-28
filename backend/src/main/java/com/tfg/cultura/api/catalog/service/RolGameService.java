@@ -1,6 +1,5 @@
 package com.tfg.cultura.api.catalog.service;
 
-import com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.RolGame;
 import com.tfg.cultura.api.catalog.model.RolSaga;
 import com.tfg.cultura.api.catalog.model.dto.RolGameRequest;
@@ -8,6 +7,7 @@ import com.tfg.cultura.api.catalog.model.dto.RolGameResponse;
 import com.tfg.cultura.api.catalog.repository.RolGameRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.List;
@@ -50,7 +50,7 @@ public class RolGameService extends AbstractItemService<RolGame, RolGameReposito
 	}
 
 	@Override
-	protected void fillSpecificFields(RolGame item, RolGameRequest request) throws RolSagaNotFoundException {
+	protected void fillSpecificFields(RolGame item, RolGameRequest request) throws NotFoundException {
 		RolSaga saga = rolSagaService.findById(request.getSagaId());
 		item.setSaga(saga);
 		item.setType(request.getType());
@@ -64,7 +64,7 @@ public class RolGameService extends AbstractItemService<RolGame, RolGameReposito
 		return 15; // RN-17
 	}
 
-	public List<RolGameResponse> findAllBySagaId(String sagaId) throws RolSagaNotFoundException {
+	public List<RolGameResponse> findAllBySagaId(String sagaId) throws NotFoundException {
 		RolSaga saga = rolSagaService.findById(sagaId);
 		List<RolGame> rolGames = repository.findAllBySaga(saga);
 		return rolGames.stream().map(RolGameResponse::new).toList();

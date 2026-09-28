@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.dto.RolGameResponse;
 import com.tfg.cultura.api.catalog.service.RolGameService;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +61,7 @@ class RolGameControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_404_when_saga_not_found() throws Exception {
 		when(rolGameService.findAllBySagaId("non-existent-saga-id")).thenThrow(
-				new com.tfg.cultura.api.catalog.exception.rolsaga.RolSagaNotFoundException("non-existent-saga-id"));
+				new NotFoundException("non-existent-saga-id", org.slf4j.LoggerFactory.getLogger("catalogLogger")));
 
 		mockMvc.perform(get(ROL_GAMES_BY_SAGA_URL, "non-existent-saga-id")).andExpect(status().isNotFound());
 	}

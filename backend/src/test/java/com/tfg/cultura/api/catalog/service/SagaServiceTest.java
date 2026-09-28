@@ -8,8 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.catalog.exception.saga.SagaAlreadyExistsException;
-import com.tfg.cultura.api.catalog.exception.saga.SagaNotFoundException;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.MovieInfo;
@@ -17,6 +15,9 @@ import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.catalog.repository.SagaRepository;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -65,7 +66,7 @@ class SagaServiceTest {
 	void should_throw_exception_when_saga_name_already_exists_on_create() {
 		when(sagaRepository.existsByName("The Lord of the Rings")).thenReturn(true);
 
-		assertThrows(SagaAlreadyExistsException.class, () -> service.createSaga("The Lord of the Rings"));
+		assertThrows(DuplicationException.class, () -> service.createSaga("The Lord of the Rings"));
 
 		verify(sagaRepository).existsByName("The Lord of the Rings");
 		verify(sagaRepository, never()).save(any(Saga.class));
@@ -84,7 +85,7 @@ class SagaServiceTest {
 	void should_throw_exception_when_saga_id_does_not_exist() {
 		when(sagaRepository.findById("99")).thenReturn(Optional.empty());
 
-		assertThrows(SagaNotFoundException.class, () -> service.findById("99"));
+		assertThrows(NotFoundException.class, () -> service.findById("99"));
 	}
 
 	@Test
@@ -100,7 +101,7 @@ class SagaServiceTest {
 	void should_throw_exception_when_saga_name_does_not_exist() {
 		when(sagaRepository.findByName("Unknown Saga")).thenReturn(null);
 
-		assertThrows(SagaNotFoundException.class, () -> service.findByName("Unknown Saga"));
+		assertThrows(NotFoundException.class, () -> service.findByName("Unknown Saga"));
 	}
 
 	@Test
@@ -132,7 +133,7 @@ class SagaServiceTest {
 		when(sagaRepository.findById("1")).thenReturn(Optional.of(saga));
 		when(sagaRepository.existsByName("The Hobbit")).thenReturn(true);
 
-		assertThrows(SagaAlreadyExistsException.class, () -> service.updateSaga("1", "The Hobbit"));
+		assertThrows(DuplicationException.class, () -> service.updateSaga("1", "The Hobbit"));
 
 		verify(sagaRepository, never()).save(any(Saga.class));
 	}
