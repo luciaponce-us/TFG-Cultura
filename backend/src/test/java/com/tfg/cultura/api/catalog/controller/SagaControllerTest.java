@@ -16,7 +16,6 @@ import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.service.SagaService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -127,8 +126,7 @@ class SagaControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_conflict_when_updating_to_existing_saga_name() throws Exception {
-		when(sagaService.updateSaga(anyString(), anyString()))
-				.thenThrow(CatalogFactory.duplicationException);
+		when(sagaService.updateSaga(anyString(), anyString())).thenThrow(CatalogFactory.duplicationException);
 
 		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.TEXT_PLAIN).content("Existing Saga"))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());

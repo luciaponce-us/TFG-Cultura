@@ -15,8 +15,8 @@ import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaResponse;
 import com.tfg.cultura.api.catalog.service.RolSagaService;
-import com.tfg.cultura.api.core.factory.FileFactory;
 import com.tfg.cultura.api.core.exception.NotFoundException;
+import com.tfg.cultura.api.core.factory.FileFactory;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -116,8 +116,8 @@ class RolSagaControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_not_found_when_rol_saga_not_found() throws Exception {
-			when(rolSagaService.getById(anyString())).thenThrow(new NotFoundException("non-existent-id",
-					org.slf4j.LoggerFactory.getLogger("catalogLogger")));
+		when(rolSagaService.getById(anyString())).thenThrow(
+				new NotFoundException("non-existent-id", org.slf4j.LoggerFactory.getLogger("catalogLogger")));
 
 		mockMvc.perform(get(BASE_URL + "/{id}", "non-existent-id")).andExpect(status().isNotFound());
 	}
@@ -158,9 +158,8 @@ class RolSagaControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_not_found_when_updating_non_existent_rol_saga() throws Exception {
-		when(rolSagaService.update(anyString(), any(RolSagaRequest.class), any()))
-						.thenThrow(new NotFoundException("non-existent-id",
-								org.slf4j.LoggerFactory.getLogger("catalogLogger")));
+		when(rolSagaService.update(anyString(), any(RolSagaRequest.class), any())).thenThrow(
+				new NotFoundException("non-existent-id", org.slf4j.LoggerFactory.getLogger("catalogLogger")));
 
 		MockMultipartFile rolSagaPart = mockRolSagaPart(rolSagaRequest);
 

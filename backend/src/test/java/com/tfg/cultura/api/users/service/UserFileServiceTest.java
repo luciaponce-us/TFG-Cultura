@@ -65,8 +65,7 @@ class UserFileServiceTest {
 	@Test
 	void should_throw_FileUploadException_when_upload_fails() {
 		String userId = "123";
-		when(fileService.uploadPdf(any(), any()))
-				.thenThrow(new FileUploadException("Cloud error"));
+		when(fileService.uploadPdf(any(), any())).thenThrow(new FileUploadException("Cloud error"));
 
 		FileUploadException exception = assertThrows(FileUploadException.class,
 				() -> service.uploadPaymentReceiptPdf(userId, PDF_FILE));

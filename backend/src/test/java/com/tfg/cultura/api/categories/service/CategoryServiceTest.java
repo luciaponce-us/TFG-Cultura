@@ -14,7 +14,6 @@ import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
 import com.tfg.cultura.api.categories.repository.CategoryRepository;
 import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.exception.NotFoundException;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -90,8 +89,7 @@ class CategoryServiceTest {
 
 		when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
 
-		assertThrows(NotFoundException.class,
-				() -> service.findCategoryById(category.getId()));
+		assertThrows(NotFoundException.class, () -> service.findCategoryById(category.getId()));
 
 		verify(categoryRepository).findById(category.getId());
 	}

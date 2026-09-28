@@ -7,9 +7,9 @@ import com.tfg.cultura.api.catalog.model.dto.ItemRequest;
 import com.tfg.cultura.api.catalog.repository.AbstractItemRepository;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
-import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.service.SectionService;
@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public abstract class AbstractItemService<T extends Item, R extends AbstractItemRepository<T>, C extends ItemRequest, S>
 		implements
-		ItemServiceInterface<T, C, S> {
+			ItemServiceInterface<T, C, S> {
 
 	protected static final Logger logger = LoggerFactory.getLogger("catalogLogger");
 
@@ -96,16 +96,9 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 			postCreationActions(savedItem);
 			return mapper.apply(savedItem);
 		} else {
-			FileUploadRequest imageRequest = FileUploadRequest.builder()
-					.file(image)
-					.folder(getImageFolder())
-					.className("item")
-					.id(savedItem.getId())
-					.width(400)
-					.height(600)
-					.defaultFileUrl(getDefaultImageUrl())
-					.field("imageUrl")
-					.build();
+			FileUploadRequest imageRequest = FileUploadRequest.builder().file(image).folder(getImageFolder())
+					.className("item").id(savedItem.getId()).width(400).height(600).defaultFileUrl(getDefaultImageUrl())
+					.field("imageUrl").build();
 
 			String imageUrl = fileService.uploadImage(imageRequest, logger);
 
@@ -175,17 +168,9 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 			postUpdateActions(existingItem, updatedItem);
 			return mapper.apply(updatedItem);
 		} else {
-			FileUploadRequest imageRequest = FileUploadRequest.builder()
-					.file(image)
-					.folder(getImageFolder())
-					.className("item")
-					.id(id)
-					.width(400)
-					.height(600)
-					.defaultFileUrl(getDefaultImageUrl())
-					.field("imageUrl")
-					.resourceType("image")
-					.build();
+			FileUploadRequest imageRequest = FileUploadRequest.builder().file(image).folder(getImageFolder())
+					.className("item").id(id).width(400).height(600).defaultFileUrl(getDefaultImageUrl())
+					.field("imageUrl").resourceType("image").build();
 
 			String newImageUrl = fileService.updateImage(existingItem.getImageUrl(), imageRequest, logger);
 			updatedItem.setImageUrl(newImageUrl);

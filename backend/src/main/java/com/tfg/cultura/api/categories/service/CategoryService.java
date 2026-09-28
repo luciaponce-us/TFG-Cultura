@@ -7,7 +7,6 @@ import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
 import com.tfg.cultura.api.categories.repository.CategoryRepository;
 import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.exception.NotFoundException;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class CategoryService {
 		boolean exists = categoryRepository.existsByName(name);
 		if (exists) {
 			logger.error("Ya existe una categoría con el nombre: {}", sanitize(name));
-			throw new DuplicationException(logger, Map.of("name","Ya existe una categoría con el nombre: " + name));
+			throw new DuplicationException(logger, Map.of("name", "Ya existe una categoría con el nombre: " + name));
 		}
 
 		Category category = Category.builder().name(name).color(color).build();

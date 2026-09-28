@@ -69,9 +69,8 @@ class RolGameServiceTest {
 
 	@Test
 	void should_throw_exception_when_rol_saga_not_found() {
-		when(rolSagaService.findById(rolGame.getSaga().getId()))
-				.thenThrow(new NotFoundException("RolSaga not found",
-						org.slf4j.LoggerFactory.getLogger("catalogLogger")));
+		when(rolSagaService.findById(rolGame.getSaga().getId())).thenThrow(
+				new NotFoundException("RolSaga not found", org.slf4j.LoggerFactory.getLogger("catalogLogger")));
 
 		assertThrows(NotFoundException.class, () -> service.fillSpecificFields(rolGame, rolGameRequest));
 	}
@@ -92,8 +91,8 @@ class RolGameServiceTest {
 
 	@Test
 	void should_throw_exception_when_rol_saga_not_found_in_find_all_by_saga_id() {
-		when(rolSagaService.findById(rolSaga.getId())).thenThrow(new NotFoundException("RolSaga not found",
-				org.slf4j.LoggerFactory.getLogger("catalogLogger")));
+		when(rolSagaService.findById(rolSaga.getId())).thenThrow(
+				new NotFoundException("RolSaga not found", org.slf4j.LoggerFactory.getLogger("catalogLogger")));
 
 		assertThrows(NotFoundException.class, () -> service.findAllBySagaId(rolSaga.getId()));
 	}

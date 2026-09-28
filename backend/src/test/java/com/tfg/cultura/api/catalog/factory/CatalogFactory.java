@@ -179,6 +179,7 @@ public class CatalogFactory {
 	// EXCEPTIONS
 
 	public static final Logger logger = LoggerFactory.getLogger("test-logger");
-	public static final DuplicationException duplicationException = new DuplicationException(logger, Map.of("message", "Already exists"));
+	public static final DuplicationException duplicationException = new DuplicationException(logger,
+			Map.of("message", "Already exists"));
 	public static final NotFoundException notFoundException = new NotFoundException("Not found", logger);
 }

@@ -5,10 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -151,7 +148,7 @@ class AbstractItemServiceTest {
 	void should_throw_when_book_does_not_exist() {
 		when(repository.findById("book-id")).thenReturn(Optional.empty());
 
-				NotFoundException exception = assertThrows(NotFoundException.class, () -> service.findById("book-id"));
+		NotFoundException exception = assertThrows(NotFoundException.class, () -> service.findById("book-id"));
 
 		assertEquals("Item no encontrado con ID: book-id", exception.getMessage());
 
@@ -179,7 +176,7 @@ class AbstractItemServiceTest {
 
 		when(repository.findById("1")).thenReturn(Optional.empty());
 
-			assertThrows(NotFoundException.class, () -> service.getById("1"));
+		assertThrows(NotFoundException.class, () -> service.getById("1"));
 	}
 
 	@Test
@@ -231,7 +228,7 @@ class AbstractItemServiceTest {
 	void should_throw_when_updating_non_existing_book() {
 		when(repository.findById("1")).thenReturn(Optional.empty());
 
-			assertThrows(NotFoundException.class, () -> service.update("1", request, null));
+		assertThrows(NotFoundException.class, () -> service.update("1", request, null));
 	}
 
 	@Test
@@ -278,7 +275,7 @@ class AbstractItemServiceTest {
 
 		when(repository.findById("1")).thenReturn(Optional.empty());
 
-			assertThrows(NotFoundException.class, () -> service.delete("1"));
+		assertThrows(NotFoundException.class, () -> service.delete("1"));
 
 		verify(repository).findById("1");
 		verify(repository, never()).delete(any());

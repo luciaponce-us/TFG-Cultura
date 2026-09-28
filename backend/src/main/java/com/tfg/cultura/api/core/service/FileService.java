@@ -81,7 +81,7 @@ public class FileService {
 
 			validateFileSize(pdf, logger, request.getField());
 			request.setResourceType("raw");
-			
+
 			return uploadFile(request);
 		}
 		return request.getDefaultFileUrl();
@@ -90,7 +90,6 @@ public class FileService {
 	public String uploadImage(FileUploadRequest request, Logger logger) throws FileUploadException {
 		MultipartFile image = request.getFile();
 		if (image != null && !image.isEmpty()) {
-			
 
 			validateImageSize(image, logger, request.getField());
 			MultipartFile resizedImage = resizeImage(image, request.getWidth(), request.getHeight());
@@ -109,7 +108,7 @@ public class FileService {
 
 	public String updateImage(String oldUrl, FileUploadRequest request, Logger logger)
 			throws FileDeleteException, FileUploadException {
-				MultipartFile newImage = request.getFile();
+		MultipartFile newImage = request.getFile();
 		if (newImage != null && !newImage.isEmpty()) {
 			if (oldUrl != null && !oldUrl.equals(request.getDefaultFileUrl())) {
 				deleteFile(oldUrl);
@@ -119,7 +118,8 @@ public class FileService {
 		return oldUrl;
 	}
 
-	public String updateImage(String oldUrl, FileUploadRequest request) throws FileDeleteException, FileUploadException {
+	public String updateImage(String oldUrl, FileUploadRequest request)
+			throws FileDeleteException, FileUploadException {
 		return updateImage(oldUrl, request, appLogger);
 	}
 

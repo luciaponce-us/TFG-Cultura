@@ -1,12 +1,10 @@
 package com.tfg.cultura.api.core.validation.validators;
 
 import com.tfg.cultura.api.core.validation.annotations.ValidUrl;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class UrlValidator implements ConstraintValidator<ValidUrl, String> {
 
@@ -19,9 +17,8 @@ public class UrlValidator implements ConstraintValidator<ValidUrl, String> {
 			URI parsedUrl = new URI(url);
 			String scheme = parsedUrl.getScheme();
 			return ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)
-					|| "ftp".equalsIgnoreCase(scheme))
-					&& parsedUrl.getRawAuthority() != null && !parsedUrl.getRawAuthority().isEmpty()
-					&& parsedUrl.getHost() != null;
+					|| "ftp".equalsIgnoreCase(scheme)) && parsedUrl.getRawAuthority() != null
+					&& !parsedUrl.getRawAuthority().isEmpty() && parsedUrl.getHost() != null;
 		} catch (URISyntaxException exception) {
 			return false;
 		}

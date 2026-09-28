@@ -25,31 +25,17 @@ public class UserFileService {
 	private static final String PAYMENT_FOLDER = "cultura/payment_receipts";
 
 	protected String uploadAvatar(String userId, MultipartFile file) throws FileUploadException {
-		FileUploadRequest request = FileUploadRequest.builder()
-				.id(userId)
-				.className("user")
-				.file(file)
-				.folder(AVATAR_FOLDER)
-				.defaultFileUrl(AVATAR_PLACEHOLDER)
-				.width(300)
-				.height(300)
-				.resourceType("image")
-				.field("avatar")
-				.build();
+		FileUploadRequest request = FileUploadRequest.builder().id(userId).className("user").file(file)
+				.folder(AVATAR_FOLDER).defaultFileUrl(AVATAR_PLACEHOLDER).width(300).height(300).resourceType("image")
+				.field("avatar").build();
 		return fileService.uploadImage(request, logger);
 	}
 
 	protected String uploadPaymentReceiptPdf(String userId, MultipartFile file) throws FileUploadException {
 		validatePaymentReceipt(file);
-		FileUploadRequest request = FileUploadRequest.builder()
-				.id(userId)
-				.className("user")
-				.file(file)
-				.folder(PAYMENT_FOLDER)
-				.defaultFileUrl(PAYMENT_RECEIPT_PLACEHOLDER)
-				.resourceType("raw")
-				.field("paymentReceipt")
-				.build();
+		FileUploadRequest request = FileUploadRequest.builder().id(userId).className("user").file(file)
+				.folder(PAYMENT_FOLDER).defaultFileUrl(PAYMENT_RECEIPT_PLACEHOLDER).resourceType("raw")
+				.field("paymentReceipt").build();
 		return fileService.uploadPdf(request, logger);
 	}
 

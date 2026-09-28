@@ -76,17 +76,9 @@ public class RolSagaService {
 
 		deleteImage(rolSaga.getImageUrl());
 
-		FileUploadRequest fileUploadRequest = FileUploadRequest.builder()
-				.file(image)
-				.folder(getImageFolder())
-				.className("rolsaga")
-				.id(rolSaga.getId())
-				.width(400)
-				.height(600)
-				.defaultFileUrl(getDefaultImageUrl())
-				.resourceType("image")
-				.field("imageUrl")
-				.build();
+		FileUploadRequest fileUploadRequest = FileUploadRequest.builder().file(image).folder(getImageFolder())
+				.className("rolsaga").id(rolSaga.getId()).width(400).height(600).defaultFileUrl(getDefaultImageUrl())
+				.resourceType("image").field("imageUrl").build();
 
 		String imageUrl = fileService.uploadImage(fileUploadRequest, logger);
 
@@ -101,8 +93,8 @@ public class RolSagaService {
 	}
 
 	protected RolSaga findById(String id) throws NotFoundException {
-		return repository.findById(id).orElseThrow(() -> new NotFoundException(
-				"Saga de rol con id " + sanitize(id) + " no encontrada", logger));
+		return repository.findById(id).orElseThrow(
+				() -> new NotFoundException("Saga de rol con id " + sanitize(id) + " no encontrada", logger));
 	}
 
 	public Page<RolSagaResponse> getAll(Pageable pageable) {
@@ -113,8 +105,8 @@ public class RolSagaService {
 
 	@Transactional
 	public RolSagaResponse update(String id, RolSagaRequest request, MultipartFile image)
-			throws SectionNotFoundException, NotFoundException,
-			DuplicationException, FileDeleteException, FileUploadException {
+			throws SectionNotFoundException, NotFoundException, DuplicationException, FileDeleteException,
+			FileUploadException {
 		RolSaga existingRolSaga = findById(id);
 		boolean nameChanged = !existingRolSaga.getName().equalsIgnoreCase(request.getName().trim());
 		if (nameChanged) {
@@ -160,8 +152,7 @@ public class RolSagaService {
 
 	private void checkNameUniqueness(String name, String id) throws DuplicationException {
 		if (repository.existsByNameAndIdNot(name.trim(), id)) {
-			throw new DuplicationException(logger,
-					Map.of("name", "Ya existe una saga de rol con el mismo nombre"));
+			throw new DuplicationException(logger, Map.of("name", "Ya existe una saga de rol con el mismo nombre"));
 		}
 	}
 

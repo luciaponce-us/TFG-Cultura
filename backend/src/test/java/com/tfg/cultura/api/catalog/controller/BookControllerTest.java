@@ -144,7 +144,7 @@ class BookControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_book_is_not_found() throws Exception {
-			when(bookService.getById(anyString())).thenThrow(new NotFoundException("El libro no existe", logger));
+		when(bookService.getById(anyString())).thenThrow(new NotFoundException("El libro no existe", logger));
 
 		mockMvc.perform(get(BOOK_URL, "missing-id")).andExpect(status().isNotFound());
 
@@ -204,7 +204,7 @@ class BookControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_deleting_book_that_does_not_exist() throws Exception {
-			doThrow(new NotFoundException("El libro no existe", logger)).when(bookService).delete(anyString());
+		doThrow(new NotFoundException("El libro no existe", logger)).when(bookService).delete(anyString());
 
 		mockMvc.perform(delete(BOOK_URL, "missing-id")).andExpect(status().isNotFound());
 

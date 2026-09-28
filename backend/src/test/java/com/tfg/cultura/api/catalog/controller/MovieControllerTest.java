@@ -108,7 +108,8 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_conflict_when_movie_already_exists() throws Exception {
-		when(movieService.create(any(MovieRequest.class), any())).thenThrow(new DuplicationException(logger, Map.of("movie", "Ya existe una película con el mismo nombre, año de estreno y formato")));
+		when(movieService.create(any(MovieRequest.class), any())).thenThrow(new DuplicationException(logger,
+				Map.of("movie", "Ya existe una película con el mismo nombre, año de estreno y formato")));
 
 		MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
 
@@ -144,7 +145,7 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_movie_is_not_found() throws Exception {
-			when(movieService.getById(anyString())).thenThrow(new NotFoundException("La película no existe", logger));
+		when(movieService.getById(anyString())).thenThrow(new NotFoundException("La película no existe", logger));
 
 		mockMvc.perform(get(MOVIE_URL, "missing-id")).andExpect(status().isNotFound());
 
@@ -190,7 +191,7 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_deleting_movie_that_does_not_exist() throws Exception {
-			doThrow(new NotFoundException("La película no existe", logger)).when(movieService).delete(anyString());
+		doThrow(new NotFoundException("La película no existe", logger)).when(movieService).delete(anyString());
 
 		mockMvc.perform(delete(MOVIE_URL, "missing-id")).andExpect(status().isNotFound());
 
@@ -216,7 +217,8 @@ class MovieControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_conflict_when_updating_movie_that_already_exists() throws Exception {
-		when(movieService.update(anyString(), any(MovieRequest.class), any())).thenThrow(new DuplicationException(logger, Map.of("movie", "Ya existe una película con el mismo nombre, año de estreno y formato")));
+		when(movieService.update(anyString(), any(MovieRequest.class), any())).thenThrow(new DuplicationException(
+				logger, Map.of("movie", "Ya existe una película con el mismo nombre, año de estreno y formato")));
 
 		MockMultipartFile moviePart = mockMoviePart(movieCreateRequest);
 

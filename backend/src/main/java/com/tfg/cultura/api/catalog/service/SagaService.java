@@ -10,7 +10,6 @@ import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.catalog.repository.SagaRepository;
 import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.exception.NotFoundException;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,7 +34,8 @@ public class SagaService {
 		boolean exists = sagaRepository.existsByName(name);
 		if (exists) {
 			logger.error("Ya existe una saga con el nombre: {}", sanitize(name));
-			throw new DuplicationException(LoggerFactory.getLogger("catalogLogger"), Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
+			throw new DuplicationException(LoggerFactory.getLogger("catalogLogger"),
+					Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
 		}
 
 		Saga saga = Saga.builder().name(name).build();
@@ -78,7 +78,8 @@ public class SagaService {
 
 		if (!existingSaga.getName().equals(name) && sagaRepository.existsByName(name)) {
 			logger.error("Ya existe una saga con el nombre: {}", sanitize(name));
-			throw new DuplicationException(LoggerFactory.getLogger("catalogLogger"), Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
+			throw new DuplicationException(LoggerFactory.getLogger("catalogLogger"),
+					Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
 		}
 
 		existingSaga.setName(name);

@@ -70,8 +70,7 @@ class CategoryControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_conflict_when_category_already_exists() throws Exception {
-		when(categoryService.createCategory(any(CategoryRequest.class)))
-				.thenThrow(CatalogFactory.duplicationException);
+		when(categoryService.createCategory(any(CategoryRequest.class))).thenThrow(CatalogFactory.duplicationException);
 
 		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(categoryRequest)))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());
@@ -119,8 +118,7 @@ class CategoryControllerTest extends BaseControllerTest {
 	void should_return_not_found_when_category_does_not_exist() throws Exception {
 		String categoryId = category.getId();
 
-		when(categoryService.findCategoryById(categoryId))
-				.thenThrow(CatalogFactory.notFoundException);
+		when(categoryService.findCategoryById(categoryId)).thenThrow(CatalogFactory.notFoundException);
 
 		mockMvc.perform(get(CATEGORY_URL, categoryId)).andExpect(status().isNotFound());
 
@@ -172,8 +170,7 @@ class CategoryControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_deleting_missing_category() throws Exception {
-		doThrow(CatalogFactory.notFoundException).when(categoryDeletingService)
-				.deleteCategory(anyString());
+		doThrow(CatalogFactory.notFoundException).when(categoryDeletingService).deleteCategory(anyString());
 
 		mockMvc.perform(delete(CATEGORY_URL, "99")).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.message").exists());
