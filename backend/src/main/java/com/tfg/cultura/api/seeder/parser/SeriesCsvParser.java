@@ -22,7 +22,7 @@ public class SeriesCsvParser extends ItemCsvParser {
 
 	private Series mapLine(String line, Map<String, Section> sectionsByName, Map<String, Category> categoriesByName) {
 
-		String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+		String[] parts = lineToParts(line);
 
 		Series.SeriesBuilder<?, ?> builder = Series.builder();
 

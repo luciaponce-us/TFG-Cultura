@@ -31,7 +31,7 @@ public class BoardGameCsvParser extends ItemCsvParser {
 	private BoardGame mapLine(String line, Map<String, Section> sectionsByName, Map<String, Category> categoriesByName,
 			Map<String, BoardGame> baseGamesByName) {
 
-		String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+		String[] parts = lineToParts(line);
 
 		BoardGame.BoardGameBuilder<?, ?> builder = BoardGame.builder();
 

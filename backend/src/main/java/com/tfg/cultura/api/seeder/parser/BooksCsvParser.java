@@ -23,7 +23,7 @@ public class BooksCsvParser extends ItemCsvParser {
 	private Book mapLine(String line, Map<String, Section> sectionsByName, Map<String, Category> categoriesByName,
 			Map<String, Saga> sagasByName) {
 
-		String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+		String[] parts = lineToParts(line);
 
 		Book.BookBuilder<?, ?> builder = Book.builder();
 

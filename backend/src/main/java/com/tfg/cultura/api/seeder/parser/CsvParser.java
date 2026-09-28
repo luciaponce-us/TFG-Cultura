@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +32,22 @@ public abstract class CsvParser {
 	}
 
 	protected static String[] lineToParts(String line) {
-		return Arrays.stream(line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1)).map(String::trim)
-				.map(s -> s.replace("\"", "")).toArray(String[]::new);
+		List<String> parts = new ArrayList<>();
+		int fieldStart = 0;
+		boolean insideQuotes = false;
+
+		for (int index = 0; index < line.length(); index++) {
+			char character = line.charAt(index);
+			if (character == '\"') {
+				insideQuotes = !insideQuotes;
+			} else if (character == ',' && !insideQuotes) {
+				parts.add(clean(line.substring(fieldStart, index)));
+				fieldStart = index + 1;
+			}
+		}
+		parts.add(clean(line.substring(fieldStart)));
+
+		return parts.toArray(String[]::new);
 	}
 
 	protected static String parseNullableString(String value) {

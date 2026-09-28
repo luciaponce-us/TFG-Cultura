@@ -18,7 +18,7 @@ public class VideoGameCsvParser extends ItemCsvParser {
 
 	private VideoGame mapLine(String line, Map<String, Section> sectionsByName,
 			Map<String, Category> categoriesByName) {
-		String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+		String[] parts = lineToParts(line);
 
 		VideoGame.VideoGameBuilder<?, ?> builder = VideoGame.builder();
 
