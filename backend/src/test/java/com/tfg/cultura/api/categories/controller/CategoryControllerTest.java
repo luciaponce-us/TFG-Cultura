@@ -13,8 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
-import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
+import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.categories.factory.CategoryFactory;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
@@ -72,7 +71,7 @@ class CategoryControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_conflict_when_category_already_exists() throws Exception {
 		when(categoryService.createCategory(any(CategoryRequest.class)))
-				.thenThrow(new CategoryAlreadyExistsException(category.getName()));
+				.thenThrow(CatalogFactory.duplicationException);
 
 		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(categoryRequest)))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());
@@ -121,7 +120,7 @@ class CategoryControllerTest extends BaseControllerTest {
 		String categoryId = category.getId();
 
 		when(categoryService.findCategoryById(categoryId))
-				.thenThrow(new CategoryNotFoundException("Categoría no encontrada"));
+				.thenThrow(CatalogFactory.notFoundException);
 
 		mockMvc.perform(get(CATEGORY_URL, categoryId)).andExpect(status().isNotFound());
 
@@ -152,7 +151,7 @@ class CategoryControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_404_when_updating_missing_category() throws Exception {
 		when(categoryService.updateCategory(anyString(), any(CategoryRequest.class)))
-				.thenThrow(new CategoryNotFoundException("Categoría no encontrada con ID: 99"));
+				.thenThrow(CatalogFactory.notFoundException);
 
 		CategoryRequest updateRequest = CategoryRequest.builder().name("Updated Category").color("#000000").build();
 
@@ -173,7 +172,7 @@ class CategoryControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_deleting_missing_category() throws Exception {
-		doThrow(new CategoryNotFoundException("Categoría no encontrada con ID: 99")).when(categoryDeletingService)
+		doThrow(CatalogFactory.notFoundException).when(categoryDeletingService)
 				.deleteCategory(anyString());
 
 		mockMvc.perform(delete(CATEGORY_URL, "99")).andExpect(status().isNotFound())

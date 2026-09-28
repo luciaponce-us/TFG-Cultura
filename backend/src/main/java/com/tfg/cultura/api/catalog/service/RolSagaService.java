@@ -7,7 +7,6 @@ import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaResponse;
 import com.tfg.cultura.api.catalog.repository.RolGameRepository;
 import com.tfg.cultura.api.catalog.repository.RolSagaRepository;
-import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
@@ -53,7 +52,7 @@ public class RolSagaService {
 	// CREATE
 
 	@Transactional
-	public RolSagaResponse create(RolSagaRequest request, MultipartFile image) throws CategoryNotFoundException,
+	public RolSagaResponse create(RolSagaRequest request, MultipartFile image) throws NotFoundException,
 			SectionNotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		checkNameUniqueness(request.getName().trim(), null);
@@ -102,7 +101,7 @@ public class RolSagaService {
 
 	@Transactional
 	public RolSagaResponse update(String id, RolSagaRequest request, MultipartFile image)
-			throws CategoryNotFoundException, SectionNotFoundException, NotFoundException,
+			throws SectionNotFoundException, NotFoundException,
 			DuplicationException, FileDeleteException, FileUploadException {
 		RolSaga existingRolSaga = findById(id);
 		boolean nameChanged = !existingRolSaga.getName().equalsIgnoreCase(request.getName().trim());

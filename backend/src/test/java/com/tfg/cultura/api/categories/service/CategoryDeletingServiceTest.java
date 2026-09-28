@@ -7,10 +7,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.service.BookService;
-import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.repository.CategoryRepository;
+import com.tfg.cultura.api.core.exception.NotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,9 +58,9 @@ class CategoryDeletingServiceTest {
 	@Test
 	void should_throw_when_category_does_not_exist() {
 		when(categoryService.findCategoryById("category-id"))
-				.thenThrow(new CategoryNotFoundException("Categoría no encontrada"));
+				.thenThrow(CatalogFactory.notFoundException);
 
-		assertThrows(CategoryNotFoundException.class, () -> service.deleteCategory("category-id"));
+		assertThrows(NotFoundException.class, () -> service.deleteCategory("category-id"));
 
 		verify(categoryService).findCategoryById("category-id");
 		verify(bookService, never()).removeCategory(any());

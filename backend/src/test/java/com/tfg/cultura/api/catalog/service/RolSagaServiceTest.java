@@ -19,7 +19,6 @@ import com.tfg.cultura.api.catalog.model.dto.RolSagaRequest;
 import com.tfg.cultura.api.catalog.model.dto.RolSagaResponse;
 import com.tfg.cultura.api.catalog.repository.RolGameRepository;
 import com.tfg.cultura.api.catalog.repository.RolSagaRepository;
-import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.DuplicationException;
@@ -178,10 +177,10 @@ class RolSagaServiceTest {
 		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
 
 		when(categoryService.findCategoriesByIds(request.getCategoriesIds()))
-				.thenThrow(new CategoryNotFoundException("category-id"));
+				.thenThrow(CatalogFactory.notFoundException);
 
 		// When & Then
-		assertThrows(CategoryNotFoundException.class, () -> service.create(request, null));
+		assertThrows(NotFoundException.class, () -> service.create(request, null));
 
 		verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
 
@@ -286,7 +285,7 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_update_rol_saga_without_changing_name_or_image()
-			throws CategoryNotFoundException, SectionNotFoundException, NotFoundException,
+			throws SectionNotFoundException, NotFoundException,
 					DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
@@ -319,7 +318,7 @@ class RolSagaServiceTest {
 	}
 
 	@Test
-	void should_update_rol_saga_when_name_changes() throws CategoryNotFoundException, SectionNotFoundException,
+	void should_update_rol_saga_when_name_changes() throws SectionNotFoundException,
 				NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
@@ -387,7 +386,7 @@ class RolSagaServiceTest {
 	}
 
 	@Test
-	void should_propagate_category_not_found_exception_when_updating() throws CategoryNotFoundException {
+	void should_propagate_category_not_found_exception_when_updating() throws NotFoundException {
 
 		// Given
 
@@ -396,10 +395,10 @@ class RolSagaServiceTest {
 		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
 		when(categoryService.findCategoriesByIds(request.getCategoriesIds()))
-				.thenThrow(new CategoryNotFoundException("category-id"));
+				.thenThrow(CatalogFactory.notFoundException);
 
 		// When & Then
-		assertThrows(CategoryNotFoundException.class, () -> service.update(rolSaga.getId(), request, null));
+		assertThrows(NotFoundException.class, () -> service.update(rolSaga.getId(), request, null));
 
 		verify(repository).findById(rolSaga.getId());
 		verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
@@ -410,7 +409,7 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_propagate_section_not_found_exception_when_updating()
-			throws CategoryNotFoundException, SectionNotFoundException {
+			throws NotFoundException, SectionNotFoundException {
 
 		// Given
 		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
@@ -429,7 +428,7 @@ class RolSagaServiceTest {
 	}
 
 	@Test
-	void should_update_rol_saga_with_image() throws CategoryNotFoundException, SectionNotFoundException,
+	void should_update_rol_saga_with_image() throws SectionNotFoundException,
 				NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
@@ -462,7 +461,7 @@ class RolSagaServiceTest {
 	}
 
 	@Test
-	void should_not_update_image_when_image_is_empty() throws CategoryNotFoundException, SectionNotFoundException,
+	void should_not_update_image_when_image_is_empty() throws SectionNotFoundException,
 				NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given

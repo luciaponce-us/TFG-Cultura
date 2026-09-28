@@ -8,12 +8,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.categories.exception.CategoryAlreadyExistsException;
-import com.tfg.cultura.api.categories.exception.CategoryNotFoundException;
 import com.tfg.cultura.api.categories.factory.CategoryFactory;
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
 import com.tfg.cultura.api.categories.repository.CategoryRepository;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -65,7 +66,7 @@ class CategoryServiceTest {
 		when(categoryRepository.existsByName(category.getName())).thenReturn(true);
 
 		CategoryRequest request = CategoryFactory.validCategoryRequest();
-		assertThrows(CategoryAlreadyExistsException.class, () -> service.createCategory(request));
+		assertThrows(DuplicationException.class, () -> service.createCategory(request));
 
 		verify(categoryRepository).existsByName(category.getName());
 		verify(categoryRepository, never()).save(any());
@@ -89,10 +90,8 @@ class CategoryServiceTest {
 
 		when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
 
-		CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> service.findCategoryById(category.getId()));
-
-		assertEquals("Categoría no encontrada con ID: " + category.getId(), exception.getMessage());
 
 		verify(categoryRepository).findById(category.getId());
 	}
@@ -118,7 +117,7 @@ class CategoryServiceTest {
 	void should_throw_when_any_category_does_not_exist() {
 		when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
 
-		assertThrows(CategoryNotFoundException.class, () -> service.findCategoriesByIds(Set.of(category.getId())));
+		assertThrows(NotFoundException.class, () -> service.findCategoriesByIds(Set.of(category.getId())));
 
 		verify(categoryRepository).findById(category.getId());
 	}
@@ -172,7 +171,7 @@ class CategoryServiceTest {
 		when(categoryRepository.findById(nonExistingCategoryId)).thenReturn(Optional.empty());
 
 		CategoryRequest request = CategoryRequest.builder().name("Science Fiction").color(category.getColor()).build();
-		assertThrows(CategoryNotFoundException.class, () -> service.updateCategory(nonExistingCategoryId, request));
+		assertThrows(NotFoundException.class, () -> service.updateCategory(nonExistingCategoryId, request));
 
 		verify(categoryRepository).findById(nonExistingCategoryId);
 		verify(categoryRepository, never()).save(any());
