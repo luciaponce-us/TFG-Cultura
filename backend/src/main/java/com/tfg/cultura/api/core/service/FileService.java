@@ -29,6 +29,7 @@ public class FileService {
 
 	private Cloudinary cloudinary;
 	private static final Integer MAX_FILE_SIZE_MB = 2;
+	private static final String IMAGE_RESOURCE_TYPE = "image";
 
 	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
 	public FileService(Cloudinary cloudinary) {
@@ -96,7 +97,7 @@ public class FileService {
 			MultipartFile resizedImage = resizeImage(image, width, height);
 
 			FileUploadRequest request = FileUploadRequest.builder().file(resizedImage).folder(folder).publicId(publicId)
-					.resourceType("image").build();
+					.resourceType(IMAGE_RESOURCE_TYPE).build();
 
 			return uploadFile(request);
 		}
@@ -106,7 +107,7 @@ public class FileService {
 	public String uploadImage(String className, String id, MultipartFile image, String folder, String defaultImageUrl,
 			int width, int height) throws FileUploadException {
 		return uploadImage(className, id, image, folder, defaultImageUrl, width, height,
-				LoggerFactory.getLogger("appLogger"), "image");
+				LoggerFactory.getLogger("appLogger"), IMAGE_RESOURCE_TYPE);
 	}
 
 	public String updateImage(String oldUrl, String className, String id, MultipartFile newImage, String folder,
@@ -124,7 +125,7 @@ public class FileService {
 	public String updateImage(String oldUrl, String className, String id, MultipartFile newImage, String folder,
 			String defaultImageUrl, int width, int height) throws FileDeleteException, FileUploadException {
 		return updateImage(oldUrl, className, id, newImage, folder, defaultImageUrl, width, height,
-				LoggerFactory.getLogger("appLogger"), "image");
+				LoggerFactory.getLogger("appLogger"), IMAGE_RESOURCE_TYPE);
 	}
 
 	public MultipartFile resizeImage(MultipartFile file, int width, int height) {
@@ -146,7 +147,7 @@ public class FileService {
 	}
 
 	private void validateFileSize(MultipartFile file, Logger logger, String field) throws InvalidFileSizeException {
-		long maxSizeBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
+		long maxSizeBytes = MAX_FILE_SIZE_MB * 1024L * 1024;
 		if (file.getSize() > maxSizeBytes) {
 			throw new InvalidFileSizeException(logger, field, MAX_FILE_SIZE_MB);
 		}
