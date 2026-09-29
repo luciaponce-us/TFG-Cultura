@@ -5,19 +5,13 @@ import com.tfg.cultura.api.catalog.model.dto.*;
 import com.tfg.cultura.api.catalog.model.enumerators.*;
 import com.tfg.cultura.api.categories.factory.CategoryFactory;
 import com.tfg.cultura.api.categories.model.Category;
-import com.tfg.cultura.api.core.exception.DuplicationException;
-import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CatalogFactory {
 
@@ -29,8 +23,21 @@ public class CatalogFactory {
 		return Saga.builder().id("1").name("Test Saga").build();
 	}
 
+	public static Saga validSaga2() {
+		return Saga.builder().id("2").name("Test Saga 2").build();
+	}
+
+	public static SagaRequest validSagaRequest() {
+		return SagaRequest.builder().name("Test Saga Request").build();
+	}
+
 	public static Book validBook() {
 		return Book.builder().id("1").name("Test Book").author("Test Author").isbn("9780306406157").build();
+	}
+
+	public static Book validBookWithSaga(String bookId, Saga saga) {
+		return Book.builder().id(bookId).name("Test Book").author("Test Author").isbn("9780306406157").saga(saga)
+				.build();
 	}
 
 	public static BookRequest validBookCreateRequest() {
@@ -43,6 +50,14 @@ public class CatalogFactory {
 				.saga(validSaga()).build();
 
 		return Movie.builder().id("1").name("Test Movie").format(Format.DVD).numberOfDiscs(1).movieInfo(movieInfo)
+				.build();
+	}
+
+	public static Movie validMovieWithSaga(String movieId, Saga saga) {
+		MovieInfo movieInfo = MovieInfo.builder().releaseDate(LocalDate.of(2020, 1, 1)).trailerUrl(YT_EMBED_URL)
+				.saga(saga).build();
+
+		return Movie.builder().id(movieId).name("Test Movie").format(Format.DVD).numberOfDiscs(1).movieInfo(movieInfo)
 				.build();
 	}
 
@@ -176,10 +191,4 @@ public class CatalogFactory {
 				.trailerUrl(videoGame.getTrailerUrl()).build();
 	}
 
-	// EXCEPTIONS
-
-	public static final Logger logger = LoggerFactory.getLogger("test-logger");
-	public static final DuplicationException duplicationException = new DuplicationException(logger,
-			Map.of("message", "Already exists"));
-	public static final NotFoundException notFoundException = new NotFoundException("Not found", logger);
 }

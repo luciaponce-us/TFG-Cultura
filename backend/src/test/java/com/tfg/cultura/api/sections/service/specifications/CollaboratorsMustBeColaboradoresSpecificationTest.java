@@ -1,10 +1,10 @@
 package com.tfg.cultura.api.sections.service.specifications;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.tfg.cultura.api.sections.exception.InvalidCollaboratorRoleException;
+import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.enumerators.Role;
@@ -31,10 +31,10 @@ class CollaboratorsMustBeColaboradoresSpecificationTest {
 	void should_throw_when_a_user_is_not_colaborador() {
 		Set<User> collaborators = Set.of(createUser("user1", Role.COLABORADOR), createUser("manager", Role.ENCARGADO));
 
-		InvalidCollaboratorRoleException exception = assertThrows(InvalidCollaboratorRoleException.class,
+		ValidationException exception = assertThrows(ValidationException.class,
 				() -> specification.validate(collaborators));
 
-		assertTrue(exception.getMessage().contains("manager"));
+		assertNotNull(exception.getErrors().get("collaborators"));
 	}
 
 	@Test
@@ -42,11 +42,10 @@ class CollaboratorsMustBeColaboradoresSpecificationTest {
 		Set<User> collaborators = Set.of(createUser("user1", Role.COLABORADOR), createUser("manager", Role.ENCARGADO),
 				createUser("admin", Role.COORDINADOR));
 
-		InvalidCollaboratorRoleException exception = assertThrows(InvalidCollaboratorRoleException.class,
+		ValidationException exception = assertThrows(ValidationException.class,
 				() -> specification.validate(collaborators));
 
-		assertTrue(exception.getMessage().contains("manager"));
-		assertTrue(exception.getMessage().contains("admin"));
+		assertNotNull(exception.getErrors().get("collaborators"));
 	}
 
 	private User createUser(String username, Role role) {

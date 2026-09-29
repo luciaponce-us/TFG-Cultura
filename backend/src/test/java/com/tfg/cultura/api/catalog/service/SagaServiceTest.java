@@ -8,10 +8,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Movie;
-import com.tfg.cultura.api.catalog.model.MovieInfo;
 import com.tfg.cultura.api.catalog.model.Saga;
+import com.tfg.cultura.api.catalog.model.dto.SagaRequest;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.catalog.repository.SagaRepository;
@@ -43,31 +44,35 @@ class SagaServiceTest {
 	private SagaService service;
 
 	private Saga saga;
+	private Saga saga2;
+	private SagaRequest request;
 
 	@BeforeEach
 	void setUp() {
-		saga = Saga.builder().id("1").name("The Lord of the Rings").build();
+		saga = CatalogFactory.validSaga();
+		saga2 = CatalogFactory.validSaga2();
+		request = CatalogFactory.validSagaRequest();
 	}
 
 	@Test
 	void should_create_saga_when_name_is_available() {
-		when(sagaRepository.existsByName("The Lord of the Rings")).thenReturn(false);
+		when(sagaRepository.existsByName(request.getName())).thenReturn(false);
 		when(sagaRepository.save(any(Saga.class))).thenReturn(saga);
 
-		Saga result = service.createSaga("The Lord of the Rings");
+		Saga result = service.createSaga(request);
 
 		assertEquals(saga, result);
-		verify(sagaRepository).existsByName("The Lord of the Rings");
+		verify(sagaRepository).existsByName(request.getName());
 		verify(sagaRepository).save(any(Saga.class));
 	}
 
 	@Test
 	void should_throw_exception_when_saga_name_already_exists_on_create() {
-		when(sagaRepository.existsByName("The Lord of the Rings")).thenReturn(true);
+		when(sagaRepository.existsByName(request.getName())).thenReturn(true);
 
-		assertThrows(DuplicationException.class, () -> service.createSaga("The Lord of the Rings"));
+		assertThrows(DuplicationException.class, () -> service.createSaga(request));
 
-		verify(sagaRepository).existsByName("The Lord of the Rings");
+		verify(sagaRepository).existsByName(request.getName());
 		verify(sagaRepository, never()).save(any(Saga.class));
 	}
 
@@ -89,9 +94,9 @@ class SagaServiceTest {
 
 	@Test
 	void should_find_saga_by_name_when_present() {
-		when(sagaRepository.findByName("The Lord of the Rings")).thenReturn(saga);
+		when(sagaRepository.findByName(saga.getName())).thenReturn(saga);
 
-		Saga result = service.findByName("The Lord of the Rings");
+		Saga result = service.findByName(saga.getName());
 
 		assertEquals(saga, result);
 	}
@@ -105,8 +110,7 @@ class SagaServiceTest {
 
 	@Test
 	void should_return_all_sagas_ordered_by_name() {
-		List<Saga> expectedSagas = List.of(Saga.builder().id("2").name("B Saga").build(),
-				Saga.builder().id("1").name("A Saga").build());
+		List<Saga> expectedSagas = List.of(saga2, saga);
 		when(sagaRepository.findAllByOrderByNameAsc()).thenReturn(expectedSagas);
 
 		List<Saga> result = service.findAll();
@@ -117,36 +121,36 @@ class SagaServiceTest {
 
 	@Test
 	void should_update_saga_when_name_is_available() {
-		when(sagaRepository.findById("1")).thenReturn(Optional.of(saga));
-		when(sagaRepository.existsByName("The Hobbit")).thenReturn(false);
+		when(sagaRepository.findById(saga.getId())).thenReturn(Optional.of(saga));
+		when(sagaRepository.existsByName(request.getName())).thenReturn(false);
 		when(sagaRepository.save(any(Saga.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		Saga result = service.updateSaga("1", "The Hobbit");
+		Saga result = service.updateSaga(saga.getId(), request);
 
-		assertEquals("The Hobbit", result.getName());
+		assertEquals(request.getName(), result.getName());
 		verify(sagaRepository).save(any(Saga.class));
 	}
 
 	@Test
 	void should_throw_exception_when_update_name_already_exists() {
-		when(sagaRepository.findById("1")).thenReturn(Optional.of(saga));
-		when(sagaRepository.existsByName("The Hobbit")).thenReturn(true);
+		when(sagaRepository.findById(saga.getId())).thenReturn(Optional.of(saga));
+		when(sagaRepository.existsByName(request.getName())).thenReturn(true);
 
-		assertThrows(DuplicationException.class, () -> service.updateSaga("1", "The Hobbit"));
+		assertThrows(DuplicationException.class, () -> service.updateSaga(saga.getId(), request));
 
 		verify(sagaRepository, never()).save(any(Saga.class));
 	}
 
 	@Test
 	void should_delete_saga_and_detach_books_from_it() {
-		Book firstBook = Book.builder().id("b1").saga(saga).build();
-		Book secondBook = Book.builder().id("b2").saga(saga).build();
+		Book firstBook = CatalogFactory.validBookWithSaga("b1", saga);
+		Book secondBook = CatalogFactory.validBookWithSaga("b2", saga);
 
-		when(sagaRepository.findById("1")).thenReturn(Optional.of(saga));
+		when(sagaRepository.findById(saga.getId())).thenReturn(Optional.of(saga));
 		when(bookRepository.findAllBySaga(saga)).thenReturn(Set.of(firstBook, secondBook));
-		when(movieRepository.findAllByMovieInfoSagaId("1")).thenReturn(Set.of());
+		when(movieRepository.findAllByMovieInfoSagaId(saga.getId())).thenReturn(Set.of());
 
-		service.deleteSaga("1");
+		service.deleteSaga(saga.getId());
 
 		assertNull(firstBook.getSaga());
 		assertNull(secondBook.getSaga());
@@ -157,22 +161,21 @@ class SagaServiceTest {
 
 	@Test
 	void should_delete_saga_and_detach_movies_from_it() {
-		String sagaId = saga.getId();
-		Movie firstMovie = Movie.builder().id("m1").movieInfo(MovieInfo.builder().saga(saga).build()).build();
-		Movie secondMovie = Movie.builder().id("m2").movieInfo(MovieInfo.builder().saga(saga).build()).build();
+		Movie firstMovie = CatalogFactory.validMovieWithSaga("m1", saga);
+		Movie secondMovie = CatalogFactory.validMovieWithSaga("m2", saga);
 
-		when(sagaRepository.findById(sagaId)).thenReturn(Optional.of(saga));
+		when(sagaRepository.findById(saga.getId())).thenReturn(Optional.of(saga));
 		when(bookRepository.findAllBySaga(saga)).thenReturn(Set.of());
-		when(movieRepository.findAllByMovieInfoSagaId(sagaId)).thenReturn(Set.of(firstMovie, secondMovie));
+		when(movieRepository.findAllByMovieInfoSagaId(saga.getId())).thenReturn(Set.of(firstMovie, secondMovie));
 
 		when(movieRepository.save(firstMovie)).thenReturn(firstMovie);
 		when(movieRepository.save(secondMovie)).thenReturn(secondMovie);
 
-		service.deleteSaga(sagaId);
+		service.deleteSaga(saga.getId());
 
 		assertNull(firstMovie.getMovieInfo().getSaga());
 		assertNull(secondMovie.getMovieInfo().getSaga());
-		verify(movieRepository).findAllByMovieInfoSagaId(sagaId);
+		verify(movieRepository).findAllByMovieInfoSagaId(saga.getId());
 		verify(sagaRepository).delete(saga);
 	}
 }

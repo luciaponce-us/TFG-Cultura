@@ -1,8 +1,11 @@
 package com.tfg.cultura.api.catalog.controller;
 
 import com.tfg.cultura.api.catalog.model.Saga;
+import com.tfg.cultura.api.catalog.model.dto.SagaRequest;
 import com.tfg.cultura.api.catalog.service.SagaService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,8 +28,8 @@ public class SagaController {
 	private final SagaService sagaService;
 
 	@PostMapping
-	public ResponseEntity<Saga> createSaga(@RequestBody String name) {
-		Saga saga = sagaService.createSaga(name);
+	public ResponseEntity<Saga> createSaga(@Valid @RequestBody SagaRequest request) {
+		Saga saga = sagaService.createSaga(request);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(saga);
 	}
@@ -44,8 +47,8 @@ public class SagaController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Saga> updateSaga(@PathVariable String id, @RequestBody String name) {
-		Saga updatedSaga = sagaService.updateSaga(id, name);
+	public ResponseEntity<Saga> updateSaga(@PathVariable String id, @Valid @RequestBody SagaRequest request) {
+		Saga updatedSaga = sagaService.updateSaga(id, request);
 		return ResponseEntity.status(HttpStatus.OK).body(updatedSaga);
 	}
 

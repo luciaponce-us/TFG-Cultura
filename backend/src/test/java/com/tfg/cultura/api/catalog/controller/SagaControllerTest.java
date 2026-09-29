@@ -1,8 +1,11 @@
 package com.tfg.cultura.api.catalog.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -13,7 +16,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
 import com.tfg.cultura.api.catalog.model.Saga;
+import com.tfg.cultura.api.catalog.model.dto.SagaRequest;
 import com.tfg.cultura.api.catalog.service.SagaService;
+import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,36 +37,58 @@ class SagaControllerTest extends BaseControllerTest {
 	private static final String GET_SAGA_URL = BASE_URL + "/{name}";
 
 	private Saga saga;
+	private SagaRequest sagaRequest;
 
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.openMocks(this);
 		SagaController controller = new SagaController(sagaService);
 		mockMvc = buildMockMvc(controller);
-		saga = Saga.builder().id("1").name("Test Saga").build();
+		sagaRequest = CatalogFactory.validSagaRequest();
+		saga = CatalogFactory.validSaga();
 	}
 
 	// ====================== CREATE ======================
 
 	@Test
 	void should_create_saga_successfully() throws Exception {
-		when(sagaService.createSaga(anyString())).thenReturn(saga);
+		when(sagaService.createSaga(any(SagaRequest.class))).thenReturn(saga);
 
-		mockMvc.perform(post(BASE_URL).contentType(MediaType.TEXT_PLAIN).content(saga.getName()))
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(sagaRequest)))
 				.andExpect(status().isCreated()).andExpect(jsonPath("$.id").value(saga.getId()))
 				.andExpect(jsonPath("$.name").value(saga.getName()));
 
-		verify(sagaService).createSaga(saga.getName());
+		verify(sagaService).createSaga(any(SagaRequest.class));
 	}
 
 	@Test
 	void should_return_conflict_when_saga_already_exists() throws Exception {
-		when(sagaService.createSaga(anyString())).thenThrow(CatalogFactory.duplicationException);
+		when(sagaService.createSaga(any(SagaRequest.class))).thenThrow(ExceptionsFactory.duplicationException("name"));
 
-		mockMvc.perform(post(BASE_URL).contentType(MediaType.TEXT_PLAIN).content(saga.getName()))
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(sagaRequest)))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());
 
-		verify(sagaService).createSaga(saga.getName());
+		verify(sagaService).createSaga(any(SagaRequest.class));
+	}
+
+	@Test
+	void should_return_bad_request_when_creating_saga_with_blank_name() throws Exception {
+		SagaRequest invalidRequest = SagaRequest.builder().name(" ").build();
+
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(invalidRequest)))
+				.andExpect(status().isBadRequest());
+
+		verifyNoInteractions(sagaService);
+	}
+
+	@Test
+	void should_return_bad_request_when_creating_saga_with_short_name() throws Exception {
+		SagaRequest invalidRequest = SagaRequest.builder().name("Sa").build();
+
+		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(invalidRequest)))
+				.andExpect(status().isBadRequest());
+
+		verifyNoInteractions(sagaService);
 	}
 
 	// ====================== GET BY NAME ======================
@@ -78,7 +105,7 @@ class SagaControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_saga_by_name_not_found() throws Exception {
-		when(sagaService.findByName(anyString())).thenThrow(CatalogFactory.notFoundException);
+		when(sagaService.findByName(anyString())).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(get(GET_SAGA_URL, "missing-saga")).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.message").exists());
@@ -104,34 +131,48 @@ class SagaControllerTest extends BaseControllerTest {
 	@Test
 	void should_update_saga_successfully() throws Exception {
 		Saga updatedSaga = Saga.builder().id(saga.getId()).name("Updated Saga").build();
+		SagaRequest updateRequest = SagaRequest.builder().name(updatedSaga.getName()).build();
 
-		when(sagaService.updateSaga(anyString(), anyString())).thenReturn(updatedSaga);
+		when(sagaService.updateSaga(anyString(), any(SagaRequest.class))).thenReturn(updatedSaga);
 
-		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.TEXT_PLAIN).content(updatedSaga.getName()))
+		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(saga.getId()))
 				.andExpect(jsonPath("$.name").value(updatedSaga.getName()));
 
-		verify(sagaService).updateSaga(saga.getId(), updatedSaga.getName());
+		verify(sagaService).updateSaga(eq(saga.getId()), any(SagaRequest.class));
 	}
 
 	@Test
 	void should_return_404_when_updating_missing_saga() throws Exception {
-		when(sagaService.updateSaga(anyString(), anyString())).thenThrow(CatalogFactory.notFoundException);
+		SagaRequest updateRequest = SagaRequest.builder().name("Updated Saga").build();
+		when(sagaService.updateSaga(anyString(), any(SagaRequest.class))).thenThrow(ExceptionsFactory.notFoundException);
 
-		mockMvc.perform(put(SAGA_URL, "missing-id").contentType(MediaType.TEXT_PLAIN).content("Updated Saga"))
+		mockMvc.perform(put(SAGA_URL, "missing-id").contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
 				.andExpect(status().isNotFound()).andExpect(jsonPath("$.message").exists());
 
-		verify(sagaService).updateSaga("missing-id", "Updated Saga");
+		verify(sagaService).updateSaga(eq("missing-id"), any(SagaRequest.class));
 	}
 
 	@Test
 	void should_return_conflict_when_updating_to_existing_saga_name() throws Exception {
-		when(sagaService.updateSaga(anyString(), anyString())).thenThrow(CatalogFactory.duplicationException);
+		SagaRequest updateRequest = SagaRequest.builder().name("Existing Saga").build();
+		when(sagaService.updateSaga(anyString(), any(SagaRequest.class)))
+				.thenThrow(ExceptionsFactory.duplicationException("name"));
 
-		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.TEXT_PLAIN).content("Existing Saga"))
+		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());
 
-		verify(sagaService).updateSaga(saga.getId(), "Existing Saga");
+		verify(sagaService).updateSaga(eq(saga.getId()), any(SagaRequest.class));
+	}
+
+	@Test
+	void should_return_bad_request_when_updating_saga_with_blank_name() throws Exception {
+		SagaRequest invalidRequest = SagaRequest.builder().name("").build();
+
+		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(invalidRequest))).andExpect(status().isBadRequest());
+
+		verifyNoInteractions(sagaService);
 	}
 
 	// ====================== DELETE ======================
@@ -145,7 +186,7 @@ class SagaControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_deleting_missing_saga() throws Exception {
-		doThrow(CatalogFactory.notFoundException).when(sagaService).deleteSaga(anyString());
+		doThrow(ExceptionsFactory.notFoundException).when(sagaService).deleteSaga(anyString());
 
 		mockMvc.perform(delete(SAGA_URL, "missing-id")).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.message").exists());

@@ -12,7 +12,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.sections.exception.*;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.FieldException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
+import com.tfg.cultura.api.core.exception.ValidationException;
+import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
@@ -22,6 +26,8 @@ import com.tfg.cultura.api.sections.service.specifications.*;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.service.UserService;
+
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +35,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class SectionUpdateServiceTest {
@@ -103,9 +111,9 @@ class SectionUpdateServiceTest {
 	// ❌​ 404 - Not Found
 	@Test
 	void should_throw_when_section_not_found() {
-		doThrow(new SectionNotFoundException("error")).when(sectionService).findSectionById(sectionId);
+		doThrow(ExceptionsFactory.notFoundException).when(sectionService).findSectionById(sectionId);
 
-		assertThrows(SectionNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.updateSection(sectionId, sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
@@ -115,10 +123,10 @@ class SectionUpdateServiceTest {
 	@Test
 	void should_throw_when_section_name_already_exists() {
 
-		doThrow(new SectionAlreadyExistsException("error")).when(uniqueSectionNameSpecification)
+		doThrow(ExceptionsFactory.duplicationException("name")).when(uniqueSectionNameSpecification)
 				.validateForUpdate(sectionCreateRequest.getName(), sectionId);
 
-		assertThrows(SectionAlreadyExistsException.class,
+		assertThrows(DuplicationException.class,
 				() -> sectionUpdateService.updateSection(sectionId, sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
@@ -129,10 +137,10 @@ class SectionUpdateServiceTest {
 	void should_throw_when_manager_has_invalid_role() {
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
-		doThrow(new InvalidManagerRoleException("error")).when(sectionService).setSectionManagers(section,
+		doThrow(ExceptionsFactory.validationException("managers")).when(sectionService).setSectionManagers(section,
 				managerUsernames);
 
-		assertThrows(InvalidManagerRoleException.class,
+		assertThrows(ValidationException.class,
 				() -> sectionUpdateService.updateSection(sectionId, sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
@@ -143,10 +151,10 @@ class SectionUpdateServiceTest {
 	void should_throw_when_manager_is_already_assigned() {
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
-		doThrow(new ManagerAlreadyAssignedException("error")).when(sectionService).setSectionManagers(section,
+		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "managers")).when(sectionService).setSectionManagers(section,
 				managerUsernames);
 
-		assertThrows(ManagerAlreadyAssignedException.class,
+		assertThrows(FieldException.class,
 				() -> sectionUpdateService.updateSection(sectionId, sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
@@ -174,9 +182,9 @@ class SectionUpdateServiceTest {
 	// ❌​ 404 - Not Found
 	@Test
 	void should_throw_when_section_not_found_remove_manager() {
-		doThrow(new SectionNotFoundException("error")).when(sectionService).findSectionById(sectionId);
+		doThrow(ExceptionsFactory.notFoundException).when(sectionService).findSectionById(sectionId);
 
-		assertThrows(SectionNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.removeManagerFromSection(sectionId, managerUsername));
 
 		verify(userService, never()).findUserByUsername(anyString());
@@ -232,9 +240,9 @@ class SectionUpdateServiceTest {
 	// ❌ 404 - Not Found
 	@Test
 	void should_throw_when_section_not_found_remove_collaborator() {
-		doThrow(new SectionNotFoundException("error")).when(sectionService).findSectionById(sectionId);
+		doThrow(ExceptionsFactory.notFoundException).when(sectionService).findSectionById(sectionId);
 
-		assertThrows(SectionNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.removeCollaboratorFromSection(sectionId, collaboratorUsername));
 
 		verify(userService, never()).findUserByUsername(anyString());
@@ -293,9 +301,9 @@ class SectionUpdateServiceTest {
 	// ❌ 404 - Section Not Found
 	@Test
 	void should_throw_when_section_not_found_add_manager() {
-		doThrow(new SectionNotFoundException("error")).when(sectionService).findSectionById(sectionId);
+		doThrow(ExceptionsFactory.notFoundException).when(sectionService).findSectionById(sectionId);
 
-		assertThrows(SectionNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.addManagerToSection(sectionId, managerUsername));
 
 		verify(userService, never()).findUserByUsername(anyString());
@@ -322,10 +330,12 @@ class SectionUpdateServiceTest {
 
 		when(userService.findUserByUsername(managerUsername)).thenReturn(manager);
 
-		doThrow(new InvalidManagerRoleException("error")).when(managersMustBeEncargadosSpecification)
+
+
+		doThrow(ExceptionsFactory.validationException("managers")).when(managersMustBeEncargadosSpecification)
 				.validate(Set.of(manager));
 
-		assertThrows(InvalidManagerRoleException.class,
+		assertThrows(ValidationException.class,
 				() -> sectionUpdateService.addManagerToSection(sectionId, managerUsername));
 
 		verify(singleSectionManagerSpecification, never()).validate(anySet(), anyString());
@@ -339,10 +349,10 @@ class SectionUpdateServiceTest {
 
 		when(userService.findUserByUsername(managerUsername)).thenReturn(manager);
 
-		doThrow(new ManagerAlreadyAssignedException("error")).when(singleSectionManagerSpecification)
+		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "managers")).when(singleSectionManagerSpecification)
 				.validate(Set.of(manager), sectionId);
 
-		assertThrows(ManagerAlreadyAssignedException.class,
+		assertThrows(FieldException.class,
 				() -> sectionUpdateService.addManagerToSection(sectionId, managerUsername));
 
 		verify(sectionRepository, never()).save(any());
@@ -372,9 +382,9 @@ class SectionUpdateServiceTest {
 	// ❌ 404 - Section Not Found
 	@Test
 	void should_throw_when_section_not_found_add_collaborator() {
-		doThrow(new SectionNotFoundException("error")).when(sectionService).findSectionById(sectionId);
+		doThrow(ExceptionsFactory.notFoundException).when(sectionService).findSectionById(sectionId);
 
-		assertThrows(SectionNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(sectionId, collaboratorUsername));
 
 		verify(userService, never()).findUserByUsername(anyString());
@@ -401,10 +411,10 @@ class SectionUpdateServiceTest {
 
 		when(userService.findUserByUsername(collaboratorUsername)).thenReturn(collaborator);
 
-		doThrow(new InvalidCollaboratorRoleException("error")).when(collaboratorsMustBeColaboradoresSpecification)
+		doThrow(ExceptionsFactory.validationException("collaborators")).when(collaboratorsMustBeColaboradoresSpecification)
 				.validate(Set.of(collaborator));
 
-		assertThrows(InvalidCollaboratorRoleException.class,
+		assertThrows(ValidationException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(sectionId, collaboratorUsername));
 
 		verify(singleSectionCollaboratorSpecification, never()).validate(anySet(), anyString());
@@ -414,14 +424,15 @@ class SectionUpdateServiceTest {
 	// ❌ 409 - Collaborator Already Assigned
 	@Test
 	void should_throw_when_collaborator_already_assigned_to_other_section() {
+		FieldException fieldException = new FieldException(LoggerFactory.getLogger("testLogger"), HttpStatus.CONFLICT, Map.of("collaborators", "collaborator already assigned to another section"));
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
 		when(userService.findUserByUsername(collaboratorUsername)).thenReturn(collaborator);
 
-		doThrow(new CollaboratorAlreadyAssignedException("error")).when(singleSectionCollaboratorSpecification)
+		doThrow(fieldException).when(singleSectionCollaboratorSpecification)
 				.validate(Set.of(collaborator), sectionId);
 
-		assertThrows(CollaboratorAlreadyAssignedException.class,
+		assertThrows(FieldException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(sectionId, collaboratorUsername));
 
 		verify(sectionRepository, never()).save(any());

@@ -5,6 +5,7 @@ import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 import com.tfg.cultura.api.catalog.model.Book;
 import com.tfg.cultura.api.catalog.model.Movie;
 import com.tfg.cultura.api.catalog.model.Saga;
+import com.tfg.cultura.api.catalog.model.dto.SagaRequest;
 import com.tfg.cultura.api.catalog.repository.BookRepository;
 import com.tfg.cultura.api.catalog.repository.MovieRepository;
 import com.tfg.cultura.api.catalog.repository.SagaRepository;
@@ -30,12 +31,11 @@ public class SagaService {
 
 	// CREATE
 
-	public Saga createSaga(String name) throws DuplicationException {
+	public Saga createSaga(SagaRequest request) throws DuplicationException {
+		String name = request.getName();
 		boolean exists = sagaRepository.existsByName(name);
 		if (exists) {
-			logger.error("Ya existe una saga con el nombre: {}", sanitize(name));
-			throw new DuplicationException(LoggerFactory.getLogger("catalogLogger"),
-					Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
+			throw new DuplicationException(logger, Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
 		}
 
 		Saga saga = Saga.builder().name(name).build();
@@ -51,7 +51,6 @@ public class SagaService {
 			return optionalSaga.get();
 		} else {
 			String errorMessage = "Saga no encontrada con ID: " + sanitize(id);
-			logger.error(errorMessage);
 			throw new NotFoundException(errorMessage, logger);
 		}
 	}
@@ -73,13 +72,12 @@ public class SagaService {
 
 	// UPDATE
 
-	public Saga updateSaga(String id, String name) throws NotFoundException, DuplicationException {
+	public Saga updateSaga(String id, SagaRequest request) throws NotFoundException, DuplicationException {
 		Saga existingSaga = findById(id);
+		String name = request.getName();
 
 		if (!existingSaga.getName().equals(name) && sagaRepository.existsByName(name)) {
-			logger.error("Ya existe una saga con el nombre: {}", sanitize(name));
-			throw new DuplicationException(LoggerFactory.getLogger("catalogLogger"),
-					Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
+			throw new DuplicationException(logger, Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
 		}
 
 		existingSaga.setName(name);

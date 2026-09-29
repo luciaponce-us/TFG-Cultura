@@ -1,6 +1,9 @@
 package com.tfg.cultura.api.sections.service;
 
-import com.tfg.cultura.api.sections.exception.*;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.FieldException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
+import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
 import com.tfg.cultura.api.sections.model.dto.SectionResponse;
@@ -14,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 @Service
 @RequiredArgsConstructor
@@ -32,14 +37,13 @@ public class SectionService {
 
 	// HELPER
 
-	public Section findSectionById(String id) throws SectionNotFoundException {
+	public Section findSectionById(String id) throws NotFoundException {
 		return sectionRepository.findById(id).orElseThrow(() -> {
-			return new SectionNotFoundException(id);
+			return new NotFoundException("Sección no encontrada con ID: " + sanitize(id), logger);
 		});
 	}
 
-	void setSectionManagers(Section section, Set<String> managersUsernames)
-			throws InvalidManagerRoleException, ManagerAlreadyAssignedException {
+	void setSectionManagers(Section section, Set<String> managersUsernames) throws ValidationException, FieldException {
 
 		Set<User> managers = userService.findUsersByUsernames(managersUsernames);
 
@@ -50,7 +54,7 @@ public class SectionService {
 	}
 
 	void setSectionCollaborators(Section section, Set<String> collaboratorsUsernames)
-			throws InvalidCollaboratorRoleException, CollaboratorAlreadyAssignedException {
+			throws ValidationException, FieldException {
 
 		Set<User> collaborators = userService.findUsersByUsernames(collaboratorsUsernames);
 
@@ -62,9 +66,7 @@ public class SectionService {
 
 	// CREATE
 
-	public SectionResponse createSection(SectionCreateRequest request)
-			throws SectionAlreadyExistsException, InvalidManagerRoleException, ManagerAlreadyAssignedException,
-			InvalidCollaboratorRoleException, CollaboratorAlreadyAssignedException {
+	public SectionResponse createSection(SectionCreateRequest request) throws DuplicationException, ValidationException, FieldException {
 
 		uniqueSectionNameSpecification.validate(request.getName());
 
@@ -91,14 +93,14 @@ public class SectionService {
 		return sections.stream().map(SectionResponse::new).toList();
 	}
 
-	public SectionResponse getSectionById(String id) throws SectionNotFoundException {
+	public SectionResponse getSectionById(String id) throws NotFoundException {
 		Section section = findSectionById(id);
 		return new SectionResponse(section);
 	}
 
 	// DELETE
 
-	public void deleteSection(String id) throws SectionNotFoundException {
+	public void deleteSection(String id) throws NotFoundException {
 		Section section = findSectionById(id);
 		sectionRepository.delete(section);
 		logger.info("Sección eliminada con éxito: {}", section.getName());

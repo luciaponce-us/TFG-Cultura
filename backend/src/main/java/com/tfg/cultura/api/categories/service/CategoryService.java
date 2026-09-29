@@ -1,7 +1,5 @@
 package com.tfg.cultura.api.categories.service;
 
-import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
-
 import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
 import com.tfg.cultura.api.categories.repository.CategoryRepository;
@@ -33,8 +31,7 @@ public class CategoryService {
 
 		boolean exists = categoryRepository.existsByName(name);
 		if (exists) {
-			logger.error("Ya existe una categoría con el nombre: {}", sanitize(name));
-			throw new DuplicationException(logger, Map.of("name", "Ya existe una categoría con el nombre: " + name));
+			throw new DuplicationException(logger, Map.of("name","Ya existe una categoría con el nombre: " + name));
 		}
 
 		Category category = Category.builder().name(name).color(color).build();
@@ -47,7 +44,6 @@ public class CategoryService {
 	public Category findCategoryById(String id) throws NotFoundException {
 		Optional<Category> category = categoryRepository.findById(id);
 		if (category.isEmpty()) {
-			logger.error("Categoría no encontrada con ID: {}", sanitize(id));
 			throw new NotFoundException("Categoría no encontrada con ID: " + id, logger);
 		}
 		return category.get();

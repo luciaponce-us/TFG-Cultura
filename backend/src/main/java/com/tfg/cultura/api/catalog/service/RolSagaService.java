@@ -16,7 +16,6 @@ import com.tfg.cultura.api.core.exception.file.FileDeleteException;
 import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.model.dto.FileUploadRequest;
 import com.tfg.cultura.api.core.service.FileService;
-import com.tfg.cultura.api.sections.exception.SectionNotFoundException;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.Map;
@@ -53,8 +52,7 @@ public class RolSagaService {
 	// CREATE
 
 	@Transactional
-	public RolSagaResponse create(RolSagaRequest request, MultipartFile image) throws NotFoundException,
-			SectionNotFoundException, DuplicationException, FileDeleteException, FileUploadException {
+	public RolSagaResponse create(RolSagaRequest request, MultipartFile image) throws NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		checkNameUniqueness(request.getName().trim(), null);
 
@@ -105,8 +103,8 @@ public class RolSagaService {
 
 	@Transactional
 	public RolSagaResponse update(String id, RolSagaRequest request, MultipartFile image)
-			throws SectionNotFoundException, NotFoundException, DuplicationException, FileDeleteException,
-			FileUploadException {
+			throws NotFoundException,
+			DuplicationException, FileDeleteException, FileUploadException {
 		RolSaga existingRolSaga = findById(id);
 		boolean nameChanged = !existingRolSaga.getName().equalsIgnoreCase(request.getName().trim());
 		if (nameChanged) {

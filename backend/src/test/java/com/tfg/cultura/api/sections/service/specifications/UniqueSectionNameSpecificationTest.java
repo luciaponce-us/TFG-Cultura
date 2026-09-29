@@ -1,13 +1,11 @@
 package com.tfg.cultura.api.sections.service.specifications;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.sections.exception.SectionAlreadyExistsException;
+import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.repository.SectionRepository;
@@ -43,10 +41,8 @@ class UniqueSectionNameSpecificationTest {
 
 		when(sectionRepository.findByName("Section")).thenReturn(Optional.of(section));
 
-		SectionAlreadyExistsException exception = assertThrows(SectionAlreadyExistsException.class,
+		assertThrows(DuplicationException.class,
 				() -> specification.validate("Section"));
-
-		assertTrue(exception.getMessage().contains("Section"));
 
 		verify(sectionRepository).findByName("Section");
 	}
@@ -81,10 +77,9 @@ class UniqueSectionNameSpecificationTest {
 
 		when(sectionRepository.findByName("Cultura")).thenReturn(Optional.of(existingSection));
 
-		SectionAlreadyExistsException exception = assertThrows(SectionAlreadyExistsException.class,
+		assertThrows(DuplicationException.class,
 				() -> specification.validateForUpdate("Cultura", "sectionId"));
 
-		assertEquals("La sección con nombre Cultura ya existe", exception.getMessage());
 
 		verify(sectionRepository).findByName("Cultura");
 	}

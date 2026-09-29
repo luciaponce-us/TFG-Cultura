@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.sections.exception.ManagerAlreadyAssignedException;
+import com.tfg.cultura.api.core.exception.FieldException;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.repository.SectionRepository;
 import com.tfg.cultura.api.users.factory.UserFactory;
@@ -53,9 +53,9 @@ class SingleSectionManagerSpecificationTest {
 
 		Set<User> managers = Set.of(manager1, manager2);
 
-		ManagerAlreadyAssignedException exception = assertThrows(ManagerAlreadyAssignedException.class,
+		FieldException exception = assertThrows(FieldException.class,
 				() -> specification.validate(managers));
-		assertTrue(exception.getMessage().contains("manager1"));
+		assertTrue(exception.getErrors().get("managers").contains("manager1"));
 	}
 
 	@Test
@@ -68,10 +68,10 @@ class SingleSectionManagerSpecificationTest {
 
 		Set<User> managers = Set.of(manager1, manager2);
 
-		ManagerAlreadyAssignedException exception = assertThrows(ManagerAlreadyAssignedException.class,
+		FieldException exception = assertThrows(FieldException.class,
 				() -> specification.validate(managers));
-		assertTrue(exception.getMessage().contains("manager1"));
-		assertTrue(exception.getMessage().contains("manager2"));
+		assertTrue(exception.getErrors().get("managers").contains("manager1"));
+		assertTrue(exception.getErrors().get("managers").contains("manager2"));
 	}
 
 	private User createUser(String username) {

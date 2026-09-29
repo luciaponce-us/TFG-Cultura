@@ -74,10 +74,6 @@ class AbstractItemServiceTest {
 				.copies(2).availableCopies(2).loanAvailable(true).sagaName("Harry Potter").build();
 	}
 
-	private void mockFileServiceUploadImage(String imageUrl) {
-		when(fileService.uploadImage(any(), any())).thenReturn(imageUrl);
-	}
-
 	private void mockFileServiceUpdateImage(String imageUrl) {
 		when(fileService.updateImage(any(), any(), any())).thenReturn(imageUrl);
 	}

@@ -1,7 +1,10 @@
 package com.tfg.cultura.api.sections.service;
 
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.FieldException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
+import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.core.utils.LoggerSanitizer;
-import com.tfg.cultura.api.sections.exception.*;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
 import com.tfg.cultura.api.sections.model.dto.SectionResponse;
@@ -34,7 +37,7 @@ public class SectionUpdateService {
 	private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
 
 	public SectionResponse updateSection(String id, SectionCreateRequest request)
-			throws SectionNotFoundException, SectionAlreadyExistsException {
+			throws NotFoundException, DuplicationException {
 		Section section = sectionService.findSectionById(id);
 		uniqueSectionNameSpecification.validateForUpdate(request.getName(), id);
 
@@ -49,7 +52,7 @@ public class SectionUpdateService {
 	}
 
 	public SectionResponse removeManagerFromSection(String sectionId, String managerUsername)
-			throws SectionNotFoundException, UserNotFoundException {
+			throws NotFoundException, UserNotFoundException {
 		Section section = sectionService.findSectionById(sectionId);
 		User manager = userService.findUserByUsername(managerUsername);
 
@@ -75,7 +78,7 @@ public class SectionUpdateService {
 	}
 
 	public SectionResponse removeCollaboratorFromSection(String sectionId, String collaboratorUsername)
-			throws SectionNotFoundException, UserNotFoundException {
+			throws NotFoundException, UserNotFoundException {
 		Section section = sectionService.findSectionById(sectionId);
 		User collaborator = userService.findUserByUsername(collaboratorUsername);
 		String sanitizedCollaboratorUsername = LoggerSanitizer.sanitize(collaboratorUsername);
@@ -102,8 +105,7 @@ public class SectionUpdateService {
 	}
 
 	public SectionResponse addManagerToSection(String sectionId, String managerUsername)
-			throws SectionNotFoundException, UserNotFoundException, InvalidManagerRoleException,
-			ManagerAlreadyAssignedException {
+			throws NotFoundException, UserNotFoundException, ValidationException, FieldException {
 		Section section = sectionService.findSectionById(sectionId);
 		User manager = userService.findUserByUsername(managerUsername);
 
@@ -119,8 +121,7 @@ public class SectionUpdateService {
 	}
 
 	public SectionResponse addCollaboratorToSection(String sectionId, String collaboratorUsername)
-			throws SectionNotFoundException, UserNotFoundException, InvalidCollaboratorRoleException,
-			CollaboratorAlreadyAssignedException {
+			throws NotFoundException, UserNotFoundException, ValidationException, FieldException {
 		Section section = sectionService.findSectionById(sectionId);
 		User collaborator = userService.findUserByUsername(collaboratorUsername);
 

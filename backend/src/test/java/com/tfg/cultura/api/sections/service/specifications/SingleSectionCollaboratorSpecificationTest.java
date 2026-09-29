@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.sections.exception.CollaboratorAlreadyAssignedException;
+import com.tfg.cultura.api.core.exception.FieldException;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.repository.SectionRepository;
 import com.tfg.cultura.api.users.factory.UserFactory;
@@ -53,9 +53,9 @@ class SingleSectionCollaboratorSpecificationTest {
 
 		Set<User> collaborators = Set.of(collaborator1, collaborator2);
 
-		CollaboratorAlreadyAssignedException exception = assertThrows(CollaboratorAlreadyAssignedException.class,
+		FieldException exception = assertThrows(FieldException.class,
 				() -> specification.validate(collaborators));
-		assertTrue(exception.getMessage().contains("collaborator1"));
+		assertTrue(exception.getErrors().get("collaborators").contains("collaborator1"));
 	}
 
 	@Test
@@ -68,10 +68,10 @@ class SingleSectionCollaboratorSpecificationTest {
 
 		Set<User> collaborators = Set.of(collaborator1, collaborator2);
 
-		CollaboratorAlreadyAssignedException exception = assertThrows(CollaboratorAlreadyAssignedException.class,
+		FieldException exception = assertThrows(FieldException.class,
 				() -> specification.validate(collaborators));
-		assertTrue(exception.getMessage().contains("collaborator1"));
-		assertTrue(exception.getMessage().contains("collaborator2"));
+		assertTrue(exception.getErrors().get("collaborators").contains("collaborator1"));
+		assertTrue(exception.getErrors().get("collaborators").contains("collaborator2"));
 	}
 
 	private User createUser(String username) {

@@ -5,6 +5,8 @@ import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
 import com.tfg.cultura.api.categories.service.CategoryDeletingService;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +30,7 @@ public class CategoryController {
 	private final CategoryDeletingService categoryDeletingService;
 
 	@PostMapping
-	public ResponseEntity<Category> createCategory(@RequestBody CategoryRequest request) {
+	public ResponseEntity<Category> createCategory(@Valid @RequestBody CategoryRequest request) {
 		Category category = categoryService.createCategory(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(category);
 	}
@@ -46,7 +48,7 @@ public class CategoryController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Category> updateCategory(@PathVariable String id, @RequestBody CategoryRequest request) {
+	public ResponseEntity<Category> updateCategory(@PathVariable String id, @Valid @RequestBody CategoryRequest request) {
 		Category updatedCategory = categoryService.updateCategory(id, request);
 		return ResponseEntity.status(HttpStatus.OK).body(updatedCategory);
 	}

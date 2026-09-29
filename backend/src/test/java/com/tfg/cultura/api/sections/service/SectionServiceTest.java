@@ -15,7 +15,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.sections.exception.*;
+import com.tfg.cultura.api.core.exception.FieldException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
+import com.tfg.cultura.api.core.exception.ValidationException;
+import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.sections.factory.SectionFactory;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
@@ -34,6 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class SectionServiceTest {
@@ -123,10 +127,10 @@ class SectionServiceTest {
 	// ❌​ 409 - Conflict - Section Already Exists
 	@Test
 	void should_throw_when_section_name_already_exists() {
-		doThrow(new SectionAlreadyExistsException("error")).when(uniqueSectionNameSpecification)
+		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "name")).when(uniqueSectionNameSpecification)
 				.validate(sectionCreateRequest.getName());
 
-		assertThrows(SectionAlreadyExistsException.class, () -> sectionService.createSection(sectionCreateRequest));
+		assertThrows(FieldException.class, () -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -136,10 +140,10 @@ class SectionServiceTest {
 	void should_throw_when_manager_has_invalid_role() {
 		manager.setRole(Role.SOCIO); // Manager has invalid role
 		when(userService.findUsersByUsernames(managerUsernames)).thenReturn(Set.of(manager));
-		doThrow(new InvalidManagerRoleException("error")).when(managersMustBeEncargadosSpecification)
+		doThrow(ExceptionsFactory.validationException("managers")).when(managersMustBeEncargadosSpecification)
 				.validate(anySet());
 
-		assertThrows(InvalidManagerRoleException.class, () -> sectionService.createSection(sectionCreateRequest));
+		assertThrows(ValidationException.class, () -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -147,10 +151,10 @@ class SectionServiceTest {
 	// ❌​ 409 - Conflict - Manager Already Assigned
 	@Test
 	void should_throw_when_manager_is_already_assigned() {
-		doThrow(new ManagerAlreadyAssignedException("error")).when(singleSectionManagerSpecification).validate(anySet(),
+		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "managers")).when(singleSectionManagerSpecification).validate(anySet(),
 				isNull());
 
-		assertThrows(ManagerAlreadyAssignedException.class, () -> sectionService.createSection(sectionCreateRequest));
+		assertThrows(FieldException.class, () -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -160,10 +164,10 @@ class SectionServiceTest {
 	void should_throw_when_collaborator_has_invalid_role() {
 		mockExistingUsersWithRoles(Role.ENCARGADO, Role.SOCIO); // Collaborator has invalid role
 
-		doThrow(new InvalidCollaboratorRoleException("error")).when(collaboratorsMustBeColaboradoresSpecification)
+		doThrow(ExceptionsFactory.validationException( "collaborators")).when(collaboratorsMustBeColaboradoresSpecification)
 				.validate(anySet());
 
-		assertThrows(InvalidCollaboratorRoleException.class, () -> sectionService.createSection(sectionCreateRequest));
+		assertThrows(ValidationException.class, () -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -173,10 +177,10 @@ class SectionServiceTest {
 	void should_throw_when_collaborator_is_already_assigned() {
 		mockExistingUsersWithRoles(Role.ENCARGADO, Role.COLABORADOR);
 
-		doThrow(new CollaboratorAlreadyAssignedException("error")).when(singleSectionCollaboratorSpecification)
+		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "collaborators")).when(singleSectionCollaboratorSpecification)
 				.validate(anySet(), isNull());
 
-		assertThrows(CollaboratorAlreadyAssignedException.class,
+		assertThrows(FieldException.class,
 				() -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
@@ -244,7 +248,7 @@ class SectionServiceTest {
 
 	// ✅​ 200 - OK
 	@Test
-	void should_return_section_when_section_exists() throws SectionNotFoundException {
+	void should_return_section_when_section_exists() {
 		// Arrange
 		when(sectionRepository.findById(section.getId())).thenReturn(Optional.of(section));
 
@@ -268,10 +272,8 @@ class SectionServiceTest {
 		when(sectionRepository.findById(id)).thenReturn(Optional.empty());
 
 		// Act & Assert
-		SectionNotFoundException exception = assertThrows(SectionNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionService.getSectionById(id));
-
-		assertEquals("Sección no encontrada con id: " + id, exception.getMessage());
 
 		verify(sectionRepository).findById(id);
 	}
@@ -298,7 +300,7 @@ class SectionServiceTest {
 		String sectionId = "non-existing-id";
 		when(sectionRepository.findById(sectionId)).thenReturn(Optional.empty());
 
-		assertThrows(SectionNotFoundException.class, () -> sectionService.deleteSection(sectionId));
+		assertThrows(NotFoundException.class, () -> sectionService.deleteSection(sectionId));
 
 		verify(sectionRepository).findById(sectionId);
 		verify(sectionRepository, never()).delete(any());
