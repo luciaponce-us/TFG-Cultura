@@ -135,7 +135,8 @@ class SagaControllerTest extends BaseControllerTest {
 
 		when(sagaService.updateSaga(anyString(), any(SagaRequest.class))).thenReturn(updatedSaga);
 
-		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
+		mockMvc.perform(
+				put(SAGA_URL, saga.getId()).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(saga.getId()))
 				.andExpect(jsonPath("$.name").value(updatedSaga.getName()));
 
@@ -145,9 +146,11 @@ class SagaControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_404_when_updating_missing_saga() throws Exception {
 		SagaRequest updateRequest = SagaRequest.builder().name("Updated Saga").build();
-		when(sagaService.updateSaga(anyString(), any(SagaRequest.class))).thenThrow(ExceptionsFactory.notFoundException);
+		when(sagaService.updateSaga(anyString(), any(SagaRequest.class)))
+				.thenThrow(ExceptionsFactory.notFoundException);
 
-		mockMvc.perform(put(SAGA_URL, "missing-id").contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
+		mockMvc.perform(
+				put(SAGA_URL, "missing-id").contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
 				.andExpect(status().isNotFound()).andExpect(jsonPath("$.message").exists());
 
 		verify(sagaService).updateSaga(eq("missing-id"), any(SagaRequest.class));
@@ -159,7 +162,8 @@ class SagaControllerTest extends BaseControllerTest {
 		when(sagaService.updateSaga(anyString(), any(SagaRequest.class)))
 				.thenThrow(ExceptionsFactory.duplicationException("name"));
 
-		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
+		mockMvc.perform(
+				put(SAGA_URL, saga.getId()).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.message").exists());
 
 		verify(sagaService).updateSaga(eq(saga.getId()), any(SagaRequest.class));
@@ -169,8 +173,9 @@ class SagaControllerTest extends BaseControllerTest {
 	void should_return_bad_request_when_updating_saga_with_blank_name() throws Exception {
 		SagaRequest invalidRequest = SagaRequest.builder().name("").build();
 
-		mockMvc.perform(put(SAGA_URL, saga.getId()).contentType(MediaType.APPLICATION_JSON)
-				.content(toJson(invalidRequest))).andExpect(status().isBadRequest());
+		mockMvc.perform(
+				put(SAGA_URL, saga.getId()).contentType(MediaType.APPLICATION_JSON).content(toJson(invalidRequest)))
+				.andExpect(status().isBadRequest());
 
 		verifyNoInteractions(sagaService);
 	}

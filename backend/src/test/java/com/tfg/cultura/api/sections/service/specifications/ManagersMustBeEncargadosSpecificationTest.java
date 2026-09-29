@@ -32,8 +32,7 @@ class ManagersMustBeEncargadosSpecificationTest {
 		Set<User> managers = Set.of(createUser("manager1", Role.ENCARGADO),
 				createUser("collaborator", Role.COLABORADOR));
 
-		ValidationException exception = assertThrows(ValidationException.class,
-				() -> specification.validate(managers));
+		ValidationException exception = assertThrows(ValidationException.class, () -> specification.validate(managers));
 
 		assertNotNull(exception.getErrors().get("managers"));
 	}
@@ -43,8 +42,7 @@ class ManagersMustBeEncargadosSpecificationTest {
 		Set<User> managers = Set.of(createUser("manager1", Role.ENCARGADO),
 				createUser("collaborator", Role.COLABORADOR), createUser("coordinator", Role.COORDINADOR));
 
-		ValidationException exception = assertThrows(ValidationException.class,
-				() -> specification.validate(managers));
+		ValidationException exception = assertThrows(ValidationException.class, () -> specification.validate(managers));
 
 		assertNotNull(exception.getErrors().get("managers"));
 	}

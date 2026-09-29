@@ -53,8 +53,7 @@ class SingleSectionManagerSpecificationTest {
 
 		Set<User> managers = Set.of(manager1, manager2);
 
-		FieldException exception = assertThrows(FieldException.class,
-				() -> specification.validate(managers));
+		FieldException exception = assertThrows(FieldException.class, () -> specification.validate(managers));
 		assertTrue(exception.getErrors().get("managers").contains("manager1"));
 	}
 
@@ -68,8 +67,7 @@ class SingleSectionManagerSpecificationTest {
 
 		Set<User> managers = Set.of(manager1, manager2);
 
-		FieldException exception = assertThrows(FieldException.class,
-				() -> specification.validate(managers));
+		FieldException exception = assertThrows(FieldException.class, () -> specification.validate(managers));
 		assertTrue(exception.getErrors().get("managers").contains("manager1"));
 		assertTrue(exception.getErrors().get("managers").contains("manager2"));
 	}

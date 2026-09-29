@@ -221,8 +221,7 @@ class SectionControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_not_found_when_section_does_not_exist() throws Exception {
 		// Arrange
-		when(sectionService.getSectionById(section.getId()))
-				.thenThrow(ExceptionsFactory.notFoundException);
+		when(sectionService.getSectionById(section.getId())).thenThrow(ExceptionsFactory.notFoundException);
 
 		// Act & Assert
 		mockMvc.perform(get(SECTION_URL, section.getId())).andExpect(status().isNotFound());

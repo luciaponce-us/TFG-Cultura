@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.sections.service;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 import com.tfg.cultura.api.core.exception.DuplicationException;
 import com.tfg.cultura.api.core.exception.FieldException;
 import com.tfg.cultura.api.core.exception.NotFoundException;
@@ -17,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +66,8 @@ public class SectionService {
 
 	// CREATE
 
-	public SectionResponse createSection(SectionCreateRequest request) throws DuplicationException, ValidationException, FieldException {
+	public SectionResponse createSection(SectionCreateRequest request)
+			throws DuplicationException, ValidationException, FieldException {
 
 		uniqueSectionNameSpecification.validate(request.getName());
 

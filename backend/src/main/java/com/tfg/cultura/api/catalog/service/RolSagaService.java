@@ -52,7 +52,8 @@ public class RolSagaService {
 	// CREATE
 
 	@Transactional
-	public RolSagaResponse create(RolSagaRequest request, MultipartFile image) throws NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
+	public RolSagaResponse create(RolSagaRequest request, MultipartFile image)
+			throws NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		checkNameUniqueness(request.getName().trim(), null);
 
@@ -103,8 +104,7 @@ public class RolSagaService {
 
 	@Transactional
 	public RolSagaResponse update(String id, RolSagaRequest request, MultipartFile image)
-			throws NotFoundException,
-			DuplicationException, FileDeleteException, FileUploadException {
+			throws NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 		RolSaga existingRolSaga = findById(id);
 		boolean nameChanged = !existingRolSaga.getName().equalsIgnoreCase(request.getName().trim());
 		if (nameChanged) {

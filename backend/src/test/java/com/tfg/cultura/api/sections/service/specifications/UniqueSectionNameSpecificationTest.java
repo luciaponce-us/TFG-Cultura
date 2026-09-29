@@ -41,8 +41,7 @@ class UniqueSectionNameSpecificationTest {
 
 		when(sectionRepository.findByName("Section")).thenReturn(Optional.of(section));
 
-		assertThrows(DuplicationException.class,
-				() -> specification.validate("Section"));
+		assertThrows(DuplicationException.class, () -> specification.validate("Section"));
 
 		verify(sectionRepository).findByName("Section");
 	}
@@ -77,9 +76,7 @@ class UniqueSectionNameSpecificationTest {
 
 		when(sectionRepository.findByName("Cultura")).thenReturn(Optional.of(existingSection));
 
-		assertThrows(DuplicationException.class,
-				() -> specification.validateForUpdate("Cultura", "sectionId"));
-
+		assertThrows(DuplicationException.class, () -> specification.validateForUpdate("Cultura", "sectionId"));
 
 		verify(sectionRepository).findByName("Cultura");
 	}

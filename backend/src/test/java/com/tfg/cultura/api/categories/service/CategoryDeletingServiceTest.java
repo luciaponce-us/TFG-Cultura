@@ -12,7 +12,6 @@ import com.tfg.cultura.api.categories.model.Category;
 import com.tfg.cultura.api.categories.repository.CategoryRepository;
 import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.factory.ExceptionsFactory;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,8 +56,7 @@ class CategoryDeletingServiceTest {
 
 	@Test
 	void should_throw_when_category_does_not_exist() {
-		when(categoryService.findCategoryById("category-id"))
-				.thenThrow(ExceptionsFactory.notFoundException);
+		when(categoryService.findCategoryById("category-id")).thenThrow(ExceptionsFactory.notFoundException);
 
 		assertThrows(NotFoundException.class, () -> service.deleteCategory("category-id"));
 

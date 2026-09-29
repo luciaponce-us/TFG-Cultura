@@ -190,8 +190,7 @@ class RolSagaServiceTest {
 		// Given
 		when(repository.existsByNameAndIdNot(request.getName(), null)).thenReturn(false);
 
-		when(sectionService.findSectionById(request.getSectionId()))
-				.thenThrow(ExceptionsFactory.notFoundException);
+		when(sectionService.findSectionById(request.getSectionId())).thenThrow(ExceptionsFactory.notFoundException);
 
 		// When & Then
 		assertThrows(NotFoundException.class, () -> service.create(request, null));
@@ -280,8 +279,7 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_update_rol_saga_without_changing_name_or_image()
-			throws NotFoundException,
-					DuplicationException, FileDeleteException, FileUploadException {
+			throws NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
 
@@ -313,8 +311,8 @@ class RolSagaServiceTest {
 	}
 
 	@Test
-		void should_update_rol_saga_when_name_changes() throws NotFoundException, DuplicationException,
-				FileDeleteException, FileUploadException {
+	void should_update_rol_saga_when_name_changes()
+			throws NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
 
@@ -403,14 +401,12 @@ class RolSagaServiceTest {
 	}
 
 	@Test
-	void should_propagate_section_not_found_exception_when_updating()
-			throws NotFoundException {
+	void should_propagate_section_not_found_exception_when_updating() throws NotFoundException {
 
 		// Given
 		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
 
-		when(sectionService.findSectionById(request.getSectionId()))
-				.thenThrow(ExceptionsFactory.notFoundException);
+		when(sectionService.findSectionById(request.getSectionId())).thenThrow(ExceptionsFactory.notFoundException);
 
 		// When & Then
 		assertThrows(NotFoundException.class, () -> service.update(rolSaga.getId(), request, null));
@@ -423,8 +419,8 @@ class RolSagaServiceTest {
 	}
 
 	@Test
-	void should_update_rol_saga_with_image() throws NotFoundException, DuplicationException,
-				FileDeleteException, FileUploadException {
+	void should_update_rol_saga_with_image()
+			throws NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
 
@@ -454,8 +450,8 @@ class RolSagaServiceTest {
 	}
 
 	@Test
-	void should_not_update_image_when_image_is_empty() throws NotFoundException, DuplicationException,
-				FileDeleteException, FileUploadException {
+	void should_not_update_image_when_image_is_empty()
+			throws NotFoundException, DuplicationException, FileDeleteException, FileUploadException {
 
 		// Given
 		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));

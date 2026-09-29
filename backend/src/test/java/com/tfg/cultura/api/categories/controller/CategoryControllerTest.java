@@ -119,8 +119,7 @@ class CategoryControllerTest extends BaseControllerTest {
 	void should_return_not_found_when_category_does_not_exist() throws Exception {
 		String categoryId = category.getId();
 
-		when(categoryService.findCategoryById(categoryId))
-				.thenThrow(ExceptionsFactory.notFoundException);
+		when(categoryService.findCategoryById(categoryId)).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(get(CATEGORY_URL, categoryId)).andExpect(status().isNotFound());
 
@@ -172,8 +171,7 @@ class CategoryControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_deleting_missing_category() throws Exception {
-		doThrow(ExceptionsFactory.notFoundException).when(categoryDeletingService)
-				.deleteCategory(anyString());
+		doThrow(ExceptionsFactory.notFoundException).when(categoryDeletingService).deleteCategory(anyString());
 
 		mockMvc.perform(delete(CATEGORY_URL, "99")).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.message").exists());

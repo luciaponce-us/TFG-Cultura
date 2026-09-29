@@ -35,7 +35,8 @@ public class SagaService {
 		String name = request.getName();
 		boolean exists = sagaRepository.existsByName(name);
 		if (exists) {
-			throw new DuplicationException(logger, Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
+			throw new DuplicationException(logger,
+					Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
 		}
 
 		Saga saga = Saga.builder().name(name).build();
@@ -77,7 +78,8 @@ public class SagaService {
 		String name = request.getName();
 
 		if (!existingSaga.getName().equals(name) && sagaRepository.existsByName(name)) {
-			throw new DuplicationException(logger, Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
+			throw new DuplicationException(logger,
+					Map.of("name", "Ya existe una saga con el nombre: " + sanitize(name)));
 		}
 
 		existingSaga.setName(name);

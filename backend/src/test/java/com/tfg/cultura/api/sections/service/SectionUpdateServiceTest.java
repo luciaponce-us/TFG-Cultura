@@ -26,7 +26,6 @@ import com.tfg.cultura.api.sections.service.specifications.*;
 import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.service.UserService;
-
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -151,11 +150,10 @@ class SectionUpdateServiceTest {
 	void should_throw_when_manager_is_already_assigned() {
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
-		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "managers")).when(sectionService).setSectionManagers(section,
-				managerUsernames);
+		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "managers")).when(sectionService)
+				.setSectionManagers(section, managerUsernames);
 
-		assertThrows(FieldException.class,
-				() -> sectionUpdateService.updateSection(sectionId, sectionCreateRequest));
+		assertThrows(FieldException.class, () -> sectionUpdateService.updateSection(sectionId, sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -330,8 +328,6 @@ class SectionUpdateServiceTest {
 
 		when(userService.findUserByUsername(managerUsername)).thenReturn(manager);
 
-
-
 		doThrow(ExceptionsFactory.validationException("managers")).when(managersMustBeEncargadosSpecification)
 				.validate(Set.of(manager));
 
@@ -349,11 +345,10 @@ class SectionUpdateServiceTest {
 
 		when(userService.findUserByUsername(managerUsername)).thenReturn(manager);
 
-		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "managers")).when(singleSectionManagerSpecification)
-				.validate(Set.of(manager), sectionId);
+		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "managers"))
+				.when(singleSectionManagerSpecification).validate(Set.of(manager), sectionId);
 
-		assertThrows(FieldException.class,
-				() -> sectionUpdateService.addManagerToSection(sectionId, managerUsername));
+		assertThrows(FieldException.class, () -> sectionUpdateService.addManagerToSection(sectionId, managerUsername));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -411,8 +406,8 @@ class SectionUpdateServiceTest {
 
 		when(userService.findUserByUsername(collaboratorUsername)).thenReturn(collaborator);
 
-		doThrow(ExceptionsFactory.validationException("collaborators")).when(collaboratorsMustBeColaboradoresSpecification)
-				.validate(Set.of(collaborator));
+		doThrow(ExceptionsFactory.validationException("collaborators"))
+				.when(collaboratorsMustBeColaboradoresSpecification).validate(Set.of(collaborator));
 
 		assertThrows(ValidationException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(sectionId, collaboratorUsername));
@@ -424,13 +419,13 @@ class SectionUpdateServiceTest {
 	// ❌ 409 - Collaborator Already Assigned
 	@Test
 	void should_throw_when_collaborator_already_assigned_to_other_section() {
-		FieldException fieldException = new FieldException(LoggerFactory.getLogger("testLogger"), HttpStatus.CONFLICT, Map.of("collaborators", "collaborator already assigned to another section"));
+		FieldException fieldException = new FieldException(LoggerFactory.getLogger("testLogger"), HttpStatus.CONFLICT,
+				Map.of("collaborators", "collaborator already assigned to another section"));
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
 		when(userService.findUserByUsername(collaboratorUsername)).thenReturn(collaborator);
 
-		doThrow(fieldException).when(singleSectionCollaboratorSpecification)
-				.validate(Set.of(collaborator), sectionId);
+		doThrow(fieldException).when(singleSectionCollaboratorSpecification).validate(Set.of(collaborator), sectionId);
 
 		assertThrows(FieldException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(sectionId, collaboratorUsername));

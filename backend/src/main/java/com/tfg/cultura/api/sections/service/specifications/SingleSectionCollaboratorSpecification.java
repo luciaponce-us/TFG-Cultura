@@ -43,9 +43,7 @@ public class SingleSectionCollaboratorSpecification implements BusinessSpecifica
 		}
 
 		if (!alreadyAssignedCollaborators.isEmpty()) {
-			throw new FieldException(
-					logger,
-					HttpStatus.CONFLICT,
+			throw new FieldException(logger, HttpStatus.CONFLICT,
 					Map.of("collaborators",
 							"Los siguientes usuarios ya están asignados como colaboradores de otras secciones: "
 									+ alreadyAssignedCollaborators));

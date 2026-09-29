@@ -53,8 +53,7 @@ class SingleSectionCollaboratorSpecificationTest {
 
 		Set<User> collaborators = Set.of(collaborator1, collaborator2);
 
-		FieldException exception = assertThrows(FieldException.class,
-				() -> specification.validate(collaborators));
+		FieldException exception = assertThrows(FieldException.class, () -> specification.validate(collaborators));
 		assertTrue(exception.getErrors().get("collaborators").contains("collaborator1"));
 	}
 
@@ -68,8 +67,7 @@ class SingleSectionCollaboratorSpecificationTest {
 
 		Set<User> collaborators = Set.of(collaborator1, collaborator2);
 
-		FieldException exception = assertThrows(FieldException.class,
-				() -> specification.validate(collaborators));
+		FieldException exception = assertThrows(FieldException.class, () -> specification.validate(collaborators));
 		assertTrue(exception.getErrors().get("collaborators").contains("collaborator1"));
 		assertTrue(exception.getErrors().get("collaborators").contains("collaborator2"));
 	}

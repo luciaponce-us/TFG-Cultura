@@ -151,8 +151,8 @@ class SectionServiceTest {
 	// ❌​ 409 - Conflict - Manager Already Assigned
 	@Test
 	void should_throw_when_manager_is_already_assigned() {
-		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "managers")).when(singleSectionManagerSpecification).validate(anySet(),
-				isNull());
+		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "managers"))
+				.when(singleSectionManagerSpecification).validate(anySet(), isNull());
 
 		assertThrows(FieldException.class, () -> sectionService.createSection(sectionCreateRequest));
 
@@ -164,8 +164,8 @@ class SectionServiceTest {
 	void should_throw_when_collaborator_has_invalid_role() {
 		mockExistingUsersWithRoles(Role.ENCARGADO, Role.SOCIO); // Collaborator has invalid role
 
-		doThrow(ExceptionsFactory.validationException( "collaborators")).when(collaboratorsMustBeColaboradoresSpecification)
-				.validate(anySet());
+		doThrow(ExceptionsFactory.validationException("collaborators"))
+				.when(collaboratorsMustBeColaboradoresSpecification).validate(anySet());
 
 		assertThrows(ValidationException.class, () -> sectionService.createSection(sectionCreateRequest));
 
@@ -177,11 +177,10 @@ class SectionServiceTest {
 	void should_throw_when_collaborator_is_already_assigned() {
 		mockExistingUsersWithRoles(Role.ENCARGADO, Role.COLABORADOR);
 
-		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "collaborators")).when(singleSectionCollaboratorSpecification)
-				.validate(anySet(), isNull());
+		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "collaborators"))
+				.when(singleSectionCollaboratorSpecification).validate(anySet(), isNull());
 
-		assertThrows(FieldException.class,
-				() -> sectionService.createSection(sectionCreateRequest));
+		assertThrows(FieldException.class, () -> sectionService.createSection(sectionCreateRequest));
 
 		verify(sectionRepository, never()).save(any());
 	}
@@ -272,8 +271,7 @@ class SectionServiceTest {
 		when(sectionRepository.findById(id)).thenReturn(Optional.empty());
 
 		// Act & Assert
-		assertThrows(NotFoundException.class,
-				() -> sectionService.getSectionById(id));
+		assertThrows(NotFoundException.class, () -> sectionService.getSectionById(id));
 
 		verify(sectionRepository).findById(id);
 	}

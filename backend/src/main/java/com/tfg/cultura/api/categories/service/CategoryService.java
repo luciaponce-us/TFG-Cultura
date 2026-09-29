@@ -31,7 +31,7 @@ public class CategoryService {
 
 		boolean exists = categoryRepository.existsByName(name);
 		if (exists) {
-			throw new DuplicationException(logger, Map.of("name","Ya existe una categoría con el nombre: " + name));
+			throw new DuplicationException(logger, Map.of("name", "Ya existe una categoría con el nombre: " + name));
 		}
 
 		Category category = Category.builder().name(name).color(color).build();

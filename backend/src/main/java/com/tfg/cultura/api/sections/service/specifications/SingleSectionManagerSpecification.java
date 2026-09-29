@@ -44,7 +44,8 @@ public class SingleSectionManagerSpecification implements BusinessSpecification<
 		}
 
 		if (!alreadyAssignedManagers.isEmpty()) {
-			throw new FieldException(logger,HttpStatus.CONFLICT,Map.of("managers", "El gestor ya está asignado a otra sección: " + alreadyAssignedManagers.toString()));
+			throw new FieldException(logger, HttpStatus.CONFLICT, Map.of("managers",
+					"El gestor ya está asignado a otra sección: " + alreadyAssignedManagers.toString()));
 		}
 	}
 

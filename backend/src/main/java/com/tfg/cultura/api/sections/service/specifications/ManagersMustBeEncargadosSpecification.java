@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.sections.service.specifications;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.core.service.BusinessSpecification;
 import com.tfg.cultura.api.users.model.User;
@@ -7,11 +9,9 @@ import com.tfg.cultura.api.users.model.enumerators.Role;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 @Component
 public class ManagersMustBeEncargadosSpecification implements BusinessSpecification<Set<User>> {
@@ -30,10 +30,8 @@ public class ManagersMustBeEncargadosSpecification implements BusinessSpecificat
 				.map(User::getUsername).toList();
 
 		if (!nonEncargados.isEmpty()) {
-			throw new ValidationException(
-					logger,
-					Map.of("managers",
-							"Los siguientes usuarios no son encargados: " + sanitize(nonEncargados.toString())));
+			throw new ValidationException(logger, Map.of("managers",
+					"Los siguientes usuarios no son encargados: " + sanitize(nonEncargados.toString())));
 		}
 	}
 

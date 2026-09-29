@@ -24,7 +24,8 @@ public class UniqueSectionNameSpecification implements BusinessSpecification<Str
 		Optional<Section> existingSection = sectionRepository.findByName(name);
 		if (existingSection.isPresent()) {
 			String existingSectionName = existingSection.get().getName();
-			throw new DuplicationException(logger, Map.of("name", "La sección con nombre " + existingSectionName + " ya existe."));
+			throw new DuplicationException(logger,
+					Map.of("name", "La sección con nombre " + existingSectionName + " ya existe."));
 		}
 	}
 
@@ -32,7 +33,8 @@ public class UniqueSectionNameSpecification implements BusinessSpecification<Str
 		Optional<Section> existingSection = sectionRepository.findByName(name);
 		if (existingSection.isPresent() && !existingSection.get().getId().equals(currentSectionId)) {
 			String existingSectionName = existingSection.get().getName();
-			throw new DuplicationException(logger, Map.of("name", "La sección con nombre " + existingSectionName + " ya existe."));
+			throw new DuplicationException(logger,
+					Map.of("name", "La sección con nombre " + existingSectionName + " ya existe."));
 		}
 	}
 
