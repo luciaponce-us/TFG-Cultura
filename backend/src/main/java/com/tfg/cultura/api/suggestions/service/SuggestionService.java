@@ -80,7 +80,8 @@ public class SuggestionService {
 		return new SuggestionResponse(suggestion);
 	}
 
-	public SuggestionResponse toggleSupport(String id) throws ValidationException, NotFoundException, UnathenticatedException {
+	public SuggestionResponse toggleSupport(String id)
+			throws ValidationException, NotFoundException, UnathenticatedException {
 		CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
 		User currentUser = userService.findUserById(currentUserDetails.getId());
 		Suggestion suggestion = findSuggestionById(id);
