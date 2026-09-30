@@ -85,6 +85,26 @@ class JwtFilterTest {
 	}
 
 	@Test
+	void should_authenticate_suggestions_request_when_token_is_valid() throws Exception {
+		String token = "validToken";
+		String userId = "lucia";
+		when(request.getRequestURI()).thenReturn("/api/suggestions");
+		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+		when(jwtService.extractId(token)).thenReturn(userId);
+		when(userDetailsService.loadUserById(userId)).thenReturn(userDetails);
+		when(userDetails.isEnabled()).thenReturn(true);
+		when(jwtService.isTokenValid(token, userDetails)).thenReturn(true);
+		when(userDetails.getAuthorities()).thenReturn(java.util.List.of());
+
+		filter.doFilterInternal(request, response, filterChain);
+
+		verify(jwtService).extractId(token);
+		verify(userDetailsService).loadUserById(userId);
+		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+		verify(filterChain).doFilter(request, response);
+	}
+
+	@Test
 	void should_continue_when_header_does_not_start_with_bearer() throws Exception {
 		when(request.getHeader("Authorization")).thenReturn("Basic 123");
 

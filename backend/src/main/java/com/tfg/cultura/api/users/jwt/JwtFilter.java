@@ -54,9 +54,6 @@ public class JwtFilter extends OncePerRequestFilter {
 			// Users - Auth
 			Map.entry("/api/users/auth/**", Set.of(HttpMethod.POST)),
 
-			// Suggestions
-			Map.entry("/api/suggestions", Set.of(HttpMethod.GET)),
-
 			// Sections
 			Map.entry("/api/sections", Set.of(HttpMethod.GET)), Map.entry("/api/sections/**", Set.of(HttpMethod.GET)),
 
