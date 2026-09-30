@@ -14,9 +14,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
-import com.tfg.cultura.api.suggestions.exception.*;
+import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.suggestions.factory.SuggestionFactory;
 import com.tfg.cultura.api.suggestions.model.*;
 import com.tfg.cultura.api.suggestions.model.dto.*;
@@ -163,20 +164,20 @@ class SuggestionServiceTest {
 	// GET SUGGESTION BY ID
 
 	@Test
-	void getById_should_return_suggestion_response() throws SuggestionNotFoundException {
+	void getById_should_return_suggestion_response() throws NotFoundException {
 		mockSuggestionById(suggestion);
 		SuggestionResponse response = service.getById(suggestion.getId());
 		assertSuggestionResponse(response);
 	}
 
 	@Test
-	void getById_should_throw_SuggestionNotFoundException_if_suggestion_does_not_exists() {
+	void getById_should_throw_NotFoundException_if_suggestion_does_not_exists() {
 		mockSuggestionById(null);
-		assertThrows(SuggestionNotFoundException.class, () -> service.getById("someSuggestionId"));
+		assertThrows(NotFoundException.class, () -> service.getById("someSuggestionId"));
 	}
 
 	@Test
-	void getById_should_ignore_null_supporter_avatars() throws SuggestionNotFoundException {
+	void getById_should_ignore_null_supporter_avatars() throws NotFoundException {
 		User supporterWithoutAvatar = UserFactory.validUser2();
 		supporterWithoutAvatar.setAvatar(null);
 		suggestion.setSupporters(new ArrayList<>(List.of(supporterWithoutAvatar)));
@@ -243,7 +244,7 @@ class SuggestionServiceTest {
 		suggestion.setAuthor(currentUser);
 		mockSuggestionById(suggestion);
 
-		assertThrows(SelfSupportSuggestionException.class, () -> service.toggleSupport("someSuggestionId"));
+		assertThrows(ValidationException.class, () -> service.toggleSupport("someSuggestionId"));
 		verify(repository, never()).save(any());
 	}
 
@@ -252,7 +253,7 @@ class SuggestionServiceTest {
 		mockAuthContext();
 		mockSuggestionById(null);
 
-		assertThrows(SuggestionNotFoundException.class, () -> service.toggleSupport("someSuggestionId"));
+		assertThrows(NotFoundException.class, () -> service.toggleSupport("someSuggestionId"));
 
 		verify(repository, never()).save(any());
 	}
@@ -287,7 +288,7 @@ class SuggestionServiceTest {
 		mockAuthContext();
 		mockSuggestionById(null);
 
-		assertThrows(SuggestionNotFoundException.class, () -> service.delete("someSuggestionId"));
+		assertThrows(NotFoundException.class, () -> service.delete("someSuggestionId"));
 
 		verify(repository, never()).delete(any());
 	}

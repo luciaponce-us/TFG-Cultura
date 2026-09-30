@@ -8,8 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
-import com.tfg.cultura.api.suggestions.exception.SelfSupportSuggestionException;
-import com.tfg.cultura.api.suggestions.exception.SuggestionNotFoundException;
+import com.tfg.cultura.api.core.exception.ValidationException;
+import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.suggestions.factory.SuggestionFactory;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.dto.SuggestionCreateRequest;
@@ -128,8 +128,7 @@ class SuggestionControllerTest extends BaseControllerTest {
 	@Test
 	void getById_suggestionNotFound() throws Exception {
 		String id = suggestion.getId();
-		SuggestionNotFoundException ex = new SuggestionNotFoundException(id);
-		when(service.getById(any())).thenThrow(ex);
+		when(service.getById(any())).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(get(BASE_URL + "/{id}", id)).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.message").exists());
@@ -147,8 +146,7 @@ class SuggestionControllerTest extends BaseControllerTest {
 	@Test
 	void toggleSupport_suggestionNotFound() throws Exception {
 		String id = suggestion.getId();
-		SuggestionNotFoundException ex = new SuggestionNotFoundException(id);
-		when(service.toggleSupport(any())).thenThrow(ex);
+		when(service.toggleSupport(any())).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(put(String.format(SUPPORT_URL, id))).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.message").exists());
@@ -156,7 +154,7 @@ class SuggestionControllerTest extends BaseControllerTest {
 
 	@Test
 	void toggleSupport_selfSupport() throws Exception {
-		SelfSupportSuggestionException ex = new SelfSupportSuggestionException();
+		ValidationException ex = ExceptionsFactory.validationException("El usuario con ID 123 ha intentado apoyar su propia sugerencia");
 		when(service.toggleSupport(any())).thenThrow(ex);
 
 		mockMvc.perform(put(String.format(SUPPORT_URL, suggestion.getId()))).andExpect(status().isBadRequest())
@@ -173,8 +171,7 @@ class SuggestionControllerTest extends BaseControllerTest {
 	@Test
 	void delete_suggestionNotFound() throws Exception {
 		String id = suggestion.getId();
-		SuggestionNotFoundException ex = new SuggestionNotFoundException(id);
-		doThrow(ex).when(service).delete(any());
+		doThrow(ExceptionsFactory.notFoundException).when(service).delete(any());
 
 		mockMvc.perform(delete(BASE_URL + "/{id}", id)).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.message").exists());

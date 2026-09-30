@@ -1,9 +1,10 @@
 package com.tfg.cultura.api.suggestions.service;
 
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
-import com.tfg.cultura.api.suggestions.exception.*;
+import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.dto.*;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
@@ -15,6 +16,7 @@ import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,6 +25,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 @Service
 @RequiredArgsConstructor
@@ -71,13 +75,13 @@ public class SuggestionService {
 		return suggestionPage.map(SuggestionResponse::new);
 	}
 
-	public SuggestionResponse getById(String id) throws SuggestionNotFoundException {
+	public SuggestionResponse getById(String id) throws NotFoundException {
 		Suggestion suggestion = findSuggestionById(id);
 		return new SuggestionResponse(suggestion);
 	}
 
-	public SuggestionResponse toggleSupport(String id) throws SuggestionNotFoundException,
-			SelfSupportSuggestionException, UserNotFoundException, UnathenticatedException {
+	public SuggestionResponse toggleSupport(String id) throws NotFoundException,
+			ValidationException, UserNotFoundException, UnathenticatedException {
 		CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
 		User currentUser = userService.findUserById(currentUserDetails.getId());
 		Suggestion suggestion = findSuggestionById(id);
@@ -89,10 +93,8 @@ public class SuggestionService {
 		} else {
 			boolean isAuthor = suggestion.getAuthor().getId().equals(currentUser.getId());
 			if (isAuthor) {
-				logger.error(
-						"Error al apoyar la sugerencia: El usuario con ID {} ha intentado apoyar su propia sugerencia",
-						currentUser.getId());
-				throw new SelfSupportSuggestionException();
+				String errorMessage = "El usuario con ID " + currentUser.getId() + " ha intentado apoyar su propia sugerencia";
+				throw new ValidationException(logger, Map.of("supporters", errorMessage));
 			}
 
 			supporters.add(currentUser);
@@ -105,7 +107,7 @@ public class SuggestionService {
 	}
 
 	public void delete(String id)
-			throws SuggestionNotFoundException, UnathenticatedException, UnauthorizedException, UserNotFoundException {
+			throws NotFoundException, UnathenticatedException, UnauthorizedException, UserNotFoundException {
 		CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 		Suggestion suggestion = findSuggestionById(id);
 
@@ -130,12 +132,12 @@ public class SuggestionService {
 
 	// Helpers
 
-	Suggestion findSuggestionById(String id) throws SuggestionNotFoundException {
+	Suggestion findSuggestionById(String id) throws NotFoundException {
 		Optional<Suggestion> optionalSuggestion = repository.findById(id);
 
 		if (optionalSuggestion.isEmpty()) {
-			logger.error("Error al buscar la sugerencia: No existe ninguna sugerencia con el id solicitado");
-			throw new SuggestionNotFoundException(id);
+			String errorMessage = "No existe ninguna sugerencia con el id solicitado: " + sanitize(id);
+			throw new NotFoundException(errorMessage, logger);
 		}
 
 		return optionalSuggestion.get();
