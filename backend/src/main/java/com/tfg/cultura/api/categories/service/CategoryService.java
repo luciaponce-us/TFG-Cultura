@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,15 +51,11 @@ public class CategoryService {
 	}
 
 	public Set<Category> findCategoriesByIds(Set<String> ids) throws NotFoundException {
-		Set<Category> categories = new HashSet<>();
 		if (ids == null) {
-			return categories;
+			return new HashSet<>();
 		}
 
-		for (String id : ids) {
-			categories.add(findCategoryById(id));
-		}
-		return categories;
+		return ids.stream().map(this::findCategoryById).collect(Collectors.toSet());
 	}
 
 	public List<Category> findAllCategories() {
