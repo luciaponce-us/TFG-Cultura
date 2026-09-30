@@ -237,6 +237,24 @@ class SuggestionServiceTest {
 	}
 
 	@Test
+	void toggleSupport_removes_supported_user_by_id() throws Exception {
+		mockAuthContext();
+		when(userService.findUserById(currentUser.getId())).thenReturn(currentUser);
+		suggestion.setAuthor(UserFactory.validUser2());
+		User persistedSupporter = UserFactory.validCurrentUserWithRole(Role.SOCIO);
+		suggestion.setSupporters(new ArrayList<>(List.of(persistedSupporter)));
+		suggestion.setTotalSupporters(1);
+
+		mockSuggestionById(suggestion);
+		when(repository.save(any(Suggestion.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		SuggestionResponse response = service.toggleSupport(suggestion.getId());
+
+		assertEquals(0, response.getTotalSupporters());
+		assertTrue(response.getSupporters().isEmpty());
+	}
+
+	@Test
 	void toggleSupport_selfSupport() {
 		mockAuthContext();
 		when(userService.findUserById(currentUser.getId())).thenReturn(currentUser);

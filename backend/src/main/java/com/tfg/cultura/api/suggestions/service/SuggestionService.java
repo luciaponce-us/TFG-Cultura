@@ -18,6 +18,7 @@ import com.tfg.cultura.api.users.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -79,8 +80,7 @@ public class SuggestionService {
 		return new SuggestionResponse(suggestion);
 	}
 
-	public SuggestionResponse toggleSupport(String id)
-			throws NotFoundException, ValidationException, NotFoundException, UnathenticatedException {
+	public SuggestionResponse toggleSupport(String id) throws ValidationException, NotFoundException, UnathenticatedException {
 		CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
 		User currentUser = userService.findUserById(currentUserDetails.getId());
 		Suggestion suggestion = findSuggestionById(id);
@@ -88,7 +88,7 @@ public class SuggestionService {
 		boolean isSupported = supporters.stream().map(User::getId).toList().contains(currentUser.getId());
 
 		if (isSupported) {
-			supporters.remove(currentUser);
+			supporters.removeIf(supporter -> Objects.equals(supporter.getId(), currentUser.getId()));
 		} else {
 			boolean isAuthor = suggestion.getAuthor().getId().equals(currentUser.getId());
 			if (isAuthor) {
@@ -103,7 +103,9 @@ public class SuggestionService {
 		suggestion.setSupporters(supporters);
 		suggestion.setTotalSupporters(supporters.size());
 
-		return new SuggestionResponse(repository.save(suggestion));
+		Suggestion response = repository.save(suggestion);
+
+		return new SuggestionResponse(response);
 	}
 
 	public void delete(String id)
