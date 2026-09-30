@@ -16,14 +16,12 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.core.factory.AppPropertiesFactory;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
-import com.tfg.cultura.api.users.exception.RoleModificationNotAllowedException;
-import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
-import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
@@ -124,9 +122,8 @@ class UserServiceTest {
 
 	@Test
 	void should_throw_exception_when_get_unexisting_user() {
-		UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> service.getUser("123"));
+		assertThrows(NotFoundException.class, () -> service.getUser("123"));
 
-		assertTrue(ex.getMessage().contains("no existe"));
 	}
 
 	// GET CURRENT USER
@@ -150,7 +147,7 @@ class UserServiceTest {
 		CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
 		when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.empty());
 
-		assertThrows(UserNotFoundException.class, () -> service.getCurrentUser());
+		assertThrows(NotFoundException.class, () -> service.getCurrentUser());
 	}
 
 	// FIND USER BY ID
@@ -166,10 +163,8 @@ class UserServiceTest {
 	}
 
 	@Test
-	void should_throw_UserNotFoundException_when_find_user_by_id_with_unexisting_user() {
-		UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> service.findUserById("123"));
-
-		assertTrue(ex.getMessage().contains("no existe"));
+	void should_throw_NotFoundException_when_find_user_by_id_with_unexisting_user() {
+		assertThrows(NotFoundException.class, () -> service.findUserById("123"));
 	}
 
 	// UPDATE USER
@@ -280,14 +275,12 @@ class UserServiceTest {
 	void should_throw_UserNotFoundException_when_update_unexisting_user() {
 		when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-		UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> service.updateUser("123", updateRequest));
-
-		assertTrue(ex.getMessage().contains("no existe"));
 	}
 
 	@Test
-	void should_throw_UserAlreadyExistsException_when_update_user_with_existing_username() {
+	void should_throw_DuplicationException_when_update_user_with_existing_username() {
 		mockAuthContext(false);
 		when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
 		String username = user.getUsername();
@@ -297,14 +290,14 @@ class UserServiceTest {
 		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
 		when(userRepository.existsByUsername(existingUsername)).thenReturn(true);
 
-		UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+		DuplicationException ex = assertThrows(DuplicationException.class,
 				() -> service.updateUser(username, updateRequest));
 
-		assertTrue(ex.getMessage().contains("ya está en uso"));
+		assertTrue(ex.getErrors().containsKey("username"));
 	}
 
 	@Test
-	void should_throw_UserAlreadyExistsException_when_update_user_with_existing_dni() {
+	void should_throw_DuplicationException_when_update_user_with_existing_dni() {
 		mockAuthContext(true);
 		mockCurrentUser(true);
 
@@ -316,7 +309,7 @@ class UserServiceTest {
 		when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 		when(userRepository.existsByDni(existingDni)).thenReturn(true);
 
-		UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+		DuplicationException ex = assertThrows(DuplicationException.class,
 				() -> service.updateUser(username, updateRequest));
 
 		assertTrue(ex.getErrors().containsKey("dni"));
@@ -373,7 +366,7 @@ class UserServiceTest {
 		UserUpdateRequest request = UserFactory.validUserUpdateRequest();
 		request.setRole(requestedRole);
 
-		assertThrows(RoleModificationNotAllowedException.class,
+		assertThrows(UnauthorizedException.class,
 				() -> service.updateUser(currentUser, request, currentUser));
 
 		assertEquals(oldRole, currentUser.getRole());
@@ -401,7 +394,7 @@ class UserServiceTest {
 		UserUpdateRequest request = UserFactory.validUserUpdateRequest();
 		request.setRole(Role.SECRETARIO);
 
-		assertThrows(RoleModificationNotAllowedException.class, () -> service.updateUser(user, request, currentUser));
+		assertThrows(UnauthorizedException.class, () -> service.updateUser(user, request, currentUser));
 
 		Role newRole = user.getRole();
 		assertEquals(oldRole, newRole);
@@ -415,7 +408,7 @@ class UserServiceTest {
 		UserUpdateRequest request = UserFactory.validUserUpdateRequest();
 		request.setRole(Role.COORDINADOR);
 
-		assertThrows(RoleModificationNotAllowedException.class, () -> service.updateUser(user, request, currentUser));
+		assertThrows(UnauthorizedException.class, () -> service.updateUser(user, request, currentUser));
 
 		Role newRole = user.getRole();
 		assertEquals(oldRole, newRole);
@@ -438,9 +431,7 @@ class UserServiceTest {
 	void should_throw_UserNotFoundException_when_delete_unexisting_user() {
 		when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-		UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> service.deleteUser("123"));
-
-		assertTrue(ex.getMessage().contains("no existe"));
+		assertThrows(NotFoundException.class, () -> service.deleteUser("123"));
 	}
 
 	@Test
@@ -521,7 +512,7 @@ class UserServiceTest {
 
 		when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
-		assertThrows(UserNotFoundException.class, () -> {
+		assertThrows(NotFoundException.class, () -> {
 			service.updateProfile(updateRequest);
 		});
 
@@ -538,9 +529,9 @@ class UserServiceTest {
 		// simula conflicto
 		when(userRepository.existsByUsername(anyString())).thenReturn(true);
 
-		assertThrows(UserAlreadyExistsException.class, () -> {
-			service.updateProfile(updateRequest);
-		});
+		DuplicationException ex = assertThrows(DuplicationException.class, () -> 
+			service.updateProfile(updateRequest));
+		assertTrue(ex.getErrors().containsKey("username"));
 	}
 
 	// DELETE USER PROFILE
@@ -568,7 +559,7 @@ class UserServiceTest {
 
 		when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
-		assertThrows(UserNotFoundException.class, () -> {
+		assertThrows(NotFoundException.class, () -> {
 			service.deleteProfile();
 		});
 
@@ -668,16 +659,15 @@ class UserServiceTest {
 	}
 
 	@Test
-	void should_throw_UserNotFoundException_when_update_user_avatar_unexisting_user() {
+	void should_throw_NotFoundException_when_update_user_avatar_unexisting_user() {
 		MockMultipartFile avatar = new MockMultipartFile("avatar", "avatar.png", "image/png",
 				"image-content".getBytes());
 
 		when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-		UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> service.updateUserAvatar("unknown", avatar));
 
-		assertTrue(ex.getMessage().contains("no existe"));
 		verifyNoInteractions(userFileService);
 		verify(userRepository, never()).save(any());
 	}
@@ -715,7 +705,7 @@ class UserServiceTest {
 		when(userRepository.findById(currentUserDetails.getId())).thenReturn(Optional.empty());
 
 		// Act & Assert
-		assertThrows(UserNotFoundException.class, () -> service.updateCurrentUserAvatar(avatar));
+		assertThrows(NotFoundException.class, () -> service.updateCurrentUserAvatar(avatar));
 	}
 
 	// TOGGLE USER ACTIVATION
@@ -760,9 +750,7 @@ class UserServiceTest {
 	void should_throw_exception_when_toggle_activation_unexisting_user() {
 		mockAuthContext(true);
 
-		UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> service.toggleUserActivation("123"));
-
-		assertTrue(ex.getMessage().contains("no existe"));
+		assertThrows(NotFoundException.class, () -> service.toggleUserActivation("123"));
 	}
 
 	@Test
@@ -773,7 +761,7 @@ class UserServiceTest {
 
 		when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(currentUser));
 
-		assertThrows(SelfActivationNotAllowedException.class, () -> {
+		assertThrows(UnauthorizedException.class, () -> {
 			service.toggleUserActivation("currentUserId");
 		});
 	}

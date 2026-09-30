@@ -1,7 +1,7 @@
 package com.tfg.cultura.api.users.jwt;
 
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.repository.UserRepository;
 import org.slf4j.Logger;
@@ -24,26 +24,26 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UserNotFoundException {
+	public UserDetails loadUserByUsername(String username) throws NotFoundException {
 
 		User user = userRepository.findByUsername(username).orElseThrow(() -> {
 			logger.warn("Error al conceder permisos: El usuario {} no existe", username);
-			return new UserNotFoundException("El usuario con username " + username + " no existe");
+			return new NotFoundException("El usuario con username " + username + " no existe", logger);
 		});
 
 		return new CustomUserDetails(user);
 	}
 
-	public UserDetails loadUserById(String id) throws UserNotFoundException {
+	public UserDetails loadUserById(String id) throws NotFoundException {
 		User user = userRepository.findById(id).orElseThrow(() -> {
 			logger.warn("Error al conceder permisos: El usuario con id {} no existe", id);
-			return new UserNotFoundException("El usuario con id " + id + " no existe");
+			return new NotFoundException("El usuario con id " + id + " no existe", logger);
 		});
 
 		return new CustomUserDetails(user);
 	}
 
-	public CustomUserDetails getCurrentUserDetails() throws UnathenticatedException, UserNotFoundException {
+	public CustomUserDetails getCurrentUserDetails() throws UnathenticatedException, NotFoundException {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth == null || !auth.isAuthenticated()) {
 			throw new UnathenticatedException("No se ha podido obtener la autenticación del usuario");
@@ -54,7 +54,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		}
 
 		if (!userRepository.existsById(currentUser.getId()))
-			throw new UserNotFoundException("El usuario logado no existe");
+			throw new NotFoundException("El usuario logado no existe", logger);
 
 		return currentUser;
 	}

@@ -5,15 +5,13 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
+import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.service.UserAuthService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -64,14 +62,11 @@ class UserAuthControllerTest extends BaseControllerTest {
 
 	@Test
 	void register_fail_user_already_exists() throws Exception {
-		UserAlreadyExistsException ex = new UserAlreadyExistsException(
-				Map.of("username", "El nombre de usuario ya está en uso"));
-
-		when(userService.register(any(), any(), any())).thenThrow(ex);
+		when(userService.register(any(), any(), any())).thenThrow(ExceptionsFactory.duplicationException("username"));
 
 		mockMvc.perform(multipart(REGISTER_URL).file(userPart(registerRequest)).file(pdfPart()))
 				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.errors.username").value("El nombre de usuario ya está en uso"));
+				.andExpect(jsonPath("$.errors.username").exists());
 	}
 
 	@Test
@@ -89,7 +84,7 @@ class UserAuthControllerTest extends BaseControllerTest {
 
 		mockMvc.perform(multipart(REGISTER_URL).file(userPart(registerRequest)).file(image))
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.errors.paymentReceipt").value("La carta de pago no es un archivo PDF válido"));
+				.andExpect(jsonPath("$.errors.paymentReceipt").exists());
 	}
 
 	// ====== LOGIN ========
@@ -116,13 +111,10 @@ class UserAuthControllerTest extends BaseControllerTest {
 
 	@Test
 	void login_fail_user_not_found() throws Exception {
-		String username = loginRequest.getUsername();
-		String message = "El usuario con username " + username + " no existe";
-		UserNotFoundException ex = new UserNotFoundException(message);
-		when(userService.login(any())).thenThrow(ex);
+		when(userService.login(any())).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(post(LOGIN_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(loginRequest)))
-				.andExpect(status().isNotFound()).andExpect(jsonPath("$.message").value(message));
+				.andExpect(status().isNotFound());
 	}
 
 	@Test

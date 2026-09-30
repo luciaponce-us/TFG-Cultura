@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
@@ -114,18 +114,18 @@ class UserAuthServiceTest {
 	void should_throw_exception_when_registering_user_with_existing_username() {
 		when(userRepository.existsByUsername(register.getUsername())).thenReturn(true);
 
-		UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+		DuplicationException ex = assertThrows(DuplicationException.class,
 				() -> userService.register(register, null, PDF_FILE));
-		assertTrue(ex.getMessage().contains("nombre de usuario"));
+		assertTrue(ex.getErrors().containsKey("username"));
 	}
 
 	@Test
 	void should_throw_exception_when_registering_user_with_existing_dni() {
 		when(userRepository.existsByDni(register.getDni())).thenReturn(true);
 
-		UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+		DuplicationException ex = assertThrows(DuplicationException.class,
 				() -> userService.register(register, null, PDF_FILE));
-		assertTrue(ex.getMessage().contains("DNI"));
+		assertTrue(ex.getErrors().containsKey("dni"));
 	}
 
 	// LOGIN
@@ -147,9 +147,7 @@ class UserAuthServiceTest {
 	void should_throw_exception_when_login_with_unexisting_username() {
 		when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
 
-		UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> userService.login(loginRequest));
-
-		assertTrue(ex.getMessage().contains("no existe"));
+		assertThrows(NotFoundException.class, () -> userService.login(loginRequest));
 	}
 
 	@Test

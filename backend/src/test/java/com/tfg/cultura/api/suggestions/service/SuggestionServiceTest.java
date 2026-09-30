@@ -23,7 +23,6 @@ import com.tfg.cultura.api.suggestions.model.*;
 import com.tfg.cultura.api.suggestions.model.dto.*;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
@@ -125,7 +124,7 @@ class SuggestionServiceTest {
 	}
 
 	@Test
-	void getAllWithFilters_should_return_page_when_no_filters() throws UserNotFoundException {
+	void getAllWithFilters_should_return_page_when_no_filters() throws NotFoundException {
 		when(repository.findAll(any(Pageable.class))).thenReturn(suggestionPage(0, 10));
 
 		Page<SuggestionResponse> responses = service.getAllWithFilters(null, null, false, null, null, 0, 10);
@@ -148,7 +147,7 @@ class SuggestionServiceTest {
 	}
 
 	@Test
-	void getAllWithFilters_should_use_repository_filters() throws UserNotFoundException {
+	void getAllWithFilters_should_use_repository_filters() throws NotFoundException {
 		when(repository.findAllWithFilters(any(), any(), any(), any(), any(Pageable.class)))
 				.thenReturn(suggestionPage(0, 5));
 

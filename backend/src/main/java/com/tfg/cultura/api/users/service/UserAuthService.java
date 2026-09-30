@@ -1,8 +1,9 @@
 package com.tfg.cultura.api.users.service;
 
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.file.FileUploadException;
 import com.tfg.cultura.api.core.utils.LoggerSanitizer;
-import com.tfg.cultura.api.users.exception.*;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.jwt.JwtService;
@@ -32,18 +33,18 @@ public class UserAuthService {
 	private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
 	public UserResponse register(UserRegisterRequest request, MultipartFile avatar, MultipartFile paymentReceipt)
-			throws UserAlreadyExistsException, FileUploadException {
+			throws DuplicationException, FileUploadException {
 		if (avatar != null && !avatar.isEmpty()) {
 			userFileService.validateAvatar(avatar);
 		}
 		userFileService.validatePaymentReceipt(paymentReceipt);
 
 		if (userRepository.existsByUsername(request.getUsername())) {
-			throw new UserAlreadyExistsException(Map.of("username", "El nombre de usuario ya está en uso"));
+			throw new DuplicationException(logger, Map.of("username", "El nombre de usuario ya está en uso"));
 		}
 
 		if (userRepository.existsByDni(request.getDni())) {
-			throw new UserAlreadyExistsException(Map.of("dni", "Ya existe un usuario con el mismo DNI"));
+			throw new DuplicationException(logger, Map.of("dni", "Ya existe un usuario con el mismo DNI"));
 		}
 
 		String avatarUrl = UserFileService.AVATAR_PLACEHOLDER;
@@ -70,11 +71,11 @@ public class UserAuthService {
 	}
 
 	public String login(UserLoginRequest request)
-			throws UserNotFoundException, DisabledException, BadCredentialsException {
+			throws NotFoundException, DisabledException, BadCredentialsException {
 		Optional<User> user = userRepository.findByUsername(request.getUsername());
 		if (user.isEmpty()) {
 			logger.warn("Error al iniciar sesión: El usuario no existe");
-			throw new UserNotFoundException("El usuario con username " + request.getUsername() + " no existe");
+			throw new NotFoundException("El usuario con username " + request.getUsername() + " no existe", logger);
 		}
 		User foundUser = user.get();
 		if (!foundUser.isActive()) {

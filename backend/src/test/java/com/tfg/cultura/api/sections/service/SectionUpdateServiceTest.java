@@ -23,7 +23,6 @@ import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
 import com.tfg.cultura.api.sections.model.dto.SectionResponse;
 import com.tfg.cultura.api.sections.repository.SectionRepository;
 import com.tfg.cultura.api.sections.service.specifications.*;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.service.UserService;
 import java.util.Map;
@@ -194,9 +193,9 @@ class SectionUpdateServiceTest {
 	void should_throw_when_manager_not_found_remove_manager() {
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
-		when(userService.findUserByUsername(managerUsername)).thenThrow(new UserNotFoundException("error"));
+		when(userService.findUserByUsername(managerUsername)).thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(UserNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.removeManagerFromSection(sectionId, managerUsername));
 
 		verify(sectionRepository, never()).save(any());
@@ -211,7 +210,7 @@ class SectionUpdateServiceTest {
 
 		when(userService.findUserByUsername("not-in-section")).thenReturn(managerToRemove);
 
-		assertThrows(UserNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.removeManagerFromSection(sectionId, "not-in-section"));
 		verify(sectionRepository, never()).save(any());
 	}
@@ -252,9 +251,9 @@ class SectionUpdateServiceTest {
 	void should_throw_when_collaborator_not_found_remove_collaborator() {
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
-		when(userService.findUserByUsername(collaboratorUsername)).thenThrow(new UserNotFoundException("error"));
+		when(userService.findUserByUsername(collaboratorUsername)).thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(UserNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.removeCollaboratorFromSection(sectionId, collaboratorUsername));
 
 		verify(sectionRepository, never()).save(any());
@@ -269,7 +268,7 @@ class SectionUpdateServiceTest {
 
 		when(userService.findUserByUsername("otherCollaborator")).thenReturn(collaboratorToRemove);
 
-		assertThrows(UserNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.removeCollaboratorFromSection(sectionId, "otherCollaborator"));
 
 		verify(sectionRepository, never()).save(any());
@@ -313,9 +312,9 @@ class SectionUpdateServiceTest {
 	void should_throw_when_manager_not_found_add_manager() {
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
-		when(userService.findUserByUsername(managerUsername)).thenThrow(new UserNotFoundException("error"));
+		when(userService.findUserByUsername(managerUsername)).thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(UserNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.addManagerToSection(sectionId, managerUsername));
 
 		verify(sectionRepository, never()).save(any());
@@ -391,9 +390,9 @@ class SectionUpdateServiceTest {
 	void should_throw_when_collaborator_not_found_add_collaborator() {
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
-		when(userService.findUserByUsername(collaboratorUsername)).thenThrow(new UserNotFoundException("error"));
+		when(userService.findUserByUsername(collaboratorUsername)).thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(UserNotFoundException.class,
+		assertThrows(NotFoundException.class,
 				() -> sectionUpdateService.addCollaboratorToSection(sectionId, collaboratorUsername));
 
 		verify(sectionRepository, never()).save(any());

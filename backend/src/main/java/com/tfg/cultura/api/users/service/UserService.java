@@ -1,14 +1,12 @@
 package com.tfg.cultura.api.users.service;
 
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
-import com.tfg.cultura.api.users.exception.RoleModificationNotAllowedException;
-import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
-import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
@@ -49,12 +47,12 @@ public class UserService {
 
 	// HELPERS
 
-	public User findUserByUsername(String username) throws UserNotFoundException {
+	public User findUserByUsername(String username) throws NotFoundException {
 		Optional<User> user = userRepository.findByUsername(username);
 
 		if (user.isEmpty()) {
 			logger.warn("Error al obtener el usuario: El usuario no existe");
-			throw new UserNotFoundException(String.format("El usuario con username %s no existe", username));
+			throw new NotFoundException(String.format("El usuario con username %s no existe", username), logger);
 		}
 
 		return user.get();
@@ -70,8 +68,7 @@ public class UserService {
 				.toList();
 
 		if (!missingUsernames.isEmpty()) {
-			logger.error("Los siguientes usuarios no existen: {}", missingUsernames);
-			throw new UserNotFoundException("Los siguientes usuarios no existen: " + missingUsernames);
+			throw new NotFoundException("Los siguientes usuarios no existen: " + missingUsernames, logger);
 		}
 
 		return usersByUsername;
@@ -84,18 +81,18 @@ public class UserService {
 		return usersStream.collect(Collectors.toSet());
 	}
 
-	public User findUserById(String id) throws UserNotFoundException {
+	public User findUserById(String id) throws NotFoundException {
 		Optional<User> user = userRepository.findById(id);
 
 		if (user.isEmpty()) {
 			logger.warn("Error al obtener el usuario: El usuario no existe");
-			throw new UserNotFoundException(String.format("El usuario con id %s no existe", id));
+			throw new NotFoundException(String.format("El usuario con id %s no existe", id), logger);
 		}
 
 		return user.get();
 	}
 
-	User getCurrentUser() throws UnathenticatedException, UserNotFoundException {
+	User getCurrentUser() throws UnathenticatedException, NotFoundException {
 		CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 		return findUserById(currentUser.getId());
 	}
@@ -137,12 +134,12 @@ public class UserService {
 		return userPage.map(UserResponse::new);
 	}
 
-	public UserResponse getUser(String username) throws UserNotFoundException {
+	public UserResponse getUser(String username) throws NotFoundException {
 		User user = findUserByUsername(username);
 		return new UserResponse(user);
 	}
 
-	public UserResponse getProfile() throws UserNotFoundException, UnathenticatedException {
+	public UserResponse getProfile() throws NotFoundException, UnathenticatedException {
 		User currentUser = getCurrentUser();
 		return new UserResponse(currentUser);
 	}
@@ -150,14 +147,13 @@ public class UserService {
 	// UPDATE
 
 	UserResponse updateUser(User user, UserUpdateRequest request, User currentUser)
-			throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException,
-			RoleModificationNotAllowedException, UnauthorizedException {
+			throws NotFoundException, DuplicationException, UnathenticatedException, UnauthorizedException {
 
 		logger.info("Se va a actualizar el usuario con username {}", user.getUsername());
 
 		if (isChanged(request.getUsername(), user.getUsername())) {
 			if (userRepository.existsByUsername(request.getUsername()))
-				throw new UserAlreadyExistsException(Map.of("username", "El nombre de usuario ya está en uso"));
+				throw new DuplicationException(logger, Map.of("username", "El nombre de usuario ya está en uso"));
 
 			String newUsername = LoggerSanitizer.sanitize(request.getUsername());
 			logger.info("Se va a cambiar el username del usuario {} a {}", user.getUsername(), newUsername);
@@ -188,7 +184,7 @@ public class UserService {
 		if (isAdmin) {
 			if (isChanged(request.getDni(), user.getDni())) {
 				if (userRepository.existsByDni(request.getDni()))
-					throw new UserAlreadyExistsException(Map.of("dni", "Ya existe un usuario con el mismo DNI"));
+					throw new DuplicationException(logger, Map.of("dni", "Ya existe un usuario con el mismo DNI"));
 
 				user.setDni(request.getDni());
 			}
@@ -199,7 +195,7 @@ public class UserService {
 		return saveUpdatedUser(user);
 	}
 
-	void updateUserRole(User user, Role newRole, User currentUser) throws RoleModificationNotAllowedException {
+	void updateUserRole(User user, Role newRole, User currentUser) throws UnauthorizedException {
 
 		if (newRole == null || newRole == user.getRole()) {
 			return;
@@ -210,7 +206,7 @@ public class UserService {
 	}
 
 	private void validateRoleUpdate(User user, Role newRole, User currentUser)
-			throws RoleModificationNotAllowedException {
+			throws UnauthorizedException {
 
 		if (currentUser.getRole() == Role.COORDINADOR) {
 			return;
@@ -223,18 +219,18 @@ public class UserService {
 		if (isSelfUpdate && isHigherRole) {
 			logger.warn("El usuario {} con rol {} ha intentado actualizar su propio rol a {}",
 					currentUser.getUsername(), currentUser.getRole(), newRole);
-			throw new RoleModificationNotAllowedException("No puedes asignarte un rol superior al tuyo");
+			throw new UnauthorizedException("No puedes asignarte un rol superior al tuyo");
 		}
 
 		if (!isSelfUpdate && isSameOrHigherRole) {
 			logger.warn("El usuario {} con rol {} ha intentado actualizar el rol de otro usuario a {}",
 					currentUser.getUsername(), currentUser.getRole(), newRole);
-			throw new RoleModificationNotAllowedException("No puedes asignar un rol igual o superior al tuyo");
+			throw new UnauthorizedException("No puedes asignar un rol igual o superior al tuyo");
 		}
 	}
 
 	public UserResponse updateUser(String username, UserUpdateRequest request)
-			throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
+			throws NotFoundException, DuplicationException, UnathenticatedException {
 		User user = findUserByUsername(username);
 		User currentUser = getCurrentUser();
 
@@ -249,7 +245,7 @@ public class UserService {
 	}
 
 	public UserResponse updateProfile(UserUpdateRequest request)
-			throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
+			throws NotFoundException, DuplicationException, UnathenticatedException {
 		User currentUser = getCurrentUser();
 		return updateUser(currentUser, request, currentUser);
 	}
@@ -274,23 +270,23 @@ public class UserService {
 		return response;
 	}
 
-	public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws UserNotFoundException {
+	public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws NotFoundException {
 		User user = findUserByUsername(username);
 		return updateAvatar(user, avatar);
 	}
 
-	public UserResponse updateCurrentUserAvatar(MultipartFile avatar) throws UserNotFoundException {
+	public UserResponse updateCurrentUserAvatar(MultipartFile avatar) throws NotFoundException {
 		User user = getCurrentUser();
 		return updateAvatar(user, avatar);
 	}
 
-	public UserResponse toggleUserActivation(String username) throws UserNotFoundException, UnathenticatedException {
+	public UserResponse toggleUserActivation(String username) throws NotFoundException, UnathenticatedException, UnauthorizedException {
 		User currentUser = getCurrentUser();
 		User user = findUserByUsername(username);
 
 		boolean isSelfActivation = user.getId().equals(currentUser.getId());
 		if (isSelfActivation) {
-			throw new SelfActivationNotAllowedException();
+			throw new UnauthorizedException("No puedes activar tu propio usuario");
 		}
 
 		if (isSameOrHigherRole(user.getRole(), currentUser.getRole())) {
@@ -321,7 +317,7 @@ public class UserService {
 
 	@Transactional
 	public void deleteUser(String username)
-			throws UserNotFoundException, UnathenticatedException, UnauthorizedException {
+			throws NotFoundException, UnathenticatedException, UnauthorizedException {
 		User user = findUserByUsername(username);
 		User currentUser = getCurrentUser();
 
@@ -336,7 +332,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public void deleteProfile() throws UserNotFoundException, UnathenticatedException {
+	public void deleteProfile() throws NotFoundException, UnathenticatedException {
 		User user = getCurrentUser();
 		deleteUser(user);
 	}

@@ -22,7 +22,6 @@ import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
 import com.tfg.cultura.api.sections.model.dto.SectionResponse;
 import com.tfg.cultura.api.sections.service.SectionService;
 import com.tfg.cultura.api.sections.service.SectionUpdateService;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.util.Collections;
@@ -310,7 +309,7 @@ class SectionControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_not_found_when_manager_does_not_exist() throws Exception {
 		when(sectionUpdateService.removeManagerFromSection(section.getId(), manager.getUsername()))
-				.thenThrow(new UserNotFoundException("error"));
+				.thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL, section.getId(), manager.getUsername()))
 				.andExpect(status().isNotFound());
@@ -349,7 +348,7 @@ class SectionControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_not_found_when_collaborator_does_not_exist() throws Exception {
 		when(sectionUpdateService.removeCollaboratorFromSection(section.getId(), collaborator.getUsername()))
-				.thenThrow(new UserNotFoundException("error"));
+				.thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
 				.andExpect(status().isNotFound());
@@ -388,7 +387,7 @@ class SectionControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_not_found_when_manager_to_add_does_not_exist() throws Exception {
 		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
-				.thenThrow(new UserNotFoundException("error"));
+				.thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(put(SECTION_ADD_MANAGER_URL, section.getId(), manager.getUsername()))
 				.andExpect(status().isNotFound());
@@ -451,7 +450,7 @@ class SectionControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_not_found_when_collaborator_to_add_does_not_exist() throws Exception {
 		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
-				.thenThrow(new UserNotFoundException("error"));
+				.thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
 				.andExpect(status().isNotFound());

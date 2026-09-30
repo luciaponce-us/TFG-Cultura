@@ -3,8 +3,8 @@ package com.tfg.cultura.api.users.jwt;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.repository.UserRepository;
@@ -59,7 +59,7 @@ class CustomUserDetailsServiceTest {
 
 		String username = user.getUsername();
 
-		assertThrows(UserNotFoundException.class, () -> service.loadUserByUsername(username));
+		assertThrows(NotFoundException.class, () -> service.loadUserByUsername(username));
 
 		verify(userRepository).findByUsername(user.getUsername());
 	}
@@ -94,9 +94,7 @@ class CustomUserDetailsServiceTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		// Act & Assert
-		UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> service.loadUserById(userId));
-
-		assertEquals("El usuario con id " + userId + " no existe", exception.getMessage());
+		assertThrows(NotFoundException.class, () -> service.loadUserById(userId));
 
 		verify(userRepository).findById(userId);
 	}
@@ -150,7 +148,7 @@ class CustomUserDetailsServiceTest {
 
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
-		assertThrows(UserNotFoundException.class, () -> service.getCurrentUserDetails());
+		assertThrows(NotFoundException.class, () -> service.getCurrentUserDetails());
 
 		verify(userRepository).existsById(user.getId());
 	}

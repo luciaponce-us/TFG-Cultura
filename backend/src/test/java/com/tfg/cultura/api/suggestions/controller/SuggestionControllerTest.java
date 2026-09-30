@@ -15,7 +15,6 @@ import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.dto.SuggestionCreateRequest;
 import com.tfg.cultura.api.suggestions.model.dto.SuggestionResponse;
 import com.tfg.cultura.api.suggestions.service.SuggestionService;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.utils.BaseControllerTest;
@@ -97,7 +96,7 @@ class SuggestionControllerTest extends BaseControllerTest {
 	@Test
 	void create_fail_author_does_not_exist() throws Exception {
 		when(service.create(any(SuggestionCreateRequest.class)))
-				.thenThrow(new UserNotFoundException("El usuario logeado no existe"));
+				.thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(post(CREATE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
 				.andExpect(status().isNotFound()).andExpect(jsonPath("$.message").exists());

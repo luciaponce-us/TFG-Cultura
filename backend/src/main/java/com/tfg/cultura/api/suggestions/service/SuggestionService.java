@@ -9,7 +9,6 @@ import com.tfg.cultura.api.suggestions.model.Suggestion;
 import com.tfg.cultura.api.suggestions.model.dto.*;
 import com.tfg.cultura.api.suggestions.model.enumerators.SuggestionType;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
@@ -40,7 +39,7 @@ public class SuggestionService {
 	private static final Logger logger = LoggerFactory.getLogger("suggestionsLogger");
 
 	public SuggestionResponse create(SuggestionCreateRequest request)
-			throws UnathenticatedException, UserNotFoundException {
+			throws UnathenticatedException, NotFoundException {
 
 		CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 		User author = userService.findUserById(currentUser.getId());
@@ -81,7 +80,7 @@ public class SuggestionService {
 	}
 
 	public SuggestionResponse toggleSupport(String id) throws NotFoundException,
-			ValidationException, UserNotFoundException, UnathenticatedException {
+			ValidationException, NotFoundException, UnathenticatedException {
 		CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
 		User currentUser = userService.findUserById(currentUserDetails.getId());
 		Suggestion suggestion = findSuggestionById(id);
@@ -93,7 +92,8 @@ public class SuggestionService {
 		} else {
 			boolean isAuthor = suggestion.getAuthor().getId().equals(currentUser.getId());
 			if (isAuthor) {
-				String errorMessage = "El usuario con ID " + currentUser.getId() + " ha intentado apoyar su propia sugerencia";
+				String errorMessage = "El usuario con ID " + currentUser.getId()
+						+ " ha intentado apoyar su propia sugerencia";
 				throw new ValidationException(logger, Map.of("supporters", errorMessage));
 			}
 
@@ -107,7 +107,7 @@ public class SuggestionService {
 	}
 
 	public void delete(String id)
-			throws NotFoundException, UnathenticatedException, UnauthorizedException, UserNotFoundException {
+			throws NotFoundException, UnathenticatedException, UnauthorizedException, NotFoundException {
 		CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 		Suggestion suggestion = findSuggestionById(id);
 
@@ -120,10 +120,8 @@ public class SuggestionService {
 
 		boolean isAuthor = suggestion.getAuthor().getId().equals(currentUser.getId());
 		if (!isAuthor) {
-			logger.error(
-					"Error al eliminar la sugerencia: El usuario con ID {} ha intentado eliminar una sugerencia que no es suya",
-					currentUser.getId());
-			throw new UnauthorizedException("No tienes permiso para eliminar esta sugerencia");
+			throw new UnauthorizedException("Error al eliminar la sugerencia: El usuario con ID " + currentUser.getId()
+					+ " ha intentado eliminar una sugerencia que no es suya");
 		}
 
 		repository.delete(suggestion);

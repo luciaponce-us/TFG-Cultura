@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
+import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
@@ -69,7 +69,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_404_when_user_not_found() throws Exception {
-		when(service.getProfile()).thenThrow(new UserNotFoundException("User not found"));
+		when(service.getProfile()).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(get(BASE_URL)).andExpect(status().isNotFound());
 
@@ -129,7 +129,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_404_when_user_not_found_at_update() throws Exception {
 
-		when(service.updateProfile(any())).thenThrow(new UserNotFoundException("User not found"));
+		when(service.updateProfile(any())).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(put(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(updateRequest)))
 				.andExpect(status().isNotFound());
@@ -152,7 +152,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_404_when_user_not_found_at_deleting() throws Exception {
 
-		doThrow(new UserNotFoundException("User not found")).when(service).deleteProfile();
+		doThrow(ExceptionsFactory.notFoundException).when(service).deleteProfile();
 
 		mockMvc.perform(delete(BASE_URL)).andExpect(status().isNotFound());
 
@@ -178,7 +178,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 	@Test
 	void should_return_not_found_when_user_does_not_exist() throws Exception {
 
-		when(service.updateCurrentUserAvatar(any())).thenThrow(new UserNotFoundException("User not found"));
+		when(service.updateCurrentUserAvatar(any())).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(multipart(BASE_URL + "/avatar").file(avatar).with(request -> {
 			request.setMethod("PUT");

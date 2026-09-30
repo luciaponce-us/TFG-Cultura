@@ -10,7 +10,6 @@ import com.tfg.cultura.api.sections.model.dto.SectionCreateRequest;
 import com.tfg.cultura.api.sections.model.dto.SectionResponse;
 import com.tfg.cultura.api.sections.repository.SectionRepository;
 import com.tfg.cultura.api.sections.service.specifications.*;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.service.UserService;
 import java.util.Set;
@@ -52,7 +51,7 @@ public class SectionUpdateService {
 	}
 
 	public SectionResponse removeManagerFromSection(String sectionId, String managerUsername)
-			throws NotFoundException, UserNotFoundException {
+			throws NotFoundException, NotFoundException {
 		Section section = sectionService.findSectionById(sectionId);
 		User manager = userService.findUserByUsername(managerUsername);
 
@@ -60,11 +59,9 @@ public class SectionUpdateService {
 				.collect(Collectors.toSet());
 		if (!managerUsernames.contains(manager.getUsername())) {
 			String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
-			logger.error("El usuario '{}' no es un encargado de la sección '{}'. Encargados actuales: {}",
-					sanitizedManagerUsername, section.getName(), managerUsernames);
-			throw new UserNotFoundException(
+			throw new NotFoundException(
 					"El usuario '" + sanitizedManagerUsername + "' no es un encargado de la sección '"
-							+ section.getName() + "'. Encargados actuales: " + managerUsernames);
+							+ section.getName() + "'. Encargados actuales: " + managerUsernames, logger);
 		}
 
 		User foundManager = section.getManagers().stream().filter(m -> m.getUsername().equals(managerUsername))
@@ -78,7 +75,7 @@ public class SectionUpdateService {
 	}
 
 	public SectionResponse removeCollaboratorFromSection(String sectionId, String collaboratorUsername)
-			throws NotFoundException, UserNotFoundException {
+			throws NotFoundException, NotFoundException {
 		Section section = sectionService.findSectionById(sectionId);
 		User collaborator = userService.findUserByUsername(collaboratorUsername);
 		String sanitizedCollaboratorUsername = LoggerSanitizer.sanitize(collaboratorUsername);
@@ -89,9 +86,9 @@ public class SectionUpdateService {
 
 			logger.error("El usuario '{}' no es un colaborador de la sección '{}'. Colaboradores actuales: {}",
 					sanitizedCollaboratorUsername, section.getName(), collaboratorUsernames);
-			throw new UserNotFoundException(
+			throw new NotFoundException(
 					"El usuario '" + sanitizedCollaboratorUsername + "' no es un colaborador de la sección '"
-							+ section.getName() + "'. Colaboradores actuales: " + collaboratorUsernames);
+							+ section.getName() + "'. Colaboradores actuales: " + collaboratorUsernames, logger);
 		}
 
 		User foundCollaborator = section.getCollaborators().stream()
@@ -105,7 +102,7 @@ public class SectionUpdateService {
 	}
 
 	public SectionResponse addManagerToSection(String sectionId, String managerUsername)
-			throws NotFoundException, UserNotFoundException, ValidationException, FieldException {
+			throws NotFoundException, NotFoundException, ValidationException, FieldException {
 		Section section = sectionService.findSectionById(sectionId);
 		User manager = userService.findUserByUsername(managerUsername);
 
@@ -121,7 +118,7 @@ public class SectionUpdateService {
 	}
 
 	public SectionResponse addCollaboratorToSection(String sectionId, String collaboratorUsername)
-			throws NotFoundException, UserNotFoundException, ValidationException, FieldException {
+			throws NotFoundException, NotFoundException, ValidationException, FieldException {
 		Section section = sectionService.findSectionById(sectionId);
 		User collaborator = userService.findUserByUsername(collaboratorUsername);
 

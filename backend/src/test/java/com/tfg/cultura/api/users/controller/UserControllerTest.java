@@ -9,9 +9,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
-import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
-import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
+import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
@@ -19,7 +18,6 @@ import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.service.UserService;
 import com.tfg.cultura.api.utils.BaseControllerTest;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -69,12 +67,9 @@ class UserControllerTest extends BaseControllerTest {
 
 	@Test
 	void get_user_fail_unexisting_user() throws Exception {
-		String message = "El usuario no existe";
-		UserNotFoundException ex = new UserNotFoundException(message);
-		when(userService.getUser(anyString())).thenThrow(ex);
+		when(userService.getUser(anyString())).thenThrow(ExceptionsFactory.notFoundException);
 
-		mockMvc.perform(get(USER_URL, "username")).andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.message").value(message));
+		mockMvc.perform(get(USER_URL, "username")).andExpect(status().isNotFound());
 	}
 
 	// ================ UPDATE USER ================
@@ -100,7 +95,7 @@ class UserControllerTest extends BaseControllerTest {
 		request.setPassword("newPassword");
 
 		when(userService.updateUser(anyString(), any(UserUpdateRequest.class)))
-				.thenThrow(new UserNotFoundException("Usuario no encontrado"));
+				.thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(put(USER_URL, username).contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
 				.andExpect(status().isNotFound());
@@ -115,7 +110,7 @@ class UserControllerTest extends BaseControllerTest {
 		request.setUsername("existingUser");
 
 		when(userService.updateUser(anyString(), any(UserUpdateRequest.class)))
-				.thenThrow(new UserAlreadyExistsException(Map.of("username", "Username en uso")));
+				.thenThrow(ExceptionsFactory.duplicationException("username"));
 
 		mockMvc.perform(put(USER_URL, username).contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
 				.andExpect(status().isConflict());
@@ -133,7 +128,7 @@ class UserControllerTest extends BaseControllerTest {
 	// ❌ 404 Not Found
 	@Test
 	void should_return_404_when_delete_unexisting_user() throws Exception {
-		doThrow(new UserNotFoundException("Usuario no encontrado")).when(userService).deleteUser(anyString());
+		doThrow(ExceptionsFactory.notFoundException).when(userService).deleteUser(anyString());
 
 		mockMvc.perform(delete(USER_URL, "username")).andExpect(status().isNotFound());
 
@@ -188,21 +183,16 @@ class UserControllerTest extends BaseControllerTest {
 
 	@Test
 	void toggle_user_activation_fail_unexisting_user() throws Exception {
-		String message = "El usuario con id 123 no existe";
-		UserNotFoundException ex = new UserNotFoundException(message);
-		when(userService.toggleUserActivation(any())).thenThrow(ex);
+		when(userService.toggleUserActivation(any())).thenThrow(ExceptionsFactory.notFoundException);
 
-		mockMvc.perform(put(TOGGLE_ACTIVATION_URL, "123")).andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.message").value(message));
+		mockMvc.perform(put(TOGGLE_ACTIVATION_URL, "123")).andExpect(status().isNotFound());
 	}
 
 	@Test
 	void toggle_user_activation_fail_self_activation() throws Exception {
-		String userId = "123";
-		SelfActivationNotAllowedException ex = new SelfActivationNotAllowedException();
-		when(userService.toggleUserActivation(any())).thenThrow(ex);
+		when(userService.toggleUserActivation(any())).thenThrow(new UnauthorizedException("No tienes permisos para activar/desactivar este usuario"));
 
-		mockMvc.perform(put(TOGGLE_ACTIVATION_URL, userId)).andExpect(status().isForbidden())
+		mockMvc.perform(put(TOGGLE_ACTIVATION_URL, "1")).andExpect(status().isForbidden())
 				.andExpect(jsonPath("$.message").exists());
 	}
 
@@ -238,14 +228,13 @@ class UserControllerTest extends BaseControllerTest {
 		MockMultipartFile avatar = new MockMultipartFile("avatar", "avatar.png", MediaType.IMAGE_PNG_VALUE,
 				"image-content".getBytes());
 
-		String message = "Usuario no encontrado";
-		when(userService.updateUserAvatar(anyString(), any())).thenThrow(new UserNotFoundException(message));
+		when(userService.updateUserAvatar(anyString(), any())).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(multipart(AVATAR_URL, "username").file(avatar).with(request -> {
 			request.setMethod("PUT");
 			return request;
 		}).contentType(MediaType.MULTIPART_FORM_DATA)).andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.message").value(message));
+				.andExpect(jsonPath("$.message").exists());
 	}
 
 }
