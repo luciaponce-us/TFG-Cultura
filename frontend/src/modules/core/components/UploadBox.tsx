@@ -23,6 +23,7 @@ export function UploadBox({
 }: UploadBoxProps) {
   const [errors, setErrors] = useState<string[]>([]);
   const [acceptedFiles, setAcceptedFiles] = useState<File[]>([]);
+  const [uploadKey, setUploadKey] = useState(0);
 
   function parseErrorMessage(errorType: string) {
     let allowedFileType: string | undefined;
@@ -44,6 +45,8 @@ export function UploadBox({
 
   function getErrorMessage(details: FileUpload.FileRejectDetails) {
     setErrors([]);
+    setAcceptedFiles([]);
+    setUploadKey((key) => key + 1);
     if (details.files.length === 0) {
       console.warn("Ignoring empty FileReject event", details);
       return;
@@ -58,27 +61,20 @@ export function UploadBox({
     setErrors(newErrors);
   }
 
-  function handleAccept(details: FileUpload.FileAcceptDetails) {
-    const file = details.files[0] ?? null;
-
-    setErrors([]);
-    setAcceptedFiles([file]); // Sustituye el anterior
-    onFileChange?.(file);
-  }
-
   return (
     <Box flex={1} minW={0} w="100%" h="100%" maxH="100%">
       <FileUpload.Root
-        acceptedFiles={acceptedFiles}
+        key={uploadKey}
+        defaultAcceptedFiles={[]}
         maxFiles={1}
         allowDrop={true}
         maxFileSize={2 * 1024 * 1024}
         accept={fileType}
         required={required}
-        onFileAccept={handleAccept}
         onFileReject={getErrorMessage}
         onFileChange={(details) => {
           setAcceptedFiles(details.acceptedFiles);
+          if (details.acceptedFiles.length > 0) setErrors([]);
           onFileChange?.(details.acceptedFiles[0] ?? null);
         }}
         disabled={disabled}
@@ -122,7 +118,7 @@ export function UploadBox({
                   disabled={disabled}
                   onClick={() => {}}
                 >
-                  Seleccionar archivo
+                  {acceptedFiles.length === 0 ? "Seleccionar" : "Reemplazar"} archivo
                 </CustomButton>
               </FileUpload.Trigger>
             </Grid>
