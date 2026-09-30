@@ -16,6 +16,9 @@ export default function Layout() {
         flex="1"
         align="center"
         minH="92vh"
+        w="100%"
+        maxW="100%"
+        minW={0}
       >
         <Outlet />
       </Flex>

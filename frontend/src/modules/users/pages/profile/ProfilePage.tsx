@@ -52,10 +52,22 @@ export function ProfilePage() {
   ];
 
   return (
-    <VStack bg="background" borderRadius="xl" boxShadow="lg" p={6} gap={6}>
+    <VStack
+      bg="background"
+      borderRadius="xl"
+      boxShadow="lg"
+      p={6}
+      gap={6}
+      w={{ base: "100%", md: "fit-content" }}
+      maxW={{ base: "100%", md: "420px" }}
+      minW={0}
+      overflow="hidden"
+      flexShrink={1}
+      align="stretch"
+    >
       <Heading as="h1">Mi perfil</Heading>
       {user ? (
-        <VStack gap={6}>
+        <VStack gap={6} w="fit-content" maxW="100%" minW={0} overflow="hidden">
           <CustomAvatar
             name={user.name}
             src={user.avatar || PLACEHOLDER.AVATAR}
@@ -63,18 +75,52 @@ export function ProfilePage() {
             w="100px"
             h="100px"
           />
-          <VStack gap={0}>
-            <Text fontSize="lg" fontWeight="bold">
+          <VStack
+            gap={0}
+            w="100%"
+            maxW="100%"
+            minW={0}
+            align="center"
+            overflow="hidden"
+          >
+            <Text
+              fontSize="lg"
+              fontWeight="bold"
+              w="100%"
+              maxW="100%"
+              minW={0}
+              display="block"
+              textAlign="center"
+              overflowWrap="anywhere"
+              wordBreak="break-word"
+              whiteSpace="normal"
+              hyphens="auto"
+              flexShrink={1}
+            >
               {user.name} {user.surname}
             </Text>
-            <Text fontSize="md" color="gray.500">
+            <Text
+              fontSize="md"
+              color="gray.500"
+              maxW="100%"
+              minW={0}
+              overflowWrap="anywhere"
+              wordBreak="break-word"
+            >
               @{user.username}
             </Text>
-            <Text fontSize="md" fontStyle="italic">
+            <Text
+              fontSize="md"
+              fontStyle="italic"
+              maxW="100%"
+              minW={0}
+              overflowWrap="anywhere"
+              wordBreak="break-word"
+            >
               {parseRole(user.role)}
             </Text>
           </VStack>
-          <VStack>
+          <VStack w="fit-content" maxW="100%" minW={0}>
             {attributes.map((attr) =>
               renderAttribute(attr.key, attr.value, attr.icon),
             )}
