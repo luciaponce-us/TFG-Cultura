@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -86,12 +87,11 @@ class CategoryServiceTest {
 
 	@Test
 	void should_throw_when_category_not_found() {
+		when(categoryRepository.findById(anyString())).thenReturn(Optional.empty());
 
-		when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
+		assertThrows(NotFoundException.class, () -> service.findCategoryById("1"));
 
-		assertThrows(NotFoundException.class, () -> service.findCategoryById(category.getId()));
-
-		verify(categoryRepository).findById(category.getId());
+		verify(categoryRepository).findById("1");
 	}
 
 	@Test
@@ -113,11 +113,11 @@ class CategoryServiceTest {
 
 	@Test
 	void should_throw_when_any_category_does_not_exist() {
-		when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
+		when(categoryRepository.findById(anyString())).thenReturn(Optional.empty());
 
-		assertThrows(NotFoundException.class, () -> service.findCategoriesByIds(Set.of(category.getId())));
+		assertThrows(NotFoundException.class, () -> service.findCategoriesByIds(Set.of("1")));
 
-		verify(categoryRepository).findById(category.getId());
+		verify(categoryRepository).findById("1");
 	}
 
 	@Test

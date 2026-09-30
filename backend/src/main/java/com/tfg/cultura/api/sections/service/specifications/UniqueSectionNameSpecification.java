@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class UniqueSectionNameSpecification implements BusinessSpecification<String> {
 	private final SectionRepository sectionRepository;
-	private final static Logger logger = LoggerFactory.getLogger("sectionsLogger");
+	private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
 
 	@Override
 	public void validate(String name) throws DuplicationException {

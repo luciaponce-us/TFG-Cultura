@@ -359,19 +359,19 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_throw_exception_when_new_name_already_exists() {
-
+		String id = rolSaga.getId();
 		// Given
 		request.setName(" Forgotten Realms ");
 
-		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
+		when(repository.findById(id)).thenReturn(Optional.of(rolSaga));
 
-		when(repository.existsByNameAndIdNot("Forgotten Realms", rolSaga.getId())).thenReturn(true);
+		when(repository.existsByNameAndIdNot("Forgotten Realms", id)).thenReturn(true);
 
 		// When & Then
-		assertThrows(DuplicationException.class, () -> service.update(rolSaga.getId(), request, null));
+		assertThrows(DuplicationException.class, () -> service.update(id, request, null));
 
-		verify(repository).findById(rolSaga.getId());
-		verify(repository).existsByNameAndIdNot("Forgotten Realms", rolSaga.getId());
+		verify(repository).findById(id);
+		verify(repository).existsByNameAndIdNot("Forgotten Realms", id);
 
 		verify(repository, never()).save(any());
 		verifyNoInteractions(categoryService);
@@ -380,20 +380,16 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_propagate_category_not_found_exception_when_updating() throws NotFoundException {
-
-		// Given
-
+		String id = rolSaga.getId();
 		request.setCategoriesIds(Set.of("category-id"));
 
-		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
-
+		when(repository.findById(id)).thenReturn(Optional.of(rolSaga));
 		when(categoryService.findCategoriesByIds(request.getCategoriesIds()))
 				.thenThrow(ExceptionsFactory.notFoundException);
 
-		// When & Then
-		assertThrows(NotFoundException.class, () -> service.update(rolSaga.getId(), request, null));
+		assertThrows(NotFoundException.class, () -> service.update(id, request, null));
 
-		verify(repository).findById(rolSaga.getId());
+		verify(repository).findById(id);
 		verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
 
 		verify(sectionService, never()).findSectionById(any());
@@ -402,16 +398,14 @@ class RolSagaServiceTest {
 
 	@Test
 	void should_propagate_section_not_found_exception_when_updating() throws NotFoundException {
-
-		// Given
-		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
-
+		String id = rolSaga.getId();
+		when(repository.findById(id)).thenReturn(Optional.of(rolSaga));
 		when(sectionService.findSectionById(request.getSectionId())).thenThrow(ExceptionsFactory.notFoundException);
 
 		// When & Then
-		assertThrows(NotFoundException.class, () -> service.update(rolSaga.getId(), request, null));
+		assertThrows(NotFoundException.class, () -> service.update(id, request, null));
 
-		verify(repository).findById(rolSaga.getId());
+		verify(repository).findById(id);
 		verify(categoryService).findCategoriesByIds(request.getCategoriesIds());
 		verify(sectionService).findSectionById(request.getSectionId());
 
@@ -514,20 +508,22 @@ class RolSagaServiceTest {
 	void should_not_delete_rol_saga_when_image_deletion_fails() throws FileDeleteException {
 
 		// Given
-		rolSaga.setImageUrl("https://cloudinary.com/old-image.png");
+		String id = rolSaga.getId();
+		String imageUrl = "https://cloudinary.com/old-image.png";
+		rolSaga.setImageUrl(imageUrl);
 
-		when(repository.findById(rolSaga.getId())).thenReturn(Optional.of(rolSaga));
+		when(repository.findById(id)).thenReturn(Optional.of(rolSaga));
 
 		when(appProperties.defaultImages()).thenReturn(defaultImages);
 		when(defaultImages.rolSaga()).thenReturn("https://example.com/default-rol-saga.png");
 
-		doThrow(new FileDeleteException("Error deleting image")).when(fileService).deleteFile(rolSaga.getImageUrl());
+		doThrow(new FileDeleteException("Error deleting image")).when(fileService).deleteFile(imageUrl);
 
 		// When & Then
-		assertThrows(FileDeleteException.class, () -> service.delete(rolSaga.getId()));
+		assertThrows(FileDeleteException.class, () -> service.delete(id));
 
-		verify(repository).findById(rolSaga.getId());
-		verify(fileService).deleteFile(rolSaga.getImageUrl());
+		verify(repository).findById(id);
+		verify(fileService).deleteFile(imageUrl);
 
 		verify(repository, never()).delete(any());
 	}

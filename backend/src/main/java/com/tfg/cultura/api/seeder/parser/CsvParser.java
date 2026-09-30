@@ -69,10 +69,8 @@ public abstract class CsvParser {
 			return List.of();
 		}
 
-		List<String> cleanedValues = Arrays.stream(value.substring(1, value.length() - 1).split(",")).map(String::trim)
+		return Arrays.stream(value.substring(1, value.length() - 1).split(",")).map(String::trim)
 				.map(s -> s.replace("\"", "")).toList();
-
-		return cleanedValues;
 	}
 
 	protected static LocalDate parseLocalDate(String value) {

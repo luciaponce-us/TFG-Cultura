@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 class YouTubeEmbedUrlValidatorTest {
 	private final YouTubeEmbedUrlValidator validator = new YouTubeEmbedUrlValidator();
 
-	private final static String VALID_URL = "https://www.youtube.com/embed/dQw4w9WgXcQ";
-	private final static String INVALID_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+	private static final String VALID_URL = "https://www.youtube.com/embed/dQw4w9WgXcQ";
+	private static final String INVALID_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
 	@Test
 	void should_return_true_for_valid_youtube_embed_url() {

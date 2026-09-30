@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 class UrlValidatorTest {
 	private final UrlValidator validator = new UrlValidator();
 
-	private final static String VALID_URL = "https://www.example.com";
-	private final static String INVALID_URL = "htp://invalid-url";
+	private static final String VALID_URL = "https://www.example.com";
+	private static final String INVALID_URL = "htp://invalid-url";
 
 	@Test
 	void should_return_true_for_valid_url() {

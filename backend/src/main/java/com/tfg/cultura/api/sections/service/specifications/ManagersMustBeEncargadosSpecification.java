@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ManagersMustBeEncargadosSpecification implements BusinessSpecification<Set<User>> {
 
-	private final static Logger logger = LoggerFactory.getLogger("sectionsLogger");
+	private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
 
 	/**
 	 * RN-07: Solo los usuarios que tienen el rol de encargado pueden ser nombrados

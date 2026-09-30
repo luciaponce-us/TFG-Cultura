@@ -133,10 +133,11 @@ class SagaServiceTest {
 
 	@Test
 	void should_throw_exception_when_update_name_already_exists() {
-		when(sagaRepository.findById(saga.getId())).thenReturn(Optional.of(saga));
+		String id = saga.getId();
+		when(sagaRepository.findById(id)).thenReturn(Optional.of(saga));
 		when(sagaRepository.existsByName(request.getName())).thenReturn(true);
 
-		assertThrows(DuplicationException.class, () -> service.updateSaga(saga.getId(), request));
+		assertThrows(DuplicationException.class, () -> service.updateSaga(id, request));
 
 		verify(sagaRepository, never()).save(any(Saga.class));
 	}

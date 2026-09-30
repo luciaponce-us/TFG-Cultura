@@ -19,7 +19,7 @@ public class ExceptionsFactory {
 	public static final NotFoundException notFoundException = new NotFoundException("Not found", logger);
 
 	public static FieldException fieldException(HttpStatus status, String field) {
-		return new FieldException(logger, null, Map.of(field, "error"));
+		return new FieldException(logger, status, Map.of(field, "error"));
 	}
 
 	public static ValidationException validationException(String field) {

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CollaboratorsMustBeColaboradoresSpecification implements BusinessSpecification<Set<User>> {
 
-	private final static Logger logger = LoggerFactory.getLogger("sectionsLogger");
+	private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
 
 	/**
 	 * RN-09: Solo los usuarios que tienen el rol de colaborador pueden ser

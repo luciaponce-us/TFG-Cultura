@@ -123,7 +123,7 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 
 	private void validateItem(T item) {
 		checkAvailableCopies(item.getAvailableCopies(), item.getCopies());
-	};
+	}
 
 	protected void validate(T item) {
 		// Default validation logic can be implemented here if needed
@@ -184,7 +184,7 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 
 	protected void postUpdateActions(T oldItem, T updatedItem) throws NotFoundException, IllegalArgumentException {
 		// Default implementation - can be overridden by subclasses
-	};
+	}
 
 	private void checkAvailableCopies(Integer availableCopies, Integer copies) throws IllegalArgumentException {
 		if (availableCopies < 0) {

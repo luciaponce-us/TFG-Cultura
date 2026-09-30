@@ -34,7 +34,7 @@ public abstract class AbstractItemController<TRequest extends ItemRequest, TResp
 			@RequestPart(value = "image", required = false) @ValidImage MultipartFile image) {
 		TResponse response = service.create(request, image);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
-	};
+	}
 
 	@GetMapping("/{id}")
 	protected ResponseEntity<TResponse> getItem(@PathVariable String id) {

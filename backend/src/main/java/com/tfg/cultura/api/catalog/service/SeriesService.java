@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.catalog.service;
 
+import com.tfg.cultura.api.catalog.model.Season;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.catalog.model.SeriesInfo;
 import com.tfg.cultura.api.catalog.model.dto.SeriesRequest;
@@ -50,7 +51,7 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 	}
 
 	private void checkNumberOfSeasons(Series item) {
-		Integer higherSeason = item.getSeasons().stream().mapToInt(season -> season.getSeasonNumber()).max().orElse(0);
+		Integer higherSeason = item.getSeasons().stream().mapToInt(Season::getSeasonNumber).max().orElse(0);
 		Integer maxSeason = item.getSeriesInfo().getNumberOfSeasons();
 		if (higherSeason > maxSeason) {
 			throw new ValidationException(logger,
@@ -78,11 +79,11 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 
 	@Override
 	protected Integer getLoanDays(SeriesRequest request) {
-		switch (request.getNumberOfDiscs()) {
-			case 1 :
-				return 3;
-			default :
-				return 7;
+		if(request.getNumberOfDiscs()==1) {
+			return 3;
+		} else {
+			// For series with more than one disc
+			return 7;
 		}
 	}
 

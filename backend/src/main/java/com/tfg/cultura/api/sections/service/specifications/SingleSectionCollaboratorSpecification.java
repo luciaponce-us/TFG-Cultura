@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 public class SingleSectionCollaboratorSpecification implements BusinessSpecification<Set<User>> {
 
 	private final SectionRepository sectionRepository;
-	private final static Logger logger = LoggerFactory.getLogger("sectionsLogger");
+	private static final Logger logger = LoggerFactory.getLogger("sectionsLogger");
 
 	/**
 	 * RN-10: Un usuario no puede estar nombrado como colaborador de más de una

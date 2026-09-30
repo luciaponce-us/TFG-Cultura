@@ -13,6 +13,7 @@ import com.tfg.cultura.api.catalog.repository.RolGameRepository;
 import com.tfg.cultura.api.categories.service.CategoryService;
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.NotFoundException;
+import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.core.service.FileService;
 import com.tfg.cultura.api.sections.service.SectionService;
 import java.util.List;
@@ -69,8 +70,7 @@ class RolGameServiceTest {
 
 	@Test
 	void should_throw_exception_when_rol_saga_not_found() {
-		when(rolSagaService.findById(rolGame.getSaga().getId())).thenThrow(
-				new NotFoundException("RolSaga not found", org.slf4j.LoggerFactory.getLogger("catalogLogger")));
+		when(rolSagaService.findById(rolGame.getSaga().getId())).thenThrow(ExceptionsFactory.notFoundException);
 
 		assertThrows(NotFoundException.class, () -> service.fillSpecificFields(rolGame, rolGameRequest));
 	}
@@ -91,10 +91,10 @@ class RolGameServiceTest {
 
 	@Test
 	void should_throw_exception_when_rol_saga_not_found_in_find_all_by_saga_id() {
-		when(rolSagaService.findById(rolSaga.getId())).thenThrow(
-				new NotFoundException("RolSaga not found", org.slf4j.LoggerFactory.getLogger("catalogLogger")));
+		String id = rolSaga.getId();
+		when(rolSagaService.findById(id)).thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(NotFoundException.class, () -> service.findAllBySagaId(rolSaga.getId()));
+		assertThrows(NotFoundException.class, () -> service.findAllBySagaId(id));
 	}
 
 }

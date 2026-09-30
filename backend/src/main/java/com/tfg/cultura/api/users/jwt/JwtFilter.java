@@ -1,7 +1,5 @@
 package com.tfg.cultura.api.users.jwt;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tfg.cultura.api.core.exception.ApiError;
 import jakarta.servlet.FilterChain;
@@ -137,7 +135,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	}
 
 	private void writeDisabledUserResponse(String userId, HttpServletResponse response)
-			throws IOException, StreamWriteException, DatabindException {
+			throws IOException {
 		ApiError error = ApiError.builder().status(HttpStatus.FORBIDDEN.value()).message("Usuario desactivado").build();
 
 		log.warn("[JWT] El usuario con id {} está desactivado", userId);

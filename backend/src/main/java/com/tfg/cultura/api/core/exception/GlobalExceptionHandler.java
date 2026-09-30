@@ -12,6 +12,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,8 +29,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiError> handleValidationException(MethodArgumentNotValidException ex) {
 		ValidationException validationException = new ValidationException(logger,
-				ex.getBindingResult().getFieldErrors().stream().collect(Collectors.toMap(error -> error.getField(),
-						error -> error.getDefaultMessage(), (first, second) -> first)));
+				ex.getBindingResult().getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField,
+						FieldError::getDefaultMessage, (first, second) -> first)));
 
 		return apiErrorBuilder.build(validationException);
 	}
