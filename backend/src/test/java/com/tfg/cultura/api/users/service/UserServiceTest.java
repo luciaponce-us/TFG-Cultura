@@ -275,8 +275,7 @@ class UserServiceTest {
 	void should_throw_UserNotFoundException_when_update_unexisting_user() {
 		when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-		assertThrows(NotFoundException.class,
-				() -> service.updateUser("123", updateRequest));
+		assertThrows(NotFoundException.class, () -> service.updateUser("123", updateRequest));
 	}
 
 	@Test
@@ -366,8 +365,7 @@ class UserServiceTest {
 		UserUpdateRequest request = UserFactory.validUserUpdateRequest();
 		request.setRole(requestedRole);
 
-		assertThrows(UnauthorizedException.class,
-				() -> service.updateUser(currentUser, request, currentUser));
+		assertThrows(UnauthorizedException.class, () -> service.updateUser(currentUser, request, currentUser));
 
 		assertEquals(oldRole, currentUser.getRole());
 	}
@@ -529,8 +527,7 @@ class UserServiceTest {
 		// simula conflicto
 		when(userRepository.existsByUsername(anyString())).thenReturn(true);
 
-		DuplicationException ex = assertThrows(DuplicationException.class, () -> 
-			service.updateProfile(updateRequest));
+		DuplicationException ex = assertThrows(DuplicationException.class, () -> service.updateProfile(updateRequest));
 		assertTrue(ex.getErrors().containsKey("username"));
 	}
 
@@ -665,8 +662,7 @@ class UserServiceTest {
 
 		when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-		assertThrows(NotFoundException.class,
-				() -> service.updateUserAvatar("unknown", avatar));
+		assertThrows(NotFoundException.class, () -> service.updateUserAvatar("unknown", avatar));
 
 		verifyNoInteractions(userFileService);
 		verify(userRepository, never()).save(any());

@@ -61,7 +61,8 @@ public class SectionUpdateService {
 			String sanitizedManagerUsername = LoggerSanitizer.sanitize(managerUsername);
 			throw new NotFoundException(
 					"El usuario '" + sanitizedManagerUsername + "' no es un encargado de la sección '"
-							+ section.getName() + "'. Encargados actuales: " + managerUsernames, logger);
+							+ section.getName() + "'. Encargados actuales: " + managerUsernames,
+					logger);
 		}
 
 		User foundManager = section.getManagers().stream().filter(m -> m.getUsername().equals(managerUsername))
@@ -88,7 +89,8 @@ public class SectionUpdateService {
 					sanitizedCollaboratorUsername, section.getName(), collaboratorUsernames);
 			throw new NotFoundException(
 					"El usuario '" + sanitizedCollaboratorUsername + "' no es un colaborador de la sección '"
-							+ section.getName() + "'. Colaboradores actuales: " + collaboratorUsernames, logger);
+							+ section.getName() + "'. Colaboradores actuales: " + collaboratorUsernames,
+					logger);
 		}
 
 		User foundCollaborator = section.getCollaborators().stream()

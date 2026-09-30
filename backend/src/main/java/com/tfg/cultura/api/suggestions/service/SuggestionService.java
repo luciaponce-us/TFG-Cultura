@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.suggestions.service;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 import com.tfg.cultura.api.core.config.AppProperties;
 import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
@@ -24,8 +26,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 @Service
 @RequiredArgsConstructor
@@ -79,8 +79,8 @@ public class SuggestionService {
 		return new SuggestionResponse(suggestion);
 	}
 
-	public SuggestionResponse toggleSupport(String id) throws NotFoundException,
-			ValidationException, NotFoundException, UnathenticatedException {
+	public SuggestionResponse toggleSupport(String id)
+			throws NotFoundException, ValidationException, NotFoundException, UnathenticatedException {
 		CustomUserDetails currentUserDetails = userDetailsService.getCurrentUserDetails();
 		User currentUser = userService.findUserById(currentUserDetails.getId());
 		Suggestion suggestion = findSuggestionById(id);

@@ -26,7 +26,6 @@ import com.tfg.cultura.api.sections.factory.SectionFactory;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.sections.model.dto.SectionReference;
 import com.tfg.cultura.api.sections.service.SectionService;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -263,7 +262,7 @@ class AbstractItemServiceTest {
 	@Test
 	void should_remove_category_from_all_books() {
 		book.setCategories(new HashSet<Category>(Set.of(category, anotherCategory)));
-		
+
 		Book book2 = Book.builder().id("2").name("Book 2").categories(new HashSet<Category>(Set.of(category))).build();
 
 		when(repository.findAllByCategoriesContaining(category)).thenReturn(List.of(book, book2));

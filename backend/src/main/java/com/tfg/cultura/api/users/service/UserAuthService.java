@@ -70,8 +70,7 @@ public class UserAuthService {
 		return new UserResponse(savedUser);
 	}
 
-	public String login(UserLoginRequest request)
-			throws NotFoundException, DisabledException, BadCredentialsException {
+	public String login(UserLoginRequest request) throws NotFoundException, DisabledException, BadCredentialsException {
 		Optional<User> user = userRepository.findByUsername(request.getUsername());
 		if (user.isEmpty()) {
 			logger.warn("Error al iniciar sesión: El usuario no existe");

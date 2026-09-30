@@ -134,8 +134,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	private void writeDisabledUserResponse(String userId, HttpServletResponse response)
-			throws IOException {
+	private void writeDisabledUserResponse(String userId, HttpServletResponse response) throws IOException {
 		ApiError error = ApiError.builder().status(HttpStatus.FORBIDDEN.value()).message("Usuario desactivado").build();
 
 		log.warn("[JWT] El usuario con id {} está desactivado", userId);

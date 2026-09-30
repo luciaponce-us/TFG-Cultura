@@ -65,8 +65,7 @@ class UserAuthControllerTest extends BaseControllerTest {
 		when(userService.register(any(), any(), any())).thenThrow(ExceptionsFactory.duplicationException("username"));
 
 		mockMvc.perform(multipart(REGISTER_URL).file(userPart(registerRequest)).file(pdfPart()))
-				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.errors.username").exists());
+				.andExpect(status().isConflict()).andExpect(jsonPath("$.errors.username").exists());
 	}
 
 	@Test
@@ -83,8 +82,7 @@ class UserAuthControllerTest extends BaseControllerTest {
 				"image content".getBytes());
 
 		mockMvc.perform(multipart(REGISTER_URL).file(userPart(registerRequest)).file(image))
-				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.errors.paymentReceipt").exists());
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors.paymentReceipt").exists());
 	}
 
 	// ====== LOGIN ========

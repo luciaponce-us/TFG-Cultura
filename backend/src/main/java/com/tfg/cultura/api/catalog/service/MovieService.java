@@ -81,7 +81,7 @@ public class MovieService extends AbstractItemService<Movie, MovieRepository, Mo
 
 	@Override
 	protected Integer getLoanDays(MovieRequest request) {
-		if(request.getNumberOfDiscs()==1) {
+		if (request.getNumberOfDiscs() == 1) {
 			return 3;
 		} else {
 			// For movies with more than one disc

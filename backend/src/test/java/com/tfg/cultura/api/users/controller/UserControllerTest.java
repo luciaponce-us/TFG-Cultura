@@ -190,7 +190,8 @@ class UserControllerTest extends BaseControllerTest {
 
 	@Test
 	void toggle_user_activation_fail_self_activation() throws Exception {
-		when(userService.toggleUserActivation(any())).thenThrow(new UnauthorizedException("No tienes permisos para activar/desactivar este usuario"));
+		when(userService.toggleUserActivation(any()))
+				.thenThrow(new UnauthorizedException("No tienes permisos para activar/desactivar este usuario"));
 
 		mockMvc.perform(put(TOGGLE_ACTIVATION_URL, "1")).andExpect(status().isForbidden())
 				.andExpect(jsonPath("$.message").exists());

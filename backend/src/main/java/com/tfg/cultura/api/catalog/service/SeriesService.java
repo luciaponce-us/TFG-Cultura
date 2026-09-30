@@ -79,7 +79,7 @@ public class SeriesService extends AbstractItemService<Series, SeriesRepository,
 
 	@Override
 	protected Integer getLoanDays(SeriesRequest request) {
-		if(request.getNumberOfDiscs()==1) {
+		if (request.getNumberOfDiscs() == 1) {
 			return 3;
 		} else {
 			// For series with more than one disc

@@ -205,8 +205,7 @@ public class UserService {
 		user.setRole(newRole);
 	}
 
-	private void validateRoleUpdate(User user, Role newRole, User currentUser)
-			throws UnauthorizedException {
+	private void validateRoleUpdate(User user, Role newRole, User currentUser) throws UnauthorizedException {
 
 		if (currentUser.getRole() == Role.COORDINADOR) {
 			return;
@@ -280,7 +279,8 @@ public class UserService {
 		return updateAvatar(user, avatar);
 	}
 
-	public UserResponse toggleUserActivation(String username) throws NotFoundException, UnathenticatedException, UnauthorizedException {
+	public UserResponse toggleUserActivation(String username)
+			throws NotFoundException, UnathenticatedException, UnauthorizedException {
 		User currentUser = getCurrentUser();
 		User user = findUserByUsername(username);
 
@@ -316,8 +316,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public void deleteUser(String username)
-			throws NotFoundException, UnathenticatedException, UnauthorizedException {
+	public void deleteUser(String username) throws NotFoundException, UnathenticatedException, UnauthorizedException {
 		User user = findUserByUsername(username);
 		User currentUser = getCurrentUser();
 

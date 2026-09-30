@@ -95,8 +95,7 @@ class SuggestionControllerTest extends BaseControllerTest {
 
 	@Test
 	void create_fail_author_does_not_exist() throws Exception {
-		when(service.create(any(SuggestionCreateRequest.class)))
-				.thenThrow(ExceptionsFactory.notFoundException);
+		when(service.create(any(SuggestionCreateRequest.class))).thenThrow(ExceptionsFactory.notFoundException);
 
 		mockMvc.perform(post(CREATE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(request)))
 				.andExpect(status().isNotFound()).andExpect(jsonPath("$.message").exists());
@@ -153,7 +152,8 @@ class SuggestionControllerTest extends BaseControllerTest {
 
 	@Test
 	void toggleSupport_selfSupport() throws Exception {
-		ValidationException ex = ExceptionsFactory.validationException("El usuario con ID 123 ha intentado apoyar su propia sugerencia");
+		ValidationException ex = ExceptionsFactory
+				.validationException("El usuario con ID 123 ha intentado apoyar su propia sugerencia");
 		when(service.toggleSupport(any())).thenThrow(ex);
 
 		mockMvc.perform(put(String.format(SUPPORT_URL, suggestion.getId()))).andExpect(status().isBadRequest())

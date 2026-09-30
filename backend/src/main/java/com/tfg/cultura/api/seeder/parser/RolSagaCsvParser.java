@@ -23,18 +23,11 @@ public class RolSagaCsvParser extends ItemCsvParser {
 		Section section = getSection(clean(parts[8]), sectionsByName);
 		Set<Category> categories = getCategories(parseList(parts[9]), categoriesByName);
 
-		return RolSaga.builder()
-				.name(clean(parts[0]))
-				.description(clean(parts[1]))
-				.website(parseNullableString(parts[2]))
-				.imageUrl(parseNullableString(parts[3]))
-				.characterSheetUrl(parseNullableString(parts[4]))
-				.gameMaster(GameMaster.valueOf(clean(parts[5])))
-				.dice(parseNullableString(parts[6]))
-				.recommendedPlayers(parseNullableString(parts[7]))
-				.section(section)
-				.categories(categories)
-				.build();
+		return RolSaga.builder().name(clean(parts[0])).description(clean(parts[1]))
+				.website(parseNullableString(parts[2])).imageUrl(parseNullableString(parts[3]))
+				.characterSheetUrl(parseNullableString(parts[4])).gameMaster(GameMaster.valueOf(clean(parts[5])))
+				.dice(parseNullableString(parts[6])).recommendedPlayers(parseNullableString(parts[7])).section(section)
+				.categories(categories).build();
 	}
 
 }
