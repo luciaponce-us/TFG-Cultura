@@ -118,7 +118,8 @@ export function UploadBox({
                   disabled={disabled}
                   onClick={() => {}}
                 >
-                  {acceptedFiles.length === 0 ? "Seleccionar" : "Reemplazar"} archivo
+                  {acceptedFiles.length === 0 ? "Seleccionar" : "Reemplazar"}{" "}
+                  archivo
                 </CustomButton>
               </FileUpload.Trigger>
             </Grid>
