@@ -71,6 +71,7 @@ export function CreateSuggestionDialog({
       <CustomInput
         label="Título"
         name="title"
+        value={form.title}
         placeholder="Describe brevemente la sugerencia"
         required
         error={errors.title ?? ""}
@@ -80,6 +81,7 @@ export function CreateSuggestionDialog({
       <CustomInput
         label="Descripción"
         name="description"
+        value={form.description}
         placeholder="Proporciona una descripción detallada de la sugerencia"
         error={errors.description ?? ""}
         onChange={(e) => handleChange(e, form, setErrors, setForm)}
@@ -90,6 +92,7 @@ export function CreateSuggestionDialog({
       <CustomSelect
         label="Tipo de sugerencia"
         name="type"
+        value={[form.type]}
         options={[
           { value: "CATALOG", label: "Catálogo" },
           { value: "EVENT", label: "Evento" },
@@ -97,7 +100,8 @@ export function CreateSuggestionDialog({
         ]}
         onValueChange={handleTypeChange}
         placeholder="Selecciona el tipo de sugerencia"
-        defaultValue={[form?.type as string]}
+        defaultValue={[form.type]}
+        required
       />
     </FormDialog>
   );

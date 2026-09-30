@@ -168,6 +168,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
           <CustomInput
             label="Nombre de usuario"
             name="username"
+            value={form?.username}
             error={errors.username}
             onChange={handleFormChange}
             defaultValue={form?.username}
@@ -176,6 +177,8 @@ export function EditUserForm({ user }: { readonly user: User }) {
           <CustomInput
             label="Nueva contraseña"
             name="password"
+            value={form?.password}
+            placeholder="Dejar en blanco para no cambiar la contraseña"
             password={true}
             error={errors.password}
             onChange={handleFormChange}
@@ -184,6 +187,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
           <CustomInput
             label="Nombre"
             name="name"
+            value={form?.name}
             error={errors.name}
             onChange={handleFormChange}
             defaultValue={form?.name}
@@ -192,6 +196,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
           <CustomInput
             label="Apellidos"
             name="surname"
+            value={form?.surname}
             error={errors.surname}
             onChange={handleFormChange}
             defaultValue={form?.surname}
@@ -200,6 +205,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
           <CustomInput
             label="DNI"
             name="dni"
+            value={form?.dni}
             error={errors.dni}
             onChange={handleFormChange}
             defaultValue={form?.dni}
@@ -211,6 +217,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
             placeholder="Selecciona un rol"
             options={roleOptions(loggedUserRole)}
             defaultValue={[form?.role]}
+            value={[form?.role]}
             disabled={updateUserMutation.isPending}
             error={errors.role}
             onValueChange={(e) =>
@@ -220,6 +227,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
           <CustomInput
             label="Correo electrónico"
             name="email"
+            value={form?.email}
             required={true}
             error={errors.email}
             onChange={handleFormChange}
@@ -230,6 +238,7 @@ export function EditUserForm({ user }: { readonly user: User }) {
           <CustomInput
             label="Teléfono"
             name="phone"
+            value={form?.phone}
             required={true}
             error={errors.phone}
             onChange={handleFormChange}

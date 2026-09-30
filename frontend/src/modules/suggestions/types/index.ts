@@ -26,5 +26,5 @@ export type SuggestionType = (typeof SUGGESTION_TYPES)[number];
 export interface SuggestionCreateRequest {
   title: string;
   description?: string;
-  type?: SuggestionType;
+  type: SuggestionType;
 }
