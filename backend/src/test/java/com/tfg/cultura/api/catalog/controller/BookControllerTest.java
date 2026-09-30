@@ -52,7 +52,7 @@ class BookControllerTest extends BaseControllerTest {
 	private static final String BOOKS_BY_TYPE_URL = BASE_URL + "/types/{types}";
 
 	private Book book;
-	private BookRequest bookCreateRequest;
+	private BookRequest bookRequest;
 	private BookResponse bookResponse;
 
 	@BeforeEach
@@ -66,7 +66,7 @@ class BookControllerTest extends BaseControllerTest {
 	private void initTestData() {
 		book = CatalogFactory.validBook();
 		book.setSaga(CatalogFactory.validSaga());
-		bookCreateRequest = CatalogFactory.validBookCreateRequest();
+		bookRequest = CatalogFactory.validBookRequest();
 		bookResponse = new BookResponse(book);
 	}
 
@@ -81,7 +81,7 @@ class BookControllerTest extends BaseControllerTest {
 	void should_create_book_successfully_without_image() throws Exception {
 		when(bookService.create(any(BookRequest.class), isNull())).thenReturn(bookResponse);
 
-		MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
+		MockMultipartFile bookPart = mockBookPart(bookRequest);
 
 		mockMvc.perform(multipart(BASE_URL).file(bookPart)).andExpect(status().isCreated())
 				.andExpect(jsonPath("$.id").value(bookResponse.getId()))
@@ -95,7 +95,7 @@ class BookControllerTest extends BaseControllerTest {
 	void should_create_book_successfully_with_image() throws Exception {
 		when(bookService.create(any(BookRequest.class), any())).thenReturn(bookResponse);
 
-		MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
+		MockMultipartFile bookPart = mockBookPart(bookRequest);
 		MockMultipartFile imagePart = FileFactory.mockImagePart();
 
 		mockMvc.perform(multipart(BASE_URL).file(bookPart).file(imagePart)).andExpect(status().isCreated())
@@ -110,7 +110,7 @@ class BookControllerTest extends BaseControllerTest {
 		when(bookService.create(any(BookRequest.class), any()))
 				.thenThrow(new DuplicationException(logger, Map.of("isbn", "El ISBN ya existe")));
 
-		MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
+		MockMultipartFile bookPart = mockBookPart(bookRequest);
 
 		mockMvc.perform(multipart(BASE_URL).file(bookPart)).andExpect(status().isConflict())
 				.andExpect(jsonPath("$.errors.isbn").value("El ISBN ya existe"));
@@ -120,9 +120,9 @@ class BookControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_bad_request_when_create_request_is_invalid() throws Exception {
-		bookCreateRequest.setName("");
+		bookRequest.setName("");
 
-		MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
+		MockMultipartFile bookPart = mockBookPart(bookRequest);
 
 		mockMvc.perform(multipart(BASE_URL).file(bookPart)).andExpect(status().isBadRequest());
 
@@ -217,7 +217,7 @@ class BookControllerTest extends BaseControllerTest {
 	void should_update_book_successfully() throws Exception {
 		when(bookService.update(anyString(), any(BookRequest.class), any())).thenReturn(bookResponse);
 
-		MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
+		MockMultipartFile bookPart = mockBookPart(bookRequest);
 
 		mockMvc.perform(multipart(BOOK_URL, book.getId()).file(bookPart).with(request -> {
 			request.setMethod("PUT");
@@ -230,9 +230,9 @@ class BookControllerTest extends BaseControllerTest {
 
 	@Test
 	void should_return_bad_request_when_update_request_is_invalid() throws Exception {
-		bookCreateRequest.setName("");
+		bookRequest.setName("");
 
-		MockMultipartFile bookPart = mockBookPart(bookCreateRequest);
+		MockMultipartFile bookPart = mockBookPart(bookRequest);
 
 		mockMvc.perform(multipart(BOOK_URL, book.getId()).file(bookPart).with(request -> {
 			request.setMethod("PUT");

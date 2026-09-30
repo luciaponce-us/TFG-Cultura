@@ -40,7 +40,7 @@ public class CatalogFactory {
 				.build();
 	}
 
-	public static BookRequest validBookCreateRequest() {
+	public static BookRequest validBookRequest() {
 		return BookRequest.builder().name("Test Book").author("Test Author").isbn("9780306406157").type(BookType.NOVEL)
 				.build();
 	}
