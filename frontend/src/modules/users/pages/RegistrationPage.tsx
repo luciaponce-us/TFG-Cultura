@@ -183,6 +183,7 @@ export function RegistrationPage() {
             <CustomInput
               label="Nombre"
               name="name"
+              value={form.name}
               placeholder="Introduce tu nombre"
               required={true}
               error={errors.name}
@@ -193,6 +194,7 @@ export function RegistrationPage() {
             <CustomInput
               label="Apellidos"
               name="surname"
+              value={form.surname}
               placeholder="Introduce tus apellidos"
               required={true}
               error={errors.surname}
@@ -203,6 +205,7 @@ export function RegistrationPage() {
             <CustomInput
               label="DNI"
               name="dni"
+              value={form.dni}
               placeholder="Introduce tu DNI"
               required={true}
               error={errors.dni}
@@ -307,6 +310,7 @@ export function RegistrationPage() {
             <CustomInput
               label="Nombre de usuario"
               name="username"
+              value={form.username}
               placeholder="Introduce tu nombre de usuario"
               required={true}
               error={errors.username}
@@ -317,6 +321,7 @@ export function RegistrationPage() {
             <CustomInput
               label="Contraseña"
               name="password"
+              value={form.password}
               required={true}
               error={errors.password}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
@@ -327,6 +332,7 @@ export function RegistrationPage() {
             <CustomInput
               label="Confirma tu contraseña"
               name="confirmPassword"
+              value={form.confirmPassword}
               required={true}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
               password={true}
@@ -336,6 +342,7 @@ export function RegistrationPage() {
             <CustomInput
               label="Correo electrónico"
               name="email"
+              value={form.email}
               required={true}
               error={errors.email}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
@@ -345,6 +352,7 @@ export function RegistrationPage() {
             <CustomInput
               label="Teléfono"
               name="phone"
+              value={form.phone}
               required={true}
               error={errors.phone}
               onChange={(e) => handleChange(e, form, setErrors, setForm)}
@@ -363,9 +371,6 @@ export function RegistrationPage() {
               onFileChange={setAvatar}
               disabled={loadingRegister}
             />
-            {avatar?.name && (
-              <Text fontSize="sm">Archivo subido: {avatar.name}</Text>
-            )}
             <HStack>
               <CustomButton
                 onClick={() => {

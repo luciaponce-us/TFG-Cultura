@@ -1,7 +1,8 @@
-import { Flex, Text, Button, VStack, FileUpload, Box } from "@chakra-ui/react";
+import { Flex, Text, VStack, FileUpload, Box, Grid } from "@chakra-ui/react";
 import { IconCloudUpload } from "@tabler/icons-react";
 import { TextSecondary } from "./text";
 import { useState } from "react";
+import { CustomButton } from "./CustomButton";
 
 type UploadBoxProps = {
   readonly text: React.ReactNode;
@@ -22,6 +23,7 @@ export function UploadBox({
 }: UploadBoxProps) {
   const [errors, setErrors] = useState<string[]>([]);
   const [acceptedFiles, setAcceptedFiles] = useState<File[]>([]);
+  const [uploadKey, setUploadKey] = useState(0);
 
   function parseErrorMessage(errorType: string) {
     let allowedFileType: string | undefined;
@@ -43,6 +45,8 @@ export function UploadBox({
 
   function getErrorMessage(details: FileUpload.FileRejectDetails) {
     setErrors([]);
+    setAcceptedFiles([]);
+    setUploadKey((key) => key + 1);
     if (details.files.length === 0) {
       console.warn("Ignoring empty FileReject event", details);
       return;
@@ -57,31 +61,25 @@ export function UploadBox({
     setErrors(newErrors);
   }
 
-  function handleAccept(details: FileUpload.FileAcceptDetails) {
-    const file = details.files[0] ?? null;
-
-    setErrors([]);
-    setAcceptedFiles([file]); // Sustituye el anterior
-    onFileChange?.(file);
-  }
-
   return (
-    <Box flex={1} minW={0} w="100%">
+    <Box flex={1} minW={0} w="100%" h="100%" maxH="100%">
       <FileUpload.Root
-        acceptedFiles={acceptedFiles}
+        key={uploadKey}
+        defaultAcceptedFiles={[]}
         maxFiles={1}
         allowDrop={true}
         maxFileSize={2 * 1024 * 1024}
         accept={fileType}
         required={required}
-        onFileAccept={handleAccept}
         onFileReject={getErrorMessage}
         onFileChange={(details) => {
           setAcceptedFiles(details.acceptedFiles);
+          if (details.acceptedFiles.length > 0) setErrors([]);
           onFileChange?.(details.acceptedFiles[0] ?? null);
         }}
         disabled={disabled}
         w="100%"
+        h="100%"
       >
         <FileUpload.HiddenInput />
         <FileUpload.Dropzone
@@ -94,17 +92,18 @@ export function UploadBox({
           flexWrap="wrap"
           color="principal.800"
           disableClick={disabled}
-          w="100%"
+          maxW="100%"
+          h="100%"
         >
           <FileUpload.DropzoneContent>
-            <Flex
-              align={{ base: "stretch", md: "center" }}
-              justify="space-between"
-              direction={{ base: "column", md: "row" }}
+            <Grid
+              gridTemplateColumns={{ base: "1fr", md: "0.9fr 1fr" }}
+              alignItems="center"
               gap={4}
               w="100%"
+              maxW="100%"
             >
-              <Flex align="center" flex={1} minW={0} gap={4}>
+              <Flex align="center" minW={0} gap={4}>
                 <IconCloudUpload stroke={1} height="50px" width="50px" />
 
                 <VStack align="start" gap={0} minW={0}>
@@ -114,19 +113,16 @@ export function UploadBox({
               </Flex>
 
               <FileUpload.Trigger asChild>
-                <Button
-                  bg="principal.500"
-                  color="white"
-                  borderRadius="full"
-                  _hover={{ bg: "principal.600" }}
+                <CustomButton
+                  color="principal"
                   disabled={disabled}
-                  flexShrink={0}
-                  w={{ base: "100%", md: "auto" }}
+                  onClick={() => {}}
                 >
-                  Seleccionar archivo
-                </Button>
+                  {acceptedFiles.length === 0 ? "Seleccionar" : "Reemplazar"}{" "}
+                  archivo
+                </CustomButton>
               </FileUpload.Trigger>
-            </Flex>
+            </Grid>
           </FileUpload.DropzoneContent>
         </FileUpload.Dropzone>
 

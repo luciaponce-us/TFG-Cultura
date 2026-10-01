@@ -8,8 +8,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tfg.cultura.api.suggestions.factory.SuggestionFactory;
+import com.tfg.cultura.api.suggestions.model.Suggestion;
+import com.tfg.cultura.api.users.factory.UserFactory;
+import com.tfg.cultura.api.users.model.User;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import java.util.List;
-
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,12 +27,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
-
-import com.tfg.cultura.api.suggestions.factory.SuggestionFactory;
-import com.tfg.cultura.api.suggestions.model.Suggestion;
-import com.tfg.cultura.api.users.factory.UserFactory;
-import com.tfg.cultura.api.users.model.User;
-import com.tfg.cultura.api.users.model.enumerators.Role;
 
 @ExtendWith(MockitoExtension.class)
 class SuggestionRepositoryImplTests {
@@ -89,12 +87,8 @@ class SuggestionRepositoryImplTests {
 		assertTrue(criteria.containsKey("$and"));
 
 		List<?> andCriteria = (List<?>) criteria.get("$and");
-		Document supportersId = andCriteria.stream()
-				.filter(Document.class::isInstance)
-				.map(Document.class::cast)
-				.filter(doc -> doc.containsKey("supportersId"))
-				.findFirst()
-				.orElseThrow();
+		Document supportersId = andCriteria.stream().filter(Document.class::isInstance).map(Document.class::cast)
+				.filter(doc -> doc.containsKey("supportersId")).findFirst().orElseThrow();
 		List<?> ids = (List<?>) ((Document) supportersId.get("supportersId")).get("$in");
 		assertTrue(ids.contains("2"));
 		assertTrue(ids.contains("3"));

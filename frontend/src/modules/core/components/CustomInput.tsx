@@ -15,8 +15,10 @@ interface InputFieldProps {
   ) => void;
   password?: boolean;
   defaultValue?: string;
+  value?: string;
   textarea?: boolean;
   maxInputHeight?: string;
+  disabled?: boolean;
 }
 
 export const CustomInput = ({
@@ -30,8 +32,10 @@ export const CustomInput = ({
   onChange,
   password = false,
   defaultValue,
+  value = "",
   textarea = false,
   maxInputHeight,
+  disabled = false,
 }: InputFieldProps) => {
   const [show, setShow] = useState(false);
   const [length, setLength] = useState(defaultValue?.length ?? 0);
@@ -48,8 +52,11 @@ export const CustomInput = ({
     placeholder,
     onChange: handleChange,
     focusRingColor: "principal.600",
-    defaultValue,
+    ...((textarea && value === "") || value === undefined
+      ? { defaultValue }
+      : { value }),
     maxLength,
+    disabled,
   };
   return (
     <Field.Root invalid={!!error} required={required}>

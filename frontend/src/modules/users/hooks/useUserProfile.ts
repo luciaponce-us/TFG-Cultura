@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { ApiError } from "@/modules/core/types";
 import { getMyProfile } from "../service/user.service";
+import { isApiError } from "@/modules/core/utils/utils";
 
 type UseUserProfileOptions = {
   token: string | null;
@@ -17,7 +17,7 @@ export function useUserProfile({
       try {
         return await getMyProfile(token!);
       } catch (error) {
-        if (error instanceof ApiError && error.status === 401) {
+        if (isApiError(error) && error.status === 401) {
           onUnauthorized?.();
         }
 

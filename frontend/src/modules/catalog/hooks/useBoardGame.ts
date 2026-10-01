@@ -1,0 +1,15 @@
+import { useQuery } from "@tanstack/react-query";
+import { fetchBoardGameById } from "../service/boardgame.service";
+
+export function useBoardGame(boardGameId: string | undefined) {
+  return useQuery({
+    queryKey: ["boardgames", boardGameId],
+    queryFn: async () => {
+      if (!boardGameId) {
+        return undefined;
+      }
+      return await fetchBoardGameById(boardGameId);
+    },
+    enabled: !!boardGameId,
+  });
+}

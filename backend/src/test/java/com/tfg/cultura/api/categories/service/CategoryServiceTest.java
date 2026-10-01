@@ -1,0 +1,179 @@
+package com.tfg.cultura.api.categories.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.tfg.cultura.api.categories.factory.CategoryFactory;
+import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.categories.model.dto.CategoryRequest;
+import com.tfg.cultura.api.categories.repository.CategoryRepository;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class CategoryServiceTest {
+
+	@Mock
+	private CategoryRepository categoryRepository;
+
+	@InjectMocks
+	private CategoryService service;
+
+	private Category category;
+	private Category anotherCategory;
+
+	@BeforeEach
+	void setUp() {
+		category = CategoryFactory.validCategory();
+		anotherCategory = CategoryFactory.anotherValidCategory();
+	}
+
+	// CREATE
+
+	@Test
+	void should_create_category() {
+
+		when(categoryRepository.existsByName(category.getName())).thenReturn(false);
+
+		when(categoryRepository.save(any(Category.class))).thenReturn(category);
+
+		Category result = service.createCategory(CategoryFactory.validCategoryRequest());
+
+		assertEquals(category, result);
+
+		verify(categoryRepository).save(any(Category.class));
+		verify(categoryRepository).existsByName(category.getName());
+	}
+
+	@Test
+	void should_throw_when_category_already_exists() {
+
+		when(categoryRepository.existsByName(category.getName())).thenReturn(true);
+
+		CategoryRequest request = CategoryFactory.validCategoryRequest();
+		assertThrows(DuplicationException.class, () -> service.createCategory(request));
+
+		verify(categoryRepository).existsByName(category.getName());
+		verify(categoryRepository, never()).save(any());
+	}
+
+	// READ
+
+	@Test
+	void should_return_category_when_exists() {
+		when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+
+		Category result = service.findCategoryById(category.getId());
+
+		assertEquals(category, result);
+
+		verify(categoryRepository).findById(category.getId());
+	}
+
+	@Test
+	void should_throw_when_category_not_found() {
+		when(categoryRepository.findById(anyString())).thenReturn(Optional.empty());
+
+		assertThrows(NotFoundException.class, () -> service.findCategoryById("1"));
+
+		verify(categoryRepository).findById("1");
+	}
+
+	@Test
+	void should_return_categories_when_all_exist() {
+
+		when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+
+		when(categoryRepository.findById(anotherCategory.getId())).thenReturn(Optional.of(anotherCategory));
+
+		Set<Category> result = service.findCategoriesByIds(Set.of(category.getId(), anotherCategory.getId()));
+
+		assertEquals(2, result.size());
+		assertTrue(result.contains(category));
+		assertTrue(result.contains(anotherCategory));
+
+		verify(categoryRepository).findById(category.getId());
+		verify(categoryRepository).findById(anotherCategory.getId());
+	}
+
+	@Test
+	void should_throw_when_any_category_does_not_exist() {
+		when(categoryRepository.findById(anyString())).thenReturn(Optional.empty());
+		Set<String> categoriesIds = Set.of("1");
+
+		assertThrows(NotFoundException.class, () -> service.findCategoriesByIds(categoriesIds));
+
+		verify(categoryRepository).findById("1");
+	}
+
+	@Test
+	void should_return_empty_set_when_category_ids_are_null() {
+		Set<Category> result = service.findCategoriesByIds(null);
+
+		assertTrue(result.isEmpty());
+		verify(categoryRepository, never()).findById(any());
+	}
+
+	@Test
+	void should_return_all_categories_sorted_by_name() {
+
+		List<Category> categories = List.of(category, anotherCategory);
+
+		when(categoryRepository.findAllByOrderByNameAsc()).thenReturn(categories);
+
+		List<Category> result = service.findAllCategories();
+
+		assertEquals(categories, result);
+
+		verify(categoryRepository).findAllByOrderByNameAsc();
+	}
+
+	// UPDATE
+
+	@Test
+	void should_update_category() {
+
+		when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+
+		when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		CategoryRequest request = CategoryRequest.builder().name("Science Fiction").color(category.getColor()).build();
+		Category result = service.updateCategory(category.getId(), request);
+
+		assertEquals("Science Fiction", result.getName());
+		assertEquals(category.getId(), result.getId());
+		assertEquals(category.getColor(), result.getColor());
+		assertEquals("Science Fiction", result.getName());
+
+		verify(categoryRepository).save(result);
+	}
+
+	@Test
+	void should_throw_when_updating_non_existing_category() {
+		String nonExistingCategoryId = "non-existing-id";
+
+		when(categoryRepository.findById(nonExistingCategoryId)).thenReturn(Optional.empty());
+
+		CategoryRequest request = CategoryRequest.builder().name("Science Fiction").color(category.getColor()).build();
+		assertThrows(NotFoundException.class, () -> service.updateCategory(nonExistingCategoryId, request));
+
+		verify(categoryRepository).findById(nonExistingCategoryId);
+		verify(categoryRepository, never()).save(any());
+	}
+
+}

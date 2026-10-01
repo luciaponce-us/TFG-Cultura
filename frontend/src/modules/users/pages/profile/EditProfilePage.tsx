@@ -12,7 +12,7 @@ import {
   UploadBox,
 } from "@/modules/core/components";
 import { useAuth } from "@/modules/core/context/useAuth";
-import { handleChange } from "@/modules/core/utils/utils";
+import { handleChange, PLACEHOLDER } from "@/modules/core/utils/utils";
 
 import { useUpdateUserProfile, useUpdateUserProfileAvatar } from "../../hooks";
 import {
@@ -138,7 +138,7 @@ export function EditProfilePage() {
         <VStack w="100%" align="stretch" gap={4} minW={0}>
           <HStack w="100%" gap={4} minW={0}>
             <CustomAvatar
-              src={user?.avatar}
+              src={user?.avatar || PLACEHOLDER.AVATAR}
               name={form?.name || "User"}
               minW={0}
               w="100px"
@@ -165,19 +165,23 @@ export function EditProfilePage() {
             error={errors.username}
             onChange={handleFormChange}
             defaultValue={form?.username}
+            value={form?.username}
             maxLength={MAX_LENGTH.USERNAME}
           />
           <CustomInput
             label="Nueva contraseña"
             name="password"
+            value={form?.password}
             password={true}
             error={errors.password}
             onChange={handleFormChange}
             maxLength={MAX_LENGTH.PASSWORD}
+            placeholder="Dejar en blanco para no cambiar la contraseña"
           />
           <CustomInput
             label="Nombre"
             name="name"
+            value={form?.name}
             error={errors.name}
             onChange={handleFormChange}
             defaultValue={form?.name}
@@ -186,6 +190,7 @@ export function EditProfilePage() {
           <CustomInput
             label="Apellidos"
             name="surname"
+            value={form?.surname}
             error={errors.surname}
             onChange={handleFormChange}
             defaultValue={form?.surname}
@@ -195,6 +200,7 @@ export function EditProfilePage() {
           <CustomInput
             label="Correo electrónico"
             name="email"
+            value={form?.email}
             required={true}
             error={errors.email}
             onChange={handleFormChange}
@@ -205,6 +211,7 @@ export function EditProfilePage() {
           <CustomInput
             label="Teléfono"
             name="phone"
+            value={form?.phone}
             required={true}
             error={errors.phone}
             onChange={handleFormChange}

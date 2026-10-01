@@ -1,26 +1,12 @@
 package com.tfg.cultura.api.users.service;
 
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.tfg.cultura.api.core.config.AppProperties;
+import com.tfg.cultura.api.core.exception.DuplicationException;
+import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.core.utils.LoggerSanitizer;
 import com.tfg.cultura.api.suggestions.repository.SuggestionRepository;
-import com.tfg.cultura.api.users.exception.RoleModificationNotAllowedException;
-import com.tfg.cultura.api.users.exception.SelfActivationNotAllowedException;
-import com.tfg.cultura.api.users.exception.UserAlreadyExistsException;
-import com.tfg.cultura.api.users.exception.UserNotFoundException;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
@@ -28,298 +14,326 @@ import com.tfg.cultura.api.users.model.dto.UserResponse;
 import com.tfg.cultura.api.users.model.dto.UserUpdateRequest;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.repository.UserRepository;
-
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final CustomUserDetailsService userDetailsService;
-    private final SuggestionRepository suggestionRepository;
-    private final UserFileService userFileService;
-    private final AppProperties appProperties;
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final CustomUserDetailsService userDetailsService;
+	private final SuggestionRepository suggestionRepository;
+	private final UserFileService userFileService;
+	private final AppProperties appProperties;
 
-    private static final Logger logger = LoggerFactory.getLogger("usersLogger");
+	private static final Logger logger = LoggerFactory.getLogger("usersLogger");
 
-    // HELPERS
+	// HELPERS
 
-    User findUserByUsername(String username) throws UserNotFoundException {
-        Optional<User> user = userRepository.findByUsername(username);
+	public User findUserByUsername(String username) throws NotFoundException {
+		Optional<User> user = userRepository.findByUsername(username);
 
-        if (user.isEmpty()) {
-            logger.warn("Error al obtener el usuario: El usuario no existe");
-            throw new UserNotFoundException(String.format("El usuario con username %s no existe", username));
-        }
+		if (user.isEmpty()) {
+			logger.warn("Error al obtener el usuario: El usuario no existe");
+			throw new NotFoundException(String.format("El usuario con username %s no existe", username), logger);
+		}
 
-        return user.get();
-    }
+		return user.get();
+	}
 
-    User findUserById(String id) throws UserNotFoundException {
-        Optional<User> user = userRepository.findById(id);
+	public Map<String, User> getUsersByUsernames(Collection<String> usernames) {
+		List<User> users = userRepository.findByUsernameIn(usernames);
 
-        if (user.isEmpty()) {
-            logger.warn("Error al obtener el usuario: El usuario no existe");
-            throw new UserNotFoundException(String.format("El usuario con id %s no existe", id));
-        }
+		Map<String, User> usersByUsername = users.stream()
+				.collect(Collectors.toMap(User::getUsername, Function.identity()));
 
-        return user.get();
-    }
+		List<String> missingUsernames = usernames.stream().filter(username -> !usersByUsername.containsKey(username))
+				.toList();
 
-    User getCurrentUser() throws UnathenticatedException, UserNotFoundException {
-        CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
-        return findUserById(currentUser.getId());
-    }
+		if (!missingUsernames.isEmpty()) {
+			throw new NotFoundException("Los siguientes usuarios no existen: " + missingUsernames, logger);
+		}
 
-    boolean isSameOrHigherRole(Role role1, Role role2) {
-        if (role1 == role2) {
-            return true;
-        }
+		return usersByUsername;
+	}
 
-        switch (role1) {
-            case COORDINADOR:
-                return true;
-            case SECRETARIO:
-                return role2 == Role.ENCARGADO
-                        || role2 == Role.COLABORADOR
-                        || role2 == Role.SOCIO;
-            case ENCARGADO:
-                return role2 == Role.COLABORADOR
-                        || role2 == Role.SOCIO;
-            case COLABORADOR:
-                return role2 == Role.SOCIO;
-            default:
-                return false;
-        }
-    }
+	public Set<User> findUsersByUsernames(Collection<String> usernames) {
+		Map<String, User> usersByUsername = getUsersByUsernames(usernames);
+		Stream<User> usersStream = usersByUsername.values().stream();
 
-    private boolean isChanged(String newValue, String currentValue) {
-        return newValue != null && !newValue.trim().equals(currentValue);
-    }
+		return usersStream.collect(Collectors.toSet());
+	}
 
-    // GETTERS
+	public User findUserById(String id) throws NotFoundException {
+		Optional<User> user = userRepository.findById(id);
 
-    public Page<UserResponse> getAllUsers(int page, int size, Role role, Boolean active, String name) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<User> userPage;
-        if (name != null || role != null || active != null) {
-            userPage = userRepository.findAllWithFilters(role, active, name, pageable);
-        } else {
-            userPage = userRepository.findAll(pageable);
-        }
+		if (user.isEmpty()) {
+			logger.warn("Error al obtener el usuario: El usuario no existe");
+			throw new NotFoundException(String.format("El usuario con id %s no existe", id), logger);
+		}
 
-        return userPage.map(UserResponse::new);
-    }
+		return user.get();
+	}
 
-    public UserResponse getUser(String username) throws UserNotFoundException {
-        User user = findUserByUsername(username);
-        return new UserResponse(user);
-    }
+	User getCurrentUser() throws UnathenticatedException, NotFoundException {
+		CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+		return findUserById(currentUser.getId());
+	}
 
-    public UserResponse getProfile() throws UserNotFoundException, UnathenticatedException {
-        User currentUser = getCurrentUser();
-        return new UserResponse(currentUser);
-    }
+	boolean isSameOrHigherRole(Role role1, Role role2) {
+		if (role1 == role2) {
+			return true;
+		}
 
-    // UPDATE
+		switch (role1) {
+			case COORDINADOR :
+				return true;
+			case SECRETARIO :
+				return role2 == Role.ENCARGADO || role2 == Role.COLABORADOR || role2 == Role.SOCIO;
+			case ENCARGADO :
+				return role2 == Role.COLABORADOR || role2 == Role.SOCIO;
+			case COLABORADOR :
+				return role2 == Role.SOCIO;
+			default :
+				return false;
+		}
+	}
 
-    UserResponse updateUser(User user, UserUpdateRequest request, User currentUser)
-            throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException,
-            RoleModificationNotAllowedException, UnauthorizedException {
+	private boolean isChanged(String newValue, String currentValue) {
+		return newValue != null && !newValue.trim().equals(currentValue);
+	}
 
-        logger.info("Se va a actualizar el usuario con username {}", user.getUsername());
+	// GETTERS
 
-        if (isChanged(request.getUsername(), user.getUsername())) {
-            if (userRepository.existsByUsername(request.getUsername()))
-                throw new UserAlreadyExistsException("El username ya está en uso");
+	public Page<UserResponse> getAllUsers(int page, int size, Role role, Boolean active, String name) {
+		PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+		Page<User> userPage;
+		if (name != null || role != null || active != null) {
+			userPage = userRepository.findAllWithFilters(role, active, name, pageable);
+		} else {
+			userPage = userRepository.findAll(pageable);
+		}
 
-            String newUsername = LoggerSanitizer.sanitize(request.getUsername());
-            logger.info("Se va a cambiar el username del usuario {} a {}", user.getUsername(), newUsername);
-            user.setUsername(request.getUsername());
-        }
+		return userPage.map(UserResponse::new);
+	}
 
-        if (isChanged(request.getName(), user.getName())) {
-            user.setName(request.getName());
-        }
+	public UserResponse getUser(String username) throws NotFoundException {
+		User user = findUserByUsername(username);
+		return new UserResponse(user);
+	}
 
-        if (isChanged(request.getSurname(), user.getSurname())) {
-            user.setSurname(request.getSurname());
-        }
+	public UserResponse getProfile() throws NotFoundException, UnathenticatedException {
+		User currentUser = getCurrentUser();
+		return new UserResponse(currentUser);
+	}
 
-        if (isChanged(request.getPhone(), user.getPhone())) {
-            user.setPhone(request.getPhone());
-        }
+	// UPDATE
 
-        if (isChanged(request.getEmail(), user.getEmail())) {
-            user.setEmail(request.getEmail());
-        }
+	UserResponse updateUser(User user, UserUpdateRequest request, User currentUser)
+			throws NotFoundException, DuplicationException, UnathenticatedException, UnauthorizedException {
 
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
+		logger.info("Se va a actualizar el usuario con username {}", user.getUsername());
 
-        boolean isAdmin = appProperties.adminRoles().contains(currentUser.getRole());
-        if (isAdmin) {
-            if (isChanged(request.getDni(), user.getDni())) {
-                if (userRepository.existsByDni(request.getDni()))
-                    throw new UserAlreadyExistsException("El DNI ya está en uso");
+		if (isChanged(request.getUsername(), user.getUsername())) {
+			if (userRepository.existsByUsername(request.getUsername()))
+				throw new DuplicationException(logger, Map.of("username", "El nombre de usuario ya está en uso"));
 
-                user.setDni(request.getDni());
-            }
+			String newUsername = LoggerSanitizer.sanitize(request.getUsername());
+			logger.info("Se va a cambiar el username del usuario {} a {}", user.getUsername(), newUsername);
+			user.setUsername(request.getUsername());
+		}
 
-            updateUserRole(user, request.getRole(), currentUser);
-        }
+		if (isChanged(request.getName(), user.getName())) {
+			user.setName(request.getName());
+		}
 
-        return saveUpdatedUser(user);
-    }
+		if (isChanged(request.getSurname(), user.getSurname())) {
+			user.setSurname(request.getSurname());
+		}
 
-    void updateUserRole(User user, Role newRole, User currentUser)
-            throws RoleModificationNotAllowedException {
+		if (isChanged(request.getPhone(), user.getPhone())) {
+			user.setPhone(request.getPhone());
+		}
 
-        if (newRole == null || newRole == user.getRole()) {
-            return;
-        }
+		if (isChanged(request.getEmail(), user.getEmail())) {
+			user.setEmail(request.getEmail());
+		}
 
-        validateRoleUpdate(user, newRole, currentUser);
-        user.setRole(newRole);
-    }
+		if (request.getPassword() != null && !request.getPassword().isBlank()) {
+			user.setPassword(passwordEncoder.encode(request.getPassword()));
+		}
 
-    private void validateRoleUpdate(User user, Role newRole, User currentUser)
-            throws RoleModificationNotAllowedException {
+		boolean isAdmin = appProperties.adminRoles().contains(currentUser.getRole());
+		if (isAdmin) {
+			if (isChanged(request.getDni(), user.getDni())) {
+				if (userRepository.existsByDni(request.getDni()))
+					throw new DuplicationException(logger, Map.of("dni", "Ya existe un usuario con el mismo DNI"));
 
-        if (currentUser.getRole() == Role.COORDINADOR) {
-            return;
-        }
+				user.setDni(request.getDni());
+			}
 
-        boolean isSelfUpdate = currentUser.getId().equals(user.getId());
-        boolean isSameOrHigherRole = isSameOrHigherRole(newRole, currentUser.getRole());
-        boolean isHigherRole = isSameOrHigherRole && newRole != currentUser.getRole();
+			updateUserRole(user, request.getRole(), currentUser);
+		}
 
-        if (isSelfUpdate && isHigherRole) {
-            logger.warn("El usuario {} con rol {} ha intentado actualizar su propio rol a {}",
-                    currentUser.getUsername(), currentUser.getRole(), newRole);
-            throw new RoleModificationNotAllowedException(
-                    "No puedes asignarte un rol superior al tuyo");
-        }
+		return saveUpdatedUser(user);
+	}
 
-        if (!isSelfUpdate && isSameOrHigherRole) {
-            logger.warn("El usuario {} con rol {} ha intentado actualizar el rol de otro usuario a {}",
-                    currentUser.getUsername(), currentUser.getRole(), newRole);
-            throw new RoleModificationNotAllowedException(
-                    "No puedes asignar un rol igual o superior al tuyo");
-        }
-    }
+	void updateUserRole(User user, Role newRole, User currentUser) throws UnauthorizedException {
 
-    public UserResponse updateUser(String username, UserUpdateRequest request)
-            throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
-        User user = findUserByUsername(username);
-        User currentUser = getCurrentUser();
+		if (newRole == null || newRole == user.getRole()) {
+			return;
+		}
 
-        boolean isSelfUpdate = currentUser.getId().equals(user.getId());
-        if (isSameOrHigherRole(user.getRole(), currentUser.getRole()) && !isSelfUpdate) {
-            logger.warn("El usuario {} con rol {} ha intentado actualizar un usuario con rol {}",
-                    currentUser.getUsername(), currentUser.getRole(), user.getRole());
-            throw new UnauthorizedException("No tienes permisos para actualizar este usuario.");
-        }
+		validateRoleUpdate(user, newRole, currentUser);
+		user.setRole(newRole);
+	}
 
-        return updateUser(user, request, currentUser);
-    }
+	private void validateRoleUpdate(User user, Role newRole, User currentUser) throws UnauthorizedException {
 
-    public UserResponse updateProfile(UserUpdateRequest request)
-            throws UserNotFoundException, UserAlreadyExistsException, UnathenticatedException {
-        User currentUser = getCurrentUser();
-        return updateUser(currentUser, request, currentUser);
-    }
+		if (currentUser.getRole() == Role.COORDINADOR) {
+			return;
+		}
 
-    UserResponse saveUpdatedUser(User user) {
-        if (user == null) {
-            logger.warn("Error al guardar el usuario: El usuario es nulo");
-            throw new IllegalArgumentException("El usuario no puede ser nulo");
-        }
-        User savedUser = userRepository.save(user);
-        String username = LoggerSanitizer.sanitize(user.getUsername());
-        logger.info("Usuario con username {} actualizado correctamente", username);
-        return new UserResponse(savedUser);
-    }
+		boolean isSelfUpdate = currentUser.getId().equals(user.getId());
+		boolean isSameOrHigherRole = isSameOrHigherRole(newRole, currentUser.getRole());
+		boolean isHigherRole = isSameOrHigherRole && newRole != currentUser.getRole();
 
-    UserResponse updateAvatar(User user, MultipartFile avatar) {
-        String newAvatar = userFileService.uploadAvatar(user.getId(), avatar);
-        logger.info("Nuevo avatar subido para el usuario con username {}: {}", user.getUsername(), newAvatar);
-        user.setAvatar(newAvatar);
-        UserResponse response = saveUpdatedUser(user);
-        logger.info("Avatar del usuario con username {} actualizado correctamente", user.getUsername());
-        return response;
-    }
+		if (isSelfUpdate && isHigherRole) {
+			logger.warn("El usuario {} con rol {} ha intentado actualizar su propio rol a {}",
+					currentUser.getUsername(), currentUser.getRole(), newRole);
+			throw new UnauthorizedException("No puedes asignarte un rol superior al tuyo");
+		}
 
-    public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws UserNotFoundException {
-        User user = findUserByUsername(username);
-        return updateAvatar(user, avatar);
-    }
+		if (!isSelfUpdate && isSameOrHigherRole) {
+			logger.warn("El usuario {} con rol {} ha intentado actualizar el rol de otro usuario a {}",
+					currentUser.getUsername(), currentUser.getRole(), newRole);
+			throw new UnauthorizedException("No puedes asignar un rol igual o superior al tuyo");
+		}
+	}
 
-    public UserResponse updateCurrentUserAvatar(MultipartFile avatar) throws UserNotFoundException {
-        User user = getCurrentUser();
-        return updateAvatar(user, avatar);
-    }
+	public UserResponse updateUser(String username, UserUpdateRequest request)
+			throws NotFoundException, DuplicationException, UnathenticatedException {
+		User user = findUserByUsername(username);
+		User currentUser = getCurrentUser();
 
-    public UserResponse toggleUserActivation(String username) throws UserNotFoundException, UnathenticatedException {
-        User currentUser = getCurrentUser();
-        User user = findUserByUsername(username);
+		boolean isSelfUpdate = currentUser.getId().equals(user.getId());
+		if (isSameOrHigherRole(user.getRole(), currentUser.getRole()) && !isSelfUpdate) {
+			logger.warn("El usuario {} con rol {} ha intentado actualizar un usuario con rol {}",
+					currentUser.getUsername(), currentUser.getRole(), user.getRole());
+			throw new UnauthorizedException("No tienes permisos para actualizar este usuario.");
+		}
 
-        boolean isSelfActivation = user.getId().equals(currentUser.getId());
-        if (isSelfActivation) {
-            throw new SelfActivationNotAllowedException(
-                    String.format("El usuario %s con id %s ha intentado activar o desactivar su propio usuario",
-                            user.getUsername(),
-                            user.getId()));
-        }
+		return updateUser(user, request, currentUser);
+	}
 
-        if (isSameOrHigherRole(user.getRole(), currentUser.getRole())) {
-            logger.warn("El usuario {} con rol {} ha intentado activar o desactivar un usuario con rol {}",
-                    currentUser.getUsername(), currentUser.getRole(), user.getRole());
-            throw new UnauthorizedException("No tienes permisos para actualizar este usuario.");
-        }
+	public UserResponse updateProfile(UserUpdateRequest request)
+			throws NotFoundException, DuplicationException, UnathenticatedException {
+		User currentUser = getCurrentUser();
+		return updateUser(currentUser, request, currentUser);
+	}
 
-        user.setActive(!user.isActive());
+	UserResponse saveUpdatedUser(User user) {
+		if (user == null) {
+			logger.warn("Error al guardar el usuario: El usuario es nulo");
+			throw new IllegalArgumentException("El usuario no puede ser nulo");
+		}
+		User savedUser = userRepository.save(user);
+		String username = LoggerSanitizer.sanitize(user.getUsername());
+		logger.info("Usuario con username {} actualizado correctamente", username);
+		return new UserResponse(savedUser);
+	}
 
-        logger.info("Se ha cambiado el estado de activación del usuario {} con id {} a {}", user.getUsername(),
-                user.getId(), user.isActive());
+	UserResponse updateAvatar(User user, MultipartFile avatar) {
+		String newAvatar = userFileService.uploadAvatar(user.getId(), avatar);
+		logger.info("Nuevo avatar subido para el usuario con username {}: {}", user.getUsername(), newAvatar);
+		user.setAvatar(newAvatar);
+		UserResponse response = saveUpdatedUser(user);
+		logger.info("Avatar del usuario con username {} actualizado correctamente", user.getUsername());
+		return response;
+	}
 
-        return saveUpdatedUser(user);
-    }
+	public UserResponse updateUserAvatar(String username, MultipartFile avatar) throws NotFoundException {
+		User user = findUserByUsername(username);
+		return updateAvatar(user, avatar);
+	}
 
-    // DELETE
+	public UserResponse updateCurrentUserAvatar(MultipartFile avatar) throws NotFoundException {
+		User user = getCurrentUser();
+		return updateAvatar(user, avatar);
+	}
 
-    void deleteUser(User user) {
-        // No es necesario que sea transaccional, ya que se llama desde métodos
-        // transaccionales
-        userFileService.deleteUserFile(user.getAvatar());
-        userFileService.deleteUserFile(user.getPaymentReceipt());
-        suggestionRepository.deleteByAuthorId(user.getId());
-        userRepository.delete(user);
-        logger.info("Usuario con username {} eliminado correctamente", user.getUsername());
-    }
+	public UserResponse toggleUserActivation(String username)
+			throws NotFoundException, UnathenticatedException, UnauthorizedException {
+		User currentUser = getCurrentUser();
+		User user = findUserByUsername(username);
 
-    @Transactional
-    public void deleteUser(String username)
-            throws UserNotFoundException, UnathenticatedException, UnauthorizedException {
-        User user = findUserByUsername(username);
-        User currentUser = getCurrentUser();
+		boolean isSelfActivation = user.getId().equals(currentUser.getId());
+		if (isSelfActivation) {
+			throw new UnauthorizedException("No puedes activar tu propio usuario");
+		}
 
-        boolean isSelfDeletion = user.getId().equals(currentUser.getId());
-        if (isSameOrHigherRole(user.getRole(), currentUser.getRole()) && !isSelfDeletion) {
-            logger.warn("El usuario {} con rol {} ha intentado eliminar un usuario con rol {}",
-                    currentUser.getUsername(), currentUser.getRole(), user.getRole());
-            throw new UnauthorizedException("No tienes permisos para eliminar este usuario.");
-        }
+		if (isSameOrHigherRole(user.getRole(), currentUser.getRole())) {
+			logger.warn("El usuario {} con rol {} ha intentado activar o desactivar un usuario con rol {}",
+					currentUser.getUsername(), currentUser.getRole(), user.getRole());
+			throw new UnauthorizedException("No tienes permisos para actualizar este usuario.");
+		}
 
-        deleteUser(user);
-    }
+		user.setActive(!user.isActive());
 
-    @Transactional
-    public void deleteProfile() throws UserNotFoundException, UnathenticatedException {
-        User user = getCurrentUser();
-        deleteUser(user);
-    }
+		logger.info("Se ha cambiado el estado de activación del usuario {} con id {} a {}", user.getUsername(),
+				user.getId(), user.isActive());
+
+		return saveUpdatedUser(user);
+	}
+
+	// DELETE
+
+	void deleteUser(User user) {
+		// No es necesario que sea transaccional, ya que se llama desde métodos
+		// transaccionales
+		userFileService.deleteUserFile(user.getAvatar());
+		userFileService.deleteUserFile(user.getPaymentReceipt());
+		suggestionRepository.deleteByAuthorId(user.getId());
+		userRepository.delete(user);
+		logger.info("Usuario con username {} eliminado correctamente", user.getUsername());
+	}
+
+	@Transactional
+	public void deleteUser(String username) throws NotFoundException, UnathenticatedException, UnauthorizedException {
+		User user = findUserByUsername(username);
+		User currentUser = getCurrentUser();
+
+		boolean isSelfDeletion = user.getId().equals(currentUser.getId());
+		if (isSameOrHigherRole(user.getRole(), currentUser.getRole()) && !isSelfDeletion) {
+			logger.warn("El usuario {} con rol {} ha intentado eliminar un usuario con rol {}",
+					currentUser.getUsername(), currentUser.getRole(), user.getRole());
+			throw new UnauthorizedException("No tienes permisos para eliminar este usuario.");
+		}
+
+		deleteUser(user);
+	}
+
+	@Transactional
+	public void deleteProfile() throws NotFoundException, UnathenticatedException {
+		User user = getCurrentUser();
+		deleteUser(user);
+	}
 
 }

@@ -1,4 +1,5 @@
 import { Avatar, Spinner } from "@chakra-ui/react";
+import { PLACEHOLDER } from "../utils/utils";
 
 interface CustomAvatarProps extends React.ComponentProps<typeof Avatar.Root> {
   src?: string | null;
@@ -24,7 +25,7 @@ export const CustomAvatar = ({
   return (
     <Avatar.Root {...props}>
       <Avatar.Fallback name={name} />
-      <Avatar.Image src={src || undefined} />
+      <Avatar.Image src={src || PLACEHOLDER.AVATAR} />
     </Avatar.Root>
   );
 };

@@ -1,12 +1,26 @@
-export class ApiError extends Error {
-  status: number;
+export interface ApiError {
   timestamp: string;
+  status: number;
+  errors?: Record<string, string>;
+  message: string;
+}
 
-  constructor(message: string, status: number) {
+export class ApiException extends Error {
+  public readonly status: number;
+  public readonly errors?: Record<string, string>;
+  public readonly timestamp?: string;
+
+  constructor(
+    status: number,
+    message: string,
+    errors?: Record<string, string>,
+    timestamp?: string,
+  ) {
     super(message);
-    this.name = "ApiError";
     this.status = status;
-    this.timestamp = new Date().toISOString();
+    this.errors = errors;
+    this.timestamp = timestamp;
+    this.name = "ApiException";
   }
 }
 

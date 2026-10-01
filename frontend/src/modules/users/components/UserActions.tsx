@@ -38,9 +38,6 @@ export function UserActions({ user }: { readonly user: User }) {
 
     try {
       const isCurrentUser = username === currentUser?.username;
-      console.log(
-        `Eliminando usuario: ${username}, es el usuario actual: ${isCurrentUser}`,
-      );
 
       await deleteUserMutation({
         token,

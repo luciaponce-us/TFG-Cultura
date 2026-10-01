@@ -47,7 +47,6 @@ export function parseRole(role: Role): string {
 export const roleOptions = (
   loggedUserRole: Role | undefined,
 ): { label: string; value: string }[] => {
-  console.log("roleOptions called with loggedUserRole:", loggedUserRole);
   switch (loggedUserRole) {
     case "COORDINADOR":
       return ROLES.map((role) => ({

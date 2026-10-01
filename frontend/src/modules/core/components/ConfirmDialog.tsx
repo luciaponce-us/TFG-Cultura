@@ -24,7 +24,7 @@ export function ConfirmDialog({
     try {
       handleAction();
     } catch (error) {
-      console.error("Error al eliminar:", error);
+      console.error("Error al ejecutar acción:", error);
     } finally {
       setIsOpen(false);
       setLoading(false);

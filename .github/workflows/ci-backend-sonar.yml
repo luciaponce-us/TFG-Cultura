@@ -2,53 +2,57 @@ name: SonarQube Backend CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
+    paths:
+      - "backend/**"
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+    paths:
+      - "backend/**"
 
 jobs:
-    build-and-analyze:
-      runs-on: ubuntu-latest
-      
-      services:
-        mongo:
-          image: mongo:7
-          ports:
-            - 27018:27017
-          env:
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: root
-            MONGO_INITDB_DATABASE: test
+  build-and-analyze:
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout código
-          uses: actions/checkout@v6
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27018:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: root
+          MONGO_INITDB_DATABASE: test
 
-        - name: Setup JDK 21
-          uses: actions/setup-java@v5
-          with:
-            java-version: '21'
-            distribution: 'temurin'
-            cache: maven
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v6
 
-        - name: Cache Maven y SonarCloud
-          uses: actions/cache@v5
-          with:
-            path: |
-                ~/.m2/repository
-                ~/.sonar/cache
-            key: ${{ runner.os }}-sonar-${{ hashFiles('**/pom.xml') }}
-            restore-keys: |
-                ${{ runner.os }}-sonar-
+      - name: Setup JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
 
-        - name: Build, test y análisis SonarCloud
-          working-directory: ./backend
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          run: |
-            mvn verify sonar:sonar --no-transfer-progress \
-              -Dsonar.projectKey=luciaponce-us_TFG-Cultura \
-              -Dsonar.organization=luciaponce-us \
-              -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.coverage.exclusions=**/src/test/**,**/src/main/resources/**,**/config/**,**/seeder/**,**/exception/**,**/model/**,**/enumerators/**,**/CustomMultipartFile.java
+      - name: Cache Maven y SonarCloud
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.sonar/cache
+          key: ${{ runner.os }}-sonar-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-sonar-
+
+      - name: Build, test y análisis SonarCloud
+        working-directory: ./backend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn verify sonar:sonar --no-transfer-progress \
+            -Dsonar.projectKey=luciaponce-us_TFG-Cultura \
+            -Dsonar.organization=luciaponce-us \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.coverage.exclusions=**/src/test/**,**/src/main/resources/**,**/config/**,**/seeder/**,**/exception/**,**/model/**,**/enumerators/**,**/CustomMultipartFile.java
