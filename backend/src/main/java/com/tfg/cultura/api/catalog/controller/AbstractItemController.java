@@ -24,37 +24,37 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
-public abstract class AbstractItemController<TRequest extends ItemRequest, TResponse extends ItemResponse, TService extends AbstractItemService<?, ?, TRequest, TResponse>> {
+public abstract class AbstractItemController<C extends ItemRequest, R extends ItemResponse, S extends AbstractItemService<?, ?, C, R>> {
 
-	protected final TService service;
+	protected final S service;
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	protected ResponseEntity<TResponse> createItem(
-			@Valid @Parameter(description = "Datos del item en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("item") TRequest request,
+	protected ResponseEntity<R> createItem(
+			@Valid @Parameter(description = "Datos del item en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("item") C request,
 			@RequestPart(value = "image", required = false) @ValidImage MultipartFile image) {
-		TResponse response = service.create(request, image);
+		R response = service.create(request, image);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@GetMapping("/{id}")
-	protected ResponseEntity<TResponse> getItem(@PathVariable String id) {
-		TResponse response = service.getById(id);
+	protected ResponseEntity<R> getItem(@PathVariable String id) {
+		R response = service.getById(id);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
 	@GetMapping
-	protected ResponseEntity<Page<TResponse>> getAllItems(@RequestParam(defaultValue = "0") int page,
+	protected ResponseEntity<Page<R>> getAllItems(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String nameContains,
 			@RequestParam(required = false) Set<String> categoryIds) {
-		Page<TResponse> response = service.getAll(PageRequest.of(page, size), nameContains, categoryIds);
+		Page<R> response = service.getAll(PageRequest.of(page, size), nameContains, categoryIds);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
 	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<TResponse> updateItem(@PathVariable String id,
-			@Valid @Parameter(description = "Datos del item en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("item") TRequest request,
+	public ResponseEntity<R> updateItem(@PathVariable String id,
+			@Valid @Parameter(description = "Datos del item en JSON", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("item") C request,
 			@RequestPart(value = "image", required = false) @ValidImage MultipartFile image) {
-		TResponse response = service.update(id, request, image);
+		R response = service.update(id, request, image);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
