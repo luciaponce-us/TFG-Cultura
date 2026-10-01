@@ -293,21 +293,9 @@ class SectionControllerTest extends BaseControllerTest {
 		verify(sectionUpdateService).removeManagerFromSection(section.getId(), manager.getUsername());
 	}
 
-	// ❌ 404 - Not Found - Section not found
+	// ❌ 404 - Not Found
 	@Test
-	void should_return_not_found_when_deleting_manager_from_non_existing_section() throws Exception {
-		when(sectionUpdateService.removeManagerFromSection(section.getId(), manager.getUsername()))
-				.thenThrow(ExceptionsFactory.notFoundException);
-
-		mockMvc.perform(put(SECTION_REMOVE_MANAGER_URL, section.getId(), manager.getUsername()))
-				.andExpect(status().isNotFound());
-
-		verify(sectionUpdateService).removeManagerFromSection(section.getId(), manager.getUsername());
-	}
-
-	// ❌ 404 - Not Found - Manager not found in section
-	@Test
-	void should_return_not_found_when_manager_does_not_exist() throws Exception {
+	void should_propagate_not_found_when_deleting_manager() throws Exception {
 		when(sectionUpdateService.removeManagerFromSection(section.getId(), manager.getUsername()))
 				.thenThrow(ExceptionsFactory.notFoundException);
 
@@ -332,21 +320,9 @@ class SectionControllerTest extends BaseControllerTest {
 		verify(sectionUpdateService).removeCollaboratorFromSection(section.getId(), collaborator.getUsername());
 	}
 
-	// ❌ 404 - Not Found - Section not found
+	// ❌ 404 - Not Found
 	@Test
-	void should_return_not_found_when_deleting_collaborator_from_non_existing_section() throws Exception {
-		when(sectionUpdateService.removeCollaboratorFromSection(section.getId(), collaborator.getUsername()))
-				.thenThrow(ExceptionsFactory.notFoundException);
-
-		mockMvc.perform(put(SECTION_REMOVE_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
-				.andExpect(status().isNotFound());
-
-		verify(sectionUpdateService).removeCollaboratorFromSection(section.getId(), collaborator.getUsername());
-	}
-
-	// ❌ 404 - Not Found - Collaborator not found in section
-	@Test
-	void should_return_not_found_when_collaborator_does_not_exist() throws Exception {
+	void should_propagate_not_found_when_deleting_collaborator() throws Exception {
 		when(sectionUpdateService.removeCollaboratorFromSection(section.getId(), collaborator.getUsername()))
 				.thenThrow(ExceptionsFactory.notFoundException);
 
@@ -371,21 +347,9 @@ class SectionControllerTest extends BaseControllerTest {
 		verify(sectionUpdateService).addManagerToSection(section.getId(), manager.getUsername());
 	}
 
-	// ❌ 404 - Not Found - Section not found
+	// ❌ 404 - Not Found
 	@Test
-	void should_return_not_found_when_adding_manager_to_non_existing_section() throws Exception {
-		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
-				.thenThrow(ExceptionsFactory.notFoundException);
-
-		mockMvc.perform(put(SECTION_ADD_MANAGER_URL, section.getId(), manager.getUsername()))
-				.andExpect(status().isNotFound());
-
-		verify(sectionUpdateService).addManagerToSection(section.getId(), manager.getUsername());
-	}
-
-	// ❌ 404 - Not Found - User not found
-	@Test
-	void should_return_not_found_when_manager_to_add_does_not_exist() throws Exception {
+	void should_propagate_not_found_when_adding_manager() throws Exception {
 		when(sectionUpdateService.addManagerToSection(section.getId(), manager.getUsername()))
 				.thenThrow(ExceptionsFactory.notFoundException);
 
@@ -434,21 +398,9 @@ class SectionControllerTest extends BaseControllerTest {
 		verify(sectionUpdateService).addCollaboratorToSection(section.getId(), collaborator.getUsername());
 	}
 
-	// ❌ 404 - Not Found - Section not found
+	// ❌ 404 - Not Found
 	@Test
-	void should_return_not_found_when_adding_collaborator_to_non_existing_section() throws Exception {
-		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
-				.thenThrow(ExceptionsFactory.notFoundException);
-
-		mockMvc.perform(put(SECTION_ADD_COLLABORATOR_URL, section.getId(), collaborator.getUsername()))
-				.andExpect(status().isNotFound());
-
-		verify(sectionUpdateService).addCollaboratorToSection(section.getId(), collaborator.getUsername());
-	}
-
-	// ❌ 404 - Not Found - User not found
-	@Test
-	void should_return_not_found_when_collaborator_to_add_does_not_exist() throws Exception {
+	void should_propagate_not_found_when_adding_collaborator() throws Exception {
 		when(sectionUpdateService.addCollaboratorToSection(section.getId(), collaborator.getUsername()))
 				.thenThrow(ExceptionsFactory.notFoundException);
 
