@@ -109,8 +109,7 @@ public class SuggestionService {
 		return new SuggestionResponse(response);
 	}
 
-	public void delete(String id)
-			throws NotFoundException, UnathenticatedException, UnauthorizedException, NotFoundException {
+	public void delete(String id) throws NotFoundException, UnathenticatedException, UnauthorizedException {
 		CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
 		Suggestion suggestion = findSuggestionById(id);
 
