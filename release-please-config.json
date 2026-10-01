@@ -1,6 +1,11 @@
 {
-  "release-type": "simple",
-  "changelog-path": "docs/CHANGELOG.md",
-  "include-v-in-tag": true,
-  "initial-version": "1.1.0"
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "changelog-path": "docs/CHANGELOG.md",
+      "include-v-in-tag": true,
+      "initial-version": "1.1.0",
+      "include-component-in-tag": false
+    }
+  }
 }
