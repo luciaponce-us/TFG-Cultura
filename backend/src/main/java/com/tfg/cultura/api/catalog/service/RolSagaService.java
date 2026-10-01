@@ -41,9 +41,7 @@ public class RolSagaService {
 	private final AppProperties appProperties;
 	private final Logger logger = LoggerFactory.getLogger("catalogLogger");
 
-	private String getImageFolder() {
-		return "cultura/items/rolsaga";
-	}
+	private static final String FOLDER = "cultura/items/rolsaga";
 
 	private String getDefaultImageUrl() {
 		return appProperties.defaultImages().rolSaga();
@@ -75,7 +73,7 @@ public class RolSagaService {
 
 		deleteImage(rolSaga.getImageUrl());
 
-		FileUploadRequest fileUploadRequest = FileUploadRequest.builder().file(image).folder(getImageFolder())
+		FileUploadRequest fileUploadRequest = FileUploadRequest.builder().file(image).folder(FOLDER)
 				.className("rolsaga").id(rolSaga.getId()).width(400).height(600).defaultFileUrl(getDefaultImageUrl())
 				.resourceType("image").field("imageUrl").build();
 
