@@ -114,8 +114,9 @@ class CategoryServiceTest {
 	@Test
 	void should_throw_when_any_category_does_not_exist() {
 		when(categoryRepository.findById(anyString())).thenReturn(Optional.empty());
+		Set<String> categoriesIds = Set.of("1");
 
-		assertThrows(NotFoundException.class, () -> service.findCategoriesByIds(Set.of("1")));
+		assertThrows(NotFoundException.class, () -> service.findCategoriesByIds(categoriesIds));
 
 		verify(categoryRepository).findById("1");
 	}
