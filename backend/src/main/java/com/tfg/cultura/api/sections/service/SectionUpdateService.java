@@ -74,7 +74,8 @@ public class SectionUpdateService {
 		return new SectionResponse(updatedSection);
 	}
 
-	public SectionResponse removeCollaboratorFromSection(String sectionId, String collaboratorUsername) throws NotFoundException {
+	public SectionResponse removeCollaboratorFromSection(String sectionId, String collaboratorUsername)
+			throws NotFoundException {
 		Section section = sectionService.findSectionById(sectionId);
 		User collaborator = userService.findUserByUsername(collaboratorUsername);
 		String sanitizedCollaboratorUsername = LoggerSanitizer.sanitize(collaboratorUsername);
@@ -101,7 +102,8 @@ public class SectionUpdateService {
 		return new SectionResponse(updatedSection);
 	}
 
-	public SectionResponse addManagerToSection(String sectionId, String managerUsername) throws NotFoundException, ValidationException, FieldException {
+	public SectionResponse addManagerToSection(String sectionId, String managerUsername)
+			throws NotFoundException, ValidationException, FieldException {
 		Section section = sectionService.findSectionById(sectionId);
 		User manager = userService.findUserByUsername(managerUsername);
 
@@ -116,7 +118,8 @@ public class SectionUpdateService {
 		return new SectionResponse(updatedSection);
 	}
 
-	public SectionResponse addCollaboratorToSection(String sectionId, String collaboratorUsername) throws NotFoundException, ValidationException, FieldException {
+	public SectionResponse addCollaboratorToSection(String sectionId, String collaboratorUsername)
+			throws NotFoundException, ValidationException, FieldException {
 		Section section = sectionService.findSectionById(sectionId);
 		User collaborator = userService.findUserByUsername(collaboratorUsername);
 
