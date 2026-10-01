@@ -239,13 +239,11 @@ class AbstractItemServiceTest {
 
 	@Test
 	void should_delete_existing_book() {
-		Book book = Book.builder().id("1").build();
+		when(repository.findById(book.getId())).thenReturn(Optional.of(book));
 
-		when(repository.findById("1")).thenReturn(Optional.of(book));
+		service.delete(book.getId());
 
-		service.delete("1");
-
-		verify(repository).findById("1");
+		verify(repository).findById(book.getId());
 		verify(repository).delete(book);
 	}
 
