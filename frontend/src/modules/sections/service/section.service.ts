@@ -1,8 +1,21 @@
-import { authHeaders, fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
+import { authHeaders, fetchWithTimeout, handleResponse, jsonHeaders } from "@/modules/core/utils/utils";
 
-import type { Section } from "../types";
+import type { Section, SectionRequest } from "../types";
 
 import { SECTION_ROUTES } from "../routes";
+
+export async function createSection(
+  token: string,
+  sectionRequest: SectionRequest
+): Promise<Section> {
+  const res = await fetchWithTimeout(SECTION_ROUTES.GET_ALL, {
+    method: "POST",
+    headers: {...authHeaders(token), ...jsonHeaders},
+    body: JSON.stringify(sectionRequest),
+  });
+
+  return handleResponse<Section>(res);
+}
 
 export async function fetchAllSections(): Promise<Section[]> {
   const res = await fetchWithTimeout(SECTION_ROUTES.GET_ALL, {

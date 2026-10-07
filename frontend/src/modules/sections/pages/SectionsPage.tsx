@@ -11,6 +11,7 @@ import type { Section } from "../types";
 import {
   AddCollaboratorDialog,
   AddManagerDialog,
+  SectionFormDialog,
   UserCard,
 } from "../components";
 
@@ -82,7 +83,10 @@ export function SectionsPage() {
         {content}
       </Flex>
       {isCreateDialogOpen && (
-        <TextSecondary>Crear sección dialog is open</TextSecondary>
+        <SectionFormDialog
+          isOpen
+          setIsOpen={setIsCreateDialogOpen}
+        />
       )}
     </>
   );
