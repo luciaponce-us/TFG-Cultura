@@ -14,11 +14,13 @@ import {
   SectionFormDialog,
   UserCard,
 } from "../components";
+import { useAuth } from "@/modules/core/context/useAuth";
 
 export function SectionsPage() {
+  const { isSuperAdmin } = useAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { data: sections, isLoading, isError } = useSections();
-  const headers = ["Nombre", "Encargados", "Colaboradores", "Acciones"];
+  const headers = isSuperAdmin ? ["Nombre", "Encargados", "Colaboradores", "Acciones"] : ["Nombre", "Encargados", "Colaboradores"];
 
   let content;
 
@@ -53,7 +55,7 @@ export function SectionsPage() {
             </Table.Header>
             <Table.Body>
               {sections.map((section) => (
-                <SectionRow section={section} />
+                <SectionRow section={section} isSuperAdmin={isSuperAdmin} />
               ))}
             </Table.Body>
           </Table.Root>
@@ -76,20 +78,22 @@ export function SectionsPage() {
         gap={6}
       >
         <Heading as="h1">Administración de secciones</Heading>
-        <CustomButton onClick={() => setIsCreateDialogOpen(true)}>
-          <IconPlus />
-          Crear sección
-        </CustomButton>
+        {isSuperAdmin && (
+          <CustomButton onClick={() => setIsCreateDialogOpen(true)}>
+            <IconPlus />
+            Crear sección
+          </CustomButton>
+        )}
         {content}
       </Flex>
-      {isCreateDialogOpen && (
+      {isCreateDialogOpen && isSuperAdmin && (
         <SectionFormDialog isOpen setIsOpen={setIsCreateDialogOpen} />
       )}
     </>
   );
 }
 
-function SectionRow({ section }: { section: Section }) {
+function SectionRow({ section, isSuperAdmin }: { section: Section; isSuperAdmin: boolean }) {
   const [isAddManagerDialogOpen, setIsAddManagerDialogOpen] = useState(false);
   const [isAddCollaboratorDialogOpen, setIsAddCollaboratorDialogOpen] =
     useState(false);
@@ -103,6 +107,7 @@ function SectionRow({ section }: { section: Section }) {
   } = useDeleteSection();
 
   async function handleDeleteSection() {
+    if (!isSuperAdmin) return;
     await deleteSection({ sectionId: section.id });
     if (!isDeleting && !isDeleteError) {
       setIsDeleteDialogOpen(false);
@@ -135,15 +140,18 @@ function SectionRow({ section }: { section: Section }) {
                   key={manager.username}
                   user={manager}
                   sectionId={section.id}
+                  isSuperAdmin={isSuperAdmin}
                 />
               ))
             ) : (
               <TextSecondary>No hay encargados</TextSecondary>
             )}
-            <CustomButton onClick={() => setIsAddManagerDialogOpen(true)}>
-              <IconPlus />
-              Añadir encargado
-            </CustomButton>
+            {isSuperAdmin && (
+              <CustomButton onClick={() => setIsAddManagerDialogOpen(true)}>
+                <IconPlus />
+                Añadir encargado
+              </CustomButton>
+            )}
           </VStack>
         </Table.Cell>
         <Table.Cell
@@ -158,17 +166,21 @@ function SectionRow({ section }: { section: Section }) {
                   key={collaborator.username}
                   user={collaborator}
                   sectionId={section.id}
+                  isSuperAdmin={isSuperAdmin}
                 />
               ))
             ) : (
               <TextSecondary>No hay colaboradores</TextSecondary>
             )}
-            <CustomButton onClick={() => setIsAddCollaboratorDialogOpen(true)}>
-              <IconPlus />
-              Añadir colaborador
-            </CustomButton>
+            {isSuperAdmin && (
+              <CustomButton onClick={() => setIsAddCollaboratorDialogOpen(true)}>
+                <IconPlus />
+                Añadir colaborador
+              </CustomButton>
+            )}
           </VStack>
         </Table.Cell>
+        {isSuperAdmin && (
         <Table.Cell
           key={`${section.id}-actions`}
           textAlign="center"
@@ -187,9 +199,10 @@ function SectionRow({ section }: { section: Section }) {
             </CustomButton>
           </VStack>
         </Table.Cell>
+        )}
       </Table.Row>
 
-      {isDeleteDialogOpen && (
+      {isDeleteDialogOpen && isSuperAdmin && (
         <ConfirmDialog
           isOpen
           setIsOpen={setIsDeleteDialogOpen}
@@ -199,7 +212,7 @@ function SectionRow({ section }: { section: Section }) {
         />
       )}
 
-      {isAddManagerDialogOpen && (
+      {isAddManagerDialogOpen && isSuperAdmin && (
         <AddManagerDialog
           isOpen
           setIsOpen={setIsAddManagerDialogOpen}
@@ -208,7 +221,7 @@ function SectionRow({ section }: { section: Section }) {
         />
       )}
 
-      {isAddCollaboratorDialogOpen && (
+      {isAddCollaboratorDialogOpen && isSuperAdmin && (
         <AddCollaboratorDialog
           isOpen
           setIsOpen={setIsAddCollaboratorDialogOpen}
@@ -218,7 +231,7 @@ function SectionRow({ section }: { section: Section }) {
           )}
         />
       )}
-      {isEditDialogOpen && (
+      {isEditDialogOpen && isSuperAdmin && (
         <SectionFormDialog
           isOpen
           setIsOpen={setIsEditDialogOpen}

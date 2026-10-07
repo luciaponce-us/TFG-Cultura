@@ -11,9 +11,11 @@ import { useRemoveManagerFromSection } from "../hooks/useRemoveManagerFromSectio
 export function UserCard({
   user,
   sectionId,
+  isSuperAdmin,
 }: {
   user: User;
   sectionId: string;
+  isSuperAdmin: boolean;
 }) {
   const { token } = useAuth();
   const { mutateAsync: removeManager, isPending: isDeletingManager } =
@@ -23,6 +25,7 @@ export function UserCard({
   const isDeleting = isDeletingManager || isDeletingCollaborator;
 
   function handleRemove(e: MouseEvent<HTMLButtonElement>) {
+    if (!token || !isSuperAdmin) return;
     e.stopPropagation();
 
     if (user.role === "ENCARGADO") {
@@ -81,6 +84,7 @@ export function UserCard({
         </Text>
         <Text color="gray.500">@{user.username}</Text>
       </VStack>
+      {isSuperAdmin && (
       <CustomButton
         color="transparent"
         onClick={handleRemove}
@@ -89,6 +93,7 @@ export function UserCard({
       >
         <IconX />
       </CustomButton>
+      )}
     </HStack>
   );
 }
