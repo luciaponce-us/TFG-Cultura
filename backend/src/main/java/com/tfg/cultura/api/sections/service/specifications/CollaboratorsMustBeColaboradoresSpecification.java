@@ -7,6 +7,7 @@ import com.tfg.cultura.api.users.model.enumerators.Role;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +30,8 @@ public class CollaboratorsMustBeColaboradoresSpecification implements BusinessSp
 				.filter(collaborator -> collaborator.getRole() != Role.COLABORADOR).map(User::getUsername).toList();
 
 		if (!nonColaboradores.isEmpty()) {
-			throw new ValidationException(logger, Map.of("collaborators",
-					"Los siguientes usuarios no tienen el rol de colaborador: " + nonColaboradores));
+			throw new ValidationException(logger, Map.of("collaboratorsUsernames",
+					"Los siguientes usuarios no tienen el rol de colaborador: " + nonColaboradores.stream().collect(Collectors.joining(", "))));
 		}
 	}
 

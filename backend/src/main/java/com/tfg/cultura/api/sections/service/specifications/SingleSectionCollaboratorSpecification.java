@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 
 import org.slf4j.Logger;
@@ -44,9 +46,9 @@ public class SingleSectionCollaboratorSpecification implements BusinessSpecifica
 
 		if (!alreadyAssignedCollaborators.isEmpty()) {
 			throw new FieldException(logger, HttpStatus.CONFLICT,
-					Map.of("collaborators",
+					Map.of("collaboratorsUsernames",
 							"Los siguientes usuarios ya están asignados como colaboradores de otras secciones: "
-									+ alreadyAssignedCollaborators));
+									+ alreadyAssignedCollaborators.stream().collect(Collectors.joining(", "))));
 		}
 	}
 

@@ -419,7 +419,7 @@ class SectionUpdateServiceTest {
 	@Test
 	void should_throw_when_collaborator_already_assigned_to_other_section() {
 		FieldException fieldException = new FieldException(LoggerFactory.getLogger("testLogger"), HttpStatus.CONFLICT,
-				Map.of("collaborators", "collaborator already assigned to another section"));
+				Map.of("collaboratorsUsernames", "collaborator already assigned to another section"));
 		when(sectionService.findSectionById(sectionId)).thenReturn(section);
 
 		when(userService.findUserByUsername(collaboratorUsername)).thenReturn(collaborator);
