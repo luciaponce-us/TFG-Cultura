@@ -75,3 +75,15 @@ export async function addCollaboratorToSection(
 
   return handleResponse<Section>(res);
 }
+
+export async function deleteSection(token: string, sectionId: string): Promise<void> {
+  const res = await fetchWithTimeout(
+    SECTION_ROUTES.GET_BY_ID(sectionId),
+    {
+      method: "DELETE",
+      headers: authHeaders(token),
+    },
+  );
+
+  return handleResponse<void>(res);
+}

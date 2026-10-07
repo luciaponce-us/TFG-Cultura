@@ -6,9 +6,13 @@ import {
 } from "@/modules/core/components";
 import { useState } from "react";
 import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
-import { useSections } from "../hooks";
+import { useDeleteSection, useSections } from "../hooks";
 import type { Section } from "../types";
-import { AddCollaboratorDialog, AddManagerDialog, UserCard } from "../components";
+import {
+  AddCollaboratorDialog,
+  AddManagerDialog,
+  UserCard,
+} from "../components";
 
 export function SectionsPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -26,24 +30,33 @@ export function SectionsPage() {
   } else if (sections && sections.length > 0) {
     content =
       sections && sections.length > 0 ? (
-        <Table.ScrollArea borderWidth="1px" rounded="md" w="100%" overflowX="auto">
-              <Table.Root size="sm" stickyHeader showColumnBorder>
-                <Table.Header>
-                  <Table.Row bg="principal.200">
-      {headers.map((header) => (
-        <Table.ColumnHeader fontWeight="bold" textAlign="center" key={header}>
-          {header}
-        </Table.ColumnHeader>
-      ))}
-    </Table.Row>
-                </Table.Header>
-        <Table.Body>
-          {sections.map((section) => (
-            <SectionRow section={section} />
-          ))}
-          </Table.Body>
-        </Table.Root>
-    </Table.ScrollArea>
+        <Table.ScrollArea
+          borderWidth="1px"
+          rounded="md"
+          w="100%"
+          overflowX="auto"
+        >
+          <Table.Root size="sm" stickyHeader showColumnBorder>
+            <Table.Header>
+              <Table.Row bg="principal.200">
+                {headers.map((header) => (
+                  <Table.ColumnHeader
+                    fontWeight="bold"
+                    textAlign="center"
+                    key={header}
+                  >
+                    {header}
+                  </Table.ColumnHeader>
+                ))}
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {sections.map((section) => (
+                <SectionRow section={section} />
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </Table.ScrollArea>
       ) : (
         <TextSecondary>No hay secciones disponibles.</TextSecondary>
       );
@@ -77,12 +90,29 @@ export function SectionsPage() {
 
 function SectionRow({ section }: { section: Section }) {
   const [isAddManagerDialogOpen, setIsAddManagerDialogOpen] = useState(false);
-  const [isAddCollaboratorDialogOpen, setIsAddCollaboratorDialogOpen] = useState(false);
+  const [isAddCollaboratorDialogOpen, setIsAddCollaboratorDialogOpen] =
+    useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const {
+    mutateAsync: deleteSection,
+    isPending: isDeleting,
+    isError: isDeleteError,
+  } = useDeleteSection();
+
+  async function handleDeleteSection() {
+    await deleteSection({ sectionId: section.id });
+    if (!isDeleting && !isDeleteError) {
+      setIsDeleteDialogOpen(false);
+    }
+  }
+
   return (
     <>
       <Table.Row
         key={section.id}
+        pointerEvents={isDeleting ? "none" : "auto"}
+        opacity={isDeleting ? 0.5 : 1}
       >
         <Table.Cell
           key={`${section.id}-name`}
@@ -97,10 +127,21 @@ function SectionRow({ section }: { section: Section }) {
           alignItems="center"
         >
           <VStack gap={2}>
-          {section.managers.length>0? section.managers.map((manager) => <UserCard key={manager.username} user={manager} sectionId={section.id} />):<TextSecondary>No hay encargados</TextSecondary>}
-          <CustomButton onClick={() => setIsAddManagerDialogOpen(true)}>
-            <IconPlus />Añadir encargado
-          </CustomButton>
+            {section.managers.length > 0 ? (
+              section.managers.map((manager) => (
+                <UserCard
+                  key={manager.username}
+                  user={manager}
+                  sectionId={section.id}
+                />
+              ))
+            ) : (
+              <TextSecondary>No hay encargados</TextSecondary>
+            )}
+            <CustomButton onClick={() => setIsAddManagerDialogOpen(true)}>
+              <IconPlus />
+              Añadir encargado
+            </CustomButton>
           </VStack>
         </Table.Cell>
         <Table.Cell
@@ -109,9 +150,20 @@ function SectionRow({ section }: { section: Section }) {
           alignItems="center"
         >
           <VStack gap={2}>
-            {section.collaborators.length>0? section.collaborators.map((collaborator) => <UserCard key={collaborator.username} user={collaborator} sectionId={section.id} />):<TextSecondary>No hay colaboradores</TextSecondary>}
+            {section.collaborators.length > 0 ? (
+              section.collaborators.map((collaborator) => (
+                <UserCard
+                  key={collaborator.username}
+                  user={collaborator}
+                  sectionId={section.id}
+                />
+              ))
+            ) : (
+              <TextSecondary>No hay colaboradores</TextSecondary>
+            )}
             <CustomButton onClick={() => setIsAddCollaboratorDialogOpen(true)}>
-              <IconPlus />Añadir colaborador
+              <IconPlus />
+              Añadir colaborador
             </CustomButton>
           </VStack>
         </Table.Cell>
@@ -121,12 +173,13 @@ function SectionRow({ section }: { section: Section }) {
           alignItems="center"
         >
           <VStack gap={2}>
-            <CustomButton onClick={() => {}}>
+            <CustomButton onClick={() => {}} disabled={isDeleting}>
               <IconPencil />
             </CustomButton>
             <CustomButton
               color="rojo"
               onClick={() => setIsDeleteDialogOpen(true)}
+              loading={isDeleting}
             >
               <IconTrash />
             </CustomButton>
@@ -138,7 +191,7 @@ function SectionRow({ section }: { section: Section }) {
         <ConfirmDialog
           isOpen
           setIsOpen={setIsDeleteDialogOpen}
-          handleAction={() => console.log("Delete section")}
+          handleAction={() => void handleDeleteSection()}
           title="Eliminar sección"
           message={`¿Estás seguro de que deseas eliminar la sección "${section.name}"? Esta acción no se puede deshacer.`}
         />
@@ -158,7 +211,9 @@ function SectionRow({ section }: { section: Section }) {
           isOpen
           setIsOpen={setIsAddCollaboratorDialogOpen}
           sectionId={section.id}
-          collaborators={section.collaborators.map((collaborator) => collaborator.username)}
+          collaborators={section.collaborators.map(
+            (collaborator) => collaborator.username,
+          )}
         />
       )}
     </>
