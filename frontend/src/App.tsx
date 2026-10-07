@@ -23,6 +23,7 @@ import {
   EditUserPage,
   ProfilePage,
   EditProfilePage,
+  UserDetailsPage,
 } from "./modules/users/pages";
 
 import { SuggestionsPage } from "@/modules/suggestions/pages";
@@ -46,6 +47,8 @@ import {
 } from "@/modules/catalog/pages";
 
 import { CategoriesPage } from "@/modules/categories/pages";
+
+import { SectionsPage } from "@/modules/sections/pages";
 
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
 
@@ -121,8 +124,12 @@ export default function App() {
                 element={withRoleProtection(UsersAdminPage, MANAGEMENT_ROLES)}
               />
               <Route
-                path="/admin/usuarios/:username"
+                path="/admin/usuarios/:username/editar"
                 element={withRoleProtection(EditUserPage, MANAGEMENT_ROLES)}
+              />
+              <Route
+                path="/admin/usuarios/:username"
+                element={withRoleProtection(UserDetailsPage, MANAGEMENT_ROLES)}
               />
               {/* CATEGORÍAS */}
               <Route
@@ -133,6 +140,11 @@ export default function App() {
               <Route
                 path="/admin/sagas"
                 element={withRoleProtection(SagasPage, MANAGEMENT_ROLES)}
+              />
+              {/* SECCIONES */}
+              <Route
+                path="/admin/secciones"
+                element={withRoleProtection(SectionsPage, MANAGEMENT_ROLES)}
               />
               <Route path="/no-encontrado" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />

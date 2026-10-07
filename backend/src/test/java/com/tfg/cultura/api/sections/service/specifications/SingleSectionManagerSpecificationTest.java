@@ -54,7 +54,7 @@ class SingleSectionManagerSpecificationTest {
 		Set<User> managers = Set.of(manager1, manager2);
 
 		FieldException exception = assertThrows(FieldException.class, () -> specification.validate(managers));
-		assertTrue(exception.getErrors().get("managers").contains("manager1"));
+		assertTrue(exception.getErrors().get("managersUsernames").contains("manager1"));
 	}
 
 	@Test
@@ -68,8 +68,8 @@ class SingleSectionManagerSpecificationTest {
 		Set<User> managers = Set.of(manager1, manager2);
 
 		FieldException exception = assertThrows(FieldException.class, () -> specification.validate(managers));
-		assertTrue(exception.getErrors().get("managers").contains("manager1"));
-		assertTrue(exception.getErrors().get("managers").contains("manager2"));
+		assertTrue(exception.getErrors().get("managersUsernames").contains("manager1"));
+		assertTrue(exception.getErrors().get("managersUsernames").contains("manager2"));
 	}
 
 	private User createUser(String username) {

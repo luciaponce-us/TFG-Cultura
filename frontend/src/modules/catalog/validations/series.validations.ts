@@ -65,7 +65,7 @@ function validateNumberOfSeasons(value: number): string | undefined {
 }
 
 function validatePurchasedAt(
-  purchasedAt: string,
+  purchasedAt: string | undefined,
   releaseDate: string,
   baseError?: string,
 ): string | undefined {

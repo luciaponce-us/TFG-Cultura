@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AuthContext } from "./AuthContext";
 
 import { useUserProfile } from "@/modules/users/hooks";
-import { MANAGEMENT_ROLES } from "@/modules/users/types";
+import { MANAGEMENT_ROLES, SUPER_ADMIN_ROLES } from "@/modules/users/types";
 
 import type { User } from "@/modules/users/types";
 
@@ -50,6 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 
   const isAdmin = user ? MANAGEMENT_ROLES.includes(user.role) : false;
+  const isSuperAdmin = user ? SUPER_ADMIN_ROLES.includes(user.role) : false;
 
   const value = useMemo(
     () => ({
@@ -59,8 +60,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logout,
       setUser: updateUser,
       isAdmin,
+      isSuperAdmin,
     }),
-    [token, user, login, logout, updateUser, isAdmin],
+    [token, user, login, logout, updateUser, isAdmin, isSuperAdmin],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

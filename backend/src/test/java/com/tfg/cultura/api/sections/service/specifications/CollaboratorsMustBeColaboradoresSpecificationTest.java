@@ -34,7 +34,7 @@ class CollaboratorsMustBeColaboradoresSpecificationTest {
 		ValidationException exception = assertThrows(ValidationException.class,
 				() -> specification.validate(collaborators));
 
-		assertNotNull(exception.getErrors().get("collaborators"));
+		assertNotNull(exception.getErrors().get("collaboratorsUsernames"));
 	}
 
 	@Test
@@ -45,7 +45,7 @@ class CollaboratorsMustBeColaboradoresSpecificationTest {
 		ValidationException exception = assertThrows(ValidationException.class,
 				() -> specification.validate(collaborators));
 
-		assertNotNull(exception.getErrors().get("collaborators"));
+		assertNotNull(exception.getErrors().get("collaboratorsUsernames"));
 	}
 
 	private User createUser(String username, Role role) {

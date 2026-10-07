@@ -102,7 +102,7 @@ export function AdminItemInfoForm<R extends ItemRequest, E extends ItemErrors>({
       </Heading>
       <CustomDateInput
         label="Fecha de compra"
-        value={form.purchasedAt}
+        value={form.purchasedAt ?? ""}
         error={errors.purchasedAt ?? ""}
         onChange={(value) =>
           setForm((prev) => ({ ...prev, purchasedAt: value }))
@@ -139,7 +139,7 @@ export function AdminItemInfoForm<R extends ItemRequest, E extends ItemErrors>({
           error={errors.price}
           onChange={(value) => setForm((prev) => ({ ...prev, price: value }))}
           isEuros
-          defaultValue={form.price}
+          defaultValue={form.price ?? 0}
         />
       </HStack>
     </>

@@ -34,7 +34,7 @@ class ManagersMustBeEncargadosSpecificationTest {
 
 		ValidationException exception = assertThrows(ValidationException.class, () -> specification.validate(managers));
 
-		assertNotNull(exception.getErrors().get("managers"));
+		assertNotNull(exception.getErrors().get("managersUsernames"));
 	}
 
 	@Test
@@ -44,7 +44,7 @@ class ManagersMustBeEncargadosSpecificationTest {
 
 		ValidationException exception = assertThrows(ValidationException.class, () -> specification.validate(managers));
 
-		assertNotNull(exception.getErrors().get("managers"));
+		assertNotNull(exception.getErrors().get("managersUsernames"));
 	}
 
 	private User createUser(String username, Role role) {

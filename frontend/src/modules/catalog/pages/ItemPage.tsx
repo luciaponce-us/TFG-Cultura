@@ -123,18 +123,19 @@ export function ItemPage<T extends Item>({
               </Box>
 
               <ItemDescription description={item.description} />
-              <Box
-                display="flex"
-                flexWrap="wrap"
-                gap={1}
-                w="100%"
-                justifyContent="start"
-              >
-                {item.categories.length > 0 &&
-                  item.categories.map((category) => (
+              {item.categories && item.categories.length > 0 && (
+                <Box
+                  display="flex"
+                  flexWrap="wrap"
+                  gap={1}
+                  w="100%"
+                  justifyContent="start"
+                >
+                  {item.categories.map((category) => (
                     <CategoryTag key={category.id} category={category} />
                   ))}
-              </Box>
+                </Box>
+              )}
               <Separator w="100%" />
               <Heading as="h2" size="md">
                 Más información

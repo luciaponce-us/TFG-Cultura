@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 
 import org.slf4j.Logger;
@@ -44,8 +46,10 @@ public class SingleSectionManagerSpecification implements BusinessSpecification<
 		}
 
 		if (!alreadyAssignedManagers.isEmpty()) {
-			throw new FieldException(logger, HttpStatus.CONFLICT, Map.of("managers",
-					"El gestor ya está asignado a otra sección: " + alreadyAssignedManagers.toString()));
+			throw new FieldException(logger, HttpStatus.CONFLICT,
+					Map.of("managersUsernames",
+							"Los siguientes usuarios ya están asignados como encargados de otras secciones: "
+									+ alreadyAssignedManagers.stream().collect(Collectors.joining(", "))));
 		}
 	}
 

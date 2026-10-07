@@ -69,3 +69,5 @@ export const MANAGEMENT_ROLES: Role[] = [
   "ENCARGADO",
   "COLABORADOR",
 ];
+
+export const SUPER_ADMIN_ROLES: Role[] = ["COORDINADOR", "SECRETARIO"];

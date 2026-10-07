@@ -14,19 +14,19 @@ export const FILTERS_GET_ALL_ITEMS_DEFAULT: FiltersGetAllItems = {
 export interface Item {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   imageUrl: string;
   condition: ItemCondition;
-  comments: string;
+  comments?: string;
   loanAvailable: boolean;
   publicated: boolean;
-  purchasedAt: string; // LocalDate
-  price: number; // BigDecimal
+  purchasedAt?: string; // LocalDate
+  price?: number; // BigDecimal
   copies: number; // Integer
   availableCopies: number; // Integer
   loanDays: number; // Integer
-  section: SectionReference;
-  categories: Category[];
+  section?: SectionReference;
+  categories?: Category[];
   createdAt: string; // LocalDateTime
 }
 
@@ -63,16 +63,16 @@ export const INITIAL_ITEM: ItemRequest = {
 
 export interface ItemRequest {
   name: string;
-  description: string;
+  description: string | undefined;
   condition: ItemCondition;
-  comments: string;
+  comments: string | undefined;
   loanAvailable: boolean;
   publicated: boolean;
-  purchasedAt: string; // LocalDate
-  price: number; // BigDecimal
+  purchasedAt: string | undefined; // LocalDate
+  price: number | undefined; // BigDecimal
   copies: number; // Integer
   availableCopies: number; // Integer
-  sectionId: string;
+  sectionId: string | undefined;
   categoriesIds: string[];
 }
 

@@ -85,7 +85,9 @@ export function AdminItemInfoSideBar<T extends Item>({
                     </HStack>
                     <HStack w="100%">
                       <Text fontWeight="bold">Sección:</Text>
-                      <Text>{item.section.name}</Text>
+                      <Text>
+                        {item.section ? item.section.name : "Sin sección"}
+                      </Text>
                     </HStack>
                     <HStack w="100%">
                       <Text fontWeight="bold">Creado el:</Text>
