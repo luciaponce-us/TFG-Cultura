@@ -23,6 +23,7 @@ import {
   EditUserPage,
   ProfilePage,
   EditProfilePage,
+  UserDetailsPage,
 } from "./modules/users/pages";
 
 import { SuggestionsPage } from "@/modules/suggestions/pages";
@@ -121,8 +122,12 @@ export default function App() {
                 element={withRoleProtection(UsersAdminPage, MANAGEMENT_ROLES)}
               />
               <Route
-                path="/admin/usuarios/:username"
+                path="/admin/usuarios/:username/editar"
                 element={withRoleProtection(EditUserPage, MANAGEMENT_ROLES)}
+              />
+              <Route
+                path="/admin/usuarios/:username"
+                element={withRoleProtection(UserDetailsPage, MANAGEMENT_ROLES)}
               />
               {/* CATEGORÍAS */}
               <Route
