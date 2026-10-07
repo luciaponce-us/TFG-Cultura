@@ -31,7 +31,9 @@ function validateName(name: string): string | undefined {
   return undefined;
 }
 
-function validateDescription(description: string | undefined): string | undefined {
+function validateDescription(
+  description: string | undefined,
+): string | undefined {
   if (!description || description.trim() === "") return undefined;
   if (description && description.length > MAX_LENGTH.DESCRIPTION) {
     return (
