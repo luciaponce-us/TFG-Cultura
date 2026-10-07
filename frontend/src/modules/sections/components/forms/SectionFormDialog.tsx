@@ -60,9 +60,9 @@ export function SectionFormDialog({
   }
 
   /**
-    * Update the list of managers or collaborators in the form state.
-    * @param field - The field to update ("managersUsernames" or "collaboratorsUsernames").
-    * @param value - The new list of usernames to set for the specified field.
+   * Update the list of managers or collaborators in the form state.
+   * @param field - The field to update ("managersUsernames" or "collaboratorsUsernames").
+   * @param value - The new list of usernames to set for the specified field.
    */
   function updateUsers(
     field: "managersUsernames" | "collaboratorsUsernames",
@@ -134,10 +134,27 @@ function UserSelectLoading({
   );
 }
 
-function ManagersSelect({ token, section, form, errors, updateUsers, isSubmitting }: { token: string; section?: Section; form: SectionRequest; errors: SectionErrors; updateUsers: (field: "managersUsernames" | "collaboratorsUsernames", value: string[]) => void; isSubmitting: boolean }) {
-    const [managerSearch, setManagerSearch] = useState("");
+function ManagersSelect({
+  token,
+  section,
+  form,
+  errors,
+  updateUsers,
+  isSubmitting,
+}: {
+  token: string;
+  section?: Section;
+  form: SectionRequest;
+  errors: SectionErrors;
+  updateUsers: (
+    field: "managersUsernames" | "collaboratorsUsernames",
+    value: string[],
+  ) => void;
+  isSubmitting: boolean;
+}) {
+  const [managerSearch, setManagerSearch] = useState("");
 
-    const {
+  const {
     data: managersData,
     isLoading: isLoadingManagers,
     isError: isManagersError,
@@ -147,11 +164,11 @@ function ManagersSelect({ token, section, form, errors, updateUsers, isSubmittin
     active: "",
   });
 
-    const managerOptions = createUserOptions(managersData,section?.managers);
+  const managerOptions = createUserOptions(managersData, section?.managers);
 
   return (
-<>
-    <Separator />
+    <>
+      <Separator />
       <Heading as="h2" size="md">
         Encargados
       </Heading>
@@ -180,11 +197,28 @@ function ManagersSelect({ token, section, form, errors, updateUsers, isSubmittin
           />
         </UserSelectLoading>
       )}
-      </>
-  )
+    </>
+  );
 }
 
-function CollaboratorsSelect({ token, section, form, errors, updateUsers, isSubmitting }: { token: string; section?: Section; form: SectionRequest; errors: SectionErrors; updateUsers: (field: "managersUsernames" | "collaboratorsUsernames", value: string[]) => void; isSubmitting: boolean }) {
+function CollaboratorsSelect({
+  token,
+  section,
+  form,
+  errors,
+  updateUsers,
+  isSubmitting,
+}: {
+  token: string;
+  section?: Section;
+  form: SectionRequest;
+  errors: SectionErrors;
+  updateUsers: (
+    field: "managersUsernames" | "collaboratorsUsernames",
+    value: string[],
+  ) => void;
+  isSubmitting: boolean;
+}) {
   const [collaboratorSearch, setCollaboratorSearch] = useState("");
 
   const {
@@ -197,11 +231,14 @@ function CollaboratorsSelect({ token, section, form, errors, updateUsers, isSubm
     active: "",
   });
 
-  const collaboratorOptions = createUserOptions(collaboratorsData,section?.collaborators);
+  const collaboratorOptions = createUserOptions(
+    collaboratorsData,
+    section?.collaborators,
+  );
 
   return (
-  <>
-  <Separator />
+    <>
+      <Separator />
       <Heading as="h2" size="md">
         Colaboradores
       </Heading>
@@ -229,6 +266,6 @@ function CollaboratorsSelect({ token, section, form, errors, updateUsers, isSubm
           />
         </UserSelectLoading>
       )}
-      </>
-)
+    </>
+  );
 }

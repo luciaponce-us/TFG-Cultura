@@ -20,7 +20,10 @@ export function toRequest(section: Section | undefined): SectionRequest {
   }
 }
 
-export function createUserOptions(paginatedUsers: Paginated<User> | undefined, selectedUsers: User[] | undefined): { value: string; label: string }[] {
+export function createUserOptions(
+  paginatedUsers: Paginated<User> | undefined,
+  selectedUsers: User[] | undefined,
+): { value: string; label: string }[] {
   const users = paginatedUsers?.content || [];
   const selected = selectedUsers || [];
 

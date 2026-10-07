@@ -20,7 +20,9 @@ export function SectionsPage() {
   const { isSuperAdmin } = useAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { data: sections, isLoading, isError } = useSections();
-  const headers = isSuperAdmin ? ["Nombre", "Encargados", "Colaboradores", "Acciones"] : ["Nombre", "Encargados", "Colaboradores"];
+  const headers = isSuperAdmin
+    ? ["Nombre", "Encargados", "Colaboradores", "Acciones"]
+    : ["Nombre", "Encargados", "Colaboradores"];
 
   let content;
 
@@ -93,7 +95,13 @@ export function SectionsPage() {
   );
 }
 
-function SectionRow({ section, isSuperAdmin }: { section: Section; isSuperAdmin: boolean }) {
+function SectionRow({
+  section,
+  isSuperAdmin,
+}: {
+  section: Section;
+  isSuperAdmin: boolean;
+}) {
   const [isAddManagerDialogOpen, setIsAddManagerDialogOpen] = useState(false);
   const [isAddCollaboratorDialogOpen, setIsAddCollaboratorDialogOpen] =
     useState(false);
@@ -173,7 +181,9 @@ function SectionRow({ section, isSuperAdmin }: { section: Section; isSuperAdmin:
               <TextSecondary>No hay colaboradores</TextSecondary>
             )}
             {isSuperAdmin && (
-              <CustomButton onClick={() => setIsAddCollaboratorDialogOpen(true)}>
+              <CustomButton
+                onClick={() => setIsAddCollaboratorDialogOpen(true)}
+              >
                 <IconPlus />
                 Añadir colaborador
               </CustomButton>
@@ -181,24 +191,29 @@ function SectionRow({ section, isSuperAdmin }: { section: Section; isSuperAdmin:
           </VStack>
         </Table.Cell>
         {isSuperAdmin && (
-        <Table.Cell
-          key={`${section.id}-actions`}
-          textAlign="center"
-          alignItems="center"
-        >
-          <VStack gap={2}>
-            <CustomButton onClick={() => {setIsEditDialogOpen(true);}} disabled={isDeleting}>
-              <IconPencil />
-            </CustomButton>
-            <CustomButton
-              color="rojo"
-              onClick={() => setIsDeleteDialogOpen(true)}
-              loading={isDeleting}
-            >
-              <IconTrash />
-            </CustomButton>
-          </VStack>
-        </Table.Cell>
+          <Table.Cell
+            key={`${section.id}-actions`}
+            textAlign="center"
+            alignItems="center"
+          >
+            <VStack gap={2}>
+              <CustomButton
+                onClick={() => {
+                  setIsEditDialogOpen(true);
+                }}
+                disabled={isDeleting}
+              >
+                <IconPencil />
+              </CustomButton>
+              <CustomButton
+                color="rojo"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                loading={isDeleting}
+              >
+                <IconTrash />
+              </CustomButton>
+            </VStack>
+          </Table.Cell>
         )}
       </Table.Row>
 

@@ -85,14 +85,14 @@ export function UserCard({
         <Text color="gray.500">@{user.username}</Text>
       </VStack>
       {isSuperAdmin && (
-      <CustomButton
-        color="transparent"
-        onClick={handleRemove}
-        loading={isDeleting}
-        disabled={isDeleting || !token}
-      >
-        <IconX />
-      </CustomButton>
+        <CustomButton
+          color="transparent"
+          onClick={handleRemove}
+          loading={isDeleting}
+          disabled={isDeleting || !token}
+        >
+          <IconX />
+        </CustomButton>
       )}
     </HStack>
   );

@@ -29,8 +29,7 @@ export function useUpdateSection(
       if (!token) {
         toaster.create({
           title: "Inicia sesión para actualizar secciones",
-          description:
-            "Necesitas iniciar sesión para actualizar una sección.",
+          description: "Necesitas iniciar sesión para actualizar una sección.",
           type: "error",
         });
         return;
