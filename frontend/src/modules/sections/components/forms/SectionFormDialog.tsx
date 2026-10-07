@@ -3,10 +3,10 @@ import { useState } from "react";
 import {
   INITIAL_SECTION_ERRORS,
   INITIAL_SECTION_FORM,
+  type Section,
   type SectionErrors,
   type SectionRequest,
 } from "../../types";
-import type { User } from "@/modules/users/types";
 import {
   CustomInput,
   CustomSearchBar,
@@ -16,18 +16,15 @@ import {
 } from "@/modules/core/components";
 import { handleChange } from "@/modules/core/utils/utils";
 import { MAX_LENGTH, validateSectionForm } from "../../validations";
-import { useCreateSection } from "../../hooks";
+import { useCreateSection, useUpdateSection } from "../../hooks";
 import { useUsers } from "@/modules/users/hooks";
 import { Heading, HStack, Separator, Spinner } from "@chakra-ui/react";
+import { createUserOptions, toRequest } from "../../utils";
 
 interface SectionFormDialogProps {
   readonly isOpen: boolean;
   readonly setIsOpen: (isOpen: boolean) => void;
-  readonly section?: {
-    name: string;
-    managers: User[];
-    collaborators: User[];
-  };
+  readonly section?: Section;
 }
 
 export function SectionFormDialog({
@@ -37,61 +34,36 @@ export function SectionFormDialog({
 }: SectionFormDialogProps) {
   const { token } = useAuth();
   const [errors, setErrors] = useState<SectionErrors>(INITIAL_SECTION_ERRORS);
-  const [form, setForm] = useState<SectionRequest>(
-    section
-      ? {
-          name: section.name,
-          managersUsernames: section.managers.map(
-            (manager) => manager.username,
-          ),
-          collaboratorsUsernames: section.collaborators.map(
-            (collaborator) => collaborator.username,
-          ),
-        }
-      : INITIAL_SECTION_FORM,
-  );
-  const [managerSearch, setManagerSearch] = useState("");
-  const [collaboratorSearch, setCollaboratorSearch] = useState("");
+  const [form, setForm] = useState<SectionRequest>(toRequest(section));
 
-  const {
-    data: managersData,
-    isLoading: isLoadingManagers,
-    isError: isManagersError,
-  } = useUsers(token, 0, {
-    name: managerSearch,
-    role: "ENCARGADO",
-    active: "",
-  });
-  const {
-    data: collaboratorsData,
-    isLoading: isLoadingCollaborators,
-    isError: isCollaboratorsError,
-  } = useUsers(token, 0, {
-    name: collaboratorSearch,
-    role: "COLABORADOR",
-    active: "",
-  });
-
-  const managerOptions = createUserOptions(
-    managersData?.content ?? [],
-    section?.managers ?? [],
-  );
-  const collaboratorOptions = createUserOptions(
-    collaboratorsData?.content ?? [],
-    section?.collaborators ?? [],
-  );
+  function resetForm() {
+    setForm(INITIAL_SECTION_FORM);
+    setErrors(INITIAL_SECTION_ERRORS);
+  }
 
   const { mutateAsync: createSection, isPending: isCreating } =
     useCreateSection(setErrors, setIsOpen);
+  const { mutateAsync: updateSection, isPending: isUpdating } =
+    useUpdateSection(section?.id, form, setErrors, setIsOpen, resetForm);
 
   async function handleSubmit() {
     const isValid = validateSectionForm(form, setErrors, !!section);
     if (!isValid) {
       return;
     }
-    await createSection(form);
+
+    if (section) {
+      await updateSection();
+    } else {
+      await createSection(form);
+    }
   }
 
+  /**
+    * Update the list of managers or collaborators in the form state.
+    * @param field - The field to update ("managersUsernames" or "collaboratorsUsernames").
+    * @param value - The new list of usernames to set for the specified field.
+   */
   function updateUsers(
     field: "managersUsernames" | "collaboratorsUsernames",
     value: string[],
@@ -100,14 +72,19 @@ export function SectionFormDialog({
     setForm((previous) => ({ ...previous, [field]: value }));
   }
 
+  if (!token) {
+    return;
+  }
+
   return (
     <FormDialog
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      title={section ? "Editar sección" : "Crear sección"}
+      title={section ? `Editar sección "${section.name}"` : "Crear sección"}
       handleSubmit={handleSubmit}
-      disabled={!token || isCreating}
+      disabled={!token || isCreating || isUpdating}
       submitButtonText={section ? "Guardar cambios" : "Crear sección"}
+      resetForm={resetForm}
     >
       <CustomInput
         label="Nombre"
@@ -120,7 +97,61 @@ export function SectionFormDialog({
         maxLength={MAX_LENGTH.NAME}
       />
 
-      <Separator />
+      <ManagersSelect
+        token={token}
+        section={section}
+        form={form}
+        errors={errors}
+        updateUsers={updateUsers}
+        isSubmitting={isCreating || isUpdating}
+      />
+
+      <CollaboratorsSelect
+        token={token}
+        section={section}
+        form={form}
+        errors={errors}
+        updateUsers={updateUsers}
+        isSubmitting={isCreating || isUpdating}
+      />
+    </FormDialog>
+  );
+}
+
+function UserSelectLoading({
+  loading,
+  children,
+}: {
+  loading: boolean;
+  children: React.ReactNode;
+}) {
+  return loading ? (
+    <HStack justify="center">
+      <Spinner size="sm" color="principal.800" />
+    </HStack>
+  ) : (
+    children
+  );
+}
+
+function ManagersSelect({ token, section, form, errors, updateUsers, isSubmitting }: { token: string; section?: Section; form: SectionRequest; errors: SectionErrors; updateUsers: (field: "managersUsernames" | "collaboratorsUsernames", value: string[]) => void; isSubmitting: boolean }) {
+    const [managerSearch, setManagerSearch] = useState("");
+
+    const {
+    data: managersData,
+    isLoading: isLoadingManagers,
+    isError: isManagersError,
+  } = useUsers(token, 0, {
+    name: managerSearch,
+    role: "ENCARGADO",
+    active: "",
+  });
+
+    const managerOptions = createUserOptions(managersData,section?.managers);
+
+  return (
+<>
+    <Separator />
       <Heading as="h2" size="md">
         Encargados
       </Heading>
@@ -129,7 +160,7 @@ export function SectionFormDialog({
         placeholder="Buscar encargados..."
         value={managerSearch}
         onChange={(event) => setManagerSearch(event.currentTarget.value)}
-        disabled={isCreating}
+        disabled={isSubmitting}
       />
       {isManagersError ? (
         <TextSecondary>No se pudieron cargar los encargados.</TextSecondary>
@@ -149,8 +180,28 @@ export function SectionFormDialog({
           />
         </UserSelectLoading>
       )}
+      </>
+  )
+}
 
-      <Separator />
+function CollaboratorsSelect({ token, section, form, errors, updateUsers, isSubmitting }: { token: string; section?: Section; form: SectionRequest; errors: SectionErrors; updateUsers: (field: "managersUsernames" | "collaboratorsUsernames", value: string[]) => void; isSubmitting: boolean }) {
+  const [collaboratorSearch, setCollaboratorSearch] = useState("");
+
+  const {
+    data: collaboratorsData,
+    isLoading: isLoadingCollaborators,
+    isError: isCollaboratorsError,
+  } = useUsers(token, 0, {
+    name: collaboratorSearch,
+    role: "COLABORADOR",
+    active: "",
+  });
+
+  const collaboratorOptions = createUserOptions(collaboratorsData,section?.collaborators);
+
+  return (
+  <>
+  <Separator />
       <Heading as="h2" size="md">
         Colaboradores
       </Heading>
@@ -159,7 +210,7 @@ export function SectionFormDialog({
         placeholder="Buscar colaboradores..."
         value={collaboratorSearch}
         onChange={(event) => setCollaboratorSearch(event.currentTarget.value)}
-        disabled={isCreating}
+        disabled={isSubmitting}
       />
       {isCollaboratorsError ? (
         <TextSecondary>No se pudieron cargar los colaboradores.</TextSecondary>
@@ -178,33 +229,6 @@ export function SectionFormDialog({
           />
         </UserSelectLoading>
       )}
-    </FormDialog>
-  );
-}
-
-function createUserOptions(users: User[], selectedUsers: User[]) {
-  const usersByUsername = new Map(
-    [...selectedUsers, ...users].map((user) => [user.username, user]),
-  );
-
-  return [...usersByUsername.values()].map((user) => ({
-    value: user.username,
-    label: `${user.name} ${user.surname} (@${user.username})`,
-  }));
-}
-
-function UserSelectLoading({
-  loading,
-  children,
-}: {
-  loading: boolean;
-  children: React.ReactNode;
-}) {
-  return loading ? (
-    <HStack justify="center">
-      <Spinner size="sm" color="principal.800" />
-    </HStack>
-  ) : (
-    children
-  );
+      </>
+)
 }

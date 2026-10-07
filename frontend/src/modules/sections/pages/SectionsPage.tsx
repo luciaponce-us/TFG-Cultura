@@ -94,6 +94,7 @@ function SectionRow({ section }: { section: Section }) {
   const [isAddCollaboratorDialogOpen, setIsAddCollaboratorDialogOpen] =
     useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const {
     mutateAsync: deleteSection,
@@ -174,7 +175,7 @@ function SectionRow({ section }: { section: Section }) {
           alignItems="center"
         >
           <VStack gap={2}>
-            <CustomButton onClick={() => {}} disabled={isDeleting}>
+            <CustomButton onClick={() => {setIsEditDialogOpen(true);}} disabled={isDeleting}>
               <IconPencil />
             </CustomButton>
             <CustomButton
@@ -215,6 +216,13 @@ function SectionRow({ section }: { section: Section }) {
           collaborators={section.collaborators.map(
             (collaborator) => collaborator.username,
           )}
+        />
+      )}
+      {isEditDialogOpen && (
+        <SectionFormDialog
+          isOpen
+          setIsOpen={setIsEditDialogOpen}
+          section={section}
         />
       )}
     </>

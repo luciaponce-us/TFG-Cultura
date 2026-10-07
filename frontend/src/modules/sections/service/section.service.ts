@@ -30,6 +30,20 @@ export async function fetchAllSections(): Promise<Section[]> {
   return handleResponse<Section[]>(res);
 }
 
+export async function updateSection(
+  token: string,
+  sectionId: string,
+  sectionRequest: SectionRequest,
+): Promise<Section> {
+  const res = await fetchWithTimeout(SECTION_ROUTES.GET_BY_ID(sectionId), {
+    method: "PUT",
+    headers: { ...authHeaders(token), ...jsonHeaders },
+    body: JSON.stringify(sectionRequest),
+  });
+
+  return handleResponse<Section>(res);
+}
+
 export async function removeManagerFromSection(
   token: string,
   sectionId: string,

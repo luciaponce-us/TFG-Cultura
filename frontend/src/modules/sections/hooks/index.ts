@@ -6,3 +6,4 @@ export { useAddCollaboratorToSection } from "./useAddCollaboratorToSection";
 export { useRemoveCollaboratorFromSection } from "./useRemoveCollaboratorFromSection";
 export { useDeleteSection } from "./useDeleteSection";
 export { useCreateSection } from "./useCreateSection";
+export { useUpdateSection } from "./useUpdateSection";
