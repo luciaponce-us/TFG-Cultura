@@ -60,3 +60,18 @@ export async function removeCollaboratorFromSection(
   return handleResponse<Section>(res);
 }
 
+export async function addCollaboratorToSection(
+  token: string,
+  sectionId: string,
+  collaboratorUsername: string
+): Promise<Section> {
+  const res = await fetchWithTimeout(
+    SECTION_ROUTES.ADD_COLLABORATOR(sectionId, collaboratorUsername),
+    {
+      method: "PUT",
+      headers: authHeaders(token),
+    },
+  );
+
+  return handleResponse<Section>(res);
+}

@@ -9,4 +9,6 @@ export const SECTION_ROUTES = {
     `${SECTION_ROUTES.GET_BY_ID(sectionId)}/managers/${managerUsername}/add`,
   REMOVE_COLLABORATOR: (sectionId: string, collaboratorUsername: string) =>
     `${SECTION_ROUTES.GET_BY_ID(sectionId)}/collaborators/${collaboratorUsername}/remove`,
+  ADD_COLLABORATOR: (sectionId: string, collaboratorUsername: string) =>
+    `${SECTION_ROUTES.GET_BY_ID(sectionId)}/collaborators/${collaboratorUsername}/add`,
 };

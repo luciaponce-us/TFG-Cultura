@@ -8,7 +8,7 @@ import { useState } from "react";
 import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useSections } from "../hooks";
 import type { Section } from "../types";
-import { AddManagerDialog, UserCard } from "../components";
+import { AddCollaboratorDialog, AddManagerDialog, UserCard } from "../components";
 
 export function SectionsPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -77,7 +77,7 @@ export function SectionsPage() {
 
 function SectionRow({ section }: { section: Section }) {
   const [isAddManagerDialogOpen, setIsAddManagerDialogOpen] = useState(false);
-
+  const [isAddCollaboratorDialogOpen, setIsAddCollaboratorDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   return (
     <>
@@ -108,7 +108,12 @@ function SectionRow({ section }: { section: Section }) {
           textAlign="center"
           alignItems="center"
         >
-          {section.collaborators.length>0? section.collaborators.map((collaborator) => <UserCard key={collaborator.username} user={collaborator} sectionId={section.id} />):<TextSecondary>No hay colaboradores</TextSecondary>}
+          <VStack gap={2}>
+            {section.collaborators.length>0? section.collaborators.map((collaborator) => <UserCard key={collaborator.username} user={collaborator} sectionId={section.id} />):<TextSecondary>No hay colaboradores</TextSecondary>}
+            <CustomButton onClick={() => setIsAddCollaboratorDialogOpen(true)}>
+              <IconPlus />Añadir colaborador
+            </CustomButton>
+          </VStack>
         </Table.Cell>
         <Table.Cell
           key={`${section.id}-actions`}
@@ -145,6 +150,15 @@ function SectionRow({ section }: { section: Section }) {
           setIsOpen={setIsAddManagerDialogOpen}
           sectionId={section.id}
           managers={section.managers.map((manager) => manager.username)}
+        />
+      )}
+
+      {isAddCollaboratorDialogOpen && (
+        <AddCollaboratorDialog
+          isOpen
+          setIsOpen={setIsAddCollaboratorDialogOpen}
+          sectionId={section.id}
+          collaborators={section.collaborators.map((collaborator) => collaborator.username)}
         />
       )}
     </>
