@@ -28,6 +28,22 @@ export async function removeManagerFromSection(
   return handleResponse<Section>(res);
 }
 
+export async function addManagerToSection(
+  token: string,
+  sectionId: string,
+  managerUsername: string
+): Promise<Section> {
+  const res = await fetchWithTimeout(
+    SECTION_ROUTES.ADD_MANAGER(sectionId, managerUsername),
+    {
+      method: "PUT",
+      headers: authHeaders(token),
+    },
+  );
+
+  return handleResponse<Section>(res);
+}
+
 export async function removeCollaboratorFromSection(
   token: string,
   sectionId: string,

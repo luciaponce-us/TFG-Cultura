@@ -8,7 +8,7 @@ import { useState } from "react";
 import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useSections } from "../hooks";
 import type { Section } from "../types";
-import { UserCard } from "../components/UserCard";
+import { AddManagerDialog, UserCard } from "../components";
 
 export function SectionsPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -76,7 +76,7 @@ export function SectionsPage() {
 }
 
 function SectionRow({ section }: { section: Section }) {
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isAddManagerDialogOpen, setIsAddManagerDialogOpen] = useState(false);
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   return (
@@ -96,7 +96,12 @@ function SectionRow({ section }: { section: Section }) {
           textAlign="center"
           alignItems="center"
         >
+          <VStack gap={2}>
           {section.managers.length>0? section.managers.map((manager) => <UserCard key={manager.username} user={manager} sectionId={section.id} />):<TextSecondary>No hay encargados</TextSecondary>}
+          <CustomButton onClick={() => setIsAddManagerDialogOpen(true)}>
+            <IconPlus />Añadir encargado
+          </CustomButton>
+          </VStack>
         </Table.Cell>
         <Table.Cell
           key={`${section.id}-collaborators`}
@@ -111,7 +116,7 @@ function SectionRow({ section }: { section: Section }) {
           alignItems="center"
         >
           <VStack gap={2}>
-            <CustomButton onClick={() => setIsEditOpen(true)}>
+            <CustomButton onClick={() => {}}>
               <IconPencil />
             </CustomButton>
             <CustomButton
@@ -124,8 +129,6 @@ function SectionRow({ section }: { section: Section }) {
         </Table.Cell>
       </Table.Row>
 
-      {isEditOpen && <TextSecondary>Edit section dialog is open</TextSecondary>}
-
       {isDeleteDialogOpen && (
         <ConfirmDialog
           isOpen
@@ -133,6 +136,15 @@ function SectionRow({ section }: { section: Section }) {
           handleAction={() => console.log("Delete section")}
           title="Eliminar sección"
           message={`¿Estás seguro de que deseas eliminar la sección "${section.name}"? Esta acción no se puede deshacer.`}
+        />
+      )}
+
+      {isAddManagerDialogOpen && (
+        <AddManagerDialog
+          isOpen
+          setIsOpen={setIsAddManagerDialogOpen}
+          sectionId={section.id}
+          managers={section.managers.map((manager) => manager.username)}
         />
       )}
     </>
