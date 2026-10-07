@@ -8,16 +8,18 @@ import { useAuth } from "@/modules/core/context/useAuth";
 import { useRemoveCollaboratorFromSection } from "../hooks/useRemoveCollaboratorFromSection";
 import { useRemoveManagerFromSection } from "../hooks/useRemoveManagerFromSection";
 
-export function UserCard({ user, sectionId }: { user: User; sectionId: string }) {
+export function UserCard({
+  user,
+  sectionId,
+}: {
+  user: User;
+  sectionId: string;
+}) {
   const { token } = useAuth();
-  const {
-    mutateAsync: removeManager,
-    isPending: isDeletingManager,
-  } = useRemoveManagerFromSection();
-  const {
-    mutateAsync: removeCollaborator,
-    isPending: isDeletingCollaborator,
-  } = useRemoveCollaboratorFromSection();
+  const { mutateAsync: removeManager, isPending: isDeletingManager } =
+    useRemoveManagerFromSection();
+  const { mutateAsync: removeCollaborator, isPending: isDeletingCollaborator } =
+    useRemoveCollaboratorFromSection();
   const isDeleting = isDeletingManager || isDeletingCollaborator;
 
   function handleRemove(e: MouseEvent<HTMLButtonElement>) {

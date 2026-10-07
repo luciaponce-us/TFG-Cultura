@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,8 +31,9 @@ public class ManagersMustBeEncargadosSpecification implements BusinessSpecificat
 				.map(User::getUsername).toList();
 
 		if (!nonEncargados.isEmpty()) {
-			throw new ValidationException(logger, Map.of("managersUsernames",
-					"Los siguientes usuarios no son encargados: " + sanitize(nonEncargados.stream().collect(Collectors.joining(", ")))));
+			throw new ValidationException(logger,
+					Map.of("managersUsernames", "Los siguientes usuarios no son encargados: "
+							+ sanitize(nonEncargados.stream().collect(Collectors.joining(", ")))));
 		}
 	}
 

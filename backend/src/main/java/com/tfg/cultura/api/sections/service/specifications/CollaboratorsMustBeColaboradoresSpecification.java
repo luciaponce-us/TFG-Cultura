@@ -30,8 +30,9 @@ public class CollaboratorsMustBeColaboradoresSpecification implements BusinessSp
 				.filter(collaborator -> collaborator.getRole() != Role.COLABORADOR).map(User::getUsername).toList();
 
 		if (!nonColaboradores.isEmpty()) {
-			throw new ValidationException(logger, Map.of("collaboratorsUsernames",
-					"Los siguientes usuarios no tienen el rol de colaborador: " + nonColaboradores.stream().collect(Collectors.joining(", "))));
+			throw new ValidationException(logger,
+					Map.of("collaboratorsUsernames", "Los siguientes usuarios no tienen el rol de colaborador: "
+							+ nonColaboradores.stream().collect(Collectors.joining(", "))));
 		}
 	}
 

@@ -33,7 +33,7 @@ interface SectionFormDialogProps {
 export function SectionFormDialog({
   isOpen,
   setIsOpen,
-  section
+  section,
 }: SectionFormDialogProps) {
   const { token } = useAuth();
   const [errors, setErrors] = useState<SectionErrors>(INITIAL_SECTION_ERRORS);
@@ -41,7 +41,9 @@ export function SectionFormDialog({
     section
       ? {
           name: section.name,
-          managersUsernames: section.managers.map((manager) => manager.username),
+          managersUsernames: section.managers.map(
+            (manager) => manager.username,
+          ),
           collaboratorsUsernames: section.collaborators.map(
             (collaborator) => collaborator.username,
           ),
@@ -118,11 +120,11 @@ export function SectionFormDialog({
         maxLength={MAX_LENGTH.NAME}
       />
 
-<Separator/>
+      <Separator />
       <Heading as="h2" size="md">
-              Encargados
-            </Heading>
-            
+        Encargados
+      </Heading>
+
       <CustomSearchBar
         placeholder="Buscar encargados..."
         value={managerSearch}
@@ -148,17 +150,15 @@ export function SectionFormDialog({
         </UserSelectLoading>
       )}
 
-      <Separator/>
+      <Separator />
       <Heading as="h2" size="md">
-              Colaboradores
-            </Heading>
+        Colaboradores
+      </Heading>
 
       <CustomSearchBar
         placeholder="Buscar colaboradores..."
         value={collaboratorSearch}
-        onChange={(event) =>
-          setCollaboratorSearch(event.currentTarget.value)
-        }
+        onChange={(event) => setCollaboratorSearch(event.currentTarget.value)}
         disabled={isCreating}
       />
       {isCollaboratorsError ? (

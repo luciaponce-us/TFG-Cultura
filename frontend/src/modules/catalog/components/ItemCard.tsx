@@ -50,7 +50,7 @@ export function ItemCard<T extends Item | RolSaga>({
     } else if ("platform" in item) {
       return parsePlatform(item.platform as Platform);
     } else {
-      return item.description?? "";
+      return item.description ?? "";
     }
   }
   const description: string = getDescription(item);

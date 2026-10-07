@@ -34,7 +34,8 @@ export function useDeleteUser() {
       console.error("Error al eliminar usuario:", error);
       toaster.create({
         title: "Error",
-        description: "No se pudo eliminar el usuario. Por favor, intentálo de nuevo más tarde.",
+        description:
+          "No se pudo eliminar el usuario. Por favor, intentálo de nuevo más tarde.",
         type: "error",
       });
       if (isApiError(error) && isDeactivatedUserError(error)) {

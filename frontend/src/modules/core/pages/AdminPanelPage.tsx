@@ -84,8 +84,7 @@ export default function AdminPanelPage() {
     {
       icon: <IconChartPie4 style={adminCardIconStyle} stroke={1.5} />,
       label: "Secciones",
-      onClick: () =>
-        void navigation("/admin/secciones"),
+      onClick: () => void navigation("/admin/secciones"),
     },
   ];
 

@@ -46,8 +46,10 @@ public class SingleSectionManagerSpecification implements BusinessSpecification<
 		}
 
 		if (!alreadyAssignedManagers.isEmpty()) {
-			throw new FieldException(logger, HttpStatus.CONFLICT, Map.of("managersUsernames",
-					"Los siguientes usuarios ya están asignados como encargados de otras secciones: " + alreadyAssignedManagers.stream().collect(Collectors.joining(", "))));
+			throw new FieldException(logger, HttpStatus.CONFLICT,
+					Map.of("managersUsernames",
+							"Los siguientes usuarios ya están asignados como encargados de otras secciones: "
+									+ alreadyAssignedManagers.stream().collect(Collectors.joining(", "))));
 		}
 	}
 

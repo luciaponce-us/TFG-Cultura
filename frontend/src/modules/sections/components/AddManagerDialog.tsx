@@ -8,10 +8,7 @@ import {
 import { useUsers } from "@/modules/users/hooks";
 import { HStack, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useState } from "react";
-import {
-  useAddManagerToSection,
-  useSections,
-} from "../hooks";
+import { useAddManagerToSection, useSections } from "../hooks";
 import { useAuth } from "@/modules/core/context/useAuth";
 
 interface AddManagerDialogProps {
@@ -25,16 +22,21 @@ export function AddManagerDialog({
   isOpen,
   setIsOpen,
   sectionId,
-  managers
+  managers,
 }: AddManagerDialogProps) {
   const { token } = useAuth();
   const { data: sections } = useSections();
   const [error, setError] = useState<string>("");
-  const { mutateAsync: addManager, isPending } = useAddManagerToSection(setError);
+  const { mutateAsync: addManager, isPending } =
+    useAddManagerToSection(setError);
   const [search, setSearch] = useState("");
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
 
-  const { data: paginatedUsers, isLoading, isError } = useUsers(token, 0, {
+  const {
+    data: paginatedUsers,
+    isLoading,
+    isError,
+  } = useUsers(token, 0, {
     name: search,
     role: "ENCARGADO",
     active: "",
@@ -45,7 +47,9 @@ export function AddManagerDialog({
   );
   const availableManagers =
     paginatedUsers?.content.filter(
-      (user) => !currentManagerUsernames.has(user.username) && !managers.includes(user.username),
+      (user) =>
+        !currentManagerUsernames.has(user.username) &&
+        !managers.includes(user.username),
     ) ?? [];
   const selectedManager = availableManagers.find(
     (user) => user.username === selectedUsername,
@@ -124,7 +128,9 @@ export function AddManagerDialog({
                     size="sm"
                   />
                   <VStack align="start" gap={0}>
-                    <Text>{manager.name} {manager.surname}</Text>
+                    <Text>
+                      {manager.name} {manager.surname}
+                    </Text>
                     <Text fontSize="sm" opacity={0.8}>
                       @{manager.username}
                     </Text>

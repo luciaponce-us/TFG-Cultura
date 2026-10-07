@@ -91,7 +91,9 @@ export function AdminItemInfo<T extends Item>({
                   </HStack>
                   <HStack w="100%">
                     <Text fontWeight="bold">Sección:</Text>
-                    <Text>{item.section? item.section.name : "Sin sección"}</Text>
+                    <Text>
+                      {item.section ? item.section.name : "Sin sección"}
+                    </Text>
                   </HStack>
                   <HStack w="100%">
                     <Text fontWeight="bold">Creado el:</Text>

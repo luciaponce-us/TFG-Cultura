@@ -8,10 +8,7 @@ import {
 import { useUsers } from "@/modules/users/hooks";
 import { HStack, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useState } from "react";
-import {
-    useAddCollaboratorToSection,
-  useSections,
-} from "../hooks";
+import { useAddCollaboratorToSection, useSections } from "../hooks";
 import { useAuth } from "@/modules/core/context/useAuth";
 
 interface AddCollaboratorDialogProps {
@@ -25,16 +22,21 @@ export function AddCollaboratorDialog({
   isOpen,
   setIsOpen,
   sectionId,
-  collaborators
+  collaborators,
 }: AddCollaboratorDialogProps) {
   const { token } = useAuth();
   const { data: sections } = useSections();
   const [error, setError] = useState<string>("");
-  const { mutateAsync: addCollaborator, isPending } = useAddCollaboratorToSection(setError);
+  const { mutateAsync: addCollaborator, isPending } =
+    useAddCollaboratorToSection(setError);
   const [search, setSearch] = useState("");
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
 
-  const { data: paginatedUsers, isLoading, isError } = useUsers(token, 0, {
+  const {
+    data: paginatedUsers,
+    isLoading,
+    isError,
+  } = useUsers(token, 0, {
     name: search,
     role: "COLABORADOR",
     active: "",
@@ -45,7 +47,9 @@ export function AddCollaboratorDialog({
   );
   const availableCollaborators =
     paginatedUsers?.content.filter(
-      (user) => !currentCollaboratorUsernames.has(user.username) && !collaborators.includes(user.username),
+      (user) =>
+        !currentCollaboratorUsernames.has(user.username) &&
+        !collaborators.includes(user.username),
     ) ?? [];
   const selectedCollaborator = availableCollaborators.find(
     (user) => user.username === selectedUsername,
@@ -124,7 +128,9 @@ export function AddCollaboratorDialog({
                     size="sm"
                   />
                   <VStack align="start" gap={0}>
-                    <Text>{collaborator.name} {collaborator.surname}</Text>
+                    <Text>
+                      {collaborator.name} {collaborator.surname}
+                    </Text>
                     <Text fontSize="sm" opacity={0.8}>
                       @{collaborator.username}
                     </Text>

@@ -52,7 +52,7 @@ export function useAddManagerToSection(setError: (errors: string) => void) {
         });
         return;
       }
-      
+
       toaster.create({
         title: "Error al agregar encargado",
         description:

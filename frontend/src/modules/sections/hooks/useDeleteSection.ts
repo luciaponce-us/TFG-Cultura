@@ -13,17 +13,12 @@ export function useDeleteSection() {
   const { token } = useAuth();
 
   return useMutation<void, Error, DeleteSectionParams>({
-    mutationFn: async ({
-      sectionId
-    }: DeleteSectionParams) => {
+    mutationFn: async ({ sectionId }: DeleteSectionParams) => {
       if (!token) {
         throw new Error("Necesitas iniciar sesión para modificar la sección.");
       }
 
-      return deleteSection(
-        token,
-        sectionId
-      );
+      return deleteSection(token, sectionId);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -37,6 +32,6 @@ export function useDeleteSection() {
         description: error.message,
         type: "error",
       });
-    }
+    },
   });
 }

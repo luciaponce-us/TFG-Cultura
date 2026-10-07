@@ -105,7 +105,9 @@ export function UserActions({ user }: { readonly user: User }) {
       {currentUserRole && userHasLowerRole && (
         <>
           <CustomButton
-            onClick={() => void navigate(`/admin/usuarios/${user.username}/editar`)}
+            onClick={() =>
+              void navigate(`/admin/usuarios/${user.username}/editar`)
+            }
           >
             <IconPencil size={16} />
           </CustomButton>

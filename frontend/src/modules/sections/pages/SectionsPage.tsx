@@ -83,10 +83,7 @@ export function SectionsPage() {
         {content}
       </Flex>
       {isCreateDialogOpen && (
-        <SectionFormDialog
-          isOpen
-          setIsOpen={setIsCreateDialogOpen}
-        />
+        <SectionFormDialog isOpen setIsOpen={setIsCreateDialogOpen} />
       )}
     </>
   );
