@@ -45,6 +45,7 @@ public class Item {
 	@Size(max = 500, message = "La descripción no puede tener más de 500 caracteres")
 	private String description;
 
+	@NotBlank(message = "La URL de la imagen es obligatoria")
 	@ValidCloudinaryUrl(type = ResourceType.IMAGE, message = "La URL de la imagen no es válida")
 	@Builder.Default
 	private String imageUrl = DEFAULT_IMAGE_URL;
@@ -71,18 +72,20 @@ public class Item {
 	@Digits(integer = 8, fraction = 2, message = "El precio debe tener como máximo 8 enteros y 2 decimales")
 	private BigDecimal price;
 
+	@NotNull(message = "El número de copias es obligatorio")
 	@Min(value = 1, message = "Debe haber al menos una copia del ítem")
 	@Builder.Default
 	private Integer copies = 1;
 
+	@NotNull(message = "El número de copias disponibles es obligatorio")
 	@Min(value = 0, message = "El número de copias disponibles no puede ser negativo")
 	@Builder.Default
 	private Integer availableCopies = 1;
 
+	@NotNull(message = "El número de días para devolver el ítem es obligatorio")
 	@Min(value = 0, message = "El número de días para devolver el ítem no puede ser negativo")
 	private Integer loanDays;
 
-	@NotNull(message = "El ítem debe pertenecer a una sección")
 	@DocumentReference
 	private Section section;
 

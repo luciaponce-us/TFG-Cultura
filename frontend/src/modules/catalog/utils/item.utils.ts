@@ -42,8 +42,8 @@ function toRequest(item: Item): ItemRequest {
     price: item.price,
     copies: item.copies,
     availableCopies: item.availableCopies,
-    sectionId: item.section.id,
-    categoriesIds: item.categories.map((category) => category.id),
+    sectionId: item.section?.id,
+    categoriesIds: item.categories?.map((category) => category.id) || [],
   };
 }
 
