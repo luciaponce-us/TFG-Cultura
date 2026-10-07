@@ -1,4 +1,4 @@
-import { fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
+import { authHeaders, fetchWithTimeout, handleResponse } from "@/modules/core/utils/utils";
 
 import type { Section } from "../types";
 
@@ -11,3 +11,36 @@ export async function fetchAllSections(): Promise<Section[]> {
 
   return handleResponse<Section[]>(res);
 }
+
+export async function removeManagerFromSection(
+  token: string,
+  sectionId: string,
+  managerUsername: string
+): Promise<Section> {
+  const res = await fetchWithTimeout(
+    SECTION_ROUTES.REMOVE_MANAGER(sectionId, managerUsername),
+    {
+      method: "PUT",
+      headers: authHeaders(token),
+    },
+  );
+
+  return handleResponse<Section>(res);
+}
+
+export async function removeCollaboratorFromSection(
+  token: string,
+  sectionId: string,
+  collaboratorUsername: string
+): Promise<Section> {
+  const res = await fetchWithTimeout(
+    SECTION_ROUTES.REMOVE_COLLABORATOR(sectionId, collaboratorUsername),
+    {
+      method: "PUT",
+      headers: authHeaders(token),
+    },
+  );
+
+  return handleResponse<Section>(res);
+}
+

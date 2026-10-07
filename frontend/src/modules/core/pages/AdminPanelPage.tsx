@@ -85,10 +85,7 @@ export default function AdminPanelPage() {
       icon: <IconChartPie4 style={adminCardIconStyle} stroke={1.5} />,
       label: "Secciones",
       onClick: () =>
-        toaster.create({
-          title: "Secciones",
-          description: "Funcionalidad en desarrollo",
-        }),
+        void navigation("/admin/secciones"),
     },
   ];
 

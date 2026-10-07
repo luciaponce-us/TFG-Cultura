@@ -48,6 +48,8 @@ import {
 
 import { CategoriesPage } from "@/modules/categories/pages";
 
+import { SectionsPage } from "@/modules/sections/pages";
+
 import { type Role, MANAGEMENT_ROLES } from "./modules/users/types";
 
 const queryClient = new QueryClient();
@@ -138,6 +140,11 @@ export default function App() {
               <Route
                 path="/admin/sagas"
                 element={withRoleProtection(SagasPage, MANAGEMENT_ROLES)}
+              />
+              {/* SECCIONES */}
+              <Route
+                path="/admin/secciones"
+                element={withRoleProtection(SectionsPage, MANAGEMENT_ROLES)}
               />
               <Route path="/no-encontrado" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
