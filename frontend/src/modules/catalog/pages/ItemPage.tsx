@@ -123,6 +123,7 @@ export function ItemPage<T extends Item>({
               </Box>
 
               <ItemDescription description={item.description} />
+              {item.categories && item.categories.length > 0 && (
               <Box
                 display="flex"
                 flexWrap="wrap"
@@ -130,11 +131,11 @@ export function ItemPage<T extends Item>({
                 w="100%"
                 justifyContent="start"
               >
-                {item.categories.length > 0 &&
-                  item.categories.map((category) => (
+                {item.categories.map((category) => (
                     <CategoryTag key={category.id} category={category} />
                   ))}
               </Box>
+              )}
               <Separator w="100%" />
               <Heading as="h2" size="md">
                 Más información

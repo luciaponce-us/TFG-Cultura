@@ -31,7 +31,8 @@ function validateName(name: string): string | undefined {
   return undefined;
 }
 
-function validateDescription(description: string): string | undefined {
+function validateDescription(description: string | undefined): string | undefined {
+  if (!description || description.trim() === "") return undefined;
   if (description && description.length > MAX_LENGTH.DESCRIPTION) {
     return (
       "La descripción no puede tener más de " +
@@ -46,7 +47,8 @@ function validateCondition(condition: string): string | undefined {
   return condition ? undefined : "El estado es obligatorio.";
 }
 
-function validateComments(comments: string): string | undefined {
+function validateComments(comments: string | undefined): string | undefined {
+  if (!comments || comments.trim() === "") return undefined;
   if (comments && comments.length > MAX_LENGTH.COMMENTS) {
     return (
       "Los comentarios no pueden tener más de " +
@@ -65,7 +67,7 @@ function validatePublished(value: boolean): string | undefined {
   return value === undefined ? "La visibilidad es obligatoria." : undefined;
 }
 
-function validatePurchasedAt(value: string): string | undefined {
+function validatePurchasedAt(value: string | undefined): string | undefined {
   if (!value) return undefined;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "La fecha de compra no es válida.";
@@ -73,7 +75,7 @@ function validatePurchasedAt(value: string): string | undefined {
   return undefined;
 }
 
-function validatePrice(value: number): string | undefined {
+function validatePrice(value: number | undefined): string | undefined {
   if (value === undefined || value === null) return "El precio es obligatorio.";
   if (value < 0) return "El precio debe ser mayor o igual que 0.";
   if (!Number.isFinite(value)) return "El precio no es válido.";
@@ -95,7 +97,7 @@ function validateAvailableCopies(value: number): string | undefined {
   return undefined;
 }
 
-function validateSectionId(value: string): string | undefined {
+function validateSectionId(value: string | undefined): string | undefined {
   if (!value || value.trim() === "") return "La sección es obligatoria.";
   return undefined;
 }
