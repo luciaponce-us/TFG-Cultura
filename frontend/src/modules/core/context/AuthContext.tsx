@@ -9,6 +9,7 @@ export interface AuthContextType {
   logout: () => void;
   setUser: (user: User | null) => void;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
