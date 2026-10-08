@@ -77,6 +77,16 @@ public abstract class CsvParser {
 		return LocalDate.parse(clean(value));
 	}
 
+	protected static LocalDate parseNullableLocalDate(String value) {
+		value = parseNullableString(value);
+
+		if (value == null) {
+			return null;
+		} else {
+			return LocalDate.parse(value);
+		}
+	}
+
 	protected static Integer parseInteger(String value) {
 		if (clean(value).isEmpty() || clean(value).equalsIgnoreCase("null")) {
 			return null;

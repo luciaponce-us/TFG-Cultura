@@ -9,10 +9,12 @@ import com.tfg.cultura.api.catalog.model.Saga;
 import com.tfg.cultura.api.catalog.model.Series;
 import com.tfg.cultura.api.catalog.model.VideoGame;
 import com.tfg.cultura.api.categories.model.Category;
+import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.sections.model.Section;
 import com.tfg.cultura.api.seeder.parser.BoardGameCsvParser;
 import com.tfg.cultura.api.seeder.parser.BooksCsvParser;
 import com.tfg.cultura.api.seeder.parser.CategoryCsvParser;
+import com.tfg.cultura.api.seeder.parser.LoanCsvParser;
 import com.tfg.cultura.api.seeder.parser.MovieCsvParser;
 import com.tfg.cultura.api.seeder.parser.RolGameCsvParser;
 import com.tfg.cultura.api.seeder.parser.RolSagaCsvParser;
@@ -75,7 +77,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 				.collect(Collectors.toMap(Category::getName, Function.identity()));
 		Map<String, Saga> sagasByName = sagas.stream().collect(Collectors.toMap(Saga::getName, Function.identity()));
 
-		seedBooks(sectionsByName, categoriesByName, sagasByName);
+		List<Book> books = seedBooks(sectionsByName, categoriesByName, sagasByName);
+		Map<String,String> itemsIdByName = books.stream().collect(Collectors.toMap(Book::getName, Book::getId));
 		seedMovies(sectionsByName, categoriesByName, sagasByName);
 		seedSeries(sectionsByName, categoriesByName);
 		seedBoardGames(sectionsByName, categoriesByName);
@@ -86,6 +89,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 		seedRolGames(rolSagasByName, categoriesByName, sectionsByName);
 
 		seedVideoGames(sectionsByName, categoriesByName);
+
+		seedLoans(usuarios.stream().collect(Collectors.toMap(User::getUsername, User::getId)), itemsIdByName);
 
 		logger.info("💾 Todos los datos se han guardado correctamente");
 	}
@@ -183,7 +188,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 		return sagas;
 	}
 
-	private void seedBooks(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName,
+	private List<Book> seedBooks(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName,
 			Map<String, Saga> sagasByName) {
 		logger.info("📖 Creando colección: books");
 
@@ -192,6 +197,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 		Collection<Book> books = mongoTemplate.insertAll(booksFromCsv);
 
 		logger.info("✅📖 Insertados {} libros", books.size());
+		return books.stream().toList();
 	}
 
 	private void seedMovies(Map<String, Section> sectionsByName, Map<String, Category> categoriesByName,
@@ -265,6 +271,16 @@ public class DatabaseSeeder implements CommandLineRunner {
 		Collection<VideoGame> videoGames = mongoTemplate.insertAll(videoGamesFromCsv);
 
 		logger.info("✅🎮 Insertados {} videojuegos", videoGames.size());
+	}
+
+	private void seedLoans(Map<String, String> usersIdByUsername, Map<String, String> itemsIdByName) {
+		logger.info("📚 Creando colección: loans");
+
+		List<Loan> loansFromCsv = new LoanCsvParser().loadLoansFromCsv(usersIdByUsername, itemsIdByName);
+
+		Collection<Loan> loans = mongoTemplate.insertAll(loansFromCsv);
+
+		logger.info("✅📚 Insertados {} préstamos", loans.size());
 	}
 
 }
