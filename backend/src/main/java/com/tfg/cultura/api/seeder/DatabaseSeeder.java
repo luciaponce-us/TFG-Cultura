@@ -78,7 +78,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 		Map<String, Saga> sagasByName = sagas.stream().collect(Collectors.toMap(Saga::getName, Function.identity()));
 
 		List<Book> books = seedBooks(sectionsByName, categoriesByName, sagasByName);
-		Map<String,String> itemsIdByName = books.stream().collect(Collectors.toMap(Book::getName, Book::getId));
+		Map<String, String> itemsIdByName = books.stream().collect(Collectors.toMap(Book::getName, Book::getId));
 		seedMovies(sectionsByName, categoriesByName, sagasByName);
 		seedSeries(sectionsByName, categoriesByName);
 		seedBoardGames(sectionsByName, categoriesByName);

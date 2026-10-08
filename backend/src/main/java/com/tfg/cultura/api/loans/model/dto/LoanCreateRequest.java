@@ -17,10 +17,10 @@ import lombok.Setter;
 @Builder
 public class LoanCreateRequest {
 
-    @NotNull(message = "El ítem es obligatorio")
-    @NotBlank(message = "El ítem es obligatorio")
-    private String itemId;
+	@NotNull(message = "El ítem es obligatorio")
+	@NotBlank(message = "El ítem es obligatorio")
+	private String itemId;
 
-    @NotNull(message = "El tipo de ítem es obligatorio")
-    private ItemType itemType;
+	@NotNull(message = "El tipo de ítem es obligatorio")
+	private ItemType itemType;
 }
