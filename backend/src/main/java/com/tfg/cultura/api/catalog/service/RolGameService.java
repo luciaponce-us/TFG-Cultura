@@ -61,7 +61,7 @@ public class RolGameService extends AbstractItemService<RolGame, RolGameReposito
 
 	@Override
 	protected Integer getLoanDays(RolGameRequest request) {
-		return 15; // RN-17
+		return 15; // RN-16
 	}
 
 	public List<RolGameResponse> findAllBySagaId(String sagaId) throws NotFoundException {
