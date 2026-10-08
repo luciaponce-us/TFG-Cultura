@@ -225,4 +225,9 @@ public abstract class AbstractItemService<T extends Item, R extends AbstractItem
 			repository.save(item);
 		});
 	}
+
+	public void setLoanUnavailable(T item) {
+		item.setLoanAvailable(false);
+		repository.save(item);
+	}
 }
