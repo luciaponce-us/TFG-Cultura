@@ -32,7 +32,7 @@ public class CatalogFactory {
 	}
 
 	public static Book validBook() {
-		return Book.builder().id("1").name("Test Book").author("Test Author").isbn("9780306406157").build();
+		return Book.builder().id("1").name("Test Book").author("Test Author").isbn("9780306406157").loanAvailable(true).build();
 	}
 
 	public static Book validBookWithSaga(String bookId, Saga saga) {
