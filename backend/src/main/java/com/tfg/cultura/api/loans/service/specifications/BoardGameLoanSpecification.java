@@ -43,7 +43,8 @@ public class BoardGameLoanSpecification implements LoanSpecification<BoardGame> 
 		checkOnlyHasOneBaseGameAndHisExpansions(requestedGame, activeLoans);
 	}
 
-	private void checkOnlyHasOneBaseGameAndHisExpansions(BoardGame requestedGame, Set<Loan> activeLoans) throws FieldException {
+	private void checkOnlyHasOneBaseGameAndHisExpansions(BoardGame requestedGame, Set<Loan> activeLoans)
+			throws FieldException {
 		boolean isBaseGame = requestedGame.getBaseGame() == null;
 		String baseGameId = isBaseGame ? requestedGame.getId() : requestedGame.getBaseGame().getId();
 		Set<String> activeBaseGameIds = getActiveBaseGameIds(activeLoans);
@@ -51,8 +52,8 @@ public class BoardGameLoanSpecification implements LoanSpecification<BoardGame> 
 		boolean hasMultipleBaseGames = activeBaseGameIds.stream().filter(id -> !id.equals(baseGameId)).count() > 0;
 
 		if (hasMultipleBaseGames) {
-			throw new FieldException(logger, HttpStatus.CONFLICT,
-					Map.of("itemId", "Ya tienes varios juegos de mesa base o expansiones de otro juego base en tus préstamos activos"));
+			throw new FieldException(logger, HttpStatus.CONFLICT, Map.of("itemId",
+					"Ya tienes varios juegos de mesa base o expansiones de otro juego base en tus préstamos activos"));
 		}
 	}
 

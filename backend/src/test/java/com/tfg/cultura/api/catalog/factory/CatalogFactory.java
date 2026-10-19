@@ -122,7 +122,7 @@ public class CatalogFactory {
 				.types(Set.of(BoardGameType.STRATEGY)).baseGame(baseGame).build();
 	}
 
-	public static BoardGame validBoardGame2(){
+	public static BoardGame validBoardGame2() {
 		return BoardGame.builder().id("boardgame2").name("Test Board Game 2").purchasedAt(LocalDate.of(2015, 01, 01)) // Optional
 				.price(BigDecimal.valueOf(15.99)) // Optional
 				.loanDays(14) // Optional
