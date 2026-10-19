@@ -9,6 +9,8 @@ import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,51 +40,28 @@ public class BoardGameLoanSpecification implements LoanSpecification<BoardGame> 
 			return;
 		}
 
-		String baseGameId = getBaseGameId(requestedGame);
-		checkNotConcurrentBaseGames(baseGameId == null);
-		// Expansiones con otro juego base
-		checkNotExpansionsWithOtherBaseGame(baseGameId, activeLoans);
-		// Otro juego base que no sea el del juego solicitado
-		checkNotOtherBaseGamesUnrelatedWithRequestedExpansion(baseGameId, activeLoans);
+		checkOnlyHasOneBaseGameAndHisExpansions(requestedGame, activeLoans);
 	}
 
-	private String getBaseGameId(BoardGame requestedBoardGame) {
-		return requestedBoardGame.getBaseGame() != null ? requestedBoardGame.getBaseGame().getId() : null;
-	}
+	private void checkOnlyHasOneBaseGameAndHisExpansions(BoardGame requestedGame, Set<Loan> activeLoans) throws FieldException {
+		boolean isBaseGame = requestedGame.getBaseGame() == null;
+		String baseGameId = isBaseGame ? requestedGame.getId() : requestedGame.getBaseGame().getId();
+		Set<String> activeBaseGameIds = getActiveBaseGameIds(activeLoans);
 
-	private void checkNotConcurrentBaseGames(boolean isBaseGame) {
-		if (isBaseGame) {
+		boolean hasMultipleBaseGames = activeBaseGameIds.stream().filter(id -> !id.equals(baseGameId)).count() > 0;
+
+		if (hasMultipleBaseGames) {
 			throw new FieldException(logger, HttpStatus.CONFLICT,
-					Map.of("itemId", "No se puede solicitar un préstamo de varios juegos de mesa base concurrentes."));
+					Map.of("itemId", "Ya tienes varios juegos de mesa base o expansiones de otro juego base en tus préstamos activos"));
 		}
 	}
 
-	private void checkNotExpansionsWithOtherBaseGame(String baseGameId, Set<Loan> loansInSameSection) {
-		boolean differentBaseGame = loansInSameSection.stream().anyMatch(loan -> {
+	private Set<String> getActiveBaseGameIds(Set<Loan> activeLoans) {
+		return activeLoans.stream().map(loan -> {
 			BoardGame loanedBoardGame = boardGameService.findById(loan.getItemId());
-			String loanedBaseGameId = loanedBoardGame.getBaseGame() != null
-					? loanedBoardGame.getBaseGame().getId()
-					: null;
-			return !baseGameId.equals(loanedBaseGameId) && loanedBaseGameId != null;
-		});
-
-		if (differentBaseGame) {
-			throw new FieldException(logger, HttpStatus.CONFLICT, Map.of("itemId",
-					"No se puede solicitar un préstamo de varios juegos de mesa de diferentes bases concurrentes."));
-		}
-	}
-
-	private void checkNotOtherBaseGamesUnrelatedWithRequestedExpansion(String baseGameId,
-			Set<Loan> loansInSameSection) {
-		boolean otherBaseGameLoaned = loansInSameSection.stream().anyMatch(loan -> {
-			BoardGame loanedBoardGame = boardGameService.findById(loan.getItemId());
-			boolean isBaseGameOfRequested = loanedBoardGame.getId().equals(baseGameId);
-			return loanedBoardGame.getBaseGame() == null && !isBaseGameOfRequested;
-		});
-		if (otherBaseGameLoaned) {
-			throw new FieldException(logger, HttpStatus.CONFLICT,
-					Map.of("itemId", "No se puede solicitar un préstamo de varios juegos de mesa base concurrentes."));
-		}
+			boolean isBaseGame = loanedBoardGame.getBaseGame() == null;
+			return isBaseGame ? loanedBoardGame.getId() : loanedBoardGame.getBaseGame().getId();
+		}).collect(Collectors.toSet());
 	}
 
 }
