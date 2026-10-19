@@ -122,6 +122,17 @@ public class CatalogFactory {
 				.types(Set.of(BoardGameType.STRATEGY)).baseGame(baseGame).build();
 	}
 
+	public static BoardGame validBoardGame2(){
+		return BoardGame.builder().id("boardgame2").name("Test Board Game 2").purchasedAt(LocalDate.of(2015, 01, 01)) // Optional
+				.price(BigDecimal.valueOf(15.99)) // Optional
+				.loanDays(14) // Optional
+				.section(SectionFactory.validSection()) // Optional
+				.categories(Set.of(validCategory)) // Optional
+				// BoardGame fields
+				.minPlayers(2).maxPlayers(4).playTime(60).complexity(Complexity.MEDIUM)
+				.types(Set.of(BoardGameType.STRATEGY)).build();
+	}
+
 	public static BoardGameRequest validBoardGameRequest() {
 		BoardGame boardGame = validBoardGame();
 		Set<String> categoriesIds = boardGame.getCategories().stream().map(c -> c.getId()).collect(Collectors.toSet());
