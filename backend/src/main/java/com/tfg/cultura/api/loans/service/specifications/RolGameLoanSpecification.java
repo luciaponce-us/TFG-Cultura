@@ -5,34 +5,29 @@ import com.tfg.cultura.api.catalog.model.enumerators.ItemType;
 import com.tfg.cultura.api.catalog.service.RolGameService;
 import com.tfg.cultura.api.core.exception.FieldException;
 import com.tfg.cultura.api.loans.model.Loan;
-import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
 import java.util.Map;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-public class RolGameLoanSpecification implements LoanSpecification<RolGame> {
+public class RolGameLoanSpecification extends LoanSpecification<RolGame> {
 
-	private static final Logger logger = LoggerFactory.getLogger("loansLogger");
-
-	private final LoanRepository loanRepository;
 	private final RolGameService rolGameService;
 
-	@Override
-	public void validate(RolGame requestedGame, String userId) throws FieldException {
-		if (!requestedGame.getLoanAvailable()) {
-			throw new FieldException(logger, HttpStatus.CONFLICT,
-					Map.of("itemId", "El juego de rol no está disponible para préstamo"));
-		}
+	public RolGameLoanSpecification(
+			LoanRepository loanRepository,
+			RolGameService rolGameService) {
+		super(loanRepository);
+		this.rolGameService = rolGameService;
+	}
 
-		Set<Loan> activeLoans = loanRepository.findByUserIdAndStatusAndItemType(userId, LoanStatus.ACTIVE,
-				ItemType.ROLGAME);
+	@Override
+	public void validate(RolGame requestedGame, String userId, ItemType itemType) throws FieldException {
+		validateAvailability(requestedGame, ItemType.ROLGAME);
+
+		Set<Loan> activeLoans = getActiveLoans(userId, ItemType.ROLGAME);
 
 		if (activeLoans.isEmpty()) {
 			return;
@@ -47,5 +42,9 @@ public class RolGameLoanSpecification implements LoanSpecification<RolGame> {
 			throw new FieldException(logger, HttpStatus.CONFLICT, Map.of("itemId",
 					"No se puede solicitar un préstamo de un juego de rol de una saga diferente mientras se tenga un préstamo activo de otro juego de rol"));
 		}
+	}
+
+	public void validate(RolGame requestedGame, String userId) throws FieldException {
+		validate(requestedGame, userId, null);
 	}
 }

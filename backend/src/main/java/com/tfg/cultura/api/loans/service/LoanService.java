@@ -21,8 +21,8 @@ import com.tfg.cultura.api.loans.model.dto.LoanCreateRequest;
 import com.tfg.cultura.api.loans.model.dto.LoanResponse;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
 import com.tfg.cultura.api.loans.service.specifications.BoardGameLoanSpecification;
+import com.tfg.cultura.api.loans.service.specifications.LoanSpecification;
 import com.tfg.cultura.api.loans.service.specifications.RolGameLoanSpecification;
-import com.tfg.cultura.api.loans.service.specifications.SingleActiveLoanSpecification;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import java.util.Map;
@@ -46,7 +46,9 @@ public class LoanService {
 	private final CustomUserDetailsService userDetailsService;
 	private final LoanCodeGenerator loanCodeGenerator;
 
-	private final SingleActiveLoanSpecification singleActiveLoanSpecification;
+	private final LoanSpecification<Movie> movieLoanSpecification;
+	private final LoanSpecification<Book> bookLoanSpecification;
+	private final LoanSpecification<Series> seriesLoanSpecification;
 	private final BoardGameLoanSpecification boardGameLoanSpecification;
 	private final RolGameLoanSpecification rolGameLoanSpecification;
 
@@ -62,14 +64,14 @@ public class LoanService {
 
 	private Book validateRequestedBook(String itemId, String userId) throws NotFoundException, FieldException {
 		Book book = bookService.findById(itemId);
-		singleActiveLoanSpecification.validate(userId, ItemType.BOOK);
+		bookLoanSpecification.validate(book, userId, ItemType.BOOK);
 		bookService.setLoanUnavailable(book);
 		return book;
 	}
 
 	private Movie validateRequestedMovie(String itemId, String userId) throws NotFoundException, FieldException {
 		Movie movie = movieService.findById(itemId);
-		singleActiveLoanSpecification.validate(userId, ItemType.MOVIE);
+		movieLoanSpecification.validate(movie, userId, ItemType.MOVIE);
 		movieService.setLoanUnavailable(movie);
 		return movie;
 	}
@@ -83,7 +85,7 @@ public class LoanService {
 
 	private Series validateRequestedSeries(String itemId, String userId) throws NotFoundException, FieldException {
 		Series series = seriesService.findById(itemId);
-		singleActiveLoanSpecification.validate(userId, ItemType.SERIES);
+		seriesLoanSpecification.validate(series, userId, ItemType.SERIES);
 		seriesService.setLoanUnavailable(series);
 		return series;
 	}

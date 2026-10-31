@@ -5,42 +5,42 @@ import com.tfg.cultura.api.catalog.model.enumerators.ItemType;
 import com.tfg.cultura.api.catalog.service.BoardGameService;
 import com.tfg.cultura.api.core.exception.FieldException;
 import com.tfg.cultura.api.loans.model.Loan;
-import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-public class BoardGameLoanSpecification implements LoanSpecification<BoardGame> {
+public class BoardGameLoanSpecification extends LoanSpecification<BoardGame> {
 
-	private static final Logger logger = LoggerFactory.getLogger("loansLogger");
-
-	private final LoanRepository loanRepository;
 	private final BoardGameService boardGameService;
 
-	@Override
-	public void validate(BoardGame requestedGame, String userId) throws FieldException {
-		if (!requestedGame.getLoanAvailable()) {
-			throw new FieldException(logger, HttpStatus.CONFLICT,
-					Map.of("itemId", "El juego de mesa no está disponible para préstamo"));
-		}
+	public BoardGameLoanSpecification(
+			LoanRepository loanRepository,
+			BoardGameService boardGameService) {
+		super(loanRepository);
+		this.boardGameService = boardGameService;
+	}
 
-		Set<Loan> activeLoans = loanRepository.findByUserIdAndStatusAndItemType(userId, LoanStatus.ACTIVE,
-				ItemType.BOARDGAME);
+	@Override
+	public void validate(BoardGame requestedGame, String userId, ItemType itemType) throws FieldException {
+		validateAvailability(requestedGame, ItemType.BOARDGAME);
+
+		Set<Loan> activeLoans = getActiveLoans(userId, ItemType.BOARDGAME);
 
 		if (activeLoans.isEmpty()) {
 			return;
 		}
 
 		checkOnlyHasOneBaseGameAndHisExpansions(requestedGame, activeLoans);
+	}
+
+	public void validate(BoardGame requestedGame, String userId) throws FieldException {
+		validate(requestedGame, userId, null);
 	}
 
 	private void checkOnlyHasOneBaseGameAndHisExpansions(BoardGame requestedGame, Set<Loan> activeLoans)
