@@ -156,6 +156,12 @@ public class CatalogFactory {
 				.build();
 	}
 
+	public static RolSaga validRolSagaWithId(String rolSagaId) {
+		return RolSaga.builder().id(rolSagaId).name("Test Rol Saga").description("Test Rol Saga valid description")
+				.gameMaster(GameMaster.COMPULSORY).section(SectionFactory.validSection()).imageUrl("old-image-url")
+				.build();
+	}
+
 	public static RolSagaRequest validRolSagaRequest() {
 		RolSaga rolSaga = validRolSaga();
 
@@ -169,6 +175,12 @@ public class CatalogFactory {
 		return RolGame.builder().id("rol-game-id").name("Test Rol Game").description("Test Rol Game valid description")
 				.type(RolBookType.BASIC).saga(validRolSaga()).section(SectionFactory.validSection())
 				.imageUrl("old-image-url").saga(validRolSaga()).build();
+	}
+
+	public static RolGame validRolGameWithSaga(String rolGameId, RolSaga saga) {
+		return RolGame.builder().id(rolGameId).name("Test Rol Game").description("Test Rol Game valid description")
+				.type(RolBookType.BASIC).saga(saga).section(SectionFactory.validSection())
+				.imageUrl("old-image-url").build();
 	}
 
 	public static RolGameRequest validRolGameRequest() {

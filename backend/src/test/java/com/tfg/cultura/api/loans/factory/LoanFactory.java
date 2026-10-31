@@ -10,4 +10,10 @@ public class LoanFactory {
 				.requestDate(LocalDate.of(2023, 1, 1)).startDate(LocalDate.of(2023, 1, 2))
 				.dueDate(LocalDate.of(2023, 1, 10)).userId(userId).itemId("loanedGameId").build();
 	}
+
+	public static Loan rolGameLoan(String userId) {
+		return Loan.builder().id("rolGameLoanId").code("XYZ789").status(LoanStatus.ACTIVE)
+				.requestDate(LocalDate.of(2023, 2, 1)).startDate(LocalDate.of(2023, 2, 2))
+				.dueDate(LocalDate.of(2023, 2, 10)).userId(userId).itemId("loanedRolGameId").build();
+	}
 }
