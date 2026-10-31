@@ -42,8 +42,7 @@ public class LoanSpecification<T extends Item> implements LoanSpecificationInter
 
 	protected void validateNoActiveLoans(Set<Loan> activeLoans, ItemType itemType) throws FieldException {
 		if (!activeLoans.isEmpty()) {
-			throw new FieldException(logger, HttpStatus.CONFLICT,
-					Map.of("itemId", getErrorMessage(itemType)));
+			throw new FieldException(logger, HttpStatus.CONFLICT, Map.of("itemId", getErrorMessage(itemType)));
 		}
 	}
 

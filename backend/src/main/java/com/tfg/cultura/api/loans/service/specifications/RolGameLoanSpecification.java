@@ -16,9 +16,7 @@ public class RolGameLoanSpecification extends LoanSpecification<RolGame> {
 
 	private final RolGameService rolGameService;
 
-	public RolGameLoanSpecification(
-			LoanRepository loanRepository,
-			RolGameService rolGameService) {
+	public RolGameLoanSpecification(LoanRepository loanRepository, RolGameService rolGameService) {
 		super(loanRepository);
 		this.rolGameService = rolGameService;
 	}

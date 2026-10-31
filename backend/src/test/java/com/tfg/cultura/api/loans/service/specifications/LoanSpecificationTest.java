@@ -14,9 +14,7 @@ import com.tfg.cultura.api.core.exception.FieldException;
 import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
-
 import java.util.Set;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,11 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class LoanSpecificationTest {
 
-	
-	@Mock 
+	@Mock
 	private LoanRepository loanRepository;
 
-	@InjectMocks 
+	@InjectMocks
 	private LoanSpecification<Book> loanSpecification;
 
 	private Book item;
@@ -79,8 +76,7 @@ class LoanSpecificationTest {
 
 	@Test
 	void should_throw_conflict_when_book_has_an_active_loan() {
-		assertActiveLoanError(ItemType.BOOK,
-				"No se puede solicitar un préstamo de varios libros concurrentemente.");
+		assertActiveLoanError(ItemType.BOOK, "No se puede solicitar un préstamo de varios libros concurrentemente.");
 	}
 
 	@Test
@@ -91,8 +87,7 @@ class LoanSpecificationTest {
 
 	@Test
 	void should_throw_conflict_when_series_has_an_active_loan() {
-		assertActiveLoanError(ItemType.SERIES,
-				"No se puede solicitar un préstamo de varias series concurrentemente.");
+		assertActiveLoanError(ItemType.SERIES, "No se puede solicitar un préstamo de varias series concurrentemente.");
 	}
 
 	@Test

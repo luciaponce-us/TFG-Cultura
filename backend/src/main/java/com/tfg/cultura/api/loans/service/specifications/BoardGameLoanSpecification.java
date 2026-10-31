@@ -19,9 +19,7 @@ public class BoardGameLoanSpecification extends LoanSpecification<BoardGame> {
 
 	private final BoardGameService boardGameService;
 
-	public BoardGameLoanSpecification(
-			LoanRepository loanRepository,
-			BoardGameService boardGameService) {
+	public BoardGameLoanSpecification(LoanRepository loanRepository, BoardGameService boardGameService) {
 		super(loanRepository);
 		this.boardGameService = boardGameService;
 	}
