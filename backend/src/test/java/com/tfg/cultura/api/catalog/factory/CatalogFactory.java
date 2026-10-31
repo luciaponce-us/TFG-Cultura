@@ -179,8 +179,8 @@ public class CatalogFactory {
 
 	public static RolGame validRolGameWithSaga(String rolGameId, RolSaga saga) {
 		return RolGame.builder().id(rolGameId).name("Test Rol Game").description("Test Rol Game valid description")
-				.type(RolBookType.BASIC).saga(saga).section(SectionFactory.validSection())
-				.imageUrl("old-image-url").build();
+				.type(RolBookType.BASIC).saga(saga).section(SectionFactory.validSection()).imageUrl("old-image-url")
+				.build();
 	}
 
 	public static RolGameRequest validRolGameRequest() {
