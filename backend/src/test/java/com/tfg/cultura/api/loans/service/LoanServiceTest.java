@@ -144,7 +144,7 @@ class LoanServiceTest {
 		mockSuccessfullySavedLoan();
 
 		LoanResponse response = loanService.createLoan(createRequestBoardGame);
-        assertEquals(createRequestBoardGame.getItemId(), response.getItemId());
+		assertEquals(createRequestBoardGame.getItemId(), response.getItemId());
 	}
 
 	@Test
