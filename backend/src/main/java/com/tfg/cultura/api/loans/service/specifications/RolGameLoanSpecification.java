@@ -25,7 +25,7 @@ public class RolGameLoanSpecification extends LoanSpecification<RolGame> {
 
 	@Override
 	public void validate(RolGame requestedGame, String userId, ItemType itemType) throws FieldException {
-		validateAvailability(requestedGame, ItemType.ROLGAME);
+		validateAvailability(requestedGame);
 
 		Set<Loan> activeLoans = getActiveLoans(userId, ItemType.ROLGAME);
 

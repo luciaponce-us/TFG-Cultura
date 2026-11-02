@@ -24,15 +24,17 @@ public class LoanSpecification<T extends Item> implements LoanSpecificationInter
 	private final LoanRepository loanRepository;
 
 	public void validate(T item, String userId, ItemType itemType) throws FieldException {
-		validateAvailability(item, itemType);
+		validateAvailability(item);
 		Set<Loan> activeLoans = getActiveLoans(userId, itemType);
 		validateNoActiveLoans(activeLoans, itemType);
 	}
 
-	protected void validateAvailability(T item, ItemType itemType) throws FieldException {
-		if (!item.getLoanAvailable()) {
+	protected void validateAvailability(T item) throws FieldException {
+		if(item.getLoanAvailable()) {
+			return;
+		} else {
 			throw new FieldException(logger, HttpStatus.CONFLICT,
-					Map.of("itemId", "El artículo no está disponible para préstamo."));
+				Map.of("itemId", "El artículo no está disponible para préstamo."));
 		}
 	}
 

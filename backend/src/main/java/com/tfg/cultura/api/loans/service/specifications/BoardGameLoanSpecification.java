@@ -28,7 +28,7 @@ public class BoardGameLoanSpecification extends LoanSpecification<BoardGame> {
 
 	@Override
 	public void validate(BoardGame requestedGame, String userId, ItemType itemType) throws FieldException {
-		validateAvailability(requestedGame, ItemType.BOARDGAME);
+		validateAvailability(requestedGame);
 
 		Set<Loan> activeLoans = getActiveLoans(userId, ItemType.BOARDGAME);
 

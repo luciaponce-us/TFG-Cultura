@@ -32,25 +32,23 @@ class LoanSpecificationTest {
 	private LoanSpecification<Book> loanSpecification;
 
 	private Book item;
-	private ItemType itemType;
 
 	@BeforeEach
 	void setUp() {
 		item = CatalogFactory.validBook();
-		itemType = ItemType.BOOK;
 	}
 
 	@Test
 	void should_do_nothing_when_item_is_available() {
 		item.setLoanAvailable(true);
-		loanSpecification.validateAvailability(item, itemType);
+		loanSpecification.validateAvailability(item);
 	}
 
 	@Test
 	void should_throw_field_exception_when_item_is_not_available() {
 		item.setLoanAvailable(false);
 		FieldException exception = assertThrows(FieldException.class,
-				() -> loanSpecification.validateAvailability(item, itemType));
+				() -> loanSpecification.validateAvailability(item));
 
 		assertTrue(exception.getErrors().containsKey("itemId"));
 	}
