@@ -32,7 +32,8 @@ public class CatalogFactory {
 	}
 
 	public static Book validBook() {
-		return Book.builder().id("1").name("Test Book").author("Test Author").isbn("9780306406157").build();
+		return Book.builder().id("1").name("Test Book").author("Test Author").isbn("9780306406157").loanAvailable(true)
+				.build();
 	}
 
 	public static Book validBookWithSaga(String bookId, Saga saga) {
@@ -121,6 +122,17 @@ public class CatalogFactory {
 				.types(Set.of(BoardGameType.STRATEGY)).baseGame(baseGame).build();
 	}
 
+	public static BoardGame validBoardGame2() {
+		return BoardGame.builder().id("boardgame2").name("Test Board Game 2").purchasedAt(LocalDate.of(2015, 01, 01)) // Optional
+				.price(BigDecimal.valueOf(15.99)) // Optional
+				.loanDays(14) // Optional
+				.section(SectionFactory.validSection()) // Optional
+				.categories(Set.of(validCategory)) // Optional
+				// BoardGame fields
+				.minPlayers(2).maxPlayers(4).playTime(60).complexity(Complexity.MEDIUM)
+				.types(Set.of(BoardGameType.STRATEGY)).build();
+	}
+
 	public static BoardGameRequest validBoardGameRequest() {
 		BoardGame boardGame = validBoardGame();
 		Set<String> categoriesIds = boardGame.getCategories().stream().map(c -> c.getId()).collect(Collectors.toSet());
@@ -144,6 +156,12 @@ public class CatalogFactory {
 				.build();
 	}
 
+	public static RolSaga validRolSagaWithId(String rolSagaId) {
+		return RolSaga.builder().id(rolSagaId).name("Test Rol Saga").description("Test Rol Saga valid description")
+				.gameMaster(GameMaster.COMPULSORY).section(SectionFactory.validSection()).imageUrl("old-image-url")
+				.build();
+	}
+
 	public static RolSagaRequest validRolSagaRequest() {
 		RolSaga rolSaga = validRolSaga();
 
@@ -157,6 +175,12 @@ public class CatalogFactory {
 		return RolGame.builder().id("rol-game-id").name("Test Rol Game").description("Test Rol Game valid description")
 				.type(RolBookType.BASIC).saga(validRolSaga()).section(SectionFactory.validSection())
 				.imageUrl("old-image-url").saga(validRolSaga()).build();
+	}
+
+	public static RolGame validRolGameWithSaga(String rolGameId, RolSaga saga) {
+		return RolGame.builder().id(rolGameId).name("Test Rol Game").description("Test Rol Game valid description")
+				.type(RolBookType.BASIC).saga(saga).section(SectionFactory.validSection()).imageUrl("old-image-url")
+				.build();
 	}
 
 	public static RolGameRequest validRolGameRequest() {

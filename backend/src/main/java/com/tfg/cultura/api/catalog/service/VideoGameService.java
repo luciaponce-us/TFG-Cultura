@@ -74,7 +74,7 @@ public class VideoGameService
 		item.setReleaseDate(request.getReleaseDate());
 		item.setTrailerUrl(sanitize(request.getTrailerUrl()));
 
-		item.setLoanAvailable(false); // RN-21: Los videojuegos no se pueden prestar
+		item.setLoanAvailable(false); // RN-20: Los videojuegos no se pueden prestar
 	}
 
 	@Override

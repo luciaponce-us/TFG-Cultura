@@ -83,9 +83,9 @@ public class BookService extends AbstractItemService<Book, BookRepository, BookR
 	protected Integer getLoanDays(BookRequest request) {
 		switch (request.getType()) {
 			case NOVEL :
-				return 15; // RN-15
+				return 15; // RN-14
 			case COMIC, MANGA :
-				return 7; // RN-16
+				return 7; // RN-15
 			default :
 				return 15;
 		}

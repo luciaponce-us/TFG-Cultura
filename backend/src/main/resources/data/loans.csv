@@ -1,0 +1,31 @@
+code,status,requestDate,cancelDate,startDate,dueDate,returnDate,rejectionDate,username,item
+AAA000,REQUESTED,2026-10-01,null,null,null,null,null,socio,2001: Una Odisea Espacial
+AAA001,REQUESTED,2026-10-01,null,null,null,null,null,miembro,Los girasoles ciegos
+AAA002,ACTIVE,2026-10-01,null,2026-10-01,2026-10-16,null,null,usuario1,Blue Exorcist 1
+AAA003,RETURNED,2026-09-01,null,2026-09-01,2026-09-16,2026-09-06,null,usuario2,Blue Exorcist 1
+AAA004,ACTIVE,2026-10-03,null,2026-10-03,2026-10-18,null,null,usuario1,2001: Una Odisea Espacial
+AAA005,RETURNED,2026-08-20,null,2026-08-20,2026-09-04,2026-08-30,null,usuario2,2001: Una Odisea Espacial
+AAA006,CANCELLED,2026-09-15,2026-09-16,null,null,null,null,socio,El Marciano
+AAA007,REJECTED,2026-09-20,null,null,null,null,2026-09-21,miembro,El último deseo
+AAA008,REQUESTED,2026-10-05,null,null,null,null,null,usuario1,La espada del destino
+AAA009,ACTIVE,2026-10-02,null,2026-10-02,2026-10-17,null,null,usuario2,La naranja mecánica
+AAA010,RETURNED,2026-08-10,null,2026-08-10,2026-08-25,2026-08-20,null,socio,Las estrellas, mi destino
+AAA011,CANCELLED,2026-09-25,2026-09-27,null,null,null,null,usuario1,El diccionario del mago
+AAA012,REJECTED,2026-09-28,null,null,null,null,2026-09-29,usuario2,El ladrón de las sombras
+AAA013,REQUESTED,2026-10-06,null,null,null,null,null,miembro,Un mundo feliz
+AAA014,ACTIVE,2026-10-04,null,2026-10-04,2026-10-11,null,null,socio,Blue Exorcist 2
+AAA015,RETURNED,2026-09-05,null,2026-09-05,2026-09-12,2026-09-10,null,usuario1,Blue Exorcist 3
+AAA016,ACTIVE,2026-10-07,null,2026-10-07,2026-10-14,null,null,usuario2,Blue Exorcist 3
+AAA017,RETURNED,2026-08-01,null,2026-08-01,2026-08-08,2026-08-07,null,socio,Blue Exorcist 1
+AAA018,REQUESTED,2026-10-07,null,null,null,null,null,usuario1,Entrevista con el vampiro
+AAA019,ACTIVE,2026-10-01,null,2026-10-01,2026-10-16,null,null,miembro,La sangre de los elfos
+AAA020,RETURNED,2026-07-15,null,2026-07-15,2026-07-30,2026-07-28,null,usuario2,La naranja mecánica
+AAA021,CANCELLED,2026-09-10,2026-09-11,null,null,null,null,socio,El ladrón de cuerpos
+AAA022,REJECTED,2026-09-12,null,null,null,null,2026-09-13,usuario1,Memnoch el diablo
+AAA023,REQUESTED,2026-10-08,null,null,null,null,null,usuario2,El Marciano
+AAA024,ACTIVE,2026-10-05,null,2026-10-05,2026-10-20,null,null,socio,2061: Odisea 3
+AAA025,RETURNED,2026-08-25,null,2026-08-25,2026-09-09,2026-09-05,null,miembro,2010: Odisea 2
+AAA026,ACTIVE,2026-10-06,null,2026-10-06,2026-10-13,null,null,usuario1,Blue Exorcist 2
+AAA027,REQUESTED,2026-10-08,null,null,null,null,null,socio,La reina de los condenados
+AAA028,RETURNED,2026-09-18,null,2026-09-18,2026-10-03,2026-09-30,null,usuario2,La espada del destino
+AAA029,CANCELLED,2026-09-30,2026-10-01,null,null,null,null,miembro,El último deseo
