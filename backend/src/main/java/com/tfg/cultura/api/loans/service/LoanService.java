@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LoanService {
 	private final LoanRepository loanRepository;
 
+	// SERVICES
 	private final RolGameService rolGameService;
 	private final BoardGameService boardGameService;
 	private final BookService bookService;
@@ -46,6 +47,7 @@ public class LoanService {
 	private final CustomUserDetailsService userDetailsService;
 	private final LoanCodeGenerator loanCodeGenerator;
 
+	// SPECIFICATIONS
 	private final LoanSpecification<Movie> movieLoanSpecification;
 	private final LoanSpecification<Book> bookLoanSpecification;
 	private final LoanSpecification<Series> seriesLoanSpecification;
