@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.loans.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doThrow;
@@ -143,7 +144,7 @@ class LoanServiceTest {
 		mockSuccessfullySavedLoan();
 
 		LoanResponse response = loanService.createLoan(createRequestBoardGame);
-		assertTrue(response.getItemId().equals(createRequestBoardGame.getItemId()));
+        assertEquals(createRequestBoardGame.getItemId(), response.getItemId());
 	}
 
 	@Test
@@ -154,7 +155,7 @@ class LoanServiceTest {
 		mockSuccessfullySavedLoan();
 
 		LoanResponse response = loanService.createLoan(createRequestBook);
-		assertTrue(response.getItemId().equals(createRequestBook.getItemId()));
+		assertEquals(createRequestBook.getItemId(), response.getItemId());
 	}
 
 	@Test
@@ -165,7 +166,7 @@ class LoanServiceTest {
 		mockSuccessfullySavedLoan();
 
 		LoanResponse response = loanService.createLoan(createRequestMovie);
-		assertTrue(response.getItemId().equals(createRequestMovie.getItemId()));
+		assertEquals(createRequestMovie.getItemId(), response.getItemId());
 	}
 
 	@Test
@@ -176,7 +177,7 @@ class LoanServiceTest {
 		mockSuccessfullySavedLoan();
 
 		LoanResponse response = loanService.createLoan(createRequestRolGame);
-		assertTrue(response.getItemId().equals(createRequestRolGame.getItemId()));
+		assertEquals(createRequestRolGame.getItemId(), response.getItemId());
 	}
 
 	@Test
@@ -187,7 +188,7 @@ class LoanServiceTest {
 		mockSuccessfullySavedLoan();
 
 		LoanResponse response = loanService.createLoan(createRequestSeries);
-		assertTrue(response.getItemId().equals(createRequestSeries.getItemId()));
+		assertEquals(createRequestSeries.getItemId(), response.getItemId());
 	}
 
 	// Negative test cases
