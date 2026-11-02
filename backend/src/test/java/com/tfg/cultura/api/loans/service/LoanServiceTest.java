@@ -193,7 +193,7 @@ class LoanServiceTest {
 	// Negative test cases
 
 	@Test
-	void should_throw_validation_exception_when_requesting_videogame() throws Exception {
+	void should_throw_validation_exception_when_requesting_videogame() {
 		mockLoggedUser();
 
 		assertThrows(ValidationException.class, () -> loanService.createLoan(createRequestVideoGame));
