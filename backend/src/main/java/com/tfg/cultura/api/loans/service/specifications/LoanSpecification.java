@@ -30,11 +30,11 @@ public class LoanSpecification<T extends Item> implements LoanSpecificationInter
 	}
 
 	protected void validateAvailability(T item) throws FieldException {
-		if(item.getLoanAvailable()) {
+		if (item.getLoanAvailable()) {
 			return;
 		} else {
 			throw new FieldException(logger, HttpStatus.CONFLICT,
-				Map.of("itemId", "El artículo no está disponible para préstamo."));
+					Map.of("itemId", "El artículo no está disponible para préstamo."));
 		}
 	}
 
