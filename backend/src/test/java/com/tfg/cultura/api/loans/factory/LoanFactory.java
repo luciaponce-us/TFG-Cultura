@@ -20,9 +20,6 @@ public class LoanFactory {
 	}
 
 	public static LoanCreateRequest validLoanCreateRequest(ItemType itemType) {
-		return LoanCreateRequest.builder()
-		.itemId("loanedItemId")
-		.itemType(itemType)
-		.build();
+		return LoanCreateRequest.builder().itemId("loanedItemId").itemType(itemType).build();
 	}
 }
