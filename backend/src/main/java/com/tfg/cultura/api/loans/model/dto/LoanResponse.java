@@ -7,17 +7,17 @@ import lombok.Getter;
 
 @Getter
 public class LoanResponse {
-	private String id;
-	private String code;
-	private LoanStatus status;
-	private LocalDate requestDate; // REQUESTED
-	private LocalDate cancelDate; // CANCELLED
-	private LocalDate startDate; // ACTIVE
-	private LocalDate dueDate; // ACTIVE
-	private LocalDate returnDate; // RETURNED
-	private LocalDate rejectionDate; // REJECTED
-	private String username;
-	private String itemId;
+	private final String id;
+	private final String code;
+	private final LoanStatus status;
+	private final LocalDate requestDate; // REQUESTED
+	private final LocalDate cancelDate; // CANCELLED
+	private final LocalDate startDate; // ACTIVE
+	private final LocalDate dueDate; // ACTIVE
+	private final LocalDate returnDate; // RETURNED
+	private final LocalDate rejectionDate; // REJECTED
+	private final String username;
+	private final String itemId;
 
 	public LoanResponse(Loan loan, String username) {
 		this.id = loan.getId();
