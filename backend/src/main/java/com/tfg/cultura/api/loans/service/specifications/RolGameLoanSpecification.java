@@ -8,12 +8,14 @@ import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RolGameLoanSpecification extends LoanSpecification<RolGame> {
 
+	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
 	private final RolGameService rolGameService;
 
 	public RolGameLoanSpecification(LoanRepository loanRepository, RolGameService rolGameService) {
