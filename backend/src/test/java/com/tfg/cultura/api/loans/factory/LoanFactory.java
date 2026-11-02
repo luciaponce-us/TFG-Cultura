@@ -10,21 +10,18 @@ public class LoanFactory {
 	public static Loan boardGameLoan(String userId) {
 		return Loan.builder().id("boardGameLoanId").code("ABC123").status(LoanStatus.ACTIVE)
 				.requestDate(LocalDate.of(2023, 1, 1)).startDate(LocalDate.of(2023, 1, 2))
-				.dueDate(LocalDate.of(2023, 1, 10)).userId(userId).itemId("loanedGameId")
-				.itemType(ItemType.BOARDGAME).build();
+				.dueDate(LocalDate.of(2023, 1, 10)).userId(userId).itemId("loanedGameId").itemType(ItemType.BOARDGAME)
+				.build();
 	}
 
 	public static Loan rolGameLoan(String userId) {
 		return Loan.builder().id("rolGameLoanId").code("XYZ789").status(LoanStatus.ACTIVE)
 				.requestDate(LocalDate.of(2023, 2, 1)).startDate(LocalDate.of(2023, 2, 2))
-				.dueDate(LocalDate.of(2023, 2, 10)).userId(userId).itemId("loanedRolGameId")
-				.itemType(ItemType.ROLGAME).build();
+				.dueDate(LocalDate.of(2023, 2, 10)).userId(userId).itemId("loanedRolGameId").itemType(ItemType.ROLGAME)
+				.build();
 	}
 
 	public static LoanCreateRequest validLoanCreateRequest(ItemType itemType) {
-		return LoanCreateRequest.builder()
-				.itemId("loanedItemId")
-				.itemType(itemType)
-				.build();
+		return LoanCreateRequest.builder().itemId("loanedItemId").itemType(itemType).build();
 	}
 }
