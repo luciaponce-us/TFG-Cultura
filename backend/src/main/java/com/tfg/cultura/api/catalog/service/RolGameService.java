@@ -46,7 +46,7 @@ public class RolGameService extends AbstractItemService<RolGame, RolGameReposito
 
 	@Override
 	protected RolGame createEntity() {
-		return RolGame.builder().build();
+		return new RolGame();
 	}
 
 	@Override
