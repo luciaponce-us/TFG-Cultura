@@ -54,7 +54,7 @@ public class LoanService {
 	private final BoardGameLoanSpecification boardGameLoanSpecification;
 	private final RolGameLoanSpecification rolGameLoanSpecification;
 
-	private final static Logger logger = LoggerFactory.getLogger("loansLogger");
+	private static final Logger logger = LoggerFactory.getLogger("loansLogger");
 
 	private BoardGame validateRequestedBoardGame(String itemId, String userId)
 			throws NotFoundException, FieldException {
