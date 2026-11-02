@@ -24,6 +24,7 @@ import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.loans.factory.LoanFactory;
 import com.tfg.cultura.api.loans.model.dto.LoanCreateRequest;
+import com.tfg.cultura.api.loans.model.dto.LoanResponse;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
 import com.tfg.cultura.api.loans.service.specifications.BoardGameLoanSpecification;
 import com.tfg.cultura.api.loans.service.specifications.LoanSpecification;
@@ -141,7 +142,8 @@ class LoanServiceTest {
 		when(boardGameService.findById(createRequestBoardGame.getItemId())).thenReturn(boardGame);
 		mockSuccessfullySavedLoan();
 
-		loanService.createLoan(createRequestBoardGame);
+		LoanResponse response = loanService.createLoan(createRequestBoardGame);
+        assertTrue(response.getItemId().equals(createRequestBoardGame.getItemId()));
 	}
 
 	@Test
@@ -151,7 +153,8 @@ class LoanServiceTest {
 		when(bookService.findById(createRequestBook.getItemId())).thenReturn(book);
 		mockSuccessfullySavedLoan();
 
-		loanService.createLoan(createRequestBook);
+		LoanResponse response = loanService.createLoan(createRequestBook);
+		assertTrue(response.getItemId().equals(createRequestBook.getItemId()));
 	}
 
 	@Test
@@ -161,7 +164,8 @@ class LoanServiceTest {
 		when(movieService.findById(createRequestMovie.getItemId())).thenReturn(movie);
 		mockSuccessfullySavedLoan();
 
-		loanService.createLoan(createRequestMovie);
+		LoanResponse response = loanService.createLoan(createRequestMovie);
+		assertTrue(response.getItemId().equals(createRequestMovie.getItemId()));
 	}
 
 	@Test
@@ -171,7 +175,8 @@ class LoanServiceTest {
 		when(rolGameService.findById(createRequestRolGame.getItemId())).thenReturn(rolGame);
 		mockSuccessfullySavedLoan();
 
-		loanService.createLoan(createRequestRolGame);
+		LoanResponse response = loanService.createLoan(createRequestRolGame);
+		assertTrue(response.getItemId().equals(createRequestRolGame.getItemId()));
 	}
 
 	@Test
@@ -181,7 +186,8 @@ class LoanServiceTest {
 		when(seriesService.findById(createRequestSeries.getItemId())).thenReturn(series);
 		mockSuccessfullySavedLoan();
 
-		loanService.createLoan(createRequestSeries);
+		LoanResponse response = loanService.createLoan(createRequestSeries);
+		assertTrue(response.getItemId().equals(createRequestSeries.getItemId()));
 	}
 
 	// Negative test cases
