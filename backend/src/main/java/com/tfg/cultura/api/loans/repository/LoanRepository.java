@@ -3,6 +3,8 @@ package com.tfg.cultura.api.loans.repository;
 import com.tfg.cultura.api.catalog.model.enumerators.ItemType;
 import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
+
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -11,6 +13,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface LoanRepository extends MongoRepository<Loan, String> {
 	boolean existsByCode(String code);
+	Optional<Loan> findByCode(String code);
 	Set<Loan> findByUserIdAndStatusAndItemType(String userId, LoanStatus status, ItemType itemType);
 	Page<Loan> findAll(Pageable pageable);
 	Page<Loan> findByUserId(String userId, Pageable pageable);

@@ -15,6 +15,7 @@ import com.tfg.cultura.api.catalog.service.SeriesService;
 import com.tfg.cultura.api.core.exception.FieldException;
 import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.dto.LoanCreateRequest;
@@ -25,6 +26,7 @@ import com.tfg.cultura.api.loans.service.specifications.LoanSpecification;
 import com.tfg.cultura.api.loans.service.specifications.RolGameLoanSpecification;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
+import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.service.UserService;
 
 import java.util.Map;
@@ -36,6 +38,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 @Service
 @RequiredArgsConstructor
@@ -97,6 +101,8 @@ public class LoanService {
 		return series;
 	}
 
+	// CREATE
+
 	@Transactional
 	public LoanResponse createLoan(LoanCreateRequest request)
 			throws UnathenticatedException, NotFoundException, FieldException, ValidationException {
@@ -147,10 +153,16 @@ public class LoanService {
 		}
 	}
 
+	// READ
+
+	private LoanResponse toResponse(Loan loan) throws NotFoundException {
+		String username = userService.findUserById(loan.getUserId()).getUsername();
+		return new LoanResponse(loan, username);
+	}
+
 	private Page<LoanResponse> toResponsePage(Page<Loan> loans) {
 		return loans.map(loan -> {
-			String username = userService.findUserById(loan.getUserId()).getUsername();
-			return new LoanResponse(loan, username);
+			return toResponse(loan);
 		});
 	}
 
@@ -173,6 +185,23 @@ public class LoanService {
 		}
 
 		return toResponsePage(loans);
+	}
+
+	private Loan findLoanByCode(String loanCode) throws NotFoundException {
+		return loanRepository.findByCode(loanCode)
+				.orElseThrow(() -> new NotFoundException("No se ha encontrado el préstamo con código: " + sanitize(loanCode), logger));
+	}
+
+	public LoanResponse getLoanByCode(String loanCode) throws NotFoundException {
+		Loan loan = findLoanByCode(loanCode);
+
+		// Si no es un administrador, solo puede acceder a sus propios préstamos
+		CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+		if (currentUser.getRole() == Role.SOCIO && !loan.getUserId().equals(currentUser.getId())) {
+			throw new UnauthorizedException("No tiene permiso para acceder a este préstamo.");
+		}
+
+		return toResponse(loan);
 	}
 
 }

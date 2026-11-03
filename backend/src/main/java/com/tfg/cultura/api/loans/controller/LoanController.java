@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,12 @@ public class LoanController {
 			@RequestParam(required = false) String itemId) {
 		Page<LoanResponse> loans = loanService.getAllLoans(PageRequest.of(page, size), username, itemId);
 		return ResponseEntity.status(HttpStatus.OK).body(loans);
+	}
+
+	@GetMapping("/{loanCode}")
+	public ResponseEntity<LoanResponse> getLoanByCode(@PathVariable String loanCode) {
+		LoanResponse loanResponse = loanService.getLoanByCode(loanCode);
+		return ResponseEntity.status(HttpStatus.OK).body(loanResponse);
 	}
 
 }
