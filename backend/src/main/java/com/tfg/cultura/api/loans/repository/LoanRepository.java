@@ -4,6 +4,7 @@ import com.tfg.cultura.api.catalog.model.enumerators.ItemType;
 import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,5 +20,5 @@ public interface LoanRepository extends MongoRepository<Loan, String> {
 	Page<Loan> findByUserId(String userId, Pageable pageable);
 	Page<Loan> findByItemId(String itemId, Pageable pageable);
 	Page<Loan> findByUserIdAndItemId(String userId, String itemId, Pageable pageable);
-
+	Set<Loan> findByStatusAndDueDateBefore(LoanStatus status, LocalDate date);
 }
