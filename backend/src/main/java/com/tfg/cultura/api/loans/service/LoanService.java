@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.loans.service;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 import com.mongodb.DuplicateKeyException;
 import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.Book;
@@ -28,7 +30,6 @@ import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.enumerators.Role;
 import com.tfg.cultura.api.users.service.UserService;
-
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -38,8 +39,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 @Service
 @RequiredArgsConstructor
@@ -188,8 +187,8 @@ public class LoanService {
 	}
 
 	private Loan findLoanByCode(String loanCode) throws NotFoundException {
-		return loanRepository.findByCode(loanCode)
-				.orElseThrow(() -> new NotFoundException("No se ha encontrado el préstamo con código: " + sanitize(loanCode), logger));
+		return loanRepository.findByCode(loanCode).orElseThrow(() -> new NotFoundException(
+				"No se ha encontrado el préstamo con código: " + sanitize(loanCode), logger));
 	}
 
 	public LoanResponse getLoanByCode(String loanCode) throws NotFoundException {
