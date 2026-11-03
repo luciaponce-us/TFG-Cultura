@@ -61,8 +61,11 @@ public class SecurityConfig {
 						.requestMatchers("/api/catalog/**").hasAnyRole(adminRoles)
 						// Categories
 						.requestMatchers(HttpMethod.GET, "/api/categories", "/api/categories/**").permitAll()
-						.requestMatchers("/api/categories", "/api/categories/**").hasAnyRole(adminRoles).anyRequest()
-						.authenticated())
+						.requestMatchers("/api/categories", "/api/categories/**").hasAnyRole(adminRoles)
+						// Loans
+						.requestMatchers(HttpMethod.GET, "/api/loans").hasAnyRole(adminRoles)
+						// Default: cualquier otra ruta requiere autenticación
+						.anyRequest().authenticated())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 				.httpBasic(basic -> basic.disable()).formLogin(form -> form.disable());
 

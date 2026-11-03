@@ -33,6 +33,8 @@ import com.tfg.cultura.api.loans.service.specifications.RolGameLoanSpecification
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
+import com.tfg.cultura.api.users.service.UserService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,6 +84,9 @@ class LoanServiceTest {
 	@Mock
 	private RolGameLoanSpecification rolGameLoanSpecification;
 
+	@Mock 
+	private UserService userService;
+
 	private LoanService loanService;
 
 	private BoardGame boardGame;
@@ -100,9 +105,22 @@ class LoanServiceTest {
 	void setUp() {
 		// No se puede usar @InjectMocks porque no distingue entre los LoanSpecification
 		// genéricos y los específicos
-		loanService = new LoanService(loanRepository, rolGameService, boardGameService, bookService, movieService,
-				seriesService, userDetailsService, loanCodeGenerator, movieLoanSpecification, bookLoanSpecification,
-				seriesLoanSpecification, boardGameLoanSpecification, rolGameLoanSpecification);
+		loanService = new LoanService(
+			loanRepository,
+			rolGameService,
+			boardGameService,
+			bookService,
+			movieService,
+			seriesService,
+			userDetailsService,
+			loanCodeGenerator,
+			userService,
+			movieLoanSpecification,
+			bookLoanSpecification,
+			seriesLoanSpecification,
+			boardGameLoanSpecification,
+			rolGameLoanSpecification
+		);
 
 		createRequestBoardGame = LoanFactory.validLoanCreateRequest(ItemType.BOARDGAME);
 		boardGame = CatalogFactory.validBoardGame();

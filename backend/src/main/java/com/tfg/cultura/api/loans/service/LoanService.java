@@ -25,10 +25,14 @@ import com.tfg.cultura.api.loans.service.specifications.LoanSpecification;
 import com.tfg.cultura.api.loans.service.specifications.RolGameLoanSpecification;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
+import com.tfg.cultura.api.users.service.UserService;
+
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +50,7 @@ public class LoanService {
 	private final SeriesService seriesService;
 	private final CustomUserDetailsService userDetailsService;
 	private final LoanCodeGenerator loanCodeGenerator;
+	private final UserService userService;
 
 	// SPECIFICATIONS
 	private final LoanSpecification<Movie> movieLoanSpecification;
@@ -140,6 +145,34 @@ public class LoanService {
 			throw new FieldException(logger, HttpStatus.INTERNAL_SERVER_ERROR,
 					Map.of("code", "No se ha podido generar un código de préstamo único. Inténtelo de nuevo."));
 		}
+	}
+
+	private Page<LoanResponse> toResponsePage(Page<Loan> loans) {
+		return loans.map(loan -> {
+			String username = userService.findUserById(loan.getUserId()).getUsername();
+			return new LoanResponse(loan, username);
+		});
+	}
+
+	public Page<LoanResponse> getAllLoans(Pageable pageable, String username, String itemId) throws NotFoundException {
+		Page<Loan> loans = null;
+		String userId = null;
+
+		if (username != null) {
+			userId = userService.findUserByUsername(username).getId();
+		}
+
+		if (userId != null && itemId != null) {
+			loans = loanRepository.findByUserIdAndItemId(userId, itemId, pageable);
+		} else if (userId != null) {
+			loans = loanRepository.findByUserId(userId, pageable);
+		} else if (itemId != null) {
+			loans = loanRepository.findByItemId(itemId, pageable);
+		} else {
+			loans = loanRepository.findAll(pageable);
+		}
+
+		return toResponsePage(loans);
 	}
 
 }
