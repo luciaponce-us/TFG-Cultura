@@ -32,10 +32,8 @@ public class LoanController {
 	}
 
 	@GetMapping
-	public ResponseEntity<Page<LoanResponse>> getAllLoans(
-			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size,
-			@RequestParam(required = false) String username,
+	public ResponseEntity<Page<LoanResponse>> getAllLoans(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String username,
 			@RequestParam(required = false) String itemId) {
 		Page<LoanResponse> loans = loanService.getAllLoans(PageRequest.of(page, size), username, itemId);
 		return ResponseEntity.status(HttpStatus.OK).body(loans);
