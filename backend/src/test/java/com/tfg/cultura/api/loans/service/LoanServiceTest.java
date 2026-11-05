@@ -1,11 +1,14 @@
 package com.tfg.cultura.api.loans.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import com.mongodb.DuplicateKeyException;
 import com.tfg.cultura.api.catalog.factory.CatalogFactory;
@@ -22,9 +25,12 @@ import com.tfg.cultura.api.catalog.service.RolGameService;
 import com.tfg.cultura.api.catalog.service.SeriesService;
 import com.tfg.cultura.api.core.exception.FieldException;
 import com.tfg.cultura.api.core.exception.NotFoundException;
+import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.core.exception.ValidationException;
 import com.tfg.cultura.api.core.factory.ExceptionsFactory;
 import com.tfg.cultura.api.loans.factory.LoanFactory;
+import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.dto.LoanCreateRequest;
 import com.tfg.cultura.api.loans.model.dto.LoanResponse;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
@@ -131,6 +137,11 @@ class LoanServiceTest {
 
 	private void mockLoggedUser() {
 		CustomUserDetails userDetails = UserFactory.mockAuthContext(); // id = currentUserId
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
+	}
+
+	private void mockLoggedAdmin() {
+		CustomUserDetails userDetails = UserFactory.mockAuthContextAdmin(); // id = currentUserId
 		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
 	}
 
@@ -438,5 +449,70 @@ class LoanServiceTest {
 
 		assertThrows(NotFoundException.class, () -> loanService.getAllLoans(defaultPageable, username, null));
 	}
+
+	// - GET BY CODE
+
+	// - - Positive test cases
+
+	@Test
+	void should_return_loan_by_code_when_current_user_is_owner() throws Exception {
+		mockLoggedUser();
+		Loan loan = LoanFactory.boardGameLoan("currentUserId");
+		String loanCode = loan.getCode();
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.of(loan));
+		when(userService.findUserById(loan.getUserId())).thenReturn(UserFactory.validUser());
+
+		LoanResponse result = loanService.getLoanByCode(loanCode);
+
+		assertNotNull(result);
+		assertNotNull(result.getCode());
+	}
+
+	@Test 
+	void should_return_loan_by_code_when_current_user_is_admin() throws Exception {
+		mockLoggedAdmin();
+		Loan loan = LoanFactory.boardGameLoan("otherUserId");
+		String loanCode = loan.getCode();
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.of(loan));
+		when(userService.findUserById(loan.getUserId())).thenReturn(UserFactory.validUser());
+
+		LoanResponse result = loanService.getLoanByCode(loanCode);
+
+		assertNotNull(result);
+		assertNotNull(result.getCode());
+	}
+
+	// - - Negative test cases
+
+	@Test
+	void should_throw_not_found_exception_when_loan_code_does_not_exist() throws Exception {
+		String loanCode = "nonexistentCode";
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.empty());
+
+		NotFoundException ex = assertThrows(NotFoundException.class, () -> loanService.getLoanByCode(loanCode));
+		assertTrue(ex.getMessage().contains("préstamo"));
+	}
+
+	@Test 
+	void should_throw_unauthorized_exception_when_current_user_is_not_owner_nor_admin() throws Exception {
+		mockLoggedUser();
+		Loan loan = LoanFactory.boardGameLoan("otherUserId");
+		String loanCode = loan.getCode();
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.of(loan));
+
+		UnauthorizedException ex = assertThrows(UnauthorizedException.class, () -> loanService.getLoanByCode(loanCode));
+		assertTrue(ex.getMessage().contains("préstamo"));
+	}
+
+	@Test 
+	void should_propagate_unathenticated_exception_when_current_user_is_not_authenticated() throws Exception {
+		Loan loan = LoanFactory.boardGameLoan("otherUserId");
+		String loanCode = loan.getCode();
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.of(loan));
+		doThrow(new UnathenticatedException()).when(userDetailsService).getCurrentUserDetails();
+
+		assertThrows(UnathenticatedException.class, () -> loanService.getLoanByCode(loanCode));
+	}
+
 
 }
