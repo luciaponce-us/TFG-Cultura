@@ -53,4 +53,11 @@ public class LoanController {
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
+	@GetMapping("/my-loans")
+	public ResponseEntity<Page<LoanResponse>> getMyLoans(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Page<LoanResponse> loans = loanService.getMyLoans(PageRequest.of(page, size));
+		return ResponseEntity.status(HttpStatus.OK).body(loans);
+	}
+
 }

@@ -211,6 +211,12 @@ public class LoanService {
 		return toResponse(loan);
 	}
 
+	public Page<LoanResponse> getMyLoans(Pageable pageable) throws NotFoundException, UnathenticatedException {
+		CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+		Page<Loan> loans = loanRepository.findByUserId(currentUser.getId(), pageable);
+		return toResponsePage(loans);
+	}
+
 	// UPDATE
 
 	private void validateNewStatus(LoanStatus oldStatus, LoanStatus newStatus, boolean isAdmin)
@@ -308,7 +314,7 @@ public class LoanService {
 	}
 
 	// DELETE
-	
+
 	@Transactional 
 	public void deleteLoan(String loanCode) throws NotFoundException, UnauthorizedException, UnathenticatedException {
 		Loan loan = findLoanByCode(loanCode);
