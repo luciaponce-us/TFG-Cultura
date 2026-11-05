@@ -3,6 +3,7 @@ package com.tfg.cultura.api.loans.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +34,7 @@ import com.tfg.cultura.api.loans.service.specifications.RolGameLoanSpecification
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
+import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -99,6 +103,8 @@ class LoanServiceTest {
 	private Series series;
 	private LoanCreateRequest createRequestSeries;
 	private LoanCreateRequest createRequestVideoGame;
+
+	private final PageRequest defaultPageable = PageRequest.of(0, 10);
 
 	@BeforeEach
 	void setUp() {
@@ -312,6 +318,125 @@ class LoanServiceTest {
 
 		FieldException ex = assertThrows(FieldException.class, () -> loanService.createLoan(createRequestSeries));
 		assertTrue(ex.getErrors().containsKey("itemId"));
+	}
+
+	// READ
+
+	// - GET ALL
+	// - - Positive test cases
+
+	@Test
+	void should_get_all_loans_without_filters_successfully() throws Exception {
+		when(loanRepository.findAll(defaultPageable)).thenReturn(LoanFactory.loanPage());
+		when(userService.findUserById(UserFactory.validUser().getId())).thenReturn(UserFactory.validUser());
+		when(userService.findUserById(UserFactory.validUser2().getId())).thenReturn(UserFactory.validUser2());
+		Page<LoanResponse> response = loanService.getAllLoans(defaultPageable, null, null);
+
+		assertNotNull(response);
+		assertEquals(2, response.getTotalElements());
+	}
+
+	@Test
+	void should_get_all_loans_filtered_by_username_successfully() throws Exception {
+		User user = UserFactory.validUser();
+		String username = user.getUsername();
+		String userId = user.getId();
+		when(userService.findUserById(userId)).thenReturn(user);
+		when(userService.findUserByUsername(username)).thenReturn(user);
+		when(loanRepository.findByUserId(userId, defaultPageable))
+				.thenReturn(LoanFactory.loanPage(userId, "randomItemId"));
+
+		Page<LoanResponse> response = loanService.getAllLoans(defaultPageable, username, null);
+		assertNotNull(response);
+		assertEquals(1, response.getTotalElements());
+	}
+
+	@Test
+	void should_get_all_loans_filtered_by_itemId_successfully() throws Exception {
+		String itemId = "randomItemId";
+		when(userService.findUserById(anyString())).thenReturn(UserFactory.validUser());
+		when(loanRepository.findByItemId(itemId, defaultPageable))
+				.thenReturn(LoanFactory.loanPage("randomUserId", itemId));
+
+		Page<LoanResponse> response = loanService.getAllLoans(defaultPageable, null, itemId);
+		assertNotNull(response);
+		assertEquals(1, response.getTotalElements());
+	}
+
+	@Test
+	void should_get_all_loans_filtered_by_username_and_itemId_successfully() throws Exception {
+		User user = UserFactory.validUser();
+		String username = user.getUsername();
+		String userId = user.getId();
+		String itemId = "randomItemId";
+		when(userService.findUserById(userId)).thenReturn(user);
+		when(userService.findUserByUsername(username)).thenReturn(user);
+		when(loanRepository.findByUserIdAndItemId(userId, itemId, defaultPageable))
+				.thenReturn(LoanFactory.loanPage(userId, itemId));
+
+		Page<LoanResponse> response = loanService.getAllLoans(defaultPageable, username, itemId);
+		assertNotNull(response);
+		assertEquals(1, response.getTotalElements());
+	}
+
+	@Test 
+	void should_clean_filters_when_username_and_itemId_are_empty_strings() throws Exception {
+		when(loanRepository.findAll(defaultPageable)).thenReturn(LoanFactory.loanPage());
+		when(userService.findUserById(UserFactory.validUser().getId())).thenReturn(UserFactory.validUser());
+		when(userService.findUserById(UserFactory.validUser2().getId())).thenReturn(UserFactory.validUser2());
+		Page<LoanResponse> response = loanService.getAllLoans(defaultPageable, "", "");
+		assertNotNull(response);
+		assertEquals(2, response.getTotalElements());
+	}
+
+	@Test
+	void should_return_empty_page_when_no_loans_found() throws Exception {
+		when(loanRepository.findAll(defaultPageable)).thenReturn(LoanFactory.emptyLoanPage());
+		Page<LoanResponse> result = loanService.getAllLoans(defaultPageable, null, null);
+		assertTrue(result.isEmpty());
+	}
+
+	@Test
+	void should_return_empty_page_when_no_loans_found_filtered_by_username() throws Exception {
+		User user = UserFactory.validUser();
+		String username = user.getUsername();
+		String userId = user.getId();
+		when(userService.findUserByUsername(username)).thenReturn(user);
+		when(loanRepository.findByUserId(userId, defaultPageable)).thenReturn(LoanFactory.emptyLoanPage());
+		Page<LoanResponse> result = loanService.getAllLoans(defaultPageable, username, null);
+		assertTrue(result.isEmpty());
+	}
+
+	@Test
+	void should_return_empty_page_when_no_loans_found_filtered_by_itemId() throws Exception {
+		String itemId = "randomItemId";
+		when(loanRepository.findByItemId(itemId, defaultPageable)).thenReturn(LoanFactory.emptyLoanPage());
+		Page<LoanResponse> result = loanService.getAllLoans(defaultPageable, null, itemId);
+		assertTrue(result.isEmpty());
+	}
+
+	@Test
+	void should_return_empty_page_when_no_loans_found_filtered_by_username_and_itemId() throws Exception {
+		User user = UserFactory.validUser();
+		String username = user.getUsername();
+		String userId = user.getId();
+		String itemId = "randomItemId";
+		when(userService.findUserByUsername(username)).thenReturn(user);
+		when(loanRepository.findByUserIdAndItemId(userId, itemId, defaultPageable))
+				.thenReturn(LoanFactory.emptyLoanPage());
+		Page<LoanResponse> result = loanService.getAllLoans(defaultPageable, username, itemId);
+		assertTrue(result.isEmpty());
+	}
+
+	// - - Negative test cases
+
+	@Test
+	void should_throw_not_found_exception_when_getting_all_loans_filtered_by_username_and_user_not_found()
+			throws Exception {
+		String username = "nonexistentUser";
+		when(userService.findUserByUsername(username)).thenThrow(ExceptionsFactory.notFoundException);
+
+		assertThrows(NotFoundException.class, () -> loanService.getAllLoans(defaultPageable, username, null));
 	}
 
 }
