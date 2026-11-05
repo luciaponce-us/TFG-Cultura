@@ -112,31 +112,31 @@ public class LoanService {
 		String userId = loggedUser.getId();
 
 		switch (request.getItemType()) {
-			case BOARDGAME:
+			case BOARDGAME :
 				BoardGame boardGame = validateRequestedBoardGame(request.getItemId(), userId);
 				logger.info("Usuario {} solicita préstamo del juego de mesa {} ({})", userId, boardGame.getName(),
 						boardGame.getId());
 				break;
-			case BOOK:
+			case BOOK :
 				Book book = validateRequestedBook(request.getItemId(), userId);
 				logger.info("Usuario {} solicita préstamo del libro {} ({})", userId, book.getName(), book.getId());
 				break;
-			case MOVIE:
+			case MOVIE :
 				Movie movie = validateRequestedMovie(request.getItemId(), userId);
 				logger.info("Usuario {} solicita préstamo de la película {} ({})", userId, movie.getName(),
 						movie.getId());
 				break;
-			case ROLGAME:
+			case ROLGAME :
 				RolGame rolGame = validateRequestedRolGame(request.getItemId(), userId);
 				logger.info("Usuario {} solicita préstamo del juego de rol {} ({})", userId, rolGame.getName(),
 						rolGame.getId());
 				break;
-			case SERIES:
+			case SERIES :
 				Series series = validateRequestedSeries(request.getItemId(), userId);
 				logger.info("Usuario {} solicita préstamo de la serie {} ({})", userId, series.getName(),
 						series.getId());
 				break;
-			case VIDEOGAME:
+			case VIDEOGAME :
 				// RN-20: No hay préstamos de videojuegos
 				throw new ValidationException(logger,
 						Map.of("itemType", "No se puede solicitar un préstamo de un videojuego."));
@@ -242,19 +242,19 @@ public class LoanService {
 
 	private void validateNewStatusAdmin(LoanStatus oldStatus, LoanStatus newStatus) throws ValidationException {
 		switch (oldStatus) {
-			case REQUESTED:
+			case REQUESTED :
 				if (newStatus != LoanStatus.ACTIVE && newStatus != LoanStatus.REJECTED)
 					throw new ValidationException(logger,
 							Map.of("status", "Un préstamo solicitado solo puede pasar a ACTIVO o RECHAZADO."));
-			case ACTIVE:
+			case ACTIVE :
 				if (newStatus != LoanStatus.RETURNED)
 					throw new ValidationException(logger,
 							Map.of("status", "Un préstamo activo solo puede pasar a ATRASADO o DEVUELTO."));
-			case OVERDUE:
+			case OVERDUE :
 				if (newStatus != LoanStatus.RETURNED)
 					throw new ValidationException(logger,
 							Map.of("status", "Un préstamo atrasado solo puede pasar a DEVUELTO."));
-			default:
+			default :
 				throw new ValidationException(logger,
 						Map.of("status", "Un préstamo rechazado, cancelado o devuelto no puede cambiar de estado."));
 		}
@@ -262,17 +262,17 @@ public class LoanService {
 
 	private Integer getLoanDays(ItemType itemType, String itemId) throws NotFoundException {
 		switch (itemType) {
-			case BOOK:
+			case BOOK :
 				return bookService.findById(itemId).getLoanDays();
-			case MOVIE:
+			case MOVIE :
 				return movieService.findById(itemId).getLoanDays();
-			case SERIES:
+			case SERIES :
 				return seriesService.findById(itemId).getLoanDays();
-			case BOARDGAME:
+			case BOARDGAME :
 				return boardGameService.findById(itemId).getLoanDays();
-			case ROLGAME:
+			case ROLGAME :
 				return rolGameService.findById(itemId).getLoanDays();
-			default:
+			default :
 				// RN-20: No hay préstamos de videojuegos
 				throw new ValidationException(logger,
 						Map.of("status", "No se puede actualizar el estado de este préstamo."));
@@ -282,17 +282,17 @@ public class LoanService {
 	private Loan updateLoanDates(Loan loan, LoanStatus newStatus, ItemType itemType) throws NotFoundException {
 		LocalDate currentDate = LocalDate.now(ZoneId.of("Europe/Madrid"));
 		switch (newStatus) {
-			case LoanStatus.CANCELLED:
+			case LoanStatus.CANCELLED :
 				loan.setCancelDate(LocalDate.now());
-			case LoanStatus.REJECTED:
+			case LoanStatus.REJECTED :
 				loan.setRejectionDate(LocalDate.now());
-			case LoanStatus.ACTIVE:
+			case LoanStatus.ACTIVE :
 				Integer loanDays = getLoanDays(itemType, loan.getItemId());
 				loan.setStartDate(currentDate);
 				loan.setDueDate(currentDate.plusDays(loanDays));
-			case LoanStatus.RETURNED:
+			case LoanStatus.RETURNED :
 				loan.setReturnDate(currentDate);
-			default:
+			default :
 				// No se actualizan fechas para los estados REQUESTED y OVERDUE
 				break;
 		}

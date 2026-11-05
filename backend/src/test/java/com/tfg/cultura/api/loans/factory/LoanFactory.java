@@ -71,8 +71,7 @@ public class LoanFactory {
 	public static Page<Loan> loanPage(String userId, String itemId) {
 		Loan loan = Loan.builder().id("loanId").code("ABC123").status(LoanStatus.ACTIVE)
 				.requestDate(LocalDate.of(2023, 1, 1)).startDate(LocalDate.of(2023, 1, 2))
-				.dueDate(LocalDate.of(2023, 1, 10)).userId(userId).itemId(itemId).itemType(ItemType.BOARDGAME)
-				.build();
+				.dueDate(LocalDate.of(2023, 1, 10)).userId(userId).itemId(itemId).itemType(ItemType.BOARDGAME).build();
 		return new PageImpl<Loan>(List.of(loan));
 	}
 
