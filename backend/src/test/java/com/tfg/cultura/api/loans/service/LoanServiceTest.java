@@ -390,7 +390,7 @@ class LoanServiceTest {
 		assertEquals(1, response.getTotalElements());
 	}
 
-	@Test 
+	@Test
 	void should_clean_filters_when_username_and_itemId_are_empty_strings() throws Exception {
 		when(loanRepository.findAll(defaultPageable)).thenReturn(LoanFactory.loanPage());
 		when(userService.findUserById(UserFactory.validUser().getId())).thenReturn(UserFactory.validUser());
@@ -468,7 +468,7 @@ class LoanServiceTest {
 		assertNotNull(result.getCode());
 	}
 
-	@Test 
+	@Test
 	void should_return_loan_by_code_when_current_user_is_admin() throws Exception {
 		mockLoggedAdmin();
 		Loan loan = LoanFactory.boardGameLoan("otherUserId");
@@ -493,7 +493,7 @@ class LoanServiceTest {
 		assertTrue(ex.getMessage().contains("préstamo"));
 	}
 
-	@Test 
+	@Test
 	void should_throw_unauthorized_exception_when_current_user_is_not_owner_nor_admin() throws Exception {
 		mockLoggedUser();
 		Loan loan = LoanFactory.boardGameLoan("otherUserId");
@@ -504,7 +504,7 @@ class LoanServiceTest {
 		assertTrue(ex.getMessage().contains("préstamo"));
 	}
 
-	@Test 
+	@Test
 	void should_propagate_unathenticated_exception_when_current_user_is_not_authenticated() throws Exception {
 		Loan loan = LoanFactory.boardGameLoan("otherUserId");
 		String loanCode = loan.getCode();
@@ -514,5 +514,31 @@ class LoanServiceTest {
 		assertThrows(UnathenticatedException.class, () -> loanService.getLoanByCode(loanCode));
 	}
 
+	// - GET MY LOANS
+
+	// - - Positive test cases
+
+	@Test
+	void should_get_my_loans_successfully() throws Exception {
+		mockLoggedUser();
+		when(loanRepository.findByUserId("currentUserId", defaultPageable)).thenReturn(LoanFactory.loanPage());
+		when(userService.findUserById(UserFactory.validUser().getId())).thenReturn(UserFactory.validUser());
+		when(userService.findUserById(UserFactory.validUser2().getId())).thenReturn(UserFactory.validUser2());
+
+		Page<LoanResponse> result = loanService.getMyLoans(defaultPageable);
+
+		assertNotNull(result);
+		assertEquals(2, result.getTotalElements());
+	}
+
+	// - - Negative test cases
+
+	@Test
+	void should_propagate_unathenticated_exception_when_getting_my_loans_and_current_user_is_not_authenticated()
+			throws Exception {
+		doThrow(new UnathenticatedException()).when(userDetailsService).getCurrentUserDetails();
+
+		assertThrows(UnathenticatedException.class, () -> loanService.getMyLoans(defaultPageable));
+	}
 
 }
