@@ -3,6 +3,7 @@ package com.tfg.cultura.api.loans.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -67,6 +68,45 @@ class LoanControllerTest extends BaseControllerTest {
 
 		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON).content(toJson(invalidRequest)))
 				.andExpect(status().isBadRequest());
+	}
+
+	// READ
+
+	// Positive test cases
+
+	@Test
+	void should_get_all_loans_successfully() throws Exception {
+		when(loanService.getAllLoans(any(), any(), any())).thenReturn(LoanFactory.loanResponsePage());
+
+		mockMvc.perform(get(BASE_URL).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.content").isArray())
+				.andExpect(jsonPath("$.content[0].id").value(LoanFactory.boardGameLoanResponse("user1Id", "user1").getId()))
+				.andExpect(jsonPath("$.content[1].id").value(LoanFactory.rolGameLoanResponse("user2Id", "user2").getId()));
+	}
+
+	@Test
+	void should_return_empty_page_when_no_loans_exist() throws Exception {
+		when(loanService.getAllLoans(any(), any(), any())).thenReturn(LoanFactory.emptyLoanResponsePage());
+
+		mockMvc.perform(get(BASE_URL).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.content").isArray()).andExpect(jsonPath("$.content").isEmpty());
+	}
+
+	// Negative test cases
+
+	@Test 
+	void should_return_bad_request_when_get_all_loans_with_invalid_page_parameters() throws Exception {
+		mockMvc.perform(get(BASE_URL).param("page", "-1").param("size", "0").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test 
+	void should_return_404_when_get_all_loans_with_nonexistent_username() throws Exception {
+		when(loanService.getAllLoans(any(), any(), any())).thenReturn(LoanFactory.emptyLoanResponsePage());
+
+		mockMvc.perform(get(BASE_URL).param("username", "nonexistentUser").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isArray())
+				.andExpect(jsonPath("$.content").isEmpty());
 	}
 
 }

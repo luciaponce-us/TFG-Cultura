@@ -3,14 +3,17 @@ package com.tfg.cultura.api.loans.factory;
 import com.tfg.cultura.api.catalog.model.enumerators.ItemType;
 import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.dto.LoanCreateRequest;
+import com.tfg.cultura.api.loans.model.dto.LoanResponse;
 import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
 import com.tfg.cultura.api.users.factory.UserFactory;
+import com.tfg.cultura.api.users.model.User;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 public class LoanFactory {
 	public static Loan boardGameLoan(String userId) {
@@ -20,11 +23,21 @@ public class LoanFactory {
 				.build();
 	}
 
+	public static LoanResponse boardGameLoanResponse(String userId, String username) {
+		Loan loan = boardGameLoan(userId);
+		return new LoanResponse(loan, username);
+	}
+
 	public static Loan rolGameLoan(String userId) {
 		return Loan.builder().id("rolGameLoanId").code("XYZ789").status(LoanStatus.ACTIVE)
 				.requestDate(LocalDate.of(2023, 2, 1)).startDate(LocalDate.of(2023, 2, 2))
 				.dueDate(LocalDate.of(2023, 2, 10)).userId(userId).itemId("loanedRolGameId").itemType(ItemType.ROLGAME)
 				.build();
+	}
+
+	public static LoanResponse rolGameLoanResponse(String userId, String username) {
+		Loan loan = rolGameLoan(userId);
+		return new LoanResponse(loan, username);
 	}
 
 	public static LoanCreateRequest validLoanCreateRequest(ItemType itemType) {
@@ -39,8 +52,20 @@ public class LoanFactory {
 		return new PageImpl<Loan>(List.of(loan1, loan2));
 	}
 
+	public static Page<LoanResponse> loanResponsePage() {
+		User user1 = UserFactory.validUser();
+		User user2 = UserFactory.validUser2();
+		LoanResponse loan1 = boardGameLoanResponse(user1.getId(), user1.getUsername());
+		LoanResponse loan2 = rolGameLoanResponse(user2.getId(), user2.getUsername());
+		return new PageImpl<>(List.of(loan1, loan2), PageRequest.of(0, 10), 2);
+	}
+
 	public static Page<Loan> emptyLoanPage() {
 		return new PageImpl<Loan>(List.of());
+	}
+
+	public static Page<LoanResponse> emptyLoanResponsePage() {
+		return new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
 	}
 
 	public static Page<Loan> loanPage(String userId, String itemId) {
