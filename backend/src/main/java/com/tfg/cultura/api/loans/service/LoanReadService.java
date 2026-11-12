@@ -1,9 +1,5 @@
 package com.tfg.cultura.api.loans.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.loans.model.Loan;
@@ -12,6 +8,9 @@ import com.tfg.cultura.api.loans.repository.LoanRepository;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 public class LoanReadService extends LoanService {
@@ -20,7 +19,6 @@ public class LoanReadService extends LoanService {
 			UserService userService) {
 		super(loanRepository, userDetailsService, userService);
 	}
-
 
 	private Page<LoanResponse> toResponsePage(Page<Loan> loans) {
 		return loans.map(loan -> {
@@ -66,5 +64,5 @@ public class LoanReadService extends LoanService {
 		Page<Loan> loans = loanRepository.findByUserId(currentUser.getId(), pageable);
 		return toResponsePage(loans);
 	}
-    
+
 }

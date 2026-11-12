@@ -103,20 +103,9 @@ class LoanCreateServiceTest {
 	void setUp() {
 		// No se puede usar @InjectMocks porque no distingue entre los LoanSpecification
 		// genéricos y los específicos
-		service = new LoanCreateService(
-				loanRepository,
-				rolGameService,
-				boardGameService,
-				bookService,
-				movieService,
-				seriesService,
-				userDetailsService,
-				loanCodeGenerator,
-				movieLoanSpecification,
-				bookLoanSpecification,
-				seriesLoanSpecification,
-				boardGameLoanSpecification,
-				rolGameLoanSpecification);
+		service = new LoanCreateService(loanRepository, rolGameService, boardGameService, bookService, movieService,
+				seriesService, userDetailsService, loanCodeGenerator, movieLoanSpecification, bookLoanSpecification,
+				seriesLoanSpecification, boardGameLoanSpecification, rolGameLoanSpecification);
 
 		createRequestBoardGame = LoanFactory.validLoanCreateRequest(ItemType.BOARDGAME);
 		boardGame = CatalogFactory.validBoardGame();

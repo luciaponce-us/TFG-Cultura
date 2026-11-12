@@ -108,10 +108,8 @@ class LoanControllerTest extends BaseControllerTest {
 
 			mockMvc.perform(get(BASE_URL).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andExpect(jsonPath("$.content").isArray())
-					.andExpect(jsonPath("$.content[0].id")
-							.value(loanResponse1.getId()))
-					.andExpect(
-							jsonPath("$.content[1].id").value(loanResponse2.getId()));
+					.andExpect(jsonPath("$.content[0].id").value(loanResponse1.getId()))
+					.andExpect(jsonPath("$.content[1].id").value(loanResponse2.getId()));
 		}
 
 		@Test

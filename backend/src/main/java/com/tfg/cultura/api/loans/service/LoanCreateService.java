@@ -1,13 +1,5 @@
 package com.tfg.cultura.api.loans.service;
 
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.mongodb.DuplicateKeyException;
 import com.tfg.cultura.api.catalog.model.BoardGame;
 import com.tfg.cultura.api.catalog.model.Book;
@@ -33,8 +25,13 @@ import com.tfg.cultura.api.loans.service.specifications.LoanSpecification;
 import com.tfg.cultura.api.loans.service.specifications.RolGameLoanSpecification;
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
-
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,9 +54,9 @@ public class LoanCreateService {
 	private final BoardGameLoanSpecification boardGameLoanSpecification;
 	private final RolGameLoanSpecification rolGameLoanSpecification;
 
-    private static final Logger logger = LoggerFactory.getLogger("loansLogger");
+	private static final Logger logger = LoggerFactory.getLogger("loansLogger");
 
-    private BoardGame validateRequestedBoardGame(String itemId, String userId)
+	private BoardGame validateRequestedBoardGame(String itemId, String userId)
 			throws NotFoundException, FieldException {
 		BoardGame boardGame = boardGameService.findById(itemId);
 		boardGameLoanSpecification.validate(boardGame, userId);
@@ -94,8 +91,8 @@ public class LoanCreateService {
 		seriesService.setLoanUnavailable(series);
 		return series;
 	}
-    
-    // CREATE
+
+	// CREATE
 
 	@Transactional
 	public LoanResponse createLoan(LoanCreateRequest request)
@@ -146,5 +143,5 @@ public class LoanCreateService {
 					Map.of("code", "No se ha podido generar un código de préstamo único. Inténtelo de nuevo."));
 		}
 	}
-    
+
 }
