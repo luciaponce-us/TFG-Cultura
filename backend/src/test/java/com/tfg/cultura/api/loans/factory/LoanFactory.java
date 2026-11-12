@@ -16,6 +16,19 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 public class LoanFactory {
+
+	public static Loan validLoan(String ownerId, LoanStatus status) {
+		return Loan.builder()
+				.id("loanId")
+				.code("ABC123")
+				.status(status)
+				.requestDate(LocalDate.of(2023, 1, 1))
+				.userId(ownerId)
+				.itemId("loanedItemId")
+				.itemType(ItemType.BOARDGAME)
+				.build();
+	}
+
 	public static Loan boardGameLoan(String userId) {
 		return Loan.builder().id("boardGameLoanId").code("ABC123").status(LoanStatus.ACTIVE)
 				.requestDate(LocalDate.of(2023, 1, 1)).startDate(LocalDate.of(2023, 1, 2))

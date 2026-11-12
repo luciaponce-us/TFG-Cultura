@@ -1,8 +1,10 @@
 package com.tfg.cultura.api.users.factory;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
+import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
@@ -74,6 +76,11 @@ public class UserFactory {
 		return new CustomUserDetails(user);
 	}
 
+	public static void mockLoggedUser(CustomUserDetailsService userDetailsService) {
+		CustomUserDetails userDetails = UserFactory.mockAuthContext(); // id = currentUserId
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
+	}
+
 	public static CustomUserDetails mockAuthContextAdmin() {
 		User user = validUser();
 		user.setId("currentUserId");
@@ -83,6 +90,11 @@ public class UserFactory {
 
 		SecurityContextHolder.setContext(context);
 		return new CustomUserDetails(user);
+	}
+
+	public static void mockLoggedUserAdmin(CustomUserDetailsService userDetailsService) {
+		CustomUserDetails userDetails = UserFactory.mockAuthContextAdmin(); // id = currentUserId
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
 	}
 
 	public static MockMultipartFile valid_avatar_file() {

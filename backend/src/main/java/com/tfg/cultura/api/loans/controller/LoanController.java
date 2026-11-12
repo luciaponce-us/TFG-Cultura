@@ -2,7 +2,10 @@ package com.tfg.cultura.api.loans.controller;
 
 import com.tfg.cultura.api.loans.model.dto.LoanCreateRequest;
 import com.tfg.cultura.api.loans.model.dto.LoanResponse;
-import com.tfg.cultura.api.loans.service.LoanService;
+import com.tfg.cultura.api.loans.service.LoanCreateService;
+import com.tfg.cultura.api.loans.service.LoanDeleteService;
+import com.tfg.cultura.api.loans.service.LoanReadService;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -27,11 +30,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @Tag(name = "Loans", description = "Gestión de préstamos")
 public class LoanController {
-	private final LoanService loanService;
+	private final LoanCreateService loanCreateService;
+	private final LoanReadService loanReadService;
+	private final LoanDeleteService loanDeleteService;
 
 	@PostMapping
 	public ResponseEntity<LoanResponse> createLoan(@Valid @RequestBody LoanCreateRequest request) {
-		LoanResponse loanResponse = loanService.createLoan(request);
+		LoanResponse loanResponse = loanCreateService.createLoan(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(loanResponse);
 	}
 
@@ -44,20 +49,14 @@ public class LoanController {
 			return ResponseEntity.badRequest().build();
 		}
 
-		Page<LoanResponse> loans = loanService.getAllLoans(PageRequest.of(page, size), username, itemId);
+		Page<LoanResponse> loans = loanReadService.getAllLoans(PageRequest.of(page, size), username, itemId);
 		return ResponseEntity.status(HttpStatus.OK).body(loans);
 	}
 
 	@GetMapping("/{loanCode}")
 	public ResponseEntity<LoanResponse> getLoanByCode(@PathVariable String loanCode) {
-		LoanResponse loanResponse = loanService.getLoanByCode(loanCode);
+		LoanResponse loanResponse = loanReadService.getLoanByCode(loanCode);
 		return ResponseEntity.status(HttpStatus.OK).body(loanResponse);
-	}
-
-	@DeleteMapping("/{loanCode}")
-	public ResponseEntity<Void> deleteLoan(@PathVariable String loanCode) {
-		loanService.deleteLoan(loanCode);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 	@GetMapping("/my-loans")
@@ -68,8 +67,14 @@ public class LoanController {
 			return ResponseEntity.badRequest().build();
 		}
 
-		Page<LoanResponse> loans = loanService.getMyLoans(PageRequest.of(page, size));
+		Page<LoanResponse> loans = loanReadService.getMyLoans(PageRequest.of(page, size));
 		return ResponseEntity.status(HttpStatus.OK).body(loans);
+	}
+
+	@DeleteMapping("/{loanCode}")
+	public ResponseEntity<Void> deleteLoan(@PathVariable String loanCode) {
+		loanDeleteService.deleteLoan(loanCode);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 }
