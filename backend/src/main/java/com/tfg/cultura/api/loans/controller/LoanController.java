@@ -2,9 +2,12 @@ package com.tfg.cultura.api.loans.controller;
 
 import com.tfg.cultura.api.loans.model.dto.LoanCreateRequest;
 import com.tfg.cultura.api.loans.model.dto.LoanResponse;
+import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
 import com.tfg.cultura.api.loans.service.LoanCreateService;
 import com.tfg.cultura.api.loans.service.LoanDeleteService;
 import com.tfg.cultura.api.loans.service.LoanReadService;
+import com.tfg.cultura.api.loans.service.LoanUpdateService;
+import com.tfg.cultura.api.loans.validation.annotations.ValidLoanCode;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoanController {
 	private final LoanCreateService loanCreateService;
 	private final LoanReadService loanReadService;
+	private final LoanUpdateService loanUpdateService;
 	private final LoanDeleteService loanDeleteService;
 
 	@PostMapping
@@ -54,7 +59,7 @@ public class LoanController {
 	}
 
 	@GetMapping("/{loanCode}")
-	public ResponseEntity<LoanResponse> getLoanByCode(@PathVariable String loanCode) {
+	public ResponseEntity<LoanResponse> getLoanByCode(@PathVariable @ValidLoanCode String loanCode) {
 		LoanResponse loanResponse = loanReadService.getLoanByCode(loanCode);
 		return ResponseEntity.status(HttpStatus.OK).body(loanResponse);
 	}
@@ -69,6 +74,13 @@ public class LoanController {
 
 		Page<LoanResponse> loans = loanReadService.getMyLoans(PageRequest.of(page, size));
 		return ResponseEntity.status(HttpStatus.OK).body(loans);
+	}
+
+	@PutMapping("/{loanCode}/status")
+	public ResponseEntity<LoanResponse> updateLoanStatus(@PathVariable @ValidLoanCode String loanCode,
+			@RequestBody LoanStatus newStatus) {
+		LoanResponse loanResponse = loanUpdateService.updateLoanStatus(loanCode, newStatus);
+		return ResponseEntity.status(HttpStatus.OK).body(loanResponse);
 	}
 
 	@DeleteMapping("/{loanCode}")
