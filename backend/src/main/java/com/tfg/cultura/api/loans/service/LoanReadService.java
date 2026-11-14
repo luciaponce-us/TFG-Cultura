@@ -2,6 +2,7 @@ package com.tfg.cultura.api.loans.service;
 
 import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
+import com.tfg.cultura.api.core.exception.UnauthorizedException;
 import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.dto.LoanResponse;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
@@ -50,7 +51,7 @@ public class LoanReadService extends LoanService {
 		return toResponsePage(loans);
 	}
 
-	public LoanResponse getLoanByCode(String loanCode) throws NotFoundException {
+	public LoanResponse getLoanByCode(String loanCode) throws NotFoundException, UnauthorizedException, UnathenticatedException {
 		Loan loan = findLoanByCode(loanCode);
 
 		// Si no es un administrador, solo puede acceder a sus propios préstamos
