@@ -22,9 +22,6 @@ public class LoanDeleteService extends LoanService {
 	public void deleteLoan(String loanCode) throws NotFoundException, UnauthorizedException, UnathenticatedException {
 		Loan loan = findLoanByCode(loanCode);
 
-		// Si no es un administrador, solo puede eliminar sus propios préstamos
-		checkCurrentUserIsLoanOwner(loan);
-
 		loanRepository.delete(loan);
 		logger.info("Préstamo {} eliminado por el usuario {}", loanCode,
 				userDetailsService.getCurrentUserDetails().getId());

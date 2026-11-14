@@ -180,7 +180,6 @@ class LoanReadServiceTest {
 	class GetLoanByCodeTests {
 
 		private void mockLoggedAdmin() {
-			UserFactory.mockLoggedUserAdmin(userDetailsService);
 			when(userService.currentUserIsAdmin()).thenReturn(true);
 		}
 

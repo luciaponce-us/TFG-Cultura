@@ -55,9 +55,6 @@ public class LoanReadService extends LoanService {
 			throws NotFoundException, UnauthorizedException, UnathenticatedException {
 		Loan loan = findLoanByCode(loanCode);
 
-		// Si no es un administrador, solo puede acceder a sus propios préstamos
-		checkCurrentUserIsLoanOwner(loan);
-
 		return toResponse(loan);
 	}
 

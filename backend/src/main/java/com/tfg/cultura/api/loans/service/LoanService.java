@@ -31,17 +31,22 @@ public class LoanService {
 		return new LoanResponse(loan, username);
 	}
 
-	protected Loan findLoanByCode(String loanCode) throws NotFoundException {
-		return loanRepository.findByCode(loanCode).orElseThrow(() -> new NotFoundException(
+	protected Loan findLoanByCode(String loanCode) throws NotFoundException, UnauthorizedException, UnathenticatedException {
+		Loan res = loanRepository.findByCode(loanCode).orElseThrow(() -> new NotFoundException(
 				"No se ha encontrado el préstamo con código: " + sanitize(loanCode), logger));
+
+		checkCurrentUserIsLoanOwnerOrAdmin(res);
+		return res;
 	}
 
-	protected void checkCurrentUserIsLoanOwner(Loan loan)
+	private void checkCurrentUserIsLoanOwnerOrAdmin(Loan loan)
 			throws UnauthorizedException, UnathenticatedException, NotFoundException {
-		String currentUserId = userDetailsService.getCurrentUserDetails().getId();
 		boolean isAdmin = userService.currentUserIsAdmin();
+		if (isAdmin) return; // Si es administrador, no necesita verificar la propiedad del préstamo
+
+		String currentUserId = userDetailsService.getCurrentUserDetails().getId();
 		boolean isLoanOwner = loan.getUserId().equals(currentUserId);
-		if (!isAdmin && !isLoanOwner) {
+		if (!isLoanOwner) {
 			throw new UnauthorizedException("No tiene permiso para acceder a este préstamo.");
 		}
 	}

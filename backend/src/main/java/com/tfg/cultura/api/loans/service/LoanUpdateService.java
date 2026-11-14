@@ -126,20 +126,19 @@ public class LoanUpdateService extends LoanService {
 	@Transactional
 	public LoanResponse updateLoanStatus(String loanCode, LoanStatus newStatus)
 			throws NotFoundException, UnauthorizedException, UnathenticatedException {
-		boolean currentUserIsAdmin = userService.currentUserIsAdmin();
+		
 		Loan loan = findLoanByCode(loanCode);
 
-		// Si no es un administrador, solo puede actualizar sus propios préstamos
-		if (!currentUserIsAdmin) {
-			checkCurrentUserIsLoanOwner(loan);
-		}
-		validateNewStatus(loan.getStatus(), newStatus, userService.currentUserIsAdmin());
+        boolean currentUserIsAdmin = userService.currentUserIsAdmin();
+		validateNewStatus(loan.getStatus(), newStatus, currentUserIsAdmin);
 		updateLoanDates(loan, newStatus, loan.getItemType());
 
 		loan.setStatus(newStatus);
 		Loan updatedLoan = loanRepository.save(loan);
+
 		logger.info("Préstamo {} actualizado a estado {} por el usuario {}", loanCode, newStatus,
 				userDetailsService.getCurrentUserDetails().getId());
+
 		return toResponse(updatedLoan);
 	}
 
