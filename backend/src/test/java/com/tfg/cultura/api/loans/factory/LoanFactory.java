@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.loans.factory;
 
+import static org.mockito.Mockito.when;
+
 import com.tfg.cultura.api.catalog.model.enumerators.ItemType;
 import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.dto.LoanCreateRequest;
@@ -8,12 +10,8 @@ import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
 import com.tfg.cultura.api.loans.repository.LoanRepository;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
-
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import org.mockito.ArgumentMatchers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

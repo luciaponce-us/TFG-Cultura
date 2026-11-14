@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.loans.service;
 
+import static com.tfg.cultura.api.loans.factory.LoanFactory.mockSuccessfullySavedLoan;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,8 +41,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-
-import static com.tfg.cultura.api.loans.factory.LoanFactory.mockSuccessfullySavedLoan;
 
 @ExtendWith(MockitoExtension.class)
 class LoanCreateServiceTest {
