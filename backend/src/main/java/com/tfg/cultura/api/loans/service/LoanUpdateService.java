@@ -126,10 +126,10 @@ public class LoanUpdateService extends LoanService {
 	@Transactional
 	public LoanResponse updateLoanStatus(String loanCode, LoanStatus newStatus)
 			throws NotFoundException, UnauthorizedException, UnathenticatedException {
-		
+
 		Loan loan = findLoanByCode(loanCode);
 
-        boolean currentUserIsAdmin = userService.currentUserIsAdmin();
+		boolean currentUserIsAdmin = userService.currentUserIsAdmin();
 		validateNewStatus(loan.getStatus(), newStatus, currentUserIsAdmin);
 		updateLoanDates(loan, newStatus, loan.getItemType());
 
