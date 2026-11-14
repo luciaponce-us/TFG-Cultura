@@ -41,6 +41,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import static com.tfg.cultura.api.loans.factory.LoanFactory.mockSuccessfullySavedLoan;
+
 @ExtendWith(MockitoExtension.class)
 class LoanCreateServiceTest {
 	@Mock
@@ -130,11 +132,9 @@ class LoanCreateServiceTest {
 		when(loanCodeGenerator.generateUniqueCode()).thenReturn("ABC123");
 	}
 
-	private void mockSuccessfullySavedLoan() {
-		when(loanRepository.save(ArgumentMatchers.any())).thenAnswer(i -> i.getArguments()[0]);
+	private void mockSaveLoan() {
+		mockSuccessfullySavedLoan(loanRepository);
 	}
-
-	// CREATE LOAN
 
 	// Positive test cases
 
@@ -143,7 +143,7 @@ class LoanCreateServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(boardGameService.findById(createRequestBoardGame.getItemId())).thenReturn(boardGame);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
 		LoanResponse response = service.createLoan(createRequestBoardGame);
 		assertEquals(createRequestBoardGame.getItemId(), response.getItemId());
@@ -154,7 +154,7 @@ class LoanCreateServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(bookService.findById(createRequestBook.getItemId())).thenReturn(book);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
 		LoanResponse response = service.createLoan(createRequestBook);
 		assertEquals(createRequestBook.getItemId(), response.getItemId());
@@ -165,7 +165,7 @@ class LoanCreateServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(movieService.findById(createRequestMovie.getItemId())).thenReturn(movie);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
 		LoanResponse response = service.createLoan(createRequestMovie);
 		assertEquals(createRequestMovie.getItemId(), response.getItemId());
@@ -176,7 +176,7 @@ class LoanCreateServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(rolGameService.findById(createRequestRolGame.getItemId())).thenReturn(rolGame);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
 		LoanResponse response = service.createLoan(createRequestRolGame);
 		assertEquals(createRequestRolGame.getItemId(), response.getItemId());
@@ -187,7 +187,7 @@ class LoanCreateServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(seriesService.findById(createRequestSeries.getItemId())).thenReturn(series);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
 		LoanResponse response = service.createLoan(createRequestSeries);
 		assertEquals(createRequestSeries.getItemId(), response.getItemId());

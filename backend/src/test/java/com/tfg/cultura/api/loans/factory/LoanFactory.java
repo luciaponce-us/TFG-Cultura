@@ -5,12 +5,16 @@ import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.dto.LoanCreateRequest;
 import com.tfg.cultura.api.loans.model.dto.LoanResponse;
 import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
+import com.tfg.cultura.api.loans.repository.LoanRepository;
 import com.tfg.cultura.api.users.factory.UserFactory;
 import com.tfg.cultura.api.users.model.User;
+
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import org.mockito.ArgumentMatchers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -79,6 +83,10 @@ public class LoanFactory {
 				.requestDate(LocalDate.of(2023, 1, 1)).startDate(LocalDate.of(2023, 1, 2))
 				.dueDate(LocalDate.of(2023, 1, 10)).userId(userId).itemId(itemId).itemType(ItemType.BOARDGAME).build();
 		return new PageImpl<Loan>(List.of(loan));
+	}
+
+	public static void mockSuccessfullySavedLoan(LoanRepository loanRepository) {
+		when(loanRepository.save(ArgumentMatchers.any())).thenAnswer(i -> i.getArguments()[0]);
 	}
 
 }
