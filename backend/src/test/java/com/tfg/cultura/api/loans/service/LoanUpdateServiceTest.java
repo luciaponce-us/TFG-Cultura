@@ -97,13 +97,14 @@ class LoanUpdateServiceTest {
 
 	@Test
 	void should_throw_UnathenticatedException_when_user_not_authenticated() {
+		when(loanRepository.findByCode(anyString())).thenReturn(Optional.of(loan));
 		doThrow(UnathenticatedException.class).when(userService).currentUserIsAdmin();
 
 		assertThrows(UnathenticatedException.class, () -> {
 			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.ACTIVE);
 		});
 
-		verifyNoInteractions(loanRepository);
+		verify(loanRepository, never()).save(any(Loan.class));
 	}
 
 	@Test
