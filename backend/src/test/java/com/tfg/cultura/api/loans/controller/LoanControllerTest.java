@@ -150,6 +150,61 @@ class LoanControllerTest extends BaseControllerTest {
 	}
 
 	@Nested
+	@DisplayName("GET /api/loans/{loanCode} - Get Loan By Code")
+	class GetLoanByCodeTests {
+
+		private static final String GET_BY_CODE_URL = BASE_URL + "/{loanCode}";
+		private LoanResponse loanResponse;
+
+		@BeforeEach
+		void setUp() {
+			loanResponse = LoanFactory.boardGameLoanResponse("currentUserId", "currentUser");
+		}
+
+		@Test
+		void should_get_loan_by_code_successfully() throws Exception {
+			when(loanReadService.getLoanByCode(any())).thenReturn(loanResponse);
+
+			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode())
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk())
+					.andExpect(jsonPath("$.id").value(loanResponse.getId()))
+					.andExpect(jsonPath("$.code").value(loanResponse.getCode()))
+					.andExpect(jsonPath("$.status").value(loanResponse.getStatus().toString()))
+					.andExpect(jsonPath("$.username").value(loanResponse.getUsername()))
+					.andExpect(jsonPath("$.itemId").value(loanResponse.getItemId()));
+		}
+
+		@Test
+		void should_propagate_not_found_exception() throws Exception {
+			when(loanReadService.getLoanByCode(any())).thenThrow(ExceptionsFactory.notFoundException);
+
+			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode())
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isNotFound());
+		}
+
+		@Test
+		void should_propagate_unauthorized_exception() throws Exception {
+			when(loanReadService.getLoanByCode(any())).thenThrow(new UnauthorizedException(null));
+
+			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode())
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isForbidden());
+		}
+
+		@Test
+		void should_propagate_unauthenticated_exception() throws Exception {
+			when(loanReadService.getLoanByCode(any())).thenThrow(new UnathenticatedException());
+
+			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode())
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isUnauthorized());
+		}
+
+	}
+
+	@Nested
 	@DisplayName("PUT /api/loans/{loanCode}/status - Update Loan Status")
 	class UpdateLoanStatusTests {
 
