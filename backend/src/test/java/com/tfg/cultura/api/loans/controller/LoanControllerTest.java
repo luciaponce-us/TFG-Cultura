@@ -205,6 +205,57 @@ class LoanControllerTest extends BaseControllerTest {
 	}
 
 	@Nested
+	@DisplayName("GET /api/loans/my-loans - Get My Loans")
+	class GetMyLoansTests {
+
+		private Page<LoanResponse> loanResponsePage;
+		private Page<LoanResponse> emptyLoanResponsePage;
+		private LoanResponse loanResponse1;
+		private LoanResponse loanResponse2;
+
+		@BeforeEach
+		void setUp() {
+			loanResponse1 = LoanFactory.boardGameLoanResponse("currentUserId", "currentUser");
+			loanResponse2 = LoanFactory.rolGameLoanResponse("currentUserId", "currentUser");
+			loanResponsePage = LoanFactory.loanResponsePage();
+			emptyLoanResponsePage = LoanFactory.emptyLoanResponsePage();
+		}
+
+		@Test
+		void should_get_my_loans_successfully() throws Exception {
+			when(loanReadService.getMyLoans(any())).thenReturn(loanResponsePage);
+
+			mockMvc.perform(get(BASE_URL + "/my-loans")
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk())
+					.andExpect(jsonPath("$.content").isArray())
+					.andExpect(jsonPath("$.content[0].id").value(loanResponse1.getId()))
+					.andExpect(jsonPath("$.content[1].id").value(loanResponse2.getId()));
+		}
+
+		@Test
+		void should_return_empty_page_when_no_loans_exist() throws Exception {
+			when(loanReadService.getMyLoans(any())).thenReturn(emptyLoanResponsePage);
+
+			mockMvc.perform(get(BASE_URL + "/my-loans")
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk())
+					.andExpect(jsonPath("$.content").isArray())
+					.andExpect(jsonPath("$.content").isEmpty());
+		}
+
+		@Test
+		void should_propagate_unauthenticated_exception() throws Exception {
+			when(loanReadService.getMyLoans(any())).thenThrow(new UnathenticatedException());
+
+			mockMvc.perform(get(BASE_URL + "/my-loans")
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isUnauthorized());
+		}
+
+	}
+
+	@Nested
 	@DisplayName("PUT /api/loans/{loanCode}/status - Update Loan Status")
 	class UpdateLoanStatusTests {
 
