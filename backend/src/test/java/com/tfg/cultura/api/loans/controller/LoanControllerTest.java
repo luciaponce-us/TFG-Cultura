@@ -165,10 +165,8 @@ class LoanControllerTest extends BaseControllerTest {
 		void should_get_loan_by_code_successfully() throws Exception {
 			when(loanReadService.getLoanByCode(any())).thenReturn(loanResponse);
 
-			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON))
-					.andExpect(status().isOk())
-					.andExpect(jsonPath("$.id").value(loanResponse.getId()))
+			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(loanResponse.getId()))
 					.andExpect(jsonPath("$.code").value(loanResponse.getCode()))
 					.andExpect(jsonPath("$.status").value(loanResponse.getStatus().toString()))
 					.andExpect(jsonPath("$.username").value(loanResponse.getUsername()))
@@ -179,8 +177,7 @@ class LoanControllerTest extends BaseControllerTest {
 		void should_propagate_not_found_exception() throws Exception {
 			when(loanReadService.getLoanByCode(any())).thenThrow(ExceptionsFactory.notFoundException);
 
-			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON))
+			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON))
 					.andExpect(status().isNotFound());
 		}
 
@@ -188,8 +185,7 @@ class LoanControllerTest extends BaseControllerTest {
 		void should_propagate_unauthorized_exception() throws Exception {
 			when(loanReadService.getLoanByCode(any())).thenThrow(new UnauthorizedException(null));
 
-			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON))
+			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON))
 					.andExpect(status().isForbidden());
 		}
 
@@ -197,8 +193,7 @@ class LoanControllerTest extends BaseControllerTest {
 		void should_propagate_unauthenticated_exception() throws Exception {
 			when(loanReadService.getLoanByCode(any())).thenThrow(new UnathenticatedException());
 
-			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON))
+			mockMvc.perform(get(GET_BY_CODE_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON))
 					.andExpect(status().isUnauthorized());
 		}
 
@@ -225,10 +220,8 @@ class LoanControllerTest extends BaseControllerTest {
 		void should_get_my_loans_successfully() throws Exception {
 			when(loanReadService.getMyLoans(any())).thenReturn(loanResponsePage);
 
-			mockMvc.perform(get(BASE_URL + "/my-loans")
-					.contentType(MediaType.APPLICATION_JSON))
-					.andExpect(status().isOk())
-					.andExpect(jsonPath("$.content").isArray())
+			mockMvc.perform(get(BASE_URL + "/my-loans").contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.content").isArray())
 					.andExpect(jsonPath("$.content[0].id").value(loanResponse1.getId()))
 					.andExpect(jsonPath("$.content[1].id").value(loanResponse2.getId()));
 		}
@@ -237,10 +230,8 @@ class LoanControllerTest extends BaseControllerTest {
 		void should_return_empty_page_when_no_loans_exist() throws Exception {
 			when(loanReadService.getMyLoans(any())).thenReturn(emptyLoanResponsePage);
 
-			mockMvc.perform(get(BASE_URL + "/my-loans")
-					.contentType(MediaType.APPLICATION_JSON))
-					.andExpect(status().isOk())
-					.andExpect(jsonPath("$.content").isArray())
+			mockMvc.perform(get(BASE_URL + "/my-loans").contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.content").isArray())
 					.andExpect(jsonPath("$.content").isEmpty());
 		}
 
@@ -248,8 +239,7 @@ class LoanControllerTest extends BaseControllerTest {
 		void should_propagate_unauthenticated_exception() throws Exception {
 			when(loanReadService.getMyLoans(any())).thenThrow(new UnathenticatedException());
 
-			mockMvc.perform(get(BASE_URL + "/my-loans")
-					.contentType(MediaType.APPLICATION_JSON))
+			mockMvc.perform(get(BASE_URL + "/my-loans").contentType(MediaType.APPLICATION_JSON))
 					.andExpect(status().isUnauthorized());
 		}
 
@@ -271,10 +261,8 @@ class LoanControllerTest extends BaseControllerTest {
 		void should_update_loan_status_successfully() throws Exception {
 			when(loanUpdateService.updateLoanStatus(any(), any())).thenReturn(loanResponse);
 
-			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON)
-					.content(toJson(LoanStatus.CANCELLED)))
-					.andExpect(status().isOk())
+			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON)
+					.content(toJson(LoanStatus.CANCELLED))).andExpect(status().isOk())
 					.andExpect(jsonPath("$.id").value(loanResponse.getId()))
 					.andExpect(jsonPath("$.code").value(loanResponse.getCode()))
 					.andExpect(jsonPath("$.status").value(loanResponse.getStatus().toString()))
@@ -284,41 +272,32 @@ class LoanControllerTest extends BaseControllerTest {
 
 		@Test
 		void should_return_bad_request_when_update_loan_status_with_invalid_status() throws Exception {
-			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON)
-					.content(toJson("INVALID_STATUS")))
-					.andExpect(status().isBadRequest());
+			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON)
+					.content(toJson("INVALID_STATUS"))).andExpect(status().isBadRequest());
 		}
 
 		@Test
 		void should_propagate_not_found_exception() throws Exception {
-			when(loanUpdateService.updateLoanStatus(any(), any()))
-					.thenThrow(ExceptionsFactory.notFoundException);
+			when(loanUpdateService.updateLoanStatus(any(), any())).thenThrow(ExceptionsFactory.notFoundException);
 
-			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON)
-					.content(toJson(LoanStatus.CANCELLED)))
-					.andExpect(status().isNotFound());
+			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON)
+					.content(toJson(LoanStatus.CANCELLED))).andExpect(status().isNotFound());
 		}
 
 		@Test
 		void should_propagate_unauthorized_exception() throws Exception {
 			when(loanUpdateService.updateLoanStatus(any(), any())).thenThrow(new UnauthorizedException(null));
 
-			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON)
-					.content(toJson(LoanStatus.CANCELLED)))
-					.andExpect(status().isForbidden());
+			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON)
+					.content(toJson(LoanStatus.CANCELLED))).andExpect(status().isForbidden());
 		}
 
 		@Test
 		void should_propagate_unauthenticated_exception() throws Exception {
 			when(loanUpdateService.updateLoanStatus(any(), any())).thenThrow(new UnathenticatedException());
 
-			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON)
-					.content(toJson(LoanStatus.CANCELLED)))
-					.andExpect(status().isUnauthorized());
+			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON)
+					.content(toJson(LoanStatus.CANCELLED))).andExpect(status().isUnauthorized());
 		}
 
 		@Test
@@ -326,10 +305,8 @@ class LoanControllerTest extends BaseControllerTest {
 			when(loanUpdateService.updateLoanStatus(any(), any()))
 					.thenThrow(ExceptionsFactory.validationException("Invalid status change"));
 
-			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode())
-					.contentType(MediaType.APPLICATION_JSON)
-					.content(toJson(LoanStatus.CANCELLED)))
-					.andExpect(status().isBadRequest());
+			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON)
+					.content(toJson(LoanStatus.CANCELLED))).andExpect(status().isBadRequest());
 		}
 	}
 }

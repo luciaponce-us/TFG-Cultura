@@ -51,7 +51,8 @@ public class LoanReadService extends LoanService {
 		return toResponsePage(loans);
 	}
 
-	public LoanResponse getLoanByCode(String loanCode) throws NotFoundException, UnauthorizedException, UnathenticatedException {
+	public LoanResponse getLoanByCode(String loanCode)
+			throws NotFoundException, UnauthorizedException, UnathenticatedException {
 		Loan loan = findLoanByCode(loanCode);
 
 		// Si no es un administrador, solo puede acceder a sus propios préstamos
