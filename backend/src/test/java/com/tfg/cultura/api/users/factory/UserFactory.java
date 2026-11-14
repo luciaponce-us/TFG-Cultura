@@ -23,6 +23,12 @@ public class UserFactory {
 				.avatar("test.png").active(true).role(Role.SOCIO).build();
 	}
 
+	public static User validUserWithId(String id) {
+		User user = validUser();
+		user.setId(id);
+		return user;
+	}
+
 	public static UserResponse validUserResponseWithId(String id) {
 		User user = validUser();
 		user.setId(id);
