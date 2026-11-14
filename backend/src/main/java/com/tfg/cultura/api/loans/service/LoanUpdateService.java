@@ -80,6 +80,7 @@ public class LoanUpdateService extends LoanService {
                 if (newStatus != LoanStatus.RETURNED)
                     throw new ValidationException(logger,
                             Map.of("status", "Un préstamo atrasado solo puede pasar a DEVUELTO."));
+                break;
             default:
                 throw new ValidationException(logger,
                         Map.of("status", "Un préstamo rechazado, cancelado o devuelto no puede cambiar de estado."));
