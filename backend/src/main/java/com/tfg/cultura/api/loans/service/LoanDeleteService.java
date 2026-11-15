@@ -22,10 +22,11 @@ public class LoanDeleteService extends LoanService {
 
 	@Transactional
 	public void deleteLoan(String loanCode) throws NotFoundException, UnauthorizedException, UnathenticatedException {
-		Loan loan = findLoanByCode(loanCode);
+		String sanitizedCode = sanitize(loanCode);
+		Loan loan = findLoanByCode(sanitizedCode);
 
 		loanRepository.delete(loan);
-		logger.info("Préstamo {} eliminado por el usuario {}", sanitize(loanCode),
+		logger.info("Préstamo {} eliminado por el usuario {}", sanitizedCode,
 				userDetailsService.getCurrentUserDetails().getId());
 	}
 }

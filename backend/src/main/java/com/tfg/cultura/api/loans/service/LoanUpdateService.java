@@ -136,8 +136,8 @@ public class LoanUpdateService extends LoanService {
 	@Transactional
 	public LoanResponse updateLoanStatus(String loanCode, LoanStatus newStatus)
 			throws NotFoundException, UnauthorizedException, UnathenticatedException {
-
-		Loan loan = findLoanByCode(loanCode);
+				String sanitizedCode = sanitize(loanCode);
+		Loan loan = findLoanByCode(sanitizedCode);
 
 		boolean currentUserIsAdmin = userService.currentUserIsAdmin();
 		validateNewStatus(loan.getStatus(), newStatus, currentUserIsAdmin);
@@ -146,7 +146,7 @@ public class LoanUpdateService extends LoanService {
 		loan.setStatus(newStatus);
 		Loan updatedLoan = loanRepository.save(loan);
 
-		logger.info("Préstamo {} actualizado a estado {} por el usuario {}", sanitize(loanCode), newStatus,
+		logger.info("Préstamo {} actualizado a estado {} por el usuario {}", sanitizedCode, newStatus,
 				userDetailsService.getCurrentUserDetails().getId());
 
 		return toResponse(updatedLoan);
