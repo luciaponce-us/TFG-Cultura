@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.seeder.parser;
 
+import com.tfg.cultura.api.catalog.model.enumerators.ItemType;
 import com.tfg.cultura.api.loans.model.Loan;
 import com.tfg.cultura.api.loans.model.enumerators.LoanStatus;
 import java.util.List;
@@ -22,7 +23,8 @@ public class LoanCsvParser extends CsvParser {
 				.requestDate(parseLocalDate(parts[2])).cancelDate(parseNullableLocalDate(parts[3]))
 				.startDate(parseNullableLocalDate(parts[4])).dueDate(parseNullableLocalDate(parts[5]))
 				.returnDate(parseNullableLocalDate(parts[6])).rejectionDate(parseNullableLocalDate(parts[7]))
-				.userId(usersIdByUsername.get(clean(parts[8]))).itemId(itemsIdByName.get(clean(parts[9]))).build();
+				.userId(usersIdByUsername.get(clean(parts[8]))).itemId(itemsIdByName.get(clean(parts[9])))
+				.itemType(ItemType.valueOf(clean(parts[10]))).build();
 	}
 
 }
