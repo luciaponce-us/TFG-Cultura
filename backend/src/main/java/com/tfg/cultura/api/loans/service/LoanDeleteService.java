@@ -1,5 +1,7 @@
 package com.tfg.cultura.api.loans.service;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 import com.tfg.cultura.api.core.exception.NotFoundException;
 import com.tfg.cultura.api.core.exception.UnathenticatedException;
 import com.tfg.cultura.api.core.exception.UnauthorizedException;
@@ -9,8 +11,6 @@ import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
 
 @Service
 public class LoanDeleteService extends LoanService {
