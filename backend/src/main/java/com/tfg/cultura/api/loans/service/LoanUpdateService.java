@@ -136,7 +136,7 @@ public class LoanUpdateService extends LoanService {
 	@Transactional
 	public LoanResponse updateLoanStatus(String loanCode, LoanStatus newStatus)
 			throws NotFoundException, UnauthorizedException, UnathenticatedException {
-				String sanitizedCode = sanitize(loanCode);
+		String sanitizedCode = sanitize(loanCode);
 		Loan loan = findLoanByCode(sanitizedCode);
 
 		boolean currentUserIsAdmin = userService.currentUserIsAdmin();
