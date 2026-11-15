@@ -236,6 +236,12 @@ class LoanControllerTest extends BaseControllerTest {
 		}
 
 		@Test
+		void should_return_bad_request_when_get_my_loans_with_invalid_page_parameters() throws Exception {
+			mockMvc.perform(get(BASE_URL + "/my-loans").param("page", "-1").param("size", "0")
+					.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+		}
+
+		@Test
 		void should_propagate_unauthenticated_exception() throws Exception {
 			when(loanReadService.getMyLoans(any())).thenThrow(new UnathenticatedException());
 
