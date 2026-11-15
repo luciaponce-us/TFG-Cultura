@@ -1,10 +1,12 @@
 package com.tfg.cultura.api.loans.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -313,6 +315,49 @@ class LoanControllerTest extends BaseControllerTest {
 
 			mockMvc.perform(put(CHANGE_STATUS_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON)
 					.content(toJson(LoanStatus.CANCELLED))).andExpect(status().isBadRequest());
+		}
+	}
+
+	@Nested 
+	@DisplayName ("DELETE /api/loans/{loanCode} - Delete Loan")
+	class DeleteLoanTests {
+
+		private static final String DELETE_URL = BASE_URL + "/{loanCode}";
+		private LoanResponse loanResponse;
+
+		@BeforeEach
+		void setUp() {
+			loanResponse = LoanFactory.boardGameLoanResponse("currentUserId", "currentUser");
+		}
+
+		@Test
+		void should_delete_loan_successfully() throws Exception {
+			mockMvc.perform(delete(DELETE_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isNoContent());
+		}
+
+		@Test
+		void should_propagate_not_found_exception() throws Exception {
+			doThrow(ExceptionsFactory.notFoundException).when(loanDeleteService).deleteLoan(any());
+
+			mockMvc.perform(delete(DELETE_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isNotFound());
+		}
+
+		@Test
+		void should_propagate_unauthorized_exception() throws Exception {
+			doThrow(new UnauthorizedException(null)).when(loanDeleteService).deleteLoan(any());
+
+			mockMvc.perform(delete(DELETE_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isForbidden());
+		}
+
+		@Test
+		void should_propagate_unauthenticated_exception() throws Exception {
+			doThrow(new UnathenticatedException()).when(loanDeleteService).deleteLoan(any());
+
+			mockMvc.perform(delete(DELETE_URL, loanResponse.getCode()).contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isUnauthorized());
 		}
 	}
 }
