@@ -336,4 +336,9 @@ public class UserService {
 		deleteUser(user);
 	}
 
+	public boolean currentUserIsAdmin() throws UnathenticatedException, NotFoundException {
+		CustomUserDetails currentUser = userDetailsService.getCurrentUserDetails();
+		return appProperties.adminRoles().contains(currentUser.getRole());
+	}
+
 }

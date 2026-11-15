@@ -1,5 +1,6 @@
 package com.tfg.cultura.api.loans.service;
 
+import static com.tfg.cultura.api.loans.factory.LoanFactory.mockSuccessfullySavedLoan;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,8 +32,8 @@ import com.tfg.cultura.api.loans.service.specifications.BoardGameLoanSpecificati
 import com.tfg.cultura.api.loans.service.specifications.LoanSpecification;
 import com.tfg.cultura.api.loans.service.specifications.RolGameLoanSpecification;
 import com.tfg.cultura.api.users.factory.UserFactory;
-import com.tfg.cultura.api.users.jwt.CustomUserDetails;
 import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
+import com.tfg.cultura.api.users.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +43,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
-class LoanServiceTest {
+class LoanCreateServiceTest {
 	@Mock
 	private LoanRepository loanRepository;
 
@@ -82,7 +83,10 @@ class LoanServiceTest {
 	@Mock
 	private RolGameLoanSpecification rolGameLoanSpecification;
 
-	private LoanService loanService;
+	@Mock
+	private UserService userService;
+
+	private LoanCreateService service;
 
 	private BoardGame boardGame;
 	private LoanCreateRequest createRequestBoardGame;
@@ -100,7 +104,7 @@ class LoanServiceTest {
 	void setUp() {
 		// No se puede usar @InjectMocks porque no distingue entre los LoanSpecification
 		// genéricos y los específicos
-		loanService = new LoanService(loanRepository, rolGameService, boardGameService, bookService, movieService,
+		service = new LoanCreateService(loanRepository, rolGameService, boardGameService, bookService, movieService,
 				seriesService, userDetailsService, loanCodeGenerator, movieLoanSpecification, bookLoanSpecification,
 				seriesLoanSpecification, boardGameLoanSpecification, rolGameLoanSpecification);
 
@@ -120,19 +124,16 @@ class LoanServiceTest {
 	// HELPERS
 
 	private void mockLoggedUser() {
-		CustomUserDetails userDetails = UserFactory.mockAuthContext(); // id = currentUserId
-		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
+		UserFactory.mockLoggedUser(userDetailsService);
 	}
 
 	private void mockLoanCode() {
 		when(loanCodeGenerator.generateUniqueCode()).thenReturn("ABC123");
 	}
 
-	private void mockSuccessfullySavedLoan() {
-		when(loanRepository.save(ArgumentMatchers.any())).thenAnswer(i -> i.getArguments()[0]);
+	private void mockSaveLoan() {
+		mockSuccessfullySavedLoan(loanRepository);
 	}
-
-	// CREATE LOAN
 
 	// Positive test cases
 
@@ -141,9 +142,9 @@ class LoanServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(boardGameService.findById(createRequestBoardGame.getItemId())).thenReturn(boardGame);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
-		LoanResponse response = loanService.createLoan(createRequestBoardGame);
+		LoanResponse response = service.createLoan(createRequestBoardGame);
 		assertEquals(createRequestBoardGame.getItemId(), response.getItemId());
 	}
 
@@ -152,9 +153,9 @@ class LoanServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(bookService.findById(createRequestBook.getItemId())).thenReturn(book);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
-		LoanResponse response = loanService.createLoan(createRequestBook);
+		LoanResponse response = service.createLoan(createRequestBook);
 		assertEquals(createRequestBook.getItemId(), response.getItemId());
 	}
 
@@ -163,9 +164,9 @@ class LoanServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(movieService.findById(createRequestMovie.getItemId())).thenReturn(movie);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
-		LoanResponse response = loanService.createLoan(createRequestMovie);
+		LoanResponse response = service.createLoan(createRequestMovie);
 		assertEquals(createRequestMovie.getItemId(), response.getItemId());
 	}
 
@@ -174,9 +175,9 @@ class LoanServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(rolGameService.findById(createRequestRolGame.getItemId())).thenReturn(rolGame);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
-		LoanResponse response = loanService.createLoan(createRequestRolGame);
+		LoanResponse response = service.createLoan(createRequestRolGame);
 		assertEquals(createRequestRolGame.getItemId(), response.getItemId());
 	}
 
@@ -185,9 +186,9 @@ class LoanServiceTest {
 		mockLoggedUser();
 		mockLoanCode();
 		when(seriesService.findById(createRequestSeries.getItemId())).thenReturn(series);
-		mockSuccessfullySavedLoan();
+		mockSaveLoan();
 
-		LoanResponse response = loanService.createLoan(createRequestSeries);
+		LoanResponse response = service.createLoan(createRequestSeries);
 		assertEquals(createRequestSeries.getItemId(), response.getItemId());
 	}
 
@@ -197,7 +198,7 @@ class LoanServiceTest {
 	void should_throw_validation_exception_when_requesting_videogame() {
 		mockLoggedUser();
 
-		assertThrows(ValidationException.class, () -> loanService.createLoan(createRequestVideoGame));
+		assertThrows(ValidationException.class, () -> service.createLoan(createRequestVideoGame));
 	}
 
 	@Test
@@ -206,7 +207,7 @@ class LoanServiceTest {
 		when(boardGameService.findById(createRequestBoardGame.getItemId())).thenReturn(boardGame);
 		doThrow(DuplicateKeyException.class).when(loanRepository).save(ArgumentMatchers.any());
 
-		FieldException ex = assertThrows(FieldException.class, () -> loanService.createLoan(createRequestBoardGame));
+		FieldException ex = assertThrows(FieldException.class, () -> service.createLoan(createRequestBoardGame));
 		assertTrue(ex.getErrors().containsKey("code"));
 	}
 
@@ -218,7 +219,7 @@ class LoanServiceTest {
 		when(boardGameService.findById(createRequestBoardGame.getItemId()))
 				.thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(NotFoundException.class, () -> loanService.createLoan(createRequestBoardGame));
+		assertThrows(NotFoundException.class, () -> service.createLoan(createRequestBoardGame));
 	}
 
 	@Test
@@ -226,7 +227,7 @@ class LoanServiceTest {
 		mockLoggedUser();
 		when(bookService.findById(createRequestBook.getItemId())).thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(NotFoundException.class, () -> loanService.createLoan(createRequestBook));
+		assertThrows(NotFoundException.class, () -> service.createLoan(createRequestBook));
 	}
 
 	@Test
@@ -234,7 +235,7 @@ class LoanServiceTest {
 		mockLoggedUser();
 		when(movieService.findById(createRequestMovie.getItemId())).thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(NotFoundException.class, () -> loanService.createLoan(createRequestMovie));
+		assertThrows(NotFoundException.class, () -> service.createLoan(createRequestMovie));
 	}
 
 	@Test
@@ -242,7 +243,7 @@ class LoanServiceTest {
 		mockLoggedUser();
 		when(rolGameService.findById(createRequestRolGame.getItemId())).thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(NotFoundException.class, () -> loanService.createLoan(createRequestRolGame));
+		assertThrows(NotFoundException.class, () -> service.createLoan(createRequestRolGame));
 	}
 
 	@Test
@@ -250,7 +251,7 @@ class LoanServiceTest {
 		mockLoggedUser();
 		when(seriesService.findById(createRequestSeries.getItemId())).thenThrow(ExceptionsFactory.notFoundException);
 
-		assertThrows(NotFoundException.class, () -> loanService.createLoan(createRequestSeries));
+		assertThrows(NotFoundException.class, () -> service.createLoan(createRequestSeries));
 	}
 
 	// - Validation cases
@@ -262,7 +263,7 @@ class LoanServiceTest {
 		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "itemId")).when(boardGameLoanSpecification)
 				.validate(boardGame, "currentUserId");
 
-		FieldException ex = assertThrows(FieldException.class, () -> loanService.createLoan(createRequestBoardGame));
+		FieldException ex = assertThrows(FieldException.class, () -> service.createLoan(createRequestBoardGame));
 		assertTrue(ex.getErrors().containsKey("itemId"));
 	}
 
@@ -273,7 +274,7 @@ class LoanServiceTest {
 		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "itemId")).when(bookLoanSpecification)
 				.validate(book, "currentUserId", ItemType.BOOK);
 
-		FieldException ex = assertThrows(FieldException.class, () -> loanService.createLoan(createRequestBook));
+		FieldException ex = assertThrows(FieldException.class, () -> service.createLoan(createRequestBook));
 		assertTrue(ex.getErrors().containsKey("itemId"));
 	}
 
@@ -284,7 +285,7 @@ class LoanServiceTest {
 		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "itemId")).when(movieLoanSpecification)
 				.validate(movie, "currentUserId", ItemType.MOVIE);
 
-		FieldException ex = assertThrows(FieldException.class, () -> loanService.createLoan(createRequestMovie));
+		FieldException ex = assertThrows(FieldException.class, () -> service.createLoan(createRequestMovie));
 		assertTrue(ex.getErrors().containsKey("itemId"));
 	}
 
@@ -295,7 +296,7 @@ class LoanServiceTest {
 		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "itemId")).when(rolGameLoanSpecification)
 				.validate(rolGame, "currentUserId");
 
-		FieldException ex = assertThrows(FieldException.class, () -> loanService.createLoan(createRequestRolGame));
+		FieldException ex = assertThrows(FieldException.class, () -> service.createLoan(createRequestRolGame));
 		assertTrue(ex.getErrors().containsKey("itemId"));
 	}
 
@@ -306,7 +307,7 @@ class LoanServiceTest {
 		doThrow(ExceptionsFactory.fieldException(HttpStatus.CONFLICT, "itemId")).when(seriesLoanSpecification)
 				.validate(series, "currentUserId", ItemType.SERIES);
 
-		FieldException ex = assertThrows(FieldException.class, () -> loanService.createLoan(createRequestSeries));
+		FieldException ex = assertThrows(FieldException.class, () -> service.createLoan(createRequestSeries));
 		assertTrue(ex.getErrors().containsKey("itemId"));
 	}
 

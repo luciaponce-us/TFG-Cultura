@@ -1,8 +1,10 @@
 package com.tfg.cultura.api.users.factory;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.tfg.cultura.api.users.jwt.CustomUserDetails;
+import com.tfg.cultura.api.users.jwt.CustomUserDetailsService;
 import com.tfg.cultura.api.users.model.User;
 import com.tfg.cultura.api.users.model.dto.UserLoginRequest;
 import com.tfg.cultura.api.users.model.dto.UserRegisterRequest;
@@ -19,6 +21,12 @@ public class UserFactory {
 		return User.builder().id("user_id").username("test").password("12345678-encrypted").name("John").surname("Doe")
 				.dni("12345678Z").phone("600123123").email("test@test.com").paymentReceipt("test.pdf")
 				.avatar("test.png").active(true).role(Role.SOCIO).build();
+	}
+
+	public static User validUserWithId(String id) {
+		User user = validUser();
+		user.setId(id);
+		return user;
 	}
 
 	public static UserResponse validUserResponseWithId(String id) {
@@ -74,6 +82,11 @@ public class UserFactory {
 		return new CustomUserDetails(user);
 	}
 
+	public static void mockLoggedUser(CustomUserDetailsService userDetailsService) {
+		CustomUserDetails userDetails = UserFactory.mockAuthContext(); // id = currentUserId
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
+	}
+
 	public static CustomUserDetails mockAuthContextAdmin() {
 		User user = validUser();
 		user.setId("currentUserId");
@@ -83,6 +96,11 @@ public class UserFactory {
 
 		SecurityContextHolder.setContext(context);
 		return new CustomUserDetails(user);
+	}
+
+	public static void mockLoggedUserAdmin(CustomUserDetailsService userDetailsService) {
+		CustomUserDetails userDetails = UserFactory.mockAuthContextAdmin(); // id = currentUserId
+		when(userDetailsService.getCurrentUserDetails()).thenReturn(userDetails);
 	}
 
 	public static MockMultipartFile valid_avatar_file() {
