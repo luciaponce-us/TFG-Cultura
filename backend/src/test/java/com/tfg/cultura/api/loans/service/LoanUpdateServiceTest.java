@@ -141,9 +141,9 @@ class LoanUpdateServiceTest {
 			}
 		}
 
-		private void mockSuccessSaveLoan(boolean isOwner, LoanStatus status, boolean isAdmin) {
+		private void mockSuccessSaveLoan(boolean isOwner, LoanStatus status, LoanStatus newStatus, boolean isAdmin) {
 			mockLoan(isOwner, status, isAdmin);
-			if (status == LoanStatus.REQUESTED) {
+			if (status == LoanStatus.REQUESTED && newStatus == LoanStatus.ACTIVE) {
 				when(boardGameService.findById(loan.getItemId())).thenReturn(CatalogFactory.validBoardGame());
 			}
 			String ownerId = isOwner ? "currentUserId" : "otherUserId";
@@ -154,7 +154,7 @@ class LoanUpdateServiceTest {
 
 		@Test
 		void should_update_loan_status_when_user_is_admin_and_not_loan_owner() {
-			mockSuccessSaveLoan(false, LoanStatus.REQUESTED, true);
+			mockSuccessSaveLoan(false, LoanStatus.REQUESTED, LoanStatus.ACTIVE, true);
 			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.ACTIVE);
 
 			assertEquals(LoanStatus.ACTIVE, loan.getStatus());
@@ -165,7 +165,7 @@ class LoanUpdateServiceTest {
 
 		@Test
 		void should_update_loan_from_requested_to_cancelled_when_user_is_loan_owner() {
-			mockSuccessSaveLoan(true, LoanStatus.REQUESTED, false);
+			mockSuccessSaveLoan(true, LoanStatus.REQUESTED, LoanStatus.CANCELLED, false);
 			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.CANCELLED);
 
 			assertEquals(LoanStatus.CANCELLED, loan.getStatus());
@@ -182,7 +182,7 @@ class LoanUpdateServiceTest {
 
 		@Test
 		void should_update_loan_from_requested_to_rejected_when_user_is_admin() {
-			mockSuccessSaveLoan(false, LoanStatus.REQUESTED, true);
+			mockSuccessSaveLoan(false, LoanStatus.REQUESTED, LoanStatus.REJECTED, true);
 			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.REJECTED);
 
 			assertEquals(LoanStatus.REJECTED, loan.getStatus());
@@ -199,7 +199,7 @@ class LoanUpdateServiceTest {
 
 		@Test
 		void should_update_loan_from_requested_to_active_when_user_is_admin() {
-			mockSuccessSaveLoan(false, LoanStatus.REQUESTED, true);
+			mockSuccessSaveLoan(false, LoanStatus.REQUESTED, LoanStatus.ACTIVE, true);
 			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.ACTIVE);
 
 			assertEquals(LoanStatus.ACTIVE, loan.getStatus());
@@ -214,7 +214,7 @@ class LoanUpdateServiceTest {
 
 		@Test
 		void should_update_loan_from_active_to_returned_when_user_is_admin() {
-			mockSuccessSaveLoan(false, LoanStatus.ACTIVE, true);
+			mockSuccessSaveLoan(false, LoanStatus.ACTIVE, LoanStatus.RETURNED, true);
 			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.RETURNED);
 
 			assertEquals(LoanStatus.RETURNED, loan.getStatus());
@@ -227,7 +227,7 @@ class LoanUpdateServiceTest {
 
 		@Test
 		void should_update_loan_from_overdue_to_returned_when_user_is_admin() {
-			mockSuccessSaveLoan(false, LoanStatus.OVERDUE, true);
+			mockSuccessSaveLoan(false, LoanStatus.OVERDUE, LoanStatus.RETURNED, true);
 			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.RETURNED);
 
 			assertEquals(LoanStatus.RETURNED, loan.getStatus());
