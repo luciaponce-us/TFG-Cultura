@@ -22,9 +22,7 @@ public class LoanReadService extends LoanService {
 	}
 
 	private Page<LoanResponse> toResponsePage(Page<Loan> loans) {
-		return loans.map(loan -> {
-			return toResponse(loan);
-		});
+		return loans.map(this::toResponse);
 	}
 
 	public Page<LoanResponse> getAllLoans(Pageable pageable, String username, String itemId) throws NotFoundException {

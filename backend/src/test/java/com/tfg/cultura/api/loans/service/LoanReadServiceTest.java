@@ -216,7 +216,7 @@ class LoanReadServiceTest {
 		// Negative test cases
 
 		@Test
-		void should_throw_not_found_exception_when_loan_code_does_not_exist() throws Exception {
+		void should_throw_not_found_exception_when_loan_code_does_not_exist(){
 			String loanCode = "nonexistentCode";
 			when(loanRepository.findByCode(loanCode)).thenReturn(Optional.empty());
 
@@ -225,7 +225,7 @@ class LoanReadServiceTest {
 		}
 
 		@Test
-		void should_throw_unauthorized_exception_when_current_user_is_not_owner_nor_admin() throws Exception {
+		void should_throw_unauthorized_exception_when_current_user_is_not_owner_nor_admin(){
 			mockLoggedUser();
 			Loan loan = LoanFactory.boardGameLoan("otherUserId");
 			String loanCode = loan.getCode();

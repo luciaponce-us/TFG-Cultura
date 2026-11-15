@@ -37,30 +37,32 @@ class LoanDeleteServiceTest {
 	private LoanDeleteService loanDeleteService;
 
 	private Loan loan;
+	private String loanCode;
 
 	@BeforeEach
 	void setUp() {
 		loan = LoanFactory.boardGameLoan("currentUserId");
+		loanCode = loan.getCode();
 	}
 
 	@Test
 	void should_delete_loan_successfully_when_current_user_is_owner() {
-		when(loanRepository.findByCode(loan.getCode())).thenReturn(Optional.of(loan));
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.of(loan));
 		mockLoggedUser(userDetailsService);
 		when(userService.currentUserIsAdmin()).thenReturn(false);
 
-		loanDeleteService.deleteLoan(loan.getCode());
+		loanDeleteService.deleteLoan(loanCode);
 
 		verify(loanRepository).delete(loan);
 	}
 
 	@Test
 	void should_delete_loan_successfully_when_current_user_is_admin() {
-		when(loanRepository.findByCode(loan.getCode())).thenReturn(Optional.of(loan));
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.of(loan));
 		mockLoggedUser(userDetailsService);
 		when(userService.currentUserIsAdmin()).thenReturn(true);
 
-		loanDeleteService.deleteLoan(loan.getCode());
+		loanDeleteService.deleteLoan(loanCode);
 
 		verify(loanRepository).delete(loan);
 	}
@@ -68,40 +70,40 @@ class LoanDeleteServiceTest {
 	@Test
 	void should_delete_loan_successfully_when_current_user_is_admin_and_not_owner() {
 		loan.setUserId("differentUserId");
-		when(loanRepository.findByCode(loan.getCode())).thenReturn(Optional.of(loan));
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.of(loan));
 		mockLoggedUser(userDetailsService);
 		when(userService.currentUserIsAdmin()).thenReturn(true);
 
-		loanDeleteService.deleteLoan(loan.getCode());
+		loanDeleteService.deleteLoan(loanCode);
 
 		verify(loanRepository).delete(loan);
 	}
 
 	@Test
 	void should_throw_exception_when_loan_not_found() {
-		when(loanRepository.findByCode(loan.getCode())).thenReturn(Optional.empty());
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.empty());
 
-		assertThrows(NotFoundException.class, () -> loanDeleteService.deleteLoan(loan.getCode()));
+		assertThrows(NotFoundException.class, () -> loanDeleteService.deleteLoan(loanCode));
 	}
 
 	@Test
 	void should_throw_exception_when_user_not_authorized() {
 		loan.setUserId("differentUserId");
-		when(loanRepository.findByCode(loan.getCode())).thenReturn(Optional.of(loan));
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.of(loan));
 		mockLoggedUser(userDetailsService);
 		when(userService.currentUserIsAdmin()).thenReturn(false);
 
-		assertThrows(UnauthorizedException.class, () -> loanDeleteService.deleteLoan(loan.getCode()));
+		assertThrows(UnauthorizedException.class, () -> loanDeleteService.deleteLoan(loanCode));
 	}
 
 	@Test
 	void should_throw_exception_when_user_not_authenticated() {
 		loan.setUserId("differentUserId");
-		when(loanRepository.findByCode(loan.getCode())).thenReturn(Optional.of(loan));
+		when(loanRepository.findByCode(loanCode)).thenReturn(Optional.of(loan));
 		when(userDetailsService.getCurrentUserDetails())
 				.thenThrow(new UnathenticatedException("User not authenticated"));
 
-		assertThrows(UnathenticatedException.class, () -> loanDeleteService.deleteLoan(loan.getCode()));
+		assertThrows(UnathenticatedException.class, () -> loanDeleteService.deleteLoan(loanCode));
 	}
 
 }

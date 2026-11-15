@@ -70,10 +70,12 @@ class LoanUpdateServiceTest {
 	private LoanUpdateService loanUpdateService;
 
 	private Loan loan;
+	private String loanCode;
 
 	@BeforeEach
 	void setUp() {
 		loan = LoanFactory.validLoan("currentUserId", LoanStatus.REQUESTED);
+		loanCode = loan.getCode();
 	}
 
 	private void mockLoggedUser() {
@@ -101,7 +103,7 @@ class LoanUpdateServiceTest {
 		doThrow(UnathenticatedException.class).when(userService).currentUserIsAdmin();
 
 		assertThrows(UnathenticatedException.class, () -> {
-			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.ACTIVE);
+			loanUpdateService.updateLoanStatus(loanCode, LoanStatus.ACTIVE);
 		});
 
 		verify(loanRepository, never()).save(any(Loan.class));
@@ -110,15 +112,15 @@ class LoanUpdateServiceTest {
 	@Test
 	void should_throw_UnauthorizedException_when_user_not_admin_and_not_loan_owner() {
 		loan.setUserId("otherUserId");
-		assertNotEquals(loan.getUserId(), "currentUserId");
+		assertNotEquals("currentUserId", loan.getUserId());
 		when(loanRepository.findByCode(anyString())).thenReturn(Optional.of(loan));
 		mockLoggedUser();
 
 		assertThrows(UnauthorizedException.class, () -> {
-			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.ACTIVE);
+			loanUpdateService.updateLoanStatus(loanCode, LoanStatus.ACTIVE);
 		});
 
-		verify(loanRepository).findByCode(loan.getCode());
+		verify(loanRepository).findByCode(loanCode);
 		verify(loanRepository, never()).save(any(Loan.class));
 	}
 
@@ -155,18 +157,18 @@ class LoanUpdateServiceTest {
 		@Test
 		void should_update_loan_status_when_user_is_admin_and_not_loan_owner() {
 			mockSuccessSaveLoan(false, LoanStatus.REQUESTED, LoanStatus.ACTIVE, true);
-			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.ACTIVE);
+			loanUpdateService.updateLoanStatus(loanCode, LoanStatus.ACTIVE);
 
 			assertEquals(LoanStatus.ACTIVE, loan.getStatus());
 
-			verify(loanRepository).findByCode(loan.getCode());
+			verify(loanRepository).findByCode(loanCode);
 			verify(loanRepository).save(any(Loan.class));
 		}
 
 		@Test
 		void should_update_loan_from_requested_to_cancelled_when_user_is_loan_owner() {
 			mockSuccessSaveLoan(true, LoanStatus.REQUESTED, LoanStatus.CANCELLED, false);
-			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.CANCELLED);
+			loanUpdateService.updateLoanStatus(loanCode, LoanStatus.CANCELLED);
 
 			assertEquals(LoanStatus.CANCELLED, loan.getStatus());
 			assertNotNull(loan.getRequestDate());
@@ -176,14 +178,14 @@ class LoanUpdateServiceTest {
 			assertNull(loan.getDueDate());
 			assertNull(loan.getReturnDate());
 
-			verify(loanRepository).findByCode(loan.getCode());
+			verify(loanRepository).findByCode(loanCode);
 			verify(loanRepository).save(any(Loan.class));
 		}
 
 		@Test
 		void should_update_loan_from_requested_to_rejected_when_user_is_admin() {
 			mockSuccessSaveLoan(false, LoanStatus.REQUESTED, LoanStatus.REJECTED, true);
-			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.REJECTED);
+			loanUpdateService.updateLoanStatus(loanCode, LoanStatus.REJECTED);
 
 			assertEquals(LoanStatus.REJECTED, loan.getStatus());
 			assertNotNull(loan.getRequestDate());
@@ -193,14 +195,14 @@ class LoanUpdateServiceTest {
 			assertNull(loan.getDueDate());
 			assertNull(loan.getReturnDate());
 
-			verify(loanRepository).findByCode(loan.getCode());
+			verify(loanRepository).findByCode(loanCode);
 			verify(loanRepository).save(any(Loan.class));
 		}
 
 		@Test
 		void should_update_loan_from_requested_to_active_when_user_is_admin() {
 			mockSuccessSaveLoan(false, LoanStatus.REQUESTED, LoanStatus.ACTIVE, true);
-			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.ACTIVE);
+			loanUpdateService.updateLoanStatus(loanCode, LoanStatus.ACTIVE);
 
 			assertEquals(LoanStatus.ACTIVE, loan.getStatus());
 			assertNotNull(loan.getRequestDate());
@@ -208,33 +210,33 @@ class LoanUpdateServiceTest {
 			LocalDate expectedDueDate = loan.getStartDate().plusDays(CatalogFactory.validBoardGame().getLoanDays());
 			assertEquals(expectedDueDate, loan.getDueDate());
 
-			verify(loanRepository).findByCode(loan.getCode());
+			verify(loanRepository).findByCode(loanCode);
 			verify(loanRepository).save(any(Loan.class));
 		}
 
 		@Test
 		void should_update_loan_from_active_to_returned_when_user_is_admin() {
 			mockSuccessSaveLoan(false, LoanStatus.ACTIVE, LoanStatus.RETURNED, true);
-			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.RETURNED);
+			loanUpdateService.updateLoanStatus(loanCode, LoanStatus.RETURNED);
 
 			assertEquals(LoanStatus.RETURNED, loan.getStatus());
 			assertNotNull(loan.getRequestDate());
 			assertNotNull(loan.getReturnDate());
 
-			verify(loanRepository).findByCode(loan.getCode());
+			verify(loanRepository).findByCode(loanCode);
 			verify(loanRepository).save(any(Loan.class));
 		}
 
 		@Test
 		void should_update_loan_from_overdue_to_returned_when_user_is_admin() {
 			mockSuccessSaveLoan(false, LoanStatus.OVERDUE, LoanStatus.RETURNED, true);
-			loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.RETURNED);
+			loanUpdateService.updateLoanStatus(loanCode, LoanStatus.RETURNED);
 
 			assertEquals(LoanStatus.RETURNED, loan.getStatus());
 			assertNotNull(loan.getRequestDate());
 			assertNotNull(loan.getReturnDate());
 
-			verify(loanRepository).findByCode(loan.getCode());
+			verify(loanRepository).findByCode(loanCode);
 			verify(loanRepository).save(any(Loan.class));
 		}
 	}
@@ -243,8 +245,7 @@ class LoanUpdateServiceTest {
 	@DisplayName("Loan status update negative tests")
 	class LoanStatusUpdateNegativeTests {
 
-		private void mockInvalidStatusChange(boolean isOwner, LoanStatus currentStatus, LoanStatus newStatus,
-				boolean isAdmin) {
+		private void mockInvalidStatusChange(boolean isOwner, LoanStatus currentStatus, boolean isAdmin) {
 			String ownerId = isOwner ? "currentUserId" : "otherUserId";
 			loan = LoanFactory.validLoan(ownerId, currentStatus);
 
@@ -257,17 +258,17 @@ class LoanUpdateServiceTest {
 
 		private ValidationException invalidStatusChange(boolean isOwner, LoanStatus currentStatus, LoanStatus newStatus,
 				boolean isAdmin) {
-			mockInvalidStatusChange(isOwner, currentStatus, newStatus, isAdmin);
+			mockInvalidStatusChange(isOwner, currentStatus, isAdmin);
 			return assertThrows(ValidationException.class, () -> {
-				loanUpdateService.updateLoanStatus(loan.getCode(), newStatus);
+				loanUpdateService.updateLoanStatus(loanCode, newStatus);
 			});
 		}
 
 		@Test
 		void should_throw_UnauthorizedException_when_change_from_status_different_than_requested_and_user_is_not_admin() {
-			mockInvalidStatusChange(true, LoanStatus.CANCELLED, LoanStatus.ACTIVE, false);
+			mockInvalidStatusChange(true, LoanStatus.CANCELLED, false);
 			UnauthorizedException ex = assertThrows(UnauthorizedException.class, () -> {
-				loanUpdateService.updateLoanStatus(loan.getCode(), LoanStatus.ACTIVE);
+				loanUpdateService.updateLoanStatus(loanCode, LoanStatus.ACTIVE);
 			});
 			assertTrue(ex.getMessage().contains("préstamo"));
 		}

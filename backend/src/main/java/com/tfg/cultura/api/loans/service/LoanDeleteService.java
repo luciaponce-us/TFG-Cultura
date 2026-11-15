@@ -10,6 +10,8 @@ import com.tfg.cultura.api.users.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 @Service
 public class LoanDeleteService extends LoanService {
 
@@ -23,7 +25,7 @@ public class LoanDeleteService extends LoanService {
 		Loan loan = findLoanByCode(loanCode);
 
 		loanRepository.delete(loan);
-		logger.info("Préstamo {} eliminado por el usuario {}", loanCode,
+		logger.info("Préstamo {} eliminado por el usuario {}", sanitize(loanCode),
 				userDetailsService.getCurrentUserDetails().getId());
 	}
 }

@@ -23,6 +23,8 @@ import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.tfg.cultura.api.core.utils.LoggerSanitizer.sanitize;
+
 @Service
 public class LoanUpdateService extends LoanService {
 
@@ -32,6 +34,8 @@ public class LoanUpdateService extends LoanService {
 	private final BookService bookService;
 	private final MovieService movieService;
 	private final SeriesService seriesService;
+
+	private static final ZoneId MADRID_ZONE_ID = ZoneId.of("Europe/Madrid");
 
 	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
 	public LoanUpdateService(LoanRepository loanRepository, CustomUserDetailsService userDetailsService,
@@ -43,6 +47,10 @@ public class LoanUpdateService extends LoanService {
 		this.bookService = bookService;
 		this.movieService = movieService;
 		this.seriesService = seriesService;
+	}
+
+	private void throwStatusError(String message) throws ValidationException {
+		throw new ValidationException(logger, Map.of("status", message));
 	}
 
 	private void validateNewStatus(LoanStatus oldStatus, LoanStatus newStatus, boolean isAdmin)
@@ -59,35 +67,30 @@ public class LoanUpdateService extends LoanService {
 		if (oldStatus != LoanStatus.REQUESTED)
 			throw new UnauthorizedException("No tiene permiso para actualizar el estado del préstamo.");
 		if (newStatus != LoanStatus.CANCELLED)
-			throw new ValidationException(logger,
-					Map.of("status", "Un préstamo solicitado solo puede pasar a CANCELADO."));
+			throwStatusError("Un préstamo solicitado solo puede pasar a CANCELADO.");
 	}
 
 	private void validateNewStatusAdmin(LoanStatus oldStatus, LoanStatus newStatus) throws ValidationException {
 		switch (oldStatus) {
 			case REQUESTED :
 				if (newStatus != LoanStatus.ACTIVE && newStatus != LoanStatus.REJECTED)
-					throw new ValidationException(logger,
-							Map.of("status", "Un préstamo solicitado solo puede pasar a ACTIVO o RECHAZADO."));
+					throwStatusError("Un préstamo solicitado solo puede pasar a ACTIVO o RECHAZADO.");
 				break;
 			case ACTIVE :
 				if (newStatus != LoanStatus.RETURNED)
-					throw new ValidationException(logger,
-							Map.of("status", "Un préstamo activo solo puede pasar a ATRASADO o DEVUELTO."));
+					throwStatusError("Un préstamo activo solo puede pasar a ATRASADO o DEVUELTO.");
 				break;
 			case OVERDUE :
 				if (newStatus != LoanStatus.RETURNED)
-					throw new ValidationException(logger,
-							Map.of("status", "Un préstamo atrasado solo puede pasar a DEVUELTO."));
+					throwStatusError("Un préstamo atrasado solo puede pasar a DEVUELTO.");
 				break;
 			default :
-				throw new ValidationException(logger,
-						Map.of("status", "Un préstamo rechazado, cancelado o devuelto no puede cambiar de estado."));
+				throwStatusError("Un préstamo rechazado, cancelado o devuelto no puede cambiar de estado.");
 		}
 	}
 
 	@SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "findById is type-safe through AbstractItemService<T>")
-	private Integer getLoanDays(ItemType itemType, String itemId) throws NotFoundException {
+	private Integer getLoanDays(ItemType itemType, String itemId) throws NotFoundException, ValidationException {
 		switch (itemType) {
 			case BOOK :
 				return bookService.findById(itemId).getLoanDays();
@@ -101,19 +104,19 @@ public class LoanUpdateService extends LoanService {
 				return rolGameService.findById(itemId).getLoanDays();
 			default :
 				// RN-20: No hay préstamos de videojuegos
-				throw new ValidationException(logger,
-						Map.of("status", "No se puede actualizar el estado de este préstamo."));
+				throwStatusError("No se puede actualizar el estado de este préstamo.");
+				return null; // Esta línea nunca se ejecutará, pero es necesaria para compilar
 		}
 	}
 
 	private Loan updateLoanDates(Loan loan, LoanStatus newStatus, ItemType itemType) throws NotFoundException {
-		LocalDate currentDate = LocalDate.now(ZoneId.of("Europe/Madrid"));
+		LocalDate currentDate = LocalDate.now(MADRID_ZONE_ID);
 		switch (newStatus) {
 			case LoanStatus.CANCELLED :
-				loan.setCancelDate(LocalDate.now());
+				loan.setCancelDate(currentDate);
 				break;
 			case LoanStatus.REJECTED :
-				loan.setRejectionDate(LocalDate.now());
+				loan.setRejectionDate(currentDate);
 				break;
 			case LoanStatus.ACTIVE :
 				Integer loanDays = getLoanDays(itemType, loan.getItemId());
@@ -143,7 +146,7 @@ public class LoanUpdateService extends LoanService {
 		loan.setStatus(newStatus);
 		Loan updatedLoan = loanRepository.save(loan);
 
-		logger.info("Préstamo {} actualizado a estado {} por el usuario {}", loanCode, newStatus,
+		logger.info("Préstamo {} actualizado a estado {} por el usuario {}", sanitize(loanCode), newStatus,
 				userDetailsService.getCurrentUserDetails().getId());
 
 		return toResponse(updatedLoan);
