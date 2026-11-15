@@ -19,6 +19,7 @@ import com.tfg.cultura.api.users.service.UserService;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Map;
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class LoanUpdateService extends LoanService {
 	private final MovieService movieService;
 	private final SeriesService seriesService;
 
+	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring dependency injection")
 	public LoanUpdateService(LoanRepository loanRepository, CustomUserDetailsService userDetailsService,
 			UserService userService, RolGameService rolGameService, BoardGameService boardGameService,
 			BookService bookService, MovieService movieService, SeriesService seriesService) {
@@ -84,6 +86,7 @@ public class LoanUpdateService extends LoanService {
 		}
 	}
 
+	@SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "findById is type-safe through AbstractItemService<T>")
 	private Integer getLoanDays(ItemType itemType, String itemId) throws NotFoundException {
 		switch (itemType) {
 			case BOOK :
@@ -108,14 +111,18 @@ public class LoanUpdateService extends LoanService {
 		switch (newStatus) {
 			case LoanStatus.CANCELLED :
 				loan.setCancelDate(LocalDate.now());
+				break;
 			case LoanStatus.REJECTED :
 				loan.setRejectionDate(LocalDate.now());
+				break;
 			case LoanStatus.ACTIVE :
 				Integer loanDays = getLoanDays(itemType, loan.getItemId());
 				loan.setStartDate(currentDate);
 				loan.setDueDate(currentDate.plusDays(loanDays));
+				break;
 			case LoanStatus.RETURNED :
 				loan.setReturnDate(currentDate);
+				break;
 			default :
 				// No se actualizan fechas para los estados REQUESTED y OVERDUE
 				break;

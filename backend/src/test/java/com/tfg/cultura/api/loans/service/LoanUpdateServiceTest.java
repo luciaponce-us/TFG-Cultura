@@ -4,6 +4,7 @@ import static com.tfg.cultura.api.loans.factory.LoanFactory.mockSuccessfullySave
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -170,6 +171,10 @@ class LoanUpdateServiceTest {
 			assertEquals(LoanStatus.CANCELLED, loan.getStatus());
 			assertNotNull(loan.getRequestDate());
 			assertNotNull(loan.getCancelDate());
+			assertNull(loan.getRejectionDate());
+			assertNull(loan.getStartDate());
+			assertNull(loan.getDueDate());
+			assertNull(loan.getReturnDate());
 
 			verify(loanRepository).findByCode(loan.getCode());
 			verify(loanRepository).save(any(Loan.class));
@@ -183,6 +188,10 @@ class LoanUpdateServiceTest {
 			assertEquals(LoanStatus.REJECTED, loan.getStatus());
 			assertNotNull(loan.getRequestDate());
 			assertNotNull(loan.getRejectionDate());
+			assertNull(loan.getCancelDate());
+			assertNull(loan.getStartDate());
+			assertNull(loan.getDueDate());
+			assertNull(loan.getReturnDate());
 
 			verify(loanRepository).findByCode(loan.getCode());
 			verify(loanRepository).save(any(Loan.class));
