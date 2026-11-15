@@ -3,10 +3,10 @@ package com.tfg.cultura.api.loans.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -318,8 +318,8 @@ class LoanControllerTest extends BaseControllerTest {
 		}
 	}
 
-	@Nested 
-	@DisplayName ("DELETE /api/loans/{loanCode} - Delete Loan")
+	@Nested
+	@DisplayName("DELETE /api/loans/{loanCode} - Delete Loan")
 	class DeleteLoanTests {
 
 		private static final String DELETE_URL = BASE_URL + "/{loanCode}";
